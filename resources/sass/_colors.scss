@@ -1,0 +1,63 @@
+// Color Variables
+$blue: #395575;
+$indigo: #0d234c;
+$purple: #9B59B6;
+$pink: #e864b6;
+$red: #dc5e60;
+$orange: #ff7b00;
+$yellow: #FBD465;
+$green: #28a745;
+$teal: #1ABC9C;
+$cyan: #0088A4;
+$darkcyan: #005E70;
+$white: #fff;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black: #000;
+
+// Combining all colors
+$colors: (
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
+    "darkcyan": $darkcyan,
+    "white": $white,
+    "gray-100": $gray-100,
+    "gray-200": $gray-200,
+    "gray-300": $gray-300,
+    "gray-400": $gray-400,
+    "gray-500": $gray-500,
+    "gray-600": $gray-600,
+    "gray-700": $gray-700,
+    "gray-800": $gray-800,
+    "gray-900": $gray-900,
+    "black": $black
+);
+
+// Generate background color classes
+@each $color-name, $color-value in $colors {
+    .bg-#{$color-name} {
+        background-color: $color-value !important;
+    }
+}
+
+// Generate text color classes
+@each $color-name, $color-value in $colors {
+    .text-#{$color-name} {
+        color: $color-value !important;
+    }
+}
