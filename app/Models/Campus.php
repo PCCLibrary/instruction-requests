@@ -7,31 +7,26 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 /**
- * Class instructor
+ * Class Campus
  * @package App\Models
- * @version January 26, 2024, 11:59 pm UTC
+ * @version February 1, 2024, 11:27 pm UTC
  *
  * @property string $name
- * @property string $display_name
- * @property string $email
- * @property string $phone
+ * @property string $code
  */
-class instructor extends Model
+class Campus extends Model
 {
     use SoftDeletes;
 
 
-    public $table = 'instructors';
-
+    public $table = 'campuses';
 
     protected $dates = ['deleted_at'];
 
 
     public $fillable = [
         'name',
-        'display_name',
-        'email',
-        'phone'
+        'code'
     ];
 
     /**
@@ -42,9 +37,7 @@ class instructor extends Model
     protected $casts = [
         'id' => 'integer',
         'name' => 'string',
-        'display_name' => 'string',
-        'email' => 'string',
-        'phone' => 'string'
+        'code' => 'string'
     ];
 
     /**
