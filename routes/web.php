@@ -49,4 +49,8 @@ Route::post(
 
 Route::resource('instructors', App\Http\Controllers\instructorController::class);
 
-Route::resource('requests', App\Http\Controllers\requestController::class);
+
+Route::resource('campuses', App\Http\Controllers\CampusController::class);
+
+
+Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');

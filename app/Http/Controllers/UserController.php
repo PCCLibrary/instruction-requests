@@ -9,10 +9,11 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Flash;
 use Response;
+use Hash;
 
 class UserController extends AppBaseController
 {
-    /** @var UserRepository $userRepository*/
+    /** @var $userRepository UserRepository */
     private $userRepository;
 
     public function __construct(UserRepository $userRepo)
@@ -31,8 +32,7 @@ class UserController extends AppBaseController
     {
         $users = $this->userRepository->all();
 
-        return view('users.index')
-            ->with('users', $users);
+        return view('users.index')->with('users', $users);
     }
 
     /**
@@ -55,7 +55,7 @@ class UserController extends AppBaseController
     public function store(CreateUserRequest $request)
     {
         $input = $request->all();
-
+        $input['password'] = Hash::make($input['password']);
         $user = $this->userRepository->create($input);
 
         Flash::success('User saved successfully.');
@@ -120,8 +120,13 @@ class UserController extends AppBaseController
 
             return redirect(route('users.index'));
         }
-
-        $user = $this->userRepository->update($request->all(), $id);
+        $input =  $request->all();
+        if (!empty($input['password'])) {
+            $input['password'] = Hash::make($input['password']);
+        } else {
+            unset($input['password']);
+        }
+        $user = $this->userRepository->update($input, $id);
 
         Flash::success('User updated successfully.');
 
