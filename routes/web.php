@@ -1,27 +1,27 @@
 <?php
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PublicInstructionRequestsController;
+
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Public Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
+| These routes are publicly accessible and do not require authentication.
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Welcome page with the public form to create instruction requests.
+Route::get('/', [PublicInstructionRequestsController::class, 'create'])->name('public.instructions.create');
 
-Auth::routes();
+// Store the submitted instruction request from the public form.
+Route::post('instruction-requests', [PublicInstructionRequestsController::class, 'store'])->name('public.instructions.store');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
+// Database connection test route.
 Route::get('/db-test', function () {
     try {
         $databaseName = DB::connection()->getDatabaseName();
@@ -31,29 +31,56 @@ Route::get('/db-test', function () {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+|
+| Routes for user authentication. This is handled by Laravel's Auth::routes().
+|
+*/
 
-Route::get('generator_builder', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@builder')->name('io_generator_builder');
+Auth::routes();
 
-Route::get('field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@fieldTemplate')->name('io_field_template');
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+|
+| Routes that require the user to be authenticated. They are within the "auth" middleware.
+|
+*/
 
-Route::get('relation_field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@relationFieldTemplate')->name('io_relation_field_template');
+// Home/dashboard page for authenticated users.
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
-Route::post('generator_builder/generate', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generate')->name('io_generator_builder_generate');
+// Resource route for managing instructors (accessible only by authenticated users).
+Route::resource('instructors', App\Http\Controllers\instructorController::class)->middleware('auth');
 
-Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
+// Resource route for managing campuses (accessible only by authenticated users).
+Route::resource('campuses', App\Http\Controllers\CampusController::class)->middleware('auth');
 
-Route::post(
-    'generator_builder/generate-from-file',
-    '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile'
-)->name('io_generator_builder_generate_from_file');
-
-Route::resource('instructors', App\Http\Controllers\instructorController::class);
-
-
-Route::resource('campuses', App\Http\Controllers\CampusController::class);
-
-
+// Resource route for managing users (accessible only by authenticated users).
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
 
+// Resource route for managing instruction requests (accessible only by authenticated users).
+Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestsController::class)->middleware('auth');
 
-Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestsController::class);
+/*
+|--------------------------------------------------------------------------
+| InfyOm Generator Builder Routes
+|--------------------------------------------------------------------------
+|
+| Routes for the InfyOm Generator Builder which is a tool to generate files
+| like models, controllers, views, etc., for your CRUD applications.
+|
+*/
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('generator_builder', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@builder')->name('io_generator_builder');
+    Route::get('field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@fieldTemplate')->name('io_field_template');
+    Route::get('relation_field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@relationFieldTemplate')->name('io_relation_field_template');
+    Route::post('generator_builder/generate', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generate')->name('io_generator_builder_generate');
+    Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
+    Route::post('generator_builder/generate-from-file', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile')->name('io_generator_builder_generate_from_file');
+});
