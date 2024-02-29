@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\InstructionRequestsDataTable;
+use App\DataTables\InstructionRequestDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateInstructionRequestsRequest;
 use App\Http\Requests\UpdateInstructionRequestsRequest;
@@ -26,13 +26,13 @@ class InstructionRequestsController extends AppBaseController
     /**
      * Display a listing of the InstructionRequests.
      *
-     * @param InstructionRequestsDataTable $instructionRequestsDataTable
+     * @param InstructionRequestDataTable $instructionRequestDataTable
      *
      * @return Response
      */
-    public function index(InstructionRequestsDataTable $instructionRequestsDataTable)
+    public function index(InstructionRequestDataTable $instructionRequestDataTable)
     {
-        return $instructionRequestsDataTable->render('instruction_requests.index');
+        return $instructionRequestDataTable->render('instruction_requests.index');
     }
 
     /**

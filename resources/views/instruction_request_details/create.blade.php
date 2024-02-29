@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1>Edit Instruction Requests</h1>
+                    <h1>Create Instruction Request Details</h1>
                 </div>
             </div>
         </div>
@@ -17,17 +17,19 @@
 
         <div class="card">
 
-            {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}
+            {!! Form::open(['route' => 'instructionRequestDetails.store', 'files' => true]) !!}
 
             <div class="card-body">
+
                 <div class="row">
-                    @include('instruction_requests.fields')
+                    @include('instruction_request_details.fields')
                 </div>
+
             </div>
 
             <div class="card-footer">
                 {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('instructionRequests.index') }}" class="btn btn-default">Cancel</a>
+                <a href="{{ route('instructionRequestDetails.index') }}" class="btn btn-default">Cancel</a>
             </div>
 
             {!! Form::close() !!}

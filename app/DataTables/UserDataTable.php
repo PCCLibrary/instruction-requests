@@ -2,32 +2,35 @@
 
 namespace App\DataTables;
 
-use App\Models\InstructionRequests;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Yajra\DataTables\DataTableAbstract;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
+use App\DataTables\instructorDataTable;
 
-class InstructionRequestsDataTable extends DataTable
+class UserDataTable extends DataTable
 {
     /**
      * Build DataTable class.
      *
      * @param mixed $query Results from query() method.
-     * @return \Yajra\DataTables\DataTableAbstract
+     * @return DataTableAbstract
      */
     public function dataTable($query)
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'instruction_requests.datatables_actions');
+        return $dataTable->addColumn('action', 'users.datatables_actions');
     }
 
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\InstructionRequests $model
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param User $model
+     * @return Builder
      */
-    public function query(InstructionRequests $model)
+    public function query(User $model)
     {
         return $model->newQuery();
     }
@@ -65,16 +68,9 @@ class InstructionRequestsDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'instructor_name',
+            'name',
             'display_name',
-            'instructor_email',
-            'instructor_phone',
-            'instruction_type',
-            'course_modality',
-            'librarian',
-            'class_location',
-            'course_department',
-            'course_number'
+            'email',
         ];
     }
 
@@ -85,6 +81,6 @@ class InstructionRequestsDataTable extends DataTable
      */
     protected function filename()
     {
-        return 'instruction_requests_datatable_' . time();
+        return 'users_datatable_' . time();
     }
 }

@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PublicInstructionRequestsController;
+use App\Http\Controllers\PublicInstructionRequestController;
 
 
 /*
@@ -16,7 +16,7 @@ use App\Http\Controllers\PublicInstructionRequestsController;
 */
 
 // Welcome page with the public form to create instruction requests.
-Route::get('/', [PublicInstructionRequestsController::class, 'create'])->name('public.instructions.create');
+Route::get('/', [PublicInstructionRequestController::class, 'create'])->name('public.instructions.create');
 
 // Store the submitted instruction request from the public form.
 Route::post('instruction-requests', [PublicInstructionRequestsController::class, 'store'])->name('public.instructions.store');
@@ -52,7 +52,7 @@ Auth::routes();
 */
 
 // Home/dashboard page for authenticated users.
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
 // Resource route for managing instructors (accessible only by authenticated users).
 Route::resource('instructors', App\Http\Controllers\instructorController::class)->middleware('auth');
@@ -64,7 +64,7 @@ Route::resource('campuses', App\Http\Controllers\CampusController::class)->middl
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
 
 // Resource route for managing instruction requests (accessible only by authenticated users).
-Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestsController::class)->middleware('auth');
+Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestController::class)->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -84,3 +84,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
     Route::post('generator_builder/generate-from-file', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile')->name('io_generator_builder_generate_from_file');
 });
+
+
+Route::resource('classes', App\Http\Controllers\ClassesController::class);
+
+
+Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class);
