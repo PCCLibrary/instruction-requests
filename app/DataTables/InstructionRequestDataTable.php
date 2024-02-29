@@ -3,7 +3,10 @@
 namespace App\DataTables;
 
 use App\Models\InstructionRequest;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\DataTableAbstract;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 
@@ -13,7 +16,7 @@ class InstructionRequestDataTable extends DataTable
      * Build DataTable class.
      *
      * @param mixed $query Results from query() method.
-     * @return \Yajra\DataTables\DataTableAbstract
+     * @return DataTableAbstract
      */
 
     public function dataTable($query)
@@ -23,22 +26,30 @@ class InstructionRequestDataTable extends DataTable
         return $dataTable
             ->addColumn('action', 'instruction_requests.datatables_actions')
             ->editColumn('instructor_name', function ($row) {
-//                Log::debug('instructor_name value for row ' . $row->id . ': ' . $row->instructor_name);
-                return $row->instructor_name;
+//                return $row->instructor_name;
+                return '<a href="mailto:' . $row->instructor_email . '" title="click to email"><i class="fa fa-envelope"></i> ' . $row->instructor_name . '</a>';
+
             })
-            ->editColumn('instructor_email', function ($row) {
-//                Log::debug('instructor_email value for row ' . $row->id . ': ' . $row->instructor_email);
-                return $row->instructor_email;
+//            ->editColumn('instructor_email', function ($row) {
+//                // Convert email to clickable mailto link
+//                return '<a href="mailto:' . $row->instructor_email . '">' . $row->instructor_email . '</a>';
+//            })
+            ->editColumn('preferred_datetime', function ($row) {
+                // Format the preferred date as "Thu, Feb 01 - 1:30pm"
+                return Carbon::parse($row->preferred_datetime)->format('D, M d - g:ia');
             })
             // Add similar editColumn calls for other columns
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'instructor_name']); // Specify which columns contain raw HTML
+
     }
+
+
 
     /**
      * Get query source of dataTable.
      *
      * @param \App\Models\InstructionRequest $model
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function query(InstructionRequest $model)
     {
@@ -54,7 +65,7 @@ class InstructionRequestDataTable extends DataTable
                 'instructors.email as instructor_email',
                 'classes.course_name',
                 'librarians.display_name as librarian_name',
-                'instruction_request_details.status',
+                'instruction_requests.status',
                 'instruction_request_details.created_by',
                 'instruction_requests.preferred_datetime',
                 'campuses.name as campus_name' // Include this line
@@ -94,15 +105,15 @@ class InstructionRequestDataTable extends DataTable
     {
         return [
             ['name' => 'instructor_name', 'title' => 'Instructor Name', 'data' => 'instructor_name'],
-            ['name' => 'instructor_email', 'title' => 'Instructor Email', 'data' => 'instructor_email'],
+//            ['name' => 'instructor_email', 'title' => 'Instructor Email', 'data' => 'instructor_email'],
             ['name' => 'instruction_type', 'title' => 'Type', 'data' => 'instruction_type'],
             ['name' => 'course_modality', 'title' => 'Modality', 'data' => 'course_modality'],
             ['name' => 'librarian_name', 'title' => 'Librarian', 'data' => 'librarian_name'],
             ['name' => 'campus_name', 'title' => 'Campus', 'data' => 'campus_name'],
             ['name' => 'course_name', 'title' => 'Course Name', 'data' => 'course_name'],
             ['name' => 'status', 'title' => 'Status', 'data' => 'status'],
-            ['name' => 'created_by', 'title' => 'Created By', 'data' => 'created_by'],
-            ['name' => 'preferred_datetime', 'title' => 'Preferred Datetime', 'data' => 'preferred_datetime'],
+//            ['name' => 'created_by', 'title' => 'Created By', 'data' => 'created_by'],
+            ['name' => 'preferred_datetime', 'title' => 'Preferred Date', 'data' => 'preferred_datetime'],
         ];
     }
 

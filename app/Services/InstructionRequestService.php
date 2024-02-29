@@ -11,10 +11,19 @@ use App\Repositories\InstructionRequestRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ *
+ */
 class InstructionRequestService implements InstructionRequestInterface
 {
+    /**
+     * @var InstructionRequestRepository
+     */
     protected $instructionRequestRepository;
 
+    /**
+     * @param InstructionRequestRepository $instructionRequestRepository
+     */
     public function __construct(InstructionRequestRepository $instructionRequestRepository)
     {
         $this->instructionRequestRepository = $instructionRequestRepository;
@@ -37,13 +46,14 @@ class InstructionRequestService implements InstructionRequestInterface
             $instructor = $this->findOrCreateInstructor($data);
             $classes = $this->findOrCreateClasses($data);
 
-            Log::debug('returned from findOrCreateInstructor: '. json_encode($instructor));
-            Log::debug('returned from findOrCreateClasses: '. json_encode($classes));
+//            Log::debug('returned from findOrCreateInstructor: '. json_encode($instructor));
+//            Log::debug('returned from findOrCreateClasses: '. json_encode($classes));
 
 
             // Update $data with necessary IDs
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
+            $data['status'] = 'pending';
 
             Log::debug('Final data for creation: ' . json_encode($data));
 
@@ -173,6 +183,18 @@ class InstructionRequestService implements InstructionRequestInterface
         Log::debug('findOrCreateClasses - Attributes: ' . json_encode($attributes));
 
         return Classes::firstOrCreate($searchCriteria, $attributes);
+    }
+
+    /**
+     * get complete instruction request and eager-load the associated entries
+     * @param string $status
+     * @return array|null
+     */
+    public function getRequestsByStatus(string $status)
+    {
+        return InstructionRequest::with(['instructor', 'classes'])
+            ->where('status', $status)
+            ->get();
     }
 
 }

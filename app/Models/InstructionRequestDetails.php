@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property unsignedInteger $instruction_request_id
  * @property unsignedBigInteger $librarian_id
  * @property json $tasks_completed
- * @property string $status
  * @property string $instruction_duration
  * @property string $class_notes
  * @property json $materials
@@ -35,7 +34,6 @@ class InstructionRequestDetails extends Model
         'instruction_request_id',
         'librarian_id',
         'tasks_completed',
-        'status',
         'instruction_duration',
         'class_notes',
         'materials',
@@ -55,7 +53,6 @@ class InstructionRequestDetails extends Model
         'instruction_request_id' => 'integer',
         'librarian_id' => 'integer',
         'tasks_completed' => 'array',
-        'status' => 'string',
         'instruction_duration' => 'string',
         'class_notes' => 'string',
         'materials' => 'array',
@@ -74,7 +71,6 @@ class InstructionRequestDetails extends Model
         'instruction_request_id' => 'required|exists:instruction_requests,id',
         'librarian_id' => 'nullable|exists:users,id',
         'tasks_completed' => 'required|json',
-        'status' => 'required|string',
         'materials' => 'nullable|json',
         'assessments' => 'nullable|json',
         'created_by' => 'required|string',

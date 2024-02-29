@@ -42,6 +42,8 @@ use App\Models\InstructionRequestDetails;
  * @property string $desired_student_outcomes
  * @property string $genai_discussion_interest
  * @property string $other_notes
+ * @property string $status
+
  */
 class InstructionRequest extends Model
 {
@@ -88,6 +90,7 @@ class InstructionRequest extends Model
         'desired_student_outcomes',
         'genai_discussion_interest',
         'other_notes',
+        'status'
     ];
 
     /**
@@ -121,6 +124,8 @@ class InstructionRequest extends Model
         'desired_student_outcomes' => 'string',
         'genai_discussion_interest' => 'string',
         'other_notes' => 'string',
+        'status' => 'string',
+
     ];
 
     // Define relationships
@@ -157,6 +162,14 @@ class InstructionRequest extends Model
     public function librarian()
     {
         return $this->belongsTo(User::class, 'librarian_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function classes()
+    {
+        return $this->belongsTo(Classes::class, 'class_id');
     }
 
     // Ensure all relationships and methods are accurately reflected

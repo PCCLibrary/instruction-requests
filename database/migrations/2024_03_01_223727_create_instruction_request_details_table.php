@@ -18,7 +18,6 @@ class CreateInstructionRequestDetailsTable extends Migration
             $table->unsignedInteger('instruction_request_id');
             $table->unsignedBigInteger('librarian_id')->nullable(); // Librarian might not be assigned initially
             $table->json('tasks_completed')->nullable();
-            $table->string('status')->default('pending');
             $table->string('instruction_duration')->nullable();
             $table->text('class_notes')->nullable();
             $table->json('materials')->nullable();
