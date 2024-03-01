@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\instructor;
+use App\Models\Instructor;
 
 class UpdateinstructorRequest extends FormRequest
 {
@@ -24,8 +24,8 @@ class UpdateinstructorRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = instructor::$rules;
-        
+        $rules = Instructor::$rules;
+
         return $rules;
     }
 }

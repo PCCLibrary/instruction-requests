@@ -72,7 +72,7 @@ class InstructionRequestController extends AppBaseController
      *
      * @param \App\Http\Requests\CreateInstructionRequestRequest $request
      *
-     * @return Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|Response|\Illuminate\Routing\Redirector
      */
     public function store(CreateInstructionRequestRequest $request)
     {
@@ -127,7 +127,7 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
-        Log::debug('instructionRequest to edit: '. json_encode($instructionRequest));
+//        Log::debug('instructionRequest to edit: '. json_encode($instructionRequest));
 
         return view('instruction_requests.edit')
             ->with('instructionRequest', $instructionRequest)
@@ -154,11 +154,12 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
-        $instructionRequest = $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
+        $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
 
         Flash::success('Instruction Request updated successfully.');
 
-        return redirect(route('instructionRequests.index'));
+        // Redirect back to the edit route
+        return redirect(route('instructionRequests.edit', $id));
     }
 
     /**

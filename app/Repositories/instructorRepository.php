@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\instructor;
+use App\Models\Instructor;
 use App\Repositories\BaseRepository;
 
 /**
@@ -19,6 +19,7 @@ class instructorRepository extends BaseRepository
     protected $fieldSearchable = [
         'name',
         'display_name',
+        'pronouns',
         'email',
         'phone'
     ];
@@ -38,6 +39,6 @@ class instructorRepository extends BaseRepository
      **/
     public function model()
     {
-        return instructor::class;
+        return Instructor::class;
     }
 }

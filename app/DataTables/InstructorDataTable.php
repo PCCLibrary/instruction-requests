@@ -2,11 +2,13 @@
 
 namespace App\DataTables;
 
-use App\Models\instructor;
+use App\Models\Instructor;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 
-class instructorDataTable extends DataTable
+class InstructorDataTable extends DataTable
 {
     /**
      * Build DataTable class.
@@ -18,16 +20,23 @@ class instructorDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'instructors.datatables_actions');
+        return $dataTable
+            ->addColumn('action', 'instructors.datatables_actions')
+            ->editColumn('email', function ($row) {
+                return '<a href="mailto:' . $row->email . '" title="click to email"><i class="fa fa-envelope"></i> ' . $row->email . '</a>';
+
+            })
+            // Add similar editColumn calls for other columns
+            ->rawColumns(['action', 'email']); // Specify which columns contain raw HTML
     }
 
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\instructor $model
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Instructor $model
+     * @return Builder
      */
-    public function query(instructor $model)
+    public function query(Instructor $model)
     {
         return $model->newQuery();
     }
@@ -67,6 +76,7 @@ class instructorDataTable extends DataTable
         return [
             'name',
             'display_name',
+            'pronouns',
             'email',
             'phone'
         ];

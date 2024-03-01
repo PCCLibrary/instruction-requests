@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Yajra\DataTables\DataTableAbstract;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
-use App\DataTables\instructorDataTable;
+use App\DataTables\InstructorDataTable;
 
 class UserDataTable extends DataTable
 {

@@ -2,39 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\instructorDataTable;
+use App\DataTables\InstructorDataTable;
 use App\Http\Requests;
-use App\Http\Requests\CreateinstructorRequest;
+use App\Http\Requests\CreateInstructorRequest;
 use App\Http\Requests\UpdateinstructorRequest;
-use App\Repositories\instructorRepository;
-use Flash;
+use App\Repositories\InstructorRepository;
+use Laracasts\Flash\Flash;
 use App\Http\Controllers\AppBaseController;
-use Response;
+use Illuminate\Http\Response;
 
-class instructorController extends AppBaseController
+class InstructorController extends AppBaseController
 {
-    /** @var instructorRepository $instructorRepository*/
-    private $instructorRepository;
+    /** @var InstructorRepository $InstructorRepository*/
+    private $InstructorRepository;
 
-    public function __construct(instructorRepository $instructorRepo)
+    public function __construct(InstructorRepository $InstructorRepo)
     {
-        $this->instructorRepository = $instructorRepo;
+        $this->InstructorRepository = $InstructorRepo;
     }
 
     /**
-     * Display a listing of the instructor.
+     * Display a listing of the Instructor.
      *
-     * @param instructorDataTable $instructorDataTable
+     * @param InstructorDataTable $instructorDataTable
      *
      * @return Response
      */
-    public function index(instructorDataTable $instructorDataTable)
+    public function index(InstructorDataTable $instructorDataTable)
     {
         return $instructorDataTable->render('instructors.index');
     }
 
     /**
-     * Show the form for creating a new instructor.
+     * Show the form for creating a new Instructor.
      *
      * @return Response
      */
@@ -44,17 +44,17 @@ class instructorController extends AppBaseController
     }
 
     /**
-     * Store a newly created instructor in storage.
+     * Store a newly created Instructor in storage.
      *
-     * @param CreateinstructorRequest $request
+     * @param CreateInstructorRequest $request
      *
      * @return Response
      */
-    public function store(CreateinstructorRequest $request)
+    public function store(CreateInstructorRequest $request)
     {
         $input = $request->all();
 
-        $instructor = $this->instructorRepository->create($input);
+        $instructor = $this->InstructorRepository->create($input);
 
         Flash::success('Instructor saved successfully.');
 
@@ -62,7 +62,7 @@ class instructorController extends AppBaseController
     }
 
     /**
-     * Display the specified instructor.
+     * Display the specified Instructor.
      *
      * @param int $id
      *
@@ -70,7 +70,7 @@ class instructorController extends AppBaseController
      */
     public function show($id)
     {
-        $instructor = $this->instructorRepository->find($id);
+        $instructor = $this->InstructorRepository->find($id);
 
         if (empty($instructor)) {
             Flash::error('Instructor not found');
@@ -78,11 +78,11 @@ class instructorController extends AppBaseController
             return redirect(route('instructors.index'));
         }
 
-        return view('instructors.show')->with('instructor', $instructor);
+        return view('instructors.show')->with('Instructor', $instructor);
     }
 
     /**
-     * Show the form for editing the specified instructor.
+     * Show the form for editing the specified Instructor.
      *
      * @param int $id
      *
@@ -90,7 +90,7 @@ class instructorController extends AppBaseController
      */
     public function edit($id)
     {
-        $instructor = $this->instructorRepository->find($id);
+        $instructor = $this->InstructorRepository->find($id);
 
         if (empty($instructor)) {
             Flash::error('Instructor not found');
@@ -98,11 +98,11 @@ class instructorController extends AppBaseController
             return redirect(route('instructors.index'));
         }
 
-        return view('instructors.edit')->with('instructor', $instructor);
+        return view('instructors.edit')->with('Instructor', $instructor);
     }
 
     /**
-     * Update the specified instructor in storage.
+     * Update the specified Instructor in storage.
      *
      * @param int $id
      * @param UpdateinstructorRequest $request
@@ -111,7 +111,7 @@ class instructorController extends AppBaseController
      */
     public function update($id, UpdateinstructorRequest $request)
     {
-        $instructor = $this->instructorRepository->find($id);
+        $instructor = $this->InstructorRepository->find($id);
 
         if (empty($instructor)) {
             Flash::error('Instructor not found');
@@ -119,7 +119,7 @@ class instructorController extends AppBaseController
             return redirect(route('instructors.index'));
         }
 
-        $instructor = $this->instructorRepository->update($request->all(), $id);
+        $instructor = $this->InstructorRepository->update($request->all(), $id);
 
         Flash::success('Instructor updated successfully.');
 
@@ -127,7 +127,7 @@ class instructorController extends AppBaseController
     }
 
     /**
-     * Remove the specified instructor from storage.
+     * Remove the specified Instructor from storage.
      *
      * @param int $id
      *
@@ -135,7 +135,7 @@ class instructorController extends AppBaseController
      */
     public function destroy($id)
     {
-        $instructor = $this->instructorRepository->find($id);
+        $instructor = $this->InstructorRepository->find($id);
 
         if (empty($instructor)) {
             Flash::error('Instructor not found');
@@ -143,7 +143,7 @@ class instructorController extends AppBaseController
             return redirect(route('instructors.index'));
         }
 
-        $this->instructorRepository->delete($id);
+        $this->InstructorRepository->delete($id);
 
         Flash::success('Instructor deleted successfully.');
 

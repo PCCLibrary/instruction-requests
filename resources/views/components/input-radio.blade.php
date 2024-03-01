@@ -1,7 +1,7 @@
 {{-- components/input-radio-group.blade.php --}}
-@props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => null, 'helptext' => null, 'required' => false])
+@props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
-<div class="form-group {{ $classes }}">
+<div class="{{ $classes }}">
     <label>{{ $label }}</label>
     <div class="form-group row">
         @foreach($options as $value => $text)

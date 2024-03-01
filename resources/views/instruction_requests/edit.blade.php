@@ -2,36 +2,50 @@
 
 @section('content')
     <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-12">
-                    <h1>Edit Instruction Requests</h1>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <div class="content px-3">
 
         @include('adminlte-templates::common.errors')
 
-        <div class="card">
-
             {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}
 
-            <div class="card-body">
-                <div class="row">
-                    @include('instruction_requests.fields')
-                </div>
-            </div>
+                    <div class="row">
 
-            <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('instructionRequests.index') }}" class="btn btn-default">Cancel</a>
-            </div>
+                        <div class="col-md-9 pt-4">
+                            @include('instruction_requests.fields')
+                        </div>
+
+                        <div class="col-md-3 pt-4">
+                            <x-editor-actions
+                                route="{{ route('instructionRequests.index') }}"
+                                :showBack="false"
+                                title="Edit Instruction Request"
+                            />
+                        </div>
+
+                    </div>
+
+{{--                <div class="row">--}}
+
+{{--                    <div class="col-md-3 pt-4">--}}
+{{--                        <div class="card">--}}
+{{--                            <div class="card-body row">--}}
+{{--                            @include('instruction_requests.fields')--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+
+{{--                    <div class="col-md-3 pt-4">--}}
+{{--                        <x-editor-actions--}}
+{{--                            route="{{ route('instructionRequests.index') }}"--}}
+{{--                            :showBack="true"--}}
+{{--                            title="Edit Instruction Request"--}}
+
+{{--                        />--}}
+{{--                    </div>--}}
+
+{{--                </div>--}}
 
             {!! Form::close() !!}
-
-        </div>
     </div>
 @endsection

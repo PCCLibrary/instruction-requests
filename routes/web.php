@@ -56,7 +56,7 @@ Auth::routes();
 Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
 // Resource route for managing instructors (accessible only by authenticated users).
-Route::resource('instructors', App\Http\Controllers\instructorController::class)->middleware('auth');
+Route::resource('instructors', App\Http\Controllers\InstructorController::class)->middleware('auth');
 
 // Resource route for managing campuses (accessible only by authenticated users).
 Route::resource('campuses', App\Http\Controllers\CampusController::class)->middleware('auth');

@@ -3,9 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\instructor;
+use App\Models\Instructor;
 
-class CreateinstructorRequest extends FormRequest
+class CreateInstructorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +24,6 @@ class CreateinstructorRequest extends FormRequest
      */
     public function rules()
     {
-        return instructor::$rules;
+        return Instructor::$rules;
     }
 }

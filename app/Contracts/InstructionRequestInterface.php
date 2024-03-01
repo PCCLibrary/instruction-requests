@@ -29,7 +29,7 @@ interface InstructionRequestInterface
      * @param array $data Data to update the instruction request and associated entities.
      * @return InstructionRequest Updated InstructionRequest object.
      */
-    public function updateInstructionRequest(int $id, array $data): InstructionRequest;
+    public function updateInstructionRequest(array $data, int $id): InstructionRequest;
 
     /**
      * Delete an instruction request by its ID.

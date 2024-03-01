@@ -17,9 +17,10 @@ class CreateInstructorsTable extends Migration
         Schema::create('instructors', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('display_name');
+            $table->text('display_name')->nullable();
+            $table->text('pronouns')->nullable();
             $table->text('email');
-            $table->text('phone');
+            $table->text('phone')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

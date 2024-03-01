@@ -8,6 +8,7 @@ use App\Models\InstructionRequest;
 use App\Models\InstructionRequestDetails;
 use App\Models\Instructor;
 use App\Repositories\InstructionRequestRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -31,7 +32,7 @@ class InstructionRequestService implements InstructionRequestInterface
     /**
      * Create a new InstructionRequest along with associated entities like Instructor, Classes, and InstructionRequestDetails.
      *
-     * This method handles the business logic of creating a new instruction request. It ensures that an instructor and class
+     * This method handles the business logic of creating a new instruction request. It ensures that an Instructor and class
      * are either found or created based on the provided data, then proceeds to create an instruction request and its
      * associated details. If certain optional fields like 'pronouns' are not provided, a default value is assigned.
      *
@@ -42,11 +43,11 @@ class InstructionRequestService implements InstructionRequestInterface
     public function createNewInstructionRequest(array $data): InstructionRequest
     {
         return DB::transaction(function () use ($data) {
-            // Find or create the instructor and class first
+            // Find or create the Instructor and class first
             $instructor = $this->findOrCreateInstructor($data);
             $classes = $this->findOrCreateClasses($data);
 
-//            Log::debug('returned from findOrCreateInstructor: '. json_encode($instructor));
+//            Log::debug('returned from findOrCreateInstructor: '. json_encode($Instructor));
 //            Log::debug('returned from findOrCreateClasses: '. json_encode($classes));
 
 
@@ -54,6 +55,9 @@ class InstructionRequestService implements InstructionRequestInterface
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
             $data['status'] = 'pending';
+
+            $data['created_by'] = $this->getCreatedBy($data);
+
 
             Log::debug('Final data for creation: ' . json_encode($data));
 
@@ -82,6 +86,54 @@ class InstructionRequestService implements InstructionRequestInterface
     }
 
 
+    /**
+     * Update an instruction request and its associated entities by ID.
+     *
+     * @param int $id The ID of the instruction request to update.
+     * @param array $data Data to update the instruction request and associated entities.
+     * @return InstructionRequest Updated InstructionRequest object.
+     */
+    public function updateInstructionRequest(array $data, int $id): InstructionRequest
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $instructionRequest = $this->findInstructionRequestById($id);
+
+            if (!$instructionRequest) {
+                throw new \Exception("InstructionRequest not found");
+            }
+
+            // Update logic here
+            return $this->instructionRequestRepository->update($data, $id);
+        });
+    }
+
+
+    /**
+     * Get the value for the 'created_by' field based on the input data.
+     *
+     * @param array $input The input data from the form.
+     *
+     * @return string The value for the 'created_by' field.
+     *
+     * @throws \InvalidArgumentException If the created by value is empty.
+     */
+    private function getCreatedBy(array $input)
+    {
+        if (Auth::check()) {
+            $createdBy = Auth::user()->display_name;
+        } else {
+            // Ensure the 'name' key exists in $input before accessing it
+            $createdBy = $input['name'] ?? null;
+        }
+
+        if (empty($createdBy)) {
+            throw new \InvalidArgumentException("Created by value cannot be empty.");
+        }
+
+        return $createdBy;
+    }
+
+
 
 
     /**
@@ -95,27 +147,6 @@ class InstructionRequestService implements InstructionRequestInterface
         return $this->instructionRequestRepository->find($id);
     }
 
-    /**
-     * Update an instruction request and its associated entities by ID.
-     *
-     * @param int $id The ID of the instruction request to update.
-     * @param array $data Data to update the instruction request and associated entities.
-     * @return InstructionRequest Updated InstructionRequest object.
-     */
-    public function updateInstructionRequest(int $id, array $data): InstructionRequest
-    {
-        return DB::transaction(function () use ($id, $data) {
-            $instructionRequest = $this->findInstructionRequestById($id);
-            if (!$instructionRequest) {
-                throw new \Exception("InstructionRequest not found");
-            }
-
-            // Update logic here
-            $updatedInstructionRequest = $this->instructionRequestRepository->update($instructionRequest, $data);
-
-            return $updatedInstructionRequest;
-        });
-    }
 
     /**
      * Delete an instruction request by its ID.

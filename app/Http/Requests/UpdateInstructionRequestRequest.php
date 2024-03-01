@@ -22,10 +22,8 @@ class UpdateInstructionRequestRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
-        $rules = InstructionRequest::$rules;
-
-        return $rules;
+        return InstructionRequest::rules($this);
     }
 }

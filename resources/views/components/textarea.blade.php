@@ -1,7 +1,7 @@
 {{-- components/textarea.blade.php --}}
-@props(['name', 'label', 'value' => '', 'helptext' => null ])
+@props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'col-auto', ])
 
-<div class="form-group">
+<div class="form-group {{ $classes }}">
     <label for="{{ $name }}">{{ $label }}</label>
     <textarea class="form-control"
               name="{{ $name }}"

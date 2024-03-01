@@ -16,8 +16,7 @@
         @include('adminlte-templates::common.errors')
 
         <div class="card">
-
-            {!! Form::model($instructor, ['route' => ['instructors.update', $instructor->id], 'method' => 'patch']) !!}
+            {!! Form::model($Instructor, ['route' => ['instructors.update', $Instructor->id], 'method' => 'patch']) !!}
 
             <div class="card-body">
                 <div class="row">
@@ -31,7 +30,7 @@
             </div>
 
             {!! Form::close() !!}
-
         </div>
+
     </div>
 @endsection

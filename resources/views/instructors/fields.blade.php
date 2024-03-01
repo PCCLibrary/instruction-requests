@@ -1,23 +1,26 @@
-<!-- Name Field -->
+<!-- resources/views/components/instructor-fields.blade.php -->
+
 <div class="form-group col-sm-6">
-    {!! Form::label('name', 'Name:') !!}
-    {!! Form::text('name', null, ['class' => 'form-control']) !!}
+    <!-- Name Field -->
+    <x-input-text label="Name" name="name" :value="$Instructor->name"/>
 </div>
 
-<!-- Display Name Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('display_name', 'Display Name:') !!}
-    {!! Form::text('display_name', null, ['class' => 'form-control']) !!}
+    <!-- Display Name Field -->
+    <x-input-text label="Display Name" name="display_name" :value="$Instructor->display_name"/>
 </div>
 
-<!-- Email Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('email', 'Email:') !!}
-    {!! Form::email('email', null, ['class' => 'form-control']) !!}
+    <!-- Pronouns Field -->
+    <x-input-text label="Pronouns" name="pronouns" :value="$Instructor->pronouns"/>
 </div>
 
-<!-- Phone Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('phone', 'Phone:') !!}
-    {!! Form::text('phone', null, ['class' => 'form-control']) !!}
+    <!-- Email Field -->
+    <x-input-email label="Email" name="email" :value="$Instructor->email"/>
+</div>
+
+<div class="form-group col-sm-6">
+    <!-- Phone Field -->
+    <x-input-text label="Phone" name="phone" :value="$Instructor->phone"/>
 </div>

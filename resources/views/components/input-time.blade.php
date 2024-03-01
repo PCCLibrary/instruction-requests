@@ -1,7 +1,7 @@
 {{-- components/input-time.blade.php --}}
-@props(['name', 'label', 'value' => '', 'helptext' => null ])
+@props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', ])
 
-<div class="form-group">
+<div class="{{ $classes }}">
     <label for="{{ $name }}">{{ $label }}</label>
     <input type="time"
            class="form-control"

@@ -26,14 +26,9 @@ class InstructionRequestDataTable extends DataTable
         return $dataTable
             ->addColumn('action', 'instruction_requests.datatables_actions')
             ->editColumn('instructor_name', function ($row) {
-//                return $row->instructor_name;
                 return '<a href="mailto:' . $row->instructor_email . '" title="click to email"><i class="fa fa-envelope"></i> ' . $row->instructor_name . '</a>';
 
             })
-//            ->editColumn('instructor_email', function ($row) {
-//                // Convert email to clickable mailto link
-//                return '<a href="mailto:' . $row->instructor_email . '">' . $row->instructor_email . '</a>';
-//            })
             ->editColumn('preferred_datetime', function ($row) {
                 // Format the preferred date as "Thu, Feb 01 - 1:30pm"
                 return Carbon::parse($row->preferred_datetime)->format('D, M d - g:ia');

@@ -1,40 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-12">
-                    <h1>Create Instruction Requests</h1>
-                    <p>Yeah!</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <div class="content px-3">
 
         @include('adminlte-templates::common.errors')
 
-        <div class="card">
+        {!! Form::open(['route' => 'instructionRequests.store']) !!}
 
-            {!! Form::open(['route' => 'instructionRequests.store']) !!}
+        <div class="row">
 
-            <div class="card-body">
-
-                <div class="row">
+                <div class="col-md-9 pt-4">
                     @include('instruction_requests.fields')
                 </div>
 
-            </div>
-
-            <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('instructionRequests.index') }}" class="btn btn-default">Cancel</a>
-            </div>
-
-            {!! Form::close() !!}
+                <div class="col-md-3 pt-4">
+                    <x-editor-actions
+                        route="{{ route('instructionRequests.index') }}"
+                        :showBack="false"
+                        title="Create New Instruction Request"
+                    />
+                </div>
 
         </div>
+
+        {!! Form::close() !!}
+
     </div>
 @endsection

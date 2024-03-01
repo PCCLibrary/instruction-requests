@@ -20,7 +20,7 @@
         <tbody>
         @forelse($instructionRequests as $request)
             <tr>
-                <td><a href="mailto:{{ $request->instructor->email }}"><i class="fa fa-envelope"></i> {{ $request->instructor->display_name }}</a></td>
+                <td><a href="mailto:{{ $request->Instructor->email }}"><i class="fa fa-envelope"></i> {{ $request->Instructor->display_name }}</a></td>
                 <td>{{ $request->classes->course_name }}</td>
                 <td>{{ $request->instruction_type }}</td>
                 <td>{{ \Carbon\Carbon::parse($request->preferred_datetime)->format('M d - g:i A') }}</td>

@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\InstructionRequestDetails;
+use Illuminate\Http\Request;
 
 /**
  * Class InstructionRequest
  * @package App\Models
  * @version February 26, 2024
  *
- * @property Instructor $instructor
+ * @property Instructor $Instructor
  * @property Campus $campus
  * @property User $librarianUser
  * @property string $instruction_type
@@ -172,5 +173,60 @@ class InstructionRequest extends Model
         return $this->belongsTo(Classes::class, 'class_id');
     }
 
-    // Ensure all relationships and methods are accurately reflected
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules(Request $request)
+    {
+        $rules = [
+            'librarian_id' => 'required|exists:users,id',
+            'campus_id' => 'required|exists:campuses,id',
+            'instruction_type' => 'required|string',
+            'course_modality' => 'required|string',
+            'department' => 'nullable|string',
+            'course_number' => 'nullable|string',
+            'course_crn' => 'nullable|string',
+            'number_of_students' => 'nullable|integer',
+            'ada_provisions_needed' => 'nullable|boolean',
+            'ada_provisions_description' => 'nullable|string',
+            'preferred_datetime' => 'nullable|date',
+            'alternate_datetime' => 'nullable|date',
+            'duration' => 'nullable|string',
+            'asynchronous_instruction_ready_date' => 'nullable|date',
+            'need_extra_time' => 'nullable|boolean',
+            'extra_time_with_class' => 'nullable|string',
+            'received_assignment' => 'nullable|boolean',
+            'selected_topics' => 'nullable|boolean',
+            'explored_background' => 'nullable|boolean',
+            'written_draft' => 'nullable|boolean',
+            'other_learning_outcome' => 'nullable|boolean',
+            'other_learning_outcome_description' => 'nullable|string',
+        ];
+
+        // Additional rules for creation
+        if ($request->method() === 'POST') {
+            $rules += [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'display_name' => 'nullable|string|max:255',
+                'pronouns' => 'nullable|string|max:255',
+                'phone' => 'nullable|string|max:255',
+            ];
+        }
+
+        // Additional rules for edit to ensure relationship integrity
+        if ($request->method() === 'PUT' || $request->method() === 'PATCH') {
+            $rules += [
+                'librarian_id' => 'required|exists:users,id',
+                'campus_id' => 'required|exists:campuses,id',
+                'instructor_id' => 'required|exists:instructors,id',
+            ];
+        }
+
+        return $rules;
+    }
+
 }
