@@ -50,19 +50,15 @@ class InstructionRequestController extends AppBaseController
      */
     public function create()
     {
-        $departments = collect($this->departmentService->getAllDepartments())
-            ->mapWithKeys(function ($item) {
-                return [$item['pcc_code'] => strtoupper($item['pcc_code']) . ' - '. $item['pcc_name']];
-            });
-
+        $departments = $this->departmentService->getAllDepartments();
         $librarians = User::all(); // librarian model
         $campuses = Campus::all(); // Reflecting change to 'campuses' for clarity
         $instructors = Instructor::all(); // grab instructors
 
-        Log::debug('Departments: ' . json_encode($departments->toArray()));
-        Log::debug('Librarians: ' . json_encode($librarians->toArray()));
-        Log::debug('Campuses: ' . json_encode($campuses->toArray()));
-        Log::debug('Instructors: ' . json_encode($instructors->toArray()));
+//        Log::debug('Departments: ' . json_encode($departments->toArray()));
+//        Log::debug('Librarians: ' . json_encode($librarians->toArray()));
+//        Log::debug('Campuses: ' . json_encode($campuses->toArray()));
+//        Log::debug('Instructors: ' . json_encode($instructors->toArray()));
 
         return view('instruction_requests.create')
             ->with('librarians', $librarians)

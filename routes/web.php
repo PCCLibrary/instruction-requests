@@ -15,11 +15,12 @@ use App\Http\Controllers\PublicInstructionRequestController;
 |
 */
 
-// Welcome page with the public form to create instruction requests.
-Route::get('/', [PublicInstructionRequestController::class, 'create'])->name('public.instructions.create');
+// Index page with the public form to create instruction requests.
+Route::get('/', [PublicInstructionRequestController::class, 'create'])->name('public.instruction-request.create');
 
 // Store the submitted instruction request from the public form.
-Route::post('instruction-requests', [PublicInstructionRequestsController::class, 'store'])->name('public.instructions.store');
+Route::post('instruction-requests', [PublicInstructionRequestController::class, 'store'])->name('public.instruction-request.store');
+
 
 // Database connection test route.
 Route::get('/db-test', function () {
