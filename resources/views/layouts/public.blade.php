@@ -10,6 +10,14 @@
 
 </head>
 <body>
+<div class="w-100 p-4" style="background-color: #008099;">
+    <div class="container">
+        <div class="col-12">
+            <h1 class="text-white">Library Navigation</h1>
+            <p class="text-white lead">this is a placeholder - it will be the regular library site navigation</p>
+        </div>
+    </div>
+</div>
 <div class="container mt-5">
 
     @if(session('success'))
@@ -30,6 +38,14 @@
         </section>
     </div>
 </div>
+
+<footer class="w-100 bg-dark p-4">
+    <div class="container">
+        <div class="col-12 d-flex justify-content-center">
+            <strong class="text-white">Library Footer</strong>
+        </div>
+    </div>
+</footer>
 <!-- Bootstrap Bundle with Popper -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
 </body>

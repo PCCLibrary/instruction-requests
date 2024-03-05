@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Contracts\InstructionRequestInterface;
+use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Models\Classes;
 use App\Models\InstructionRequest;
 use App\Models\InstructionRequestDetails;
 use App\Models\Instructor;
+use App\Repositories\InstructionRequestDetailsRepository;
 use App\Repositories\InstructionRequestRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laracasts\Flash\Flash;
 
 /**
  *
@@ -23,11 +26,22 @@ class InstructionRequestService implements InstructionRequestInterface
     protected $instructionRequestRepository;
 
     /**
-     * @param InstructionRequestRepository $instructionRequestRepository
+     * @var InstructionRequestDetailsService
      */
-    public function __construct(InstructionRequestRepository $instructionRequestRepository)
+    protected $instructionRequestDetailsService;
+
+
+    /**
+     * @param InstructionRequestRepository $instructionRequestRepository
+     * @param InstructionRequestDetailsService $instructionRequestDetailsService
+     */
+    public function __construct(
+        InstructionRequestRepository $instructionRequestRepository,
+        InstructionRequestDetailsService $instructionRequestDetailsService)
     {
         $this->instructionRequestRepository = $instructionRequestRepository;
+        $this->instructionRequestDetailsService = $instructionRequestDetailsService;
+
     }
     /**
      * Create a new InstructionRequest along with associated entities like Instructor, Classes, and InstructionRequestDetails.
@@ -59,13 +73,12 @@ class InstructionRequestService implements InstructionRequestInterface
             $data['created_by'] = $this->getCreatedBy($data);
 
 
-            Log::debug('Final data for creation: ' . json_encode($data));
-
+//            Log::debug('Final data for creation: ' . json_encode($data));
 
             // Create the InstructionRequest
             $instructionRequest = $this->instructionRequestRepository->create($data);
 
-            Log::debug('$instructionRequest: '. json_encode($instructionRequest));
+//            Log::debug('$instructionRequest: '. json_encode($instructionRequest));
 
             // After successfully creating InstructionRequest, create details
             $instructionRequestDetailData = [
@@ -76,10 +89,9 @@ class InstructionRequestService implements InstructionRequestInterface
 
             ];
 
-            Log::debug('Data for creating InstructionRequestDetails: ' . json_encode($instructionRequestDetailData));
+//            Log::debug('Data for creating InstructionRequestDetails: ' . json_encode($instructionRequestDetailData));
 
             $instructionRequest->detail()->create($instructionRequestDetailData);
-
 
             return $instructionRequest;
         });
@@ -96,14 +108,28 @@ class InstructionRequestService implements InstructionRequestInterface
     public function updateInstructionRequest(array $data, int $id): InstructionRequest
     {
         return DB::transaction(function () use ($id, $data) {
+
             $instructionRequest = $this->findInstructionRequestById($id);
 
             if (!$instructionRequest) {
+//                Flash::error('Could not update Instruction Request.');
+
                 throw new \Exception("InstructionRequest not found");
             }
 
+            $currentDetails = $this->instructionRequestDetailsService->getDetailsByInstructionRequestId($instructionRequest->id);
+
+            if ($currentDetails) {
+                // Update the details using the service
+                $this->instructionRequestDetailsService->updateInstructionRequestDetails($data, $currentDetails->id);
+            }
+
             // Update logic here
-            return $this->instructionRequestRepository->update($data, $id);
+            $this->instructionRequestRepository->update($data, $id);
+
+//            Flash::success('Instruction Request updated successfully.');
+
+            return $instructionRequest;
         });
     }
 
@@ -117,7 +143,7 @@ class InstructionRequestService implements InstructionRequestInterface
      *
      * @throws \InvalidArgumentException If the created by value is empty.
      */
-    private function getCreatedBy(array $input)
+    private function getCreatedBy(array $input): string
     {
         if (Auth::check()) {
             $createdBy = Auth::user()->display_name;
@@ -135,16 +161,16 @@ class InstructionRequestService implements InstructionRequestInterface
 
 
 
-
     /**
-     * Find an instruction request by its ID.
+     * Find an instruction request by its ID along with eager-loaded relationships.
      *
      * @param int $id The ID of the instruction request to find.
      * @return InstructionRequest|null The found InstructionRequest object, or null if not found.
      */
-    public function findInstructionRequestById(int $id): InstructionRequest
+    public function findInstructionRequestById(int $id): ?InstructionRequest
     {
-        return $this->instructionRequestRepository->find($id);
+        return InstructionRequest::with(['instructor', 'campus', 'librarian', 'classes', 'detail'])
+            ->find($id);
     }
 
 

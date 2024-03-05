@@ -18,7 +18,6 @@ class InstructionRequestDetailsRepository extends BaseRepository
      */
     protected $fieldSearchable = [
         'librarian_id',
-        'status'
     ];
 
     /**

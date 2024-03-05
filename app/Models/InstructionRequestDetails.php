@@ -13,15 +13,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @property unsignedInteger $instruction_request_id
  * @property unsignedBigInteger $librarian_id
- * @property json $tasks_completed
  * @property string $instruction_duration
  * @property string $class_notes
+ * @property bool $research_guide
+ * @property bool $video
+ * @property bool $embedded
+ * @property bool $other
  * @property json $materials
  * @property string $assessment_notes
  * @property json $assessments
  * @property string $created_by
  * @property string $last_updated_by
  */
+
 class InstructionRequestDetails extends Model
 {
     use SoftDeletes, HasFactory;
@@ -33,14 +37,18 @@ class InstructionRequestDetails extends Model
     protected $fillable = [
         'instruction_request_id',
         'librarian_id',
-        'tasks_completed',
         'instruction_duration',
         'class_notes',
+        'research_guide',
+        'video',
+        'embedded',
+        'other',
         'materials',
         'assessment_notes',
         'assessments',
         'created_by',
-        'last_updated_by'
+        'last_updated_by',
+
     ];
 
     /**
@@ -52,14 +60,17 @@ class InstructionRequestDetails extends Model
         'id' => 'integer',
         'instruction_request_id' => 'integer',
         'librarian_id' => 'integer',
-        'tasks_completed' => 'array',
         'instruction_duration' => 'string',
         'class_notes' => 'string',
+        'research_guide' => 'boolean',
+        'video' => 'boolean',
+        'embedded' => 'boolean',
+        'other' => 'boolean',
         'materials' => 'array',
         'assessment_notes' => 'string',
         'assessments' => 'array',
         'created_by' => 'string',
-        'last_updated_by' => 'string'
+        'last_updated_by' => 'string',
     ];
 
     /**
@@ -70,10 +81,16 @@ class InstructionRequestDetails extends Model
     public static $rules = [
         'instruction_request_id' => 'required|exists:instruction_requests,id',
         'librarian_id' => 'nullable|exists:users,id',
-        'tasks_completed' => 'required|json',
-        'materials' => 'nullable|json',
-        'assessments' => 'nullable|json',
+        'instruction_duration' => 'string',
+        'class_notes' => 'string',
+        'research_guide' => 'nullable|boolean',
+        'video' => 'nullable|boolean',
+        'embedded' => 'nullable|boolean',
+        'other' => 'nullable|boolean',
+        'materials' => 'nullable|array',
+        'assessment_notes' => 'nullable|string',
+        'assessments' => 'nullable|array',
         'created_by' => 'required|string',
-        'last_updated_by' => 'required|string'
+        'last_updated_by' => 'required|string',
     ];
 }

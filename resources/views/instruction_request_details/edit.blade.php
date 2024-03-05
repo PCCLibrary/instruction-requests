@@ -17,6 +17,7 @@
 
         <div class="card">
 
+{{--            <pre>{{ print_r($instructionRequestDetails, true) }}</pre>--}}
             {!! Form::model($instructionRequestDetails, ['route' => ['instructionRequestDetails.update', $instructionRequestDetails->id], 'method' => 'patch', 'files' => true]) !!}
 
             <div class="card-body">

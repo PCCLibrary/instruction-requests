@@ -8,13 +8,15 @@
 
         {!! Form::open(['route' => 'instructionRequests.store']) !!}
 
-        <div class="row">
+        <div class="row mt-4">
 
-                <div class="col-md-9 pt-4">
-                    @include('instruction_requests.fields')
+                <div class="col-md-9 card">
+                    <div class="card-body">
+                        @include('instruction_requests.fields')
+                    </div>
                 </div>
 
-                <div class="col-md-3 pt-4">
+                <div class="col-md-3">
                     <x-editor-actions
                         route="{{ route('instructionRequests.index') }}"
                         :showBack="false"

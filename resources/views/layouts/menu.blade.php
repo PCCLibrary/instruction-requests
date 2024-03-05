@@ -29,5 +29,8 @@
         <i class="fa fa-user"></i> <span>Librarians</span></a>
 </li>
 
-
-
+<li class="nav-item">
+    <a href="{!! route('instructionRequestDetails.index') !!}"
+       class="nav-link {{ Request::is('details*') ? 'active' : '' }}">
+        <i class="fa fa-gear"></i> <span>Details</span></a>
+</li>

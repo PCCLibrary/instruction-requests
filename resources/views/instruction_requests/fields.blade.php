@@ -1,15 +1,16 @@
 {{-- Check if we are editing an existing instruction request --}}
 @isset($instructionRequest->id)
-    <div class="form-group">
-        <div class="col-12">
+    <div class="row mb-4">
+        <div class="col-6">
             <h3>Instructor</h3>
-        </div>
         {{-- Instructor Field as a select dropdown for edit --}}
         <x-input-select name="instructor_id"
                         label="Instructor"
                         :options="$instructors->pluck('display_name', 'id')"
                         :selected="old('instructor_id', $instructionRequest->instructor_id ?? null)"
         />
+        </div>
+
     </div>
 @else
     <div class="row mb-4">
@@ -241,4 +242,15 @@
                 :value="old('other_learning_outcome_description', $instructionRequest->other_learning_outcome_description ?? '')"
     />
 </div>
+</div>
+
+<div class="row mb-4">
+
+    {{-- genai_discussion_interest Field --}}
+    <x-textarea name="genai_discussion_interest"
+                label="Gen AI"
+                :value="old('genai_discussion_interest', $instructionRequest->genai_discussion_interest ?? null)"
+                classes="col-9"
+    />
+
 </div>

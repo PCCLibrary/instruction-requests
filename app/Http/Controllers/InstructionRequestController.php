@@ -73,6 +73,7 @@ class InstructionRequestController extends AppBaseController
      * @param \App\Http\Requests\CreateInstructionRequestRequest $request
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|Response|\Illuminate\Routing\Redirector
+     * @throws \Throwable
      */
     public function store(CreateInstructionRequestRequest $request)
     {
@@ -120,7 +121,7 @@ class InstructionRequestController extends AppBaseController
         $campuses = Campus::all();
         $instructors = Instructor::all();
 
-        Log::debug("departments: ". json_encode($departments));
+//        Log::debug("departments: ". json_encode($departments));
 
         if (empty($instructionRequest)) {
             Flash::error('Instruction Request not found');
@@ -156,7 +157,7 @@ class InstructionRequestController extends AppBaseController
 
         $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
 
-        Flash::success('Instruction Request updated successfully.');
+//        Flash::success('Instruction Request updated successfully.');
 
         // Redirect back to the edit route
         return redirect(route('instructionRequests.edit', $id));
