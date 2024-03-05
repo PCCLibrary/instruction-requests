@@ -70,8 +70,11 @@ Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestCo
 // Resource route for managing instruction requests (accessible only by authenticated users).
 Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class)->middleware('auth');
 
-Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
+// copy instruction requests
+Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy');
 
+// Resource route fro managing classes
+Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
 
 
 /*

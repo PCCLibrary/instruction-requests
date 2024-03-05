@@ -26,8 +26,7 @@ class InstructionRequestDataTable extends DataTable
         return $dataTable
             ->addColumn('action', 'instruction_requests.datatables_actions')
             ->editColumn('instructor_name', function ($row) {
-                return '<a href="mailto:' . $row->instructor_email . '" title="click to email"><i class="fa fa-envelope"></i> ' . $row->instructor_name . '</a>';
-
+                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to edit"><i class="fa fa-edit"></i> ' . $row->instructor_name . '</a>';
             })
             ->editColumn('preferred_datetime', function ($row) {
                 // Format the preferred date as "Thu, Feb 01 - 1:30pm"

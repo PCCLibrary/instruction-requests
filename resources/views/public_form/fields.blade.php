@@ -234,3 +234,15 @@
         />
     </div>
 </fieldset>
+
+<fieldset class="row mb-4">
+
+    {{-- genai_discussion_interest Field --}}
+    <x-textarea name="genai_discussion_interest"
+                label="Gen AI"
+                :value="old('genai_discussion_interest', $instructionRequest->genai_discussion_interest ?? null)"
+                classes="col-9"
+                helptext="Need a prompt or description for this field."
+    />
+
+</fieldset>

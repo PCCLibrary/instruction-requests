@@ -15,6 +15,9 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Flash\Flash;
 
+/**
+ *
+ */
 class InstructionRequestController extends AppBaseController
 {
     /** @var InstructionRequestService $instructionRequestService */
@@ -23,6 +26,11 @@ class InstructionRequestController extends AppBaseController
     /** @var DepartmentService $departmentService */
     private $departmentService;
 
+    /**
+     * Build the class and inject the services
+     * @param InstructionRequestService $instructionRequestService
+     * @param DepartmentService $departmentService
+     */
     public function __construct(
         InstructionRequestService $instructionRequestService,
         DepartmentService $departmentService
@@ -152,7 +160,7 @@ class InstructionRequestController extends AppBaseController
 
         if (empty($instructionRequest)) {
             Flash::error('Instruction Request not found');
-            return redirect(route('instructionRequests.index'));
+            return redirect(route('instructionRequests.index'))->with('error', 'Instruction Request not found.');
         }
 
         $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
@@ -160,7 +168,40 @@ class InstructionRequestController extends AppBaseController
 //        Flash::success('Instruction Request updated successfully.');
 
         // Redirect back to the edit route
-        return redirect(route('instructionRequests.edit', $id));
+        return redirect(route('instructionRequests.edit', $id))->with('success', 'Instruction Request updated.');
+    }
+
+
+    // InstructionRequestController.php
+
+    /**
+     * Duplicate the selected instruction request and associated detail
+     *
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function copy($id)
+    {
+        $originalRequest = InstructionRequest::with('detail')->find($id);
+
+        if (!$originalRequest) {
+            abort(404, 'Instruction Request not found');
+        }
+
+        // Duplicate the instruction request
+        $newRequest = $originalRequest->replicate();
+        $newRequest->status = 'copied'; // Optionally update any fields
+        $newRequest->push();
+
+        // Duplicate the associated details
+        $newDetails = $originalRequest->detail->replicate();
+        $newDetails->instruction_request_id = $newRequest->id;
+        $newDetails->push();
+
+        Flash::success('Instruction Request copied successfully.');
+
+        // Redirect to the edit view of the duplicated instruction request
+        return redirect()->route('instructionRequests.edit', $newRequest->id)->with('success', 'Instruction Request duplicated successfully');
     }
 
     /**

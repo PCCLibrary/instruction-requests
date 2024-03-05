@@ -11,5 +11,9 @@
         'class' => 'btn btn-danger btn-xs',
         'onclick' => "return confirm('Are you sure?')"
     ]) !!}
+
+    <a href="{{ route('instructionRequests.copy', $id) }}" class='btn btn-info btn-xs'>
+        <i class="fa fa-copy"></i>
+    </a>
 </div>
 {!! Form::close() !!}

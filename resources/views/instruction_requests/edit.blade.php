@@ -26,7 +26,7 @@
 
                                 <x-input-select name="status"
                                                 label="Request Status"
-                                                :options="['pending' => 'Pending', 'in progress' => 'In Progress', 'completed' => 'Completed']"
+                                                :options="['pending' => 'Pending', 'copied' => 'Copied', 'in progress' => 'In Progress', 'completed' => 'Completed']"
                                                 :selected="old('status', $instructionRequest->status ?? null)"
                                                 classes="col-12 p-0 m-0 mt-4"
                                 />
