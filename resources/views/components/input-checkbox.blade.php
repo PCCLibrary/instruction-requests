@@ -8,13 +8,11 @@
                name="{{ $name }}"
                id="{{ $name }}"
                class="form-check-input"
-               value="{{ $value ? '1' : '0' }}"
-            {{ $value ? 'checked' : '' }}>
+               value="{{ $checked ? '1' : '0' }}"
+               @if($checked) checked @endif>
         <label class="form-check-label" for="{{ $name }}">
             {{ $label }}
         </label>
-
-
     </div>
     @if($helptext)
         <small id="{{ $name }}-help" class="form-text text-muted">

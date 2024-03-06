@@ -136,9 +136,10 @@
     {{-- ADA Provisions Needed Field --}}
     <x-input-checkbox name="ada_provisions_needed"
                 label="ADA Provisions Needed"
-                :checked="old('ada_provisions_needed', $instructionRequest->ada_provisions_needed ?? false)"
+                :checked="$instructionRequest->ada_provisions_needed"
                 classes="col-4"
     />
+{{--    {{ $instructionRequest->ada_provisions_needed }}--}}
 
     {{-- ADA Provisions Description Field --}}
     <x-textarea name="ada_provisions_description"
@@ -168,11 +169,12 @@
     />
 
     {{-- Duration Field --}}
-    <x-input-text name="duration"
-                  label="Duration"
-                  :value="old('duration', $instructionRequest->duration ?? null)"
-                  helptext="Enter the length of instruction you would like your class to receive, in minutes."
-                  classes="col-3"
+    <x-input-select name="duration"
+                    label="Duration"
+                    :options="['50' => '50', '70' => '70', '110' => '110', '170' => '170']"
+                    :value="old('duration', $instructionRequest->duration ?? null)"
+                    helptext="Enter the length of instruction you would like your class to receive, in minutes."
+                    classes="col-3"
     />
 
     {{-- Asynchronous Instruction Ready Date Field --}}
@@ -186,11 +188,11 @@
 
 <div class="row mb-4">
     {{-- Selected Extra Time --}}
-    <x-input-checkbox name="need_extra_time"
-                label="I need extra time with class"
-                :checked="old('need_extra_time', $instructionRequest->need_extra_time ?? false)"
-                  classes="col-3"
-    />
+{{--    <x-input-checkbox name="need_extra_time"--}}
+{{--                label="I need extra time with class"--}}
+{{--                :checked="old('need_extra_time', $instructionRequest->need_extra_time ?? false)"--}}
+{{--                  classes="col-3"--}}
+{{--    />--}}
 
     {{-- Extra Time With Class Field --}}
     <x-textarea name="extra_time_with_class"
@@ -242,6 +244,14 @@
                 :value="old('other_learning_outcome_description', $instructionRequest->other_learning_outcome_description ?? '')"
     />
 </div>
+</div>
+
+<div class="row mb-4">
+    <x-textarea name="library_instruction_description"
+                label="What do you want your students to get out of library instruction?"
+                :value="old('other_learning_outcome_description', $instructionRequest->library_instruction_description ?? '')"
+                classes="col-9"
+    />
 </div>
 
 <div class="row mb-4">

@@ -6,8 +6,8 @@
 
 <!-- Librarian Id Field -->
 <div class="col-sm-12">
-    {!! Form::label('librarian_id', 'Librarian Id:') !!}
-    <p>{{ $instructionRequestDetails->librarian_id }}</p>
+    {!! Form::label('assigned_librarian_id', 'Librarian Id:') !!}
+    <p>{{ $instructionRequestDetails->assigned_librarian_id }}</p>
 </div>
 
 <!-- Tasks Completed Field -->

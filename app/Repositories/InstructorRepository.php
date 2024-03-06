@@ -6,12 +6,12 @@ use App\Models\Instructor;
 use App\Repositories\BaseRepository;
 
 /**
- * Class instructorRepository
+ * Class InstructorRepository
  * @package App\Repositories
  * @version January 26, 2024, 11:59 pm UTC
 */
 
-class instructorRepository extends BaseRepository
+class InstructorRepository extends BaseRepository
 {
     /**
      * @var array

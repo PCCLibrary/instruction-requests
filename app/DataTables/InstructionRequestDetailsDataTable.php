@@ -74,7 +74,7 @@ class InstructionRequestDetailsDataTable extends DataTable
         return [
             ['name' => 'id', 'title' => 'Detail ID', 'data' => 'id'],
             ['name' => 'instruction_request_id', 'title' => 'Request ID', 'data' => 'instruction_request_id'],
-            ['name' => 'librarian_id', 'title' => 'Librarian', 'data' => 'librarian_id'],
+            ['name' => 'assigned_librarian_id', 'title' => 'Librarian', 'data' => 'assigned_librarian_id'],
 //            ['name' => 'created_by', 'title' => 'Created By', 'data' => 'created_by'],
             ['name' => 'instruction_duration', 'title' => 'Instruction Duration', 'data' => 'instruction_duration'],
             ['name' => 'class_notes', 'title' => 'Class Notes', 'data' => 'class_notes'],

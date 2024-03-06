@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ext-json": "*",
         "doctrine/dbal": "~2.3",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -16,10 +17,10 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
-        "yajra/laravel-datatables-html": "*",
-        "yajra/laravel-datatables-oracle": "*",
+        "plank/laravel-mediable": "*",
         "yajra/laravel-datatables-buttons": "*",
-      "ext-json": "*"
+        "yajra/laravel-datatables-html": "*",
+        "yajra/laravel-datatables-oracle": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

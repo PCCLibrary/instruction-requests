@@ -39,7 +39,6 @@ class HomeController extends Controller
         $totalInstructionHours = InstructionRequestDetails::sum('instruction_duration');
 
         // Get all pending instruction requests
-//        $pendingRequests = InstructionRequestDetails::where('status', 'pending')->get();
         $pendingRequests = $this->instructionRequestService->getRequestsByStatus('pending');
 
         // Get all in-progress instruction requests

@@ -13,7 +13,7 @@
             "foreign": "instruction_requests,id,cascade"
         },
         {
-            "name": "librarian_id",
+            "name": "assigned_librarian_id",
             "dbType": "unsignedBigInteger",
             "htmlType": "select",
             "validations": "nullable|exists:users,id",

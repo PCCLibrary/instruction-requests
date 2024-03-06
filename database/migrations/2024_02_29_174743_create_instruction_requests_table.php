@@ -40,6 +40,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->boolean('written_draft')->default(false);
             $table->boolean('other_learning_outcome')->default(false);
             $table->text('other_learning_outcome_description')->nullable();
+            $table->text('library_instruction_description')->nullable();
             $table->text('desired_student_outcomes')->nullable();
             $table->text('genai_discussion_interest')->nullable();
             $table->text('other_notes')->nullable();

@@ -88,6 +88,7 @@ class InstructionRequest extends Model
         'written_draft',
         'other_learning_outcome',
         'other_learning_outcome_description',
+        'library_instruction_description',
         'desired_student_outcomes',
         'genai_discussion_interest',
         'other_notes',
@@ -122,6 +123,7 @@ class InstructionRequest extends Model
         'written_draft' => 'boolean',
         'other_learning_outcome' => 'boolean',
         'other_learning_outcome_description' => 'string',
+        'library_instruction_description' => 'string',
         'desired_student_outcomes' => 'string',
         'genai_discussion_interest' => 'string',
         'other_notes' => 'string',
@@ -204,6 +206,8 @@ class InstructionRequest extends Model
             'written_draft' => 'nullable|boolean',
             'other_learning_outcome' => 'nullable|boolean',
             'other_learning_outcome_description' => 'nullable|string',
+            'library_instruction_description' => 'nullable|string',
+
         ];
 
         // Additional rules for creation

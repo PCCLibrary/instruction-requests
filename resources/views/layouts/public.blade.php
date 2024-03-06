@@ -25,7 +25,7 @@
     <div class="bg-secondary p-4">
         <div class="container">
             <nav class="m-0 col-12" aria-label="breadcrumb">
-                <ol class="breadcrumb bg-secondary m-0">
+                <ol class="breadcrumb bg-secondary m-0 p-0">
                     <li class="breadcrumb-item"><a class="text-white" href="https://www.pcc.edu/library/">Home</a></li>
                     <li class="breadcrumb-item active text-white" aria-current="page">Library Instruction Request</li>
                 </ol>
@@ -34,7 +34,7 @@
     </div>
     <section class="w-100 m-0 py-4 py-lg-6 py-xl-6 bg-light mb-4">
         <div class="container">
-            <div class="row align-items-center">
+            <div class="align-items-center">
 
                 <div class="py-4 col-lg-8">
                     <h1 class="display-4 mt-0 text-blue">Library Instruction Request</h1>

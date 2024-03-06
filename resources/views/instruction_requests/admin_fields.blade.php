@@ -1,6 +1,6 @@
 {{--Build array for checkboxes--}}
 {{--{!! Form::hidden('instruction_request_id', $instructionRequest->detail->id) !!}--}}
-{!! Form::hidden('librarian_id', $instructionRequest->librarian_id) !!}
+{!! Form::hidden('assigned_librarian_id', $instructionRequest->assigned_librarian_id) !!}
 {!! Form::hidden('created_by', $instructionRequest->detail->created_by ) !!}
 {!! Form::hidden('last_updated_by',  auth()->user()->display_name ) !!}
 
@@ -9,36 +9,83 @@
 {{--<pre>{{ print_r($checkboxValues, true) }}</pre>--}}
 {{--$instructionRequest->detail--}}
 
-<ul class="list-unstyled mb-4">
-    <li>
-        <x-input-checkbox
-            name="research_guide"
-            label="Research Guide"
-            :value="$instructionRequest->detail->research_guide"
-    />
-    </li>
+<x-input-select name="assigned_librarian_id"
+                label="Assigned Librarian"
+                :options="$librarians->pluck('display_name', 'id')->toArray()"
+                :selected="$instructionRequest->detail->assigned_librarian_id"
+                classes="mb-4"
+/>
 
+
+
+<ul class="list-unstyled mb-4">
+    <li class="mb-2"><strong>Tasks Completed</strong></li>
     <li>
         <x-input-checkbox
             name="video"
             label="Video"
-            :value="$instructionRequest->detail->video"
+            :checked="$instructionRequest->detail->video"
+        />
+    </li>
+    <li>
+        <x-input-checkbox
+            name="non_video"
+            label="Non video"
+            :checked="$instructionRequest->detail->non_video"
+        />
+    </li>
+    <li>
+        <x-input-checkbox
+            name="modified_tutorial"
+            label="Modified Tutorial"
+            :checked="$instructionRequest->detail->modified_tutorial"
+        />
+    </li>
+    <li>
+        <x-input-checkbox
+            name="embedded"
+            label="Embedded Librarian"
+            :checked="$instructionRequest->detail->embedded"
+        />
+    </li>
+
+    <li>
+        <x-input-checkbox
+            name="research_guide"
+            label="Research Guide"
+            :checked="$instructionRequest->detail->research_guide"
+    />
+    </li>
+
+    <li>
+        <x-input-checkbox
+            name="handout"
+            label="Handout"
+            :checked="$instructionRequest->detail->handout"
     />
     </li>
 
     <li>
     <x-input-checkbox
-        name="embedded"
-        label="Embedded"
-        :value="$instructionRequest->detail->embedded"
+        name="developed_assigment"
+        label="Developed Assignment"
+        :checked="$instructionRequest->detail->developed_assignment"
     />
     </li>
     <li>
     <x-input-checkbox
-        name="other"
+        name="other_materials"
         label="Other"
-        :value="$instructionRequest->detail->other"
+        :checked="$instructionRequest->detail->other_materials"
     />
+    </li>
+    <li>
+        <x-textarea
+            name="other_describe"
+            label="Describe Other"
+            :value="$instructionRequest->detail->other_describe"
+            classes="p-0 my-4"
+        />
     </li>
 </ul>
 <!-- Instruction Duration (Text Input) -->

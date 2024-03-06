@@ -3,6 +3,9 @@
 @section('content')
     <div class="content px-3">
 
+{{--        <pre>{{ print_r(json_encode($instructionRequest), true) }}</pre>--}}
+
+
         @include('adminlte-templates::common.errors')
 
             {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}

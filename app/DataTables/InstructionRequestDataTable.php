@@ -51,7 +51,7 @@ class InstructionRequestDataTable extends DataTable
             ->leftJoin('instructors', 'instruction_requests.instructor_id', '=', 'instructors.id')
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
             ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_request_id')
-            ->leftJoin('users as librarians', 'instruction_request_details.librarian_id', '=', 'librarians.id')
+            ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
             ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id') // Adjust this line
             ->select(
                 'instruction_requests.*',

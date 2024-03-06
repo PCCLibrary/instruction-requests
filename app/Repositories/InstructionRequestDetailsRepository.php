@@ -17,7 +17,7 @@ class InstructionRequestDetailsRepository extends BaseRepository
      * @var array
      */
     protected $fieldSearchable = [
-        'librarian_id',
+        'assigned_librarian_id',
     ];
 
     /**

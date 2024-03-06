@@ -82,7 +82,7 @@ class InstructionRequestService implements InstructionRequestInterface
 
             // After successfully creating InstructionRequest, create details
             $instructionRequestDetailData = [
-                'librarian_id' => $data['librarian_id'],  // Add the librarian_id from the original data
+                'assigned_librarian_id' => $data['librarian_id'],  // Add the librarian_id from the original data
                 'instruction_request_id' => $instructionRequest->id,
                 'created_by' => $data['created_by'],  // Add the created_by from the original data
                 'last_updated_by' => $data['created_by'],  // Add the created_by from the original data
@@ -251,6 +251,7 @@ class InstructionRequestService implements InstructionRequestInterface
     {
         return InstructionRequest::with(['instructor', 'classes'])
             ->where('status', $status)
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 

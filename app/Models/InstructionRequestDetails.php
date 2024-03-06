@@ -12,13 +12,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @version February 26, 2024, 10:37 pm UTC
  *
  * @property unsignedInteger $instruction_request_id
- * @property unsignedBigInteger $librarian_id
+ * @property unsignedBigInteger $assigned_librarian_id
  * @property string $instruction_duration
  * @property string $class_notes
- * @property bool $research_guide
- * @property bool $video
- * @property bool $embedded
- * @property bool $other
+ * @property bool $video,
+ * @property bool $non_video,
+ * @property bool $modified_tutorial,
+ * @property bool $embedded,
+ * @property bool $research_guide,
+ * @property bool $handout,
+ * @property bool $developed_assignment,
+ * @property bool $other_materials,
+ * @property string $other_describe,
  * @property json $materials
  * @property string $assessment_notes
  * @property json $assessments
@@ -36,19 +41,23 @@ class InstructionRequestDetails extends Model
 
     protected $fillable = [
         'instruction_request_id',
-        'librarian_id',
+        'assigned_librarian_id',
         'instruction_duration',
         'class_notes',
-        'research_guide',
         'video',
+        'non_video',
+        'modified_tutorial',
         'embedded',
-        'other',
+        'research_guide',
+        'handout',
+        'developed_assignment',
+        'other_materials',
+        'other_describe',
         'materials',
         'assessment_notes',
         'assessments',
         'created_by',
-        'last_updated_by',
-
+        'last_updated_by'
     ];
 
     /**
@@ -59,18 +68,23 @@ class InstructionRequestDetails extends Model
     protected $casts = [
         'id' => 'integer',
         'instruction_request_id' => 'integer',
-        'librarian_id' => 'integer',
+        'assigned_librarian_id' => 'integer',
         'instruction_duration' => 'string',
         'class_notes' => 'string',
-        'research_guide' => 'boolean',
         'video' => 'boolean',
+        'non_video' => 'boolean',
+        'modified_tutorial' => 'boolean',
         'embedded' => 'boolean',
-        'other' => 'boolean',
+        'research_guide' => 'boolean',
+        'handout' => 'boolean',
+        'developed_assignment' => 'boolean',
+        'other_materials' => 'boolean',
+        'other_describe' => 'string',
         'materials' => 'array',
         'assessment_notes' => 'string',
         'assessments' => 'array',
         'created_by' => 'string',
-        'last_updated_by' => 'string',
+        'last_updated_by' => 'string'
     ];
 
     /**
@@ -80,17 +94,22 @@ class InstructionRequestDetails extends Model
      */
     public static $rules = [
         'instruction_request_id' => 'required|exists:instruction_requests,id',
-        'librarian_id' => 'nullable|exists:users,id',
+        'assigned_librarian_id' => 'nullable|exists:users,id',
         'instruction_duration' => 'string',
         'class_notes' => 'string',
-        'research_guide' => 'nullable|boolean',
         'video' => 'nullable|boolean',
+        'non_video' => 'nullable|boolean',
+        'modified_tutorial' => 'nullable|boolean',
         'embedded' => 'nullable|boolean',
-        'other' => 'nullable|boolean',
+        'research_guide' => 'nullable|boolean',
+        'handout' => 'nullable|boolean',
+        'developed_assignment' => 'nullable|boolean',
+        'other_materials' => 'nullable|boolean',
+        'other_describe' => 'nullable|string',
         'materials' => 'nullable|array',
         'assessment_notes' => 'nullable|string',
         'assessments' => 'nullable|array',
         'created_by' => 'required|string',
-        'last_updated_by' => 'required|string',
+        'last_updated_by' => 'required|string'
     ];
 }

@@ -1,4 +1,4 @@
-@props(['instructionRequests'])
+{{--@props(['instructionRequests'])--}}
 
 <div class="card">
     <div class="card-header bg-lightblue">
@@ -12,7 +12,7 @@
         <tr>
             <th>Instructor Name</th>
             <th>Class Name</th>
-            <th>Type</th>
+{{--            <th>Type</th>--}}
             <th>Preferred Date & time</th>
             <th>Actions</th>
         </tr>
@@ -22,7 +22,7 @@
             <tr>
                 <td><a href="{{ route('instructors.edit', $request->Instructor->id) }}"><i class="fa fa-edit"></i> {{ $request->Instructor->display_name }}</a></td>
                 <td>{{ $request->classes->course_name }}</td>
-                <td>{{ $request->instruction_type }}</td>
+{{--                <td>{{ $request->instruction_type }}</td>--}}
                 <td>{{ \Carbon\Carbon::parse($request->preferred_datetime)->format('M d-g:i A') }}</td>
                 <td>
                     @include('instruction_requests.datatables_actions', ['id' => $request->id])

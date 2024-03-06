@@ -49,6 +49,7 @@ class InstructionRequestDetailsController extends AppBaseController
     public function edit($id)
     {
         $instructionRequestDetails = $this->instructionRequestDetailsService->getInstructionRequestDetailsById($id);
+        $librarians = User::all(); // librarian model
 
         if (empty($instructionRequestDetails)) {
             Flash::error('Instruction Request Details not found');
@@ -57,7 +58,9 @@ class InstructionRequestDetailsController extends AppBaseController
 
 //        Log::debug('$instructionRequestDetails: '.json_encode($instructionRequestDetails));
 
-        return view('instruction_request_details.edit')->with('instructionRequestDetails', $instructionRequestDetails);
+        return view('instruction_request_details.edit')
+            ->with('instructionRequestDetails', $instructionRequestDetails)
+            ->with('librarians', $librarians);
     }
 
     /**
