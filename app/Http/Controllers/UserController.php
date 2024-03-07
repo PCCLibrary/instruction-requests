@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\UserDataTable;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
@@ -25,14 +26,14 @@ class UserController extends AppBaseController
      * Display a listing of the User.
      *
      * @param Request $request
+     * @param UserDataTable $userDataTable
      *
      * @return Response
      */
-    public function index(Request $request)
+    public function index(UserDataTable $userDataTable)
     {
-        $users = $this->userRepository->all();
+        return $userDataTable->render('instructors.index');
 
-        return view('users.index')->with('users', $users);
     }
 
     /**

@@ -17,14 +17,14 @@ class CreateInstructionRequestDetailsTable extends Migration
             $table->increments('id'); // Primary key for the details table
             $table->unsignedInteger('instruction_request_id');
             $table->unsignedBigInteger('assigned_librarian_id')->nullable(); // Librarian might not be assigned initially
-            $table->boolean('video')->default(false)->nullable();
-            $table->boolean('non_video')->default(false)->nullable();
-            $table->boolean('modified_tutorial')->default(false)->nullable();
-            $table->boolean('embedded')->default(false)->nullable();
-            $table->boolean('research_guide')->default(false)->nullable();
-            $table->boolean('handout')->default(false)->nullable();
-            $table->boolean('developed_assignment')->default(false)->nullable();
-            $table->boolean('other_materials')->default(false)->nullable();
+            $table->boolean('video')->default(false);
+            $table->boolean('non_video')->default(false);
+            $table->boolean('modified_tutorial')->default(false);
+            $table->boolean('embedded')->default(false);
+            $table->boolean('research_guide')->default(false);
+            $table->boolean('handout')->default(false);
+            $table->boolean('developed_assignment')->default(false);
+            $table->boolean('other_materials')->default(false);
             $table->text('other_describe')->nullable();
             $table->string('instruction_duration')->nullable();
             $table->text('class_notes')->nullable();

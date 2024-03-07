@@ -6,17 +6,17 @@ use App\DataTables\InstructorDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateInstructorRequest;
 use App\Http\Requests\UpdateinstructorRequest;
-use App\Repositories\InstructorRepository;
+use App\Repositories\IRinstructorRepository;
 use Laracasts\Flash\Flash;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Response;
 
 class InstructorController extends AppBaseController
 {
-    /** @var InstructorRepository $InstructorRepository*/
+    /** @var IRinstructorRepository $InstructorRepository*/
     private $InstructorRepository;
 
-    public function __construct(InstructorRepository $InstructorRepo)
+    public function __construct(IRinstructorRepository $InstructorRepo)
     {
         $this->InstructorRepository = $InstructorRepo;
     }

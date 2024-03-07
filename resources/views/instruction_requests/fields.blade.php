@@ -12,6 +12,8 @@
         </div>
 
     </div>
+    {!! Form::hidden('instruction_request_id', $instructionRequest->id) !!}
+
 @else
     <div class="row mb-4">
         <h3 class="col-12 mb-4">Contact Information</h3>

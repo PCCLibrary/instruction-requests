@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -95,16 +96,16 @@ class InstructionRequestDetails extends Model
     public static $rules = [
         'instruction_request_id' => 'required|exists:instruction_requests,id',
         'assigned_librarian_id' => 'nullable|exists:users,id',
-        'instruction_duration' => 'string',
-        'class_notes' => 'string',
-        'video' => 'nullable|boolean',
-        'non_video' => 'nullable|boolean',
-        'modified_tutorial' => 'nullable|boolean',
-        'embedded' => 'nullable|boolean',
-        'research_guide' => 'nullable|boolean',
-        'handout' => 'nullable|boolean',
-        'developed_assignment' => 'nullable|boolean',
-        'other_materials' => 'nullable|boolean',
+        'instruction_duration' => 'nullable|string',
+        'class_notes' => 'nullable|string',
+        'video' => 'boolean',
+        'non_video' => 'boolean',
+        'modified_tutorial' => 'boolean',
+        'embedded' => 'boolean',
+        'research_guide' => 'boolean',
+        'handout' => 'boolean',
+        'developed_assignment' => 'boolean',
+        'other_materials' => 'boolean',
         'other_describe' => 'nullable|string',
         'materials' => 'nullable|array',
         'assessment_notes' => 'nullable|string',
@@ -112,4 +113,15 @@ class InstructionRequestDetails extends Model
         'created_by' => 'required|string',
         'last_updated_by' => 'required|string'
     ];
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @param Request $request
+     * @return array
+     */
+    public static function getRules(Request $request): array
+    {
+        return static::$rules;
+    }
 }

@@ -64,6 +64,7 @@ class InstructionRequest extends Model
      * @var string[]
      */
     protected $fillable = [
+//        'instruction_request_id',
         'instruction_type',
         'course_modality',
         'librarian_id',
@@ -104,7 +105,7 @@ class InstructionRequest extends Model
         'course_modality' => 'string',
         'librarian_id' => 'integer',
         'campus_id' => 'integer',
-        'class_id',
+        'class_id' => 'integer',
         'department' => 'string',
         'course_number' => 'string',
         'course_crn' => 'string',
@@ -128,7 +129,6 @@ class InstructionRequest extends Model
         'genai_discussion_interest' => 'string',
         'other_notes' => 'string',
         'status' => 'string',
-
     ];
 
     // Define relationships
@@ -192,19 +192,19 @@ class InstructionRequest extends Model
             'course_number' => 'nullable|string',
             'course_crn' => 'nullable|string',
             'number_of_students' => 'nullable|integer',
-            'ada_provisions_needed' => 'nullable|boolean',
+            'ada_provisions_needed' => 'boolean',
             'ada_provisions_description' => 'nullable|string',
             'preferred_datetime' => 'nullable|date',
             'alternate_datetime' => 'nullable|date',
             'duration' => 'nullable|string',
             'asynchronous_instruction_ready_date' => 'nullable|date',
-            'need_extra_time' => 'nullable|boolean',
+            'need_extra_time' => 'boolean',
             'extra_time_with_class' => 'nullable|string',
-            'received_assignment' => 'nullable|boolean',
-            'selected_topics' => 'nullable|boolean',
-            'explored_background' => 'nullable|boolean',
-            'written_draft' => 'nullable|boolean',
-            'other_learning_outcome' => 'nullable|boolean',
+            'received_assignment' => 'boolean',
+            'selected_topics' => 'boolean',
+            'explored_background' => 'boolean',
+            'written_draft' => 'boolean',
+            'other_learning_outcome' => 'boolean',
             'other_learning_outcome_description' => 'nullable|string',
             'library_instruction_description' => 'nullable|string',
 
@@ -227,10 +227,33 @@ class InstructionRequest extends Model
                 'librarian_id' => 'required|exists:users,id',
                 'campus_id' => 'required|exists:campuses,id',
                 'instructor_id' => 'required|exists:instructors,id',
+                'instruction_request_id' => 'required|exists:instruction_requests,id',
             ];
+
+            // Merge detail rules for the edit operation
+            $rules = self::mergeDetailRules($rules, $request);
         }
 
         return $rules;
+    }
+
+    /**
+     * Merge the detail rules for the edit operation.
+     *
+     * @param array $rules
+     * @param Request $request
+     * @return array
+     */
+    private static function mergeDetailRules(array $rules, Request $request): array
+    {
+        // Create an instance of InstructionRequestDetails
+        $instructionRequestDetails = new InstructionRequestDetails;
+
+        // Get the detail rules
+        $detailRules = $instructionRequestDetails::getRules($request);
+
+        // Merge the detail rules
+        return array_merge($rules, $detailRules);
     }
 
 }

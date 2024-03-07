@@ -83,13 +83,6 @@ class InstructionRequestDetailsService
             // Update boolean fields based on checkbox values
             $currentDetails->fill($data);
 
-            // Update boolean fields based on checkbox values
-//            $currentDetails->research_guide = isset($data['research_guide']) ? filter_var($data['research_guide'], FILTER_VALIDATE_BOOLEAN) : false;
-//            $currentDetails->video = isset($data['video']) ? filter_var($data['video'], FILTER_VALIDATE_BOOLEAN) : false;
-//            $currentDetails->embedded = isset($data['embedded']) ? filter_var($data['embedded'], FILTER_VALIDATE_BOOLEAN) : false;
-//            $currentDetails->other = isset($data['other']) ? filter_var($data['other'], FILTER_VALIDATE_BOOLEAN) : false;
-
-
             // Handle multiple file uploads for materials
             if (isset($data['materials']) && is_array($data['materials'])) {
                 $materialsPaths = [];
@@ -125,12 +118,15 @@ class InstructionRequestDetailsService
             // Log save result, updated attributes, and SQL queries for debugging
             Log::debug('Save result: ' . json_encode($saveResult));
             Log::debug('Updated model attributes: ' . json_encode($currentDetails->getAttributes()));
-            Log::debug('SQL queries: ' . json_encode(DB::getQueryLog()));
+            Log::debug('detail SQL queries: ' . json_encode(DB::getQueryLog()));
+
 
             // Check if changes were detected
             if ($saveResult && $currentDetails->wasChanged()) {
                 Log::debug('Model changes detected.');
             }
+
+            DB::disableQueryLog();
 
             return $currentDetails;
         }

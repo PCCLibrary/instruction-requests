@@ -6,12 +6,12 @@ use App\Models\Instructor;
 use App\Repositories\BaseRepository;
 
 /**
- * Class InstructorRepository
+ * Class IRinstructorRepository
  * @package App\Repositories
  * @version January 26, 2024, 11:59 pm UTC
 */
 
-class InstructorRepository extends BaseRepository
+class IRinstructorRepository extends BaseRepository
 {
     /**
      * @var array
@@ -36,6 +36,7 @@ class InstructorRepository extends BaseRepository
 
     /**
      * Configure the Model
+     * @return Instructor
      **/
     public function model()
     {

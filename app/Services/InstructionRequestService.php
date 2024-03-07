@@ -107,6 +107,10 @@ class InstructionRequestService implements InstructionRequestInterface
      */
     public function updateInstructionRequest(array $data, int $id): InstructionRequest
     {
+
+        // Enable query logging
+        DB::enableQueryLog();
+
         return DB::transaction(function () use ($id, $data) {
 
             $instructionRequest = $this->findInstructionRequestById($id);
@@ -127,7 +131,11 @@ class InstructionRequestService implements InstructionRequestInterface
             // Update logic here
             $this->instructionRequestRepository->update($data, $id);
 
+            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
+
 //            Flash::success('Instruction Request updated successfully.');
+
+            DB::disableQueryLog();
 
             return $instructionRequest;
         });

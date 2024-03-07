@@ -15,15 +15,15 @@
 
     {!! Form::close() !!}
 
-    {!! Form::open(['route' => ['instructionRequests.copy', $id], 'method' => 'get']) !!}
+{{--    {!! Form::open(['route' => ['instructionRequests.copy', $id], 'method' => 'get']) !!}--}}
 
-    {!! Form::button('<i class="fa fa-copy"></i>', [
-        'type' => 'submit',
-        'class' => 'btn btn-info btn-xs',
-        'onclick' => "return confirm('Are you sure you want to duplicate this request?')"
-    ]) !!}
+{{--    {!! Form::button('<i class="fa fa-copy"></i>', [--}}
+{{--        'type' => 'submit',--}}
+{{--        'class' => 'btn btn-info btn-xs',--}}
+{{--        'onclick' => "return confirm('Are you sure you want to duplicate this request?')"--}}
+{{--    ]) !!}--}}
 
-    {!! Form::close() !!}
+{{--    {!! Form::close() !!}--}}
 
 {{--    <a href="{{ route('instructionRequests.copy', $id) }}" class='btn btn-info btn-xs'>--}}
 {{--        <i class="fa fa-copy"></i>--}}
