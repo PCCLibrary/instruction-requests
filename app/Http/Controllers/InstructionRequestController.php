@@ -67,12 +67,8 @@ class InstructionRequestController extends AppBaseController
         $campuses = Campus::all(); // Reflecting change to 'campuses' for clarity
         $instructors = Instructor::all(); // grab instructors
 
-//        Log::debug('Departments: ' . json_encode($departments->toArray()));
-//        Log::debug('Librarians: ' . json_encode($librarians->toArray()));
-//        Log::debug('Campuses: ' . json_encode($campuses->toArray()));
-//        Log::debug('Instructors: ' . json_encode($instructors->toArray()));
-
         return view('instruction_requests.create')
+            ->with('instructionRequest', null)
             ->with('librarians', $librarians)
             ->with('campuses', $campuses)
             ->with('instructors', $instructors)
