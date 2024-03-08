@@ -69,7 +69,6 @@ class InstructionRequestService implements InstructionRequestInterface
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
             $data['status'] = 'pending';
-
             $data['created_by'] = $this->getCreatedBy($data);
 
 
@@ -109,7 +108,7 @@ class InstructionRequestService implements InstructionRequestInterface
     {
 
         // Enable query logging
-        DB::enableQueryLog();
+//        DB::enableQueryLog();
 
         return DB::transaction(function () use ($id, $data) {
 
@@ -133,9 +132,9 @@ class InstructionRequestService implements InstructionRequestInterface
 
             Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
 
-//            Flash::success('Instruction Request updated successfully.');
+            Flash::success('Instruction Request updated successfully.');
 
-            DB::disableQueryLog();
+//            DB::disableQueryLog();
 
             return $instructionRequest;
         });
@@ -257,7 +256,7 @@ class InstructionRequestService implements InstructionRequestInterface
      */
     public function getRequestsByStatus(string $status)
     {
-        return InstructionRequest::with(['instructor', 'classes'])
+        return InstructionRequest::with(['instructor', 'detail','classes', 'campus'])
             ->where('status', $status)
             ->orderBy('created_at', 'desc')
             ->get();

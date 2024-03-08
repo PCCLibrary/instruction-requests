@@ -1,18 +1,18 @@
 {{-- components/input-datetime.blade.php --}}
-@props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', ])
+@props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', 'required' => false ])
 
 <div class="{{ $classes }}">
-    <label for="{{ $name }}">{{ $label }}</label>
+    <x-label :label="$label" :required="$required" />
     <input type="datetime-local"
            class="form-control"
            name="{{ $name }}"
            id="{{ $name }}"
            value="{{ old($name, str_replace(' ', 'T', $value)) }}"
            @if($helptext) aria-describedby="{{ $name }}-help" @endif
+         @if($required)required @endif
     />
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
+
 </div>

@@ -47,12 +47,14 @@ class InstructionRequestDataTable extends DataTable
      */
     public function query(InstructionRequest $model)
     {
+        $search = request('search.value');
+
         return $model->newQuery()
             ->leftJoin('instructors', 'instruction_requests.instructor_id', '=', 'instructors.id')
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
             ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_request_id')
             ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
-            ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id') // Adjust this line
+            ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id')
             ->select(
                 'instruction_requests.*',
                 'instructors.display_name as instructor_name',
@@ -61,10 +63,20 @@ class InstructionRequestDataTable extends DataTable
                 'librarians.display_name as librarian_name',
                 'instruction_requests.status',
                 'instruction_request_details.created_by',
-                'instruction_requests.preferred_datetime',
-                'campuses.name as campus_name' // Include this line
-            );
+//                'instruction_requests.preferred_datetime',
+                'campuses.name as campus_name'
+            )
+            ->where(function ($query) use ($search) {
+                $query->where('instructors.display_name', 'like', "%$search%")
+                    ->orWhere('instruction_requests.status', 'like', "%$search%")
+                    ->orWhere('classes.course_name', 'like', "%$search%")
+                    ->orWhere('librarians.display_name', 'like', "%$search%")
+//                    ->orWhere('instruction_requests.preferred_datetime', 'like', "%$search%")
+                    ->orWhere('campuses.name', 'like', "%$search%");
+                // Add more columns as needed
+            });
     }
+
 
 
     /**
@@ -83,9 +95,9 @@ class InstructionRequestDataTable extends DataTable
                 'stateSave' => true,
                 'order'     => [[0, 'desc']],
                 'buttons'   => [
-                    ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner',],
+                    ['extend' => 'create', 'className' => 'btn btn-success btn-sm no-corner',],
+                    ['extend' => 'export', 'className' => 'btn btn-yellow btn-sm no-corner',],
+                    ['extend' => 'print', 'className' => 'btn btn-info btn-sm no-corner',],
                 ],
             ]);
     }

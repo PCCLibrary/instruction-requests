@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\CampusDataTable;
-use App\Http\Requests;
 use App\Http\Requests\CreateCampusRequest;
 use App\Http\Requests\UpdateCampusRequest;
 use App\Repositories\CampusRepository;
-use Flash;
+use Laracasts\Flash\Flash;
 use App\Http\Controllers\AppBaseController;
-use Response;
+use Illuminate\Http\Client\Response;
 
 class CampusController extends AppBaseController
 {

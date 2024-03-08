@@ -26,6 +26,9 @@ use Illuminate\Http\Request;
  * @property string $course_number
  * @property string $course_crn
  * @property integer $number_of_students
+ * @property array class_syllabus,
+ * @property array instructor_attachments,
+ * @property string assignment_description,
  * @property boolean $ada_provisions_needed
  * @property string $ada_provisions_description
  * @property datetime $preferred_datetime
@@ -75,6 +78,9 @@ class InstructionRequest extends Model
         'course_number',
         'course_crn',
         'number_of_students',
+        'class_syllabus',
+        'instructor_attachments',
+        'assignment_description',
         'ada_provisions_needed',
         'ada_provisions_description',
         'preferred_datetime',
@@ -110,6 +116,9 @@ class InstructionRequest extends Model
         'course_number' => 'string',
         'course_crn' => 'string',
         'number_of_students' => 'integer',
+        'class_syllabus' => 'array',
+        'instructor_attachments' => 'array',
+        'assignment_description' => 'string',
         'ada_provisions_needed' => 'boolean',
         'ada_provisions_description' => 'string',
         'preferred_datetime' => 'datetime',
@@ -192,6 +201,9 @@ class InstructionRequest extends Model
             'course_number' => 'nullable|string',
             'course_crn' => 'nullable|string',
             'number_of_students' => 'nullable|integer',
+            'class_syllabus' => 'nullable|array',
+            'instructor_attachments' => 'nullable|array',
+            'assignment_description' => 'nullable|string',
             'ada_provisions_needed' => 'boolean',
             'ada_provisions_description' => 'nullable|string',
             'preferred_datetime' => 'nullable|date',

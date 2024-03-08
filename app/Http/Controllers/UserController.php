@@ -17,22 +17,21 @@ class UserController extends AppBaseController
     /** @var $userRepository UserRepository */
     private $userRepository;
 
-    public function __construct(UserRepository $userRepo)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->userRepository = $userRepo;
+        $this->userRepository = $userRepository;
     }
 
     /**
      * Display a listing of the User.
      *
-     * @param Request $request
      * @param UserDataTable $userDataTable
      *
      * @return Response
      */
     public function index(UserDataTable $userDataTable)
     {
-        return $userDataTable->render('instructors.index');
+        return $userDataTable->render('users.index');
 
     }
 

@@ -2,7 +2,7 @@
 @props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
 <div class="{{ $classes }}">
-    <label>{{ $label }}</label>
+    <x-label :label="$label" :required="$required" />
     <div class="form-group row">
         @foreach($options as $value => $text)
             <div class="form-check">
@@ -21,10 +21,7 @@
             </div>
         @endif
     </div>
-
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
 </div>

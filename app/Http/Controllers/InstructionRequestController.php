@@ -11,9 +11,13 @@ use App\Models\InstructionRequest;
 use App\Models\User;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Flash\Flash;
+use Throwable;
 
 /**
  *
@@ -78,10 +82,10 @@ class InstructionRequestController extends AppBaseController
     /**
      * Store a newly created InstructionRequest in storage.
      *
-     * @param \App\Http\Requests\CreateInstructionRequestRequest $request
+     * @param CreateInstructionRequestRequest $request
      *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|Response|\Illuminate\Routing\Redirector
-     * @throws \Throwable
+     * @return Application|RedirectResponse|Redirector
+     * @throws Throwable
      */
     public function store(CreateInstructionRequestRequest $request)
     {
@@ -178,7 +182,7 @@ class InstructionRequestController extends AppBaseController
      * Duplicate the selected instruction request and associated detail
      *
      * @param $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function copy($id)
     {

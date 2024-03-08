@@ -2,8 +2,11 @@
 @props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
 <div class="{{ $classes }}">
-    <label for="{{ $name }}">{{ $label }}</label>
-    <select class="form-control" name="{{ $name }}" id="{{ $name }}">
+    <x-label :label="$label" :required="$required" />
+    <select class="form-control" name="{{ $name }}" id="{{ $name }}"
+            @if($required)required @endif
+    >
+        <option value="">select {{ $label }}</option>
         @foreach($options as $id => $display_name)
             <option value="{{ $id }}" {{ (string) $id === (string) old($name, $selected) ? 'selected' : '' }}>{{ $display_name }}</option>
         @endforeach
@@ -12,8 +15,6 @@
         @endif
     </select>
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
 </div>

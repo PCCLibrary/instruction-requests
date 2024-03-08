@@ -4,17 +4,15 @@
 <div class=" {{ $classes }}">
 
     <div class="form-group">
+        {{ Form::hidden($name, '0') }}
         {{ Form::checkbox($name,  '1',  $checked) }}
-        {{ Form::label($name, null, ['class' => 'form-check-label', 'for' => $name]) }}
+        <x-label label="{{ $label }}" classes="form-check-label" />
     </div>
 
-{{--    <pre>{{  print_r(json_encode($checked), true) }}</pre>--}}
-
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
+
 </div>
 
 

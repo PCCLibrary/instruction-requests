@@ -9,6 +9,11 @@
 {{--    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">--}}
 {{--    <link href="{{ asset('css/app.css') }}" rel="stylesheet">--}}
 
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body class="page-template page-template-page-no-sidebar page-template-page-no-sidebar-php page page-instruction-request" data-template="base.twig" lang="en-US">
 

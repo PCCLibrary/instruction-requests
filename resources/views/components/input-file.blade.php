@@ -2,11 +2,9 @@
 @props(['name', 'label', 'accept' => '', 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
 <div class="{{ $classes }}">
-    <label>{{ $label }}</label>
+    <x-label :label="$label" :required="$required" />
     <input type="file" name="{{ $name }}" accept="{{ $accept }}" {{ $attributes }}>
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
 </div>

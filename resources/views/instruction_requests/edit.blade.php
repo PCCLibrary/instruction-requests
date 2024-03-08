@@ -3,8 +3,9 @@
 @section('content')
     <div class="content px-3">
 
-{{--        <pre>{{ print_r(json_encode($instructionRequest), true) }}</pre>--}}
+        @include('flash::message')
 
+        <div class="clearfix"></div>
 
         @include('adminlte-templates::common.errors')
 
@@ -12,16 +13,13 @@
 
                     <div class="row mt-4">
 
-                        <div class="col-md-9 card">
-                            <div class="card-body">
+                        <x-card classes="col-md-9">
+                            @include('instruction_requests.fields')
+                        </x-card>
 
-                                @include('instruction_requests.fields')
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
+                    <div class="col-md-3">
                             <x-card title="Edit Instruction Request"
-                                    classes="bg-lightblue">
+                                    headerclass="bg-lightblue">
                                 <x-editor-actions
                                     route="{{ route('instructionRequests.index') }}"
                                     :showBack="true"
@@ -44,8 +42,7 @@
                             </x-card>
 
 
-                            <x-card title="Manage" classes="bg-info">
-
+                            <x-card title="Manage" headerclass="bg-info">
                                 @include('instruction_requests.admin_fields')
                             </x-card>
 

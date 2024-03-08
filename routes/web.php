@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicInstructionRequestController;
+use App\Http\Controllers\UploadController;
 
 
 /*
@@ -73,8 +74,12 @@ Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionReq
 // copy instruction requests
 Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy');
 
-// Resource route fro managing classes
+// Resource route for managing classes
 Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
+
+
+// file uploads
+Route::post('/file/upload', [UploadController::class, 'upload'])->name('file.upload');
 
 
 /*

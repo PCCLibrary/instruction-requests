@@ -14,6 +14,12 @@
     </a>
 </li>
 
+<li class="nav-item">
+    <a href="{{ route('classes.index') }}"
+       class="nav-link {{ Request::is('classes*') ? 'active' : '' }}">
+        <i class="fa fa-book"></i> <span>Classes</span>
+    </a>
+</li>
 
 <li class="nav-item">
     <a href="{{ route('campuses.index') }}"

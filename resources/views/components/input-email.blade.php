@@ -2,7 +2,7 @@
 @props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', 'required' => false])
 
 <div class="{{ $classes }}">
-    <label for="{{ $name }}">{{ $label }}</label>
+    <x-label :label="$label" :required="$required" />
     <input type="email"
            class="form-control"
            name="{{ $name }}"
@@ -12,8 +12,7 @@
            @if($required) required @endif
     />
     @if($helptext)
-        <small id="{{ $name }}-help" class="form-text text-muted">
-            {{ $helptext }}
-        </small>
+        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
     @endif
+
 </div>

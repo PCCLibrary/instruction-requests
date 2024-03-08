@@ -1,21 +1,51 @@
 {{-- Check if we are editing an existing instruction request --}}
 @isset($instructionRequest->id)
-    <div class="row mb-4">
+
+    <x-card classes="bg-gray-500">
+   <x-row>
         <div class="col-6">
-            <h3>Instructor</h3>
-        {{-- Instructor Field as a select dropdown for edit --}}
-        <x-input-select name="instructor_id"
-                        label="Instructor"
-                        :options="$instructors->pluck('display_name', 'id')"
-                        :selected="old('instructor_id', $instructionRequest->instructor_id ?? null)"
-        />
+
+            <ul class="list-unstyled">
+                <li><h3 class="mb-2">Instructor</h3></li>
+                <li><a href="{{ route('instructors.edit', $instructionRequest->instructor_id) }}" title="Click to edit instructor information"><i class="fa fa-edit"></i> {{ $instructionRequest->instructor->display_name }}</a></li>
+                <li><a href="mailto:{{ $instructionRequest->instructor->email }}" title="Click to email instructor"><i class="fa fa-envelope"></i> {{ $instructionRequest->instructor->email }}</a></li>
+            </ul>
         </div>
 
-    </div>
-    {!! Form::hidden('instruction_request_id', $instructionRequest->id) !!}
+       <div class="col-3">
+           <ul class="list-unstyled">
+               <li><label class="mr-4">Placeholder for syllabus</label>
+               </li>
+            <li class="text-blue"><i class="fa fa-file"></i> Syllabus</li>
+           </ul>
+       </div>
+
+       <div class="col-3">
+           <ul class="list-unstyled">
+               <li><label>Placeholder for assignments</label></li>
+               <li class="text-blue"><i class="fa fa-file"></i> Assignment 1</li>
+               <li class="text-blue"><i class="fa fa-file"></i> Assignment 2</li>
+               <li class="text-blue"><i class="fa fa-file"></i> Assignment 3</li>
+           </ul>
+
+       </div>
+
+   </x-row>
+
+    <x-row classes="row py-0 my-0">
+       <x-textarea name="assignment_description"
+                   label="Assignment Description"
+                   :value="old('assignment_description', $instructionRequest->assignment_description ?? null)"
+                   classes="col-12"
+       />
+   </x-row>
+    </x-card>
+
+       {!! Form::hidden('instruction_request_id', $instructionRequest->id) !!}
+       {!! Form::hidden('instructor_id', $instructionRequest->instructor_id) !!}
 
 @else
-    <div class="row mb-4">
+    <x-row>
         <h3 class="col-12 mb-4">Contact Information</h3>
         {{-- Instructor Name --}}
         <x-input-text name="name"
@@ -39,7 +69,7 @@
                       label="Pronouns"
                       :value="old('pronouns')"
                       classes="col-4"
-                      helptext='Preferred pronouns'
+{{--                      helptext='Preferred pronouns'--}}
 
         />
 
@@ -56,11 +86,11 @@
                       :value="old('phone')"
                       classes="col-4"
         />
-    </div>
+    </x-row>
 @endisset
 
 
-<div class="row mb-4">
+<x-row>
     <h3 class="col-12 mb-4">Instruction Request Information</h3>
     {{-- Instruction Type Field --}}
     <x-input-select name="instruction_type"
@@ -78,9 +108,9 @@
                     helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."
                     classes="col-6"
     />
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
 {{--     Librarian Preference Field--}}
     <x-input-select name="librarian_id"
                     label="Librarian Preference"
@@ -97,9 +127,9 @@
                     classes="col-6"
     />
 
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
 {{--     Department Field--}}
     <x-input-select name="department"
                     label="Subject"
@@ -132,9 +162,9 @@
                   classes="col-3"
 
     />
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
     {{-- ADA Provisions Needed Field --}}
     <x-input-checkbox name="ada_provisions_needed"
                 label="ADA Provisions Needed"
@@ -150,9 +180,9 @@
                 helptext="Describe the ADA accommodations needed for your class."
                 classes="col-8"
     />
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
     {{-- Preferred Datetime Field --}}
     <x-input-datetime name="preferred_datetime"
                       label="Preferred Datetime"
@@ -171,13 +201,13 @@
     />
 
     {{-- Duration Field --}}
-    <x-input-select name="duration"
+    <x-input-text name="duration"
                     label="Duration"
-                    :options="['50' => '50', '70' => '70', '110' => '110', '170' => '170']"
                     :value="old('duration', $instructionRequest->duration ?? null)"
                     helptext="Enter the length of instruction you would like your class to receive, in minutes."
                     classes="col-3"
     />
+
 
     {{-- Asynchronous Instruction Ready Date Field --}}
     <x-input-date name="asynchronous_instruction_ready_date"
@@ -186,26 +216,20 @@
                   classes="col-3"
                   helptext="Asynchronous instruction ready date."
     />
-</div>
+</x-row>
 
-<div class="row mb-4">
-    {{-- Selected Extra Time --}}
-{{--    <x-input-checkbox name="need_extra_time"--}}
-{{--                label="I need extra time with class"--}}
-{{--                :checked="old('need_extra_time', $instructionRequest->need_extra_time ?? false)"--}}
-{{--                  classes="col-3"--}}
-{{--    />--}}
 
+
+<x-row>
     {{-- Extra Time With Class Field --}}
     <x-textarea name="extra_time_with_class"
                 label="Extra Time With Class"
                 :value="old('extra_time_with_class', $instructionRequest->extra_time_with_class ?? null)"
                 classes="col-9"
     />
-</div>
+</x-row>
 
-
-<div class="row mb-4">
+<x-row>
 <div class="col-3">
     <p class="text-bold">Preparation Status</p>
     {{-- Received Assignment Field --}}
@@ -246,23 +270,23 @@
                 :value="old('other_learning_outcome_description', $instructionRequest->other_learning_outcome_description ?? '')"
     />
 </div>
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
     <x-textarea name="library_instruction_description"
                 label="What do you want your students to get out of library instruction?"
                 :value="old('other_learning_outcome_description', $instructionRequest->library_instruction_description ?? '')"
                 classes="col-9"
     />
-</div>
+</x-row>
 
-<div class="row mb-4">
+<x-row>
 
     {{-- genai_discussion_interest Field --}}
     <x-textarea name="genai_discussion_interest"
-                label="Gen AI"
+                label="Generative AI"
                 :value="old('genai_discussion_interest', $instructionRequest->genai_discussion_interest ?? null)"
                 classes="col-9"
     />
 
-</div>
+</x-row>

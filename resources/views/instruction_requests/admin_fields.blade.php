@@ -112,6 +112,12 @@
     classes="mb-4"
 />
 
+<label>Placeholder for assignments</label>
+<ul class="list-unstyled">
+    <li class="text-blue"><i class="fa fa-file"></i> Assignment 1</li>
+    <li class="text-blue"><i class="fa fa-file"></i> Assignment 2</li>
+    <li class="text-blue"><i class="fa fa-file"></i> Assignment 3</li>
+</ul>
 <!-- Materials (File Upload) -->
 <x-input-file
     name="materials"
