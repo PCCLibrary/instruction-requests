@@ -69,7 +69,7 @@ class InstructionRequestDetailsService
     public function updateInstructionRequestDetails(array $data, int $instructionRequestId): ?InstructionRequestDetails
     {
         // Enable query logging
-        DB::enableQueryLog();
+//        DB::enableQueryLog();
 
         // Get the current details by ID
         $currentDetails = $this->getInstructionRequestDetailsById($instructionRequestId);
@@ -77,8 +77,8 @@ class InstructionRequestDetailsService
         // Check if the details exist
         if ($currentDetails) {
             // Log the current details and data for debugging
-            Log::debug('$currentDetails: ' . json_encode($currentDetails));
-            Log::debug('$data: ' . json_encode($data));
+//            Log::debug('$currentDetails: ' . json_encode($currentDetails));
+//            Log::debug('$data: ' . json_encode($data));
 
             // Update boolean fields based on checkbox values
             $currentDetails->fill($data);
@@ -117,8 +117,8 @@ class InstructionRequestDetailsService
 
             // Log save result, updated attributes, and SQL queries for debugging
             Log::debug('Save result: ' . json_encode($saveResult));
-            Log::debug('Updated model attributes: ' . json_encode($currentDetails->getAttributes()));
-            Log::debug('detail SQL queries: ' . json_encode(DB::getQueryLog()));
+//            Log::debug('Updated model attributes: ' . json_encode($currentDetails->getAttributes()));
+//            Log::debug('detail SQL queries: ' . json_encode(DB::getQueryLog()));
 
 
             // Check if changes were detected
@@ -126,7 +126,7 @@ class InstructionRequestDetailsService
                 Log::debug('Model changes detected.');
             }
 
-            DB::disableQueryLog();
+//            DB::disableQueryLog();
 
             return $currentDetails;
         }

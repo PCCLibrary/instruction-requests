@@ -159,7 +159,7 @@ class InstructionRequestController extends AppBaseController
      *
      * @return Response
      */
-    public function update(int $id, UpdateInstructionRequestRequest $request)
+    public function update($id, UpdateInstructionRequestRequest $request)
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 

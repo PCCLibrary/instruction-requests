@@ -26,9 +26,9 @@ use Illuminate\Http\Request;
  * @property string $course_number
  * @property string $course_crn
  * @property integer $number_of_students
- * @property array class_syllabus,
- * @property array instructor_attachments,
- * @property string assignment_description,
+ * @property array $class_syllabus,
+ * @property array $instructor_attachments,
+ * @property string $assignment_description,
  * @property boolean $ada_provisions_needed
  * @property string $ada_provisions_description
  * @property datetime $preferred_datetime
