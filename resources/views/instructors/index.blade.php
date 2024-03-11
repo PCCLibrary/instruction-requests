@@ -1,21 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Instructors</h1>
-                </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('instructors.create') }}">
-                        Add New
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+
+    <x-page-header title="Instructors" text="Manage instructors">
+            <a class="btn btn-success float-right"
+               href="{{ route('instructors.create') }}">
+                Add New
+            </a>
+    </x-page-header>
+
+
 
     <div class="content px-3">
 
@@ -26,12 +20,6 @@
         <div class="card">
             <div class="card-body p-0">
                 @include('instructors.table')
-
-                <div class="card-footer clearfix">
-                    <div class="float-right">
-
-                    </div>
-                </div>
             </div>
 
         </div>

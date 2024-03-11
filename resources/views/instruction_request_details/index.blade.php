@@ -1,15 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Instruction Requests Details</h1>
-                </div>
-            </div>
-        </div>
-    </section>
+    <x-page-header title="Instruction Requests Details" text="Do not create new details - only used for testing and debugging.">
+        <a class="btn btn-primary float-right"
+           href="{{ route('instructionRequestDetails.create') }}">
+            Add New
+        </a>
+    </x-page-header>
 
     <div class="content px-3">
 
@@ -20,12 +17,6 @@
         <div class="card">
             <div class="card-body p-0">
                 @include('instruction_request_details.table')
-
-                <div class="card-footer clearfix">
-                    <div class="float-right">
-
-                    </div>
-                </div>
             </div>
 
         </div>

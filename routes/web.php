@@ -79,7 +79,7 @@ Route::resource('classes', App\Http\Controllers\ClassesController::class)->middl
 
 
 // file uploads
-Route::post('/file/upload', [UploadController::class, 'upload'])->name('file.upload');
+//Route::post('/file/upload', [UploadController::class, 'upload'])->name('file.upload');
 
 
 /*

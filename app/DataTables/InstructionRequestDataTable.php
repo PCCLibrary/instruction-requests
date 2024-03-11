@@ -3,12 +3,16 @@
 namespace App\DataTables;
 
 use App\Models\InstructionRequest;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Yajra\DataTables\DataTableAbstract;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class InstructionRequestDataTable extends DataTable
 {
@@ -36,7 +40,6 @@ class InstructionRequestDataTable extends DataTable
             ->rawColumns(['action', 'instructor_name']); // Specify which columns contain raw HTML
 
     }
-
 
 
     /**
@@ -68,15 +71,14 @@ class InstructionRequestDataTable extends DataTable
             )
             ->where(function ($query) use ($search) {
                 $query->where('instructors.display_name', 'like', "%$search%")
-                    ->orWhere('instruction_requests.status', 'like', "%$search%")
-                    ->orWhere('classes.course_name', 'like', "%$search%")
+//                    ->orWhere('instruction_requests.status', 'like', "%$search%")
+//                    ->orWhere('classes.course_name', 'like', "%$search%")
                     ->orWhere('librarians.display_name', 'like', "%$search%")
 //                    ->orWhere('instruction_requests.preferred_datetime', 'like', "%$search%")
                     ->orWhere('campuses.name', 'like', "%$search%");
                 // Add more columns as needed
             });
     }
-
 
 
     /**
@@ -133,3 +135,21 @@ class InstructionRequestDataTable extends DataTable
         return 'instruction_requests_datatable_' . time();
     }
 }
+
+
+Route::get('user-data', function() {
+    $model = User::select([
+        'id',
+        DB::raw("users.display_name as fullname"),
+        'email',
+        'created_at',
+        'updated_at',
+    ]);
+
+    return DataTables::eloquent($model)
+        ->filterColumn('display_name', function($query, $keyword) {
+            $sql = "users.display_name  like ?";
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->toJson();
+});

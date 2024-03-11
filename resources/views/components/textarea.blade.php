@@ -1,7 +1,7 @@
 {{-- components/textarea.blade.php --}}
 @props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'col-auto', 'required' => null ])
 
-<div class="form-group {{ $classes }}">
+<div id="{{ $name }}" class="form-group {{ $classes }}">
     <x-label :label="$label" :required="$required" />
     @if($helptext)
         <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />

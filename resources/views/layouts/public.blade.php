@@ -8,7 +8,7 @@
     <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2019/assets/css/styles.css?ver=6.4.1" type="text/css" media="all">
 {{--    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">--}}
 {{--    <link href="{{ asset('css/app.css') }}" rel="stylesheet">--}}
-
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js?ver=3.1.1" id="jquery-core-js"></script>
     <style>
         label {
             font-weight: bold;
@@ -80,6 +80,19 @@
     </div>
 </footer>
 <!-- Bootstrap Bundle with Popper -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+{{--<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>--}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        // Attach event listener to checkboxes with the class 'toggle-checkbox'
+        $('.toggle-checkbox').change(function() {
+            // Get the data-target value from the checkbox
+            let targetDivId = $(this).data('target');
+
+            // Toggle the visibility of the corresponding div
+            $('#' + targetDivId).toggleClass('invisible');
+        });
+    });
+</script>
 </body>
 </html>

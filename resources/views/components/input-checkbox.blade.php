@@ -1,11 +1,25 @@
 {{-- components/input-checkbox.blade.php --}}
-@props(['name', 'label', 'checked' => false, 'classes' => '', 'helptext' => null, 'value' => false ])
+@props(
+    ['name' => null,
+    'label' => null,
+    'checked' => false,
+    'classes' => '',
+    'helptext' => null,
+    'target' => null,
+    'value' => false
+    ])
 
 <div class=" {{ $classes }}">
 
     <div class="form-group">
         {{ Form::hidden($name, '0') }}
-        {{ Form::checkbox($name,  '1',  $checked) }}
+{{--        {{ Form::checkbox($name,  '1',  $checked) }}--}}
+        <input type="checkbox"
+               name="{{$name}}"
+               value="1"
+               @if($target)data-target="{{$target}}" class="toggle-checkbox" @endif
+               @if($checked)checked @endif
+        />
         <x-label label="{{ $label }}" classes="form-check-label" />
     </div>
 
