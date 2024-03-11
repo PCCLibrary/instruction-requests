@@ -32,6 +32,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->string('duration')->nullable();
             $table->date('asynchronous_instruction_ready_date')->nullable();
             $table->text('extra_time_with_class')->nullable();
+            // Attachments handled by Mediable
             $table->text('learning_outcomes')->nullable();
             $table->boolean('received_assignment')->default(false);
             $table->boolean('selected_topics')->default(false);
