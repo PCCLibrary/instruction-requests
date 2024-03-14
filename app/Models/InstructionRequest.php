@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\InstructionRequestDetails;
 use Illuminate\Http\Request;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\HasMedia;
+
 /**
  * Class InstructionRequest
  * @package App\Models
@@ -49,9 +53,9 @@ use Illuminate\Http\Request;
  * @property string $status
 
  */
-class InstructionRequest extends Model
+class InstructionRequest extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
 
     /**
      * @var string
@@ -78,8 +82,8 @@ class InstructionRequest extends Model
         'course_number',
         'course_crn',
         'number_of_students',
-        'class_syllabus',
-        'instructor_attachments',
+//        'class_syllabus',
+//        'instructor_attachments',
         'assignment_description',
         'ada_provisions_needed',
         'ada_provisions_description',
@@ -116,8 +120,8 @@ class InstructionRequest extends Model
         'course_number' => 'string',
         'course_crn' => 'string',
         'number_of_students' => 'integer',
-        'class_syllabus' => 'array',
-        'instructor_attachments' => 'array',
+//        'class_syllabus' => 'array',
+//        'instructor_attachments' => 'array',
         'assignment_description' => 'string',
         'ada_provisions_needed' => 'boolean',
         'ada_provisions_description' => 'string',
@@ -201,8 +205,10 @@ class InstructionRequest extends Model
             'course_number' => 'nullable|string',
             'course_crn' => 'nullable|string',
             'number_of_students' => 'nullable|integer',
-            'class_syllabus' => 'nullable|array',
-            'instructor_attachments' => 'nullable|array',
+//            'class_syllabus' => 'nullable|array',
+//            'instructor_attachments' => 'nullable|array',
+            'class_syllabus.*' => 'nullable|file|mimes:pdf,doc,docx|max:20480', // Example: PDF, Word document
+            'instructor_attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:20480', // Example: Images, PDF, Word document
             'assignment_description' => 'nullable|string',
             'ada_provisions_needed' => 'boolean',
             'ada_provisions_description' => 'nullable|string',

@@ -10,10 +10,17 @@ use App\Models\InstructionRequestDetails;
 use App\Models\Instructor;
 use App\Repositories\InstructionRequestDetailsRepository;
 use App\Repositories\InstructionRequestRepository;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Flash\Flash;
+
+use Illuminate\Http\UploadedFile;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use function Psy\debug;
+
 
 /**
  *
@@ -44,58 +51,51 @@ class InstructionRequestService implements InstructionRequestInterface
 
     }
     /**
-     * Create a new InstructionRequest along with associated entities like Instructor, Classes, and InstructionRequestDetails.
-     *
-     * This method handles the business logic of creating a new instruction request. It ensures that an Instructor and class
-     * are either found or created based on the provided data, then proceeds to create an instruction request and its
-     * associated details. If certain optional fields like 'pronouns' are not provided, a default value is assigned.
+     * Create a new InstructionRequest along with associated entities like Instructor, Classes,
+     * and InstructionRequestDetails. Now also handles file uploads for 'syllabus' and
+     * 'instructor_attachments'.
      *
      * @param array $data Data necessary for creating the instruction request and its associated entities.
+     * @param Request $request
      * @return InstructionRequest The newly created InstructionRequest object.
      * @throws \Throwable
      */
-    public function createNewInstructionRequest(array $data): InstructionRequest
+    public function createNewInstructionRequest(array $data, Request $request): InstructionRequest
     {
-        return DB::transaction(function () use ($data) {
-            // Find or create the Instructor and class first
+//        Log::info('Request data:', $request->all());
+
+        return DB::transaction(function () use ($data, $request) {
+            // Existing logic for creating instructor and class
             $instructor = $this->findOrCreateInstructor($data);
             $classes = $this->findOrCreateClasses($data);
 
-//            Log::debug('returned from findOrCreateInstructor: '. json_encode($Instructor));
-//            Log::debug('returned from findOrCreateClasses: '. json_encode($classes));
-
-
-            // Update $data with necessary IDs
+            // Prepare data with the necessary IDs and default values
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
             $data['status'] = 'pending';
             $data['created_by'] = $this->getCreatedBy($data);
 
-
-//            Log::debug('Final data for creation: ' . json_encode($data));
-
             // Create the InstructionRequest
             $instructionRequest = $this->instructionRequestRepository->create($data);
 
-//            Log::debug('$instructionRequest: '. json_encode($instructionRequest));
-
-            // After successfully creating InstructionRequest, create details
+            // Create InstructionRequestDetails
             $instructionRequestDetailData = [
-                'assigned_librarian_id' => $data['librarian_id'],  // Add the librarian_id from the original data
+                'assigned_librarian_id' => $data['librarian_id'],
                 'instruction_request_id' => $instructionRequest->id,
-                'created_by' => $data['created_by'],  // Add the created_by from the original data
-                'last_updated_by' => $data['created_by'],  // Add the created_by from the original data
-
+                'created_by' => $data['created_by'],
+                'last_updated_by' => $data['created_by'],
             ];
-
-//            Log::debug('Data for creating InstructionRequestDetails: ' . json_encode($instructionRequestDetailData));
-
             $instructionRequest->detail()->create($instructionRequestDetailData);
+
+            // Handle 'class_syllabus' uploads
+            $this->handleFileUploads($request, 'class_syllabus', 'syllabus', $instructionRequest);
+
+            // Handle 'class_syllabus' uploads
+            $this->handleFileUploads($request, 'instructor_attachments', 'instructor_attachments', $instructionRequest);
 
             return $instructionRequest;
         });
     }
-
 
     /**
      * Update an instruction request and its associated entities by ID.
@@ -130,7 +130,7 @@ class InstructionRequestService implements InstructionRequestInterface
             // Update logic here
             $this->instructionRequestRepository->update($data, $id);
 
-            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
+//            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
 
             Flash::success('Instruction Request updated successfully.');
 
@@ -214,8 +214,8 @@ class InstructionRequestService implements InstructionRequestInterface
             'phone' => $data['phone'] ?? null,
         ];
 
-        Log::debug('findOrCreateInstructor - Search Criteria: ' . json_encode($searchCriteria));
-        Log::debug('findOrCreateInstructor - Additional Data: ' . json_encode($additionalData));
+//        Log::debug('findOrCreateInstructor - Search Criteria: ' . json_encode($searchCriteria));
+//        Log::debug('findOrCreateInstructor - Additional Data: ' . json_encode($additionalData));
 
         return Instructor::firstOrCreate($searchCriteria, $additionalData);
     }
@@ -243,23 +243,51 @@ class InstructionRequestService implements InstructionRequestInterface
             'course_name' => $courseName,
         ];
 
-        Log::debug('findOrCreateClasses - Search Criteria: ' . json_encode($searchCriteria));
-        Log::debug('findOrCreateClasses - Attributes: ' . json_encode($attributes));
+//        Log::debug('findOrCreateClasses - Search Criteria: ' . json_encode($searchCriteria));
+//        Log::debug('findOrCreateClasses - Attributes: ' . json_encode($attributes));
 
         return Classes::firstOrCreate($searchCriteria, $attributes);
     }
 
     /**
-     * get complete instruction request and eager-load the associated entries
+     * Get complete instruction requests and eager-load the associated entries.
+     *
      * @param string $status
-     * @return array|null
+     * @param int|string $quantity
+     * @return Collection|array|null
      */
-    public function getRequestsByStatus(string $status)
+    public function getRequestsByStatus(string $status, $quantity = null)
     {
-        return InstructionRequest::with(['instructor', 'detail','classes', 'campus'])
+        $query = InstructionRequest::with(['instructor', 'detail', 'classes', 'campus'])
             ->where('status', $status)
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($quantity) {
+            $query->take($quantity);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Handle file uploads for a given field and associate them with a media collection.
+     *
+     * @param Request $request The current HTTP request instance.
+     * @param string $fieldName The name of the form field that contains the file(s).
+     * @param string $collectionName The name of the media collection to associate the files with.
+     * @param InstructionRequest $instructionRequest The instruction request instance to associate files with.
+     * @return void
+     */
+    public function handleFileUploads(Request $request, string $fieldName, string $collectionName, InstructionRequest $instructionRequest): void
+    {
+        if ($request->hasFile($fieldName)) {
+            Log::debug($fieldName . ' hasFile:', [$request->get($fieldName)]);
+            foreach ($request->file($fieldName) as $file) {
+                $media = $instructionRequest->addMedia($file)->toMediaCollection($collectionName);
+                // Log successful upload
+                Log::info(ucfirst($fieldName) . ' file uploaded:', ['file_name' => $media->file_name, 'collection_name' => $media->collection_name]);
+            }
+        }
     }
 
 }

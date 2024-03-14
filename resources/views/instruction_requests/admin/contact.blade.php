@@ -2,7 +2,7 @@
 @isset($instructionRequest->id)
 
         <x-row>
-            <div class="col-6">
+            <div class="col-3">
 
                 <ul class="list-unstyled">
 {{--                    <li><h3 class="mb-2">Instructor</h3></li>--}}
@@ -12,20 +12,29 @@
                 </ul>
             </div>
 
-            <div class="col-3">
+            <div class="col-4">
                 <ul class="list-unstyled">
-                    <li><label class="mr-4">Placeholder for syllabus</label>
-                    </li>
-                    <li class="text-blue"><i class="fa fa-file"></i> Syllabus</li>
+                    <li><label class="mr-4">Class syllabus</label></li>
+                    @if($syllabus->isNotEmpty())
+                        @foreach($syllabus as $item)
+                            <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">View</a></li>
+                        @endforeach
+                    @else
+                        <li>No attached syllabus files.</li>
+                    @endif
                 </ul>
             </div>
 
-            <div class="col-3">
+            <div class="col-4">
                 <ul class="list-unstyled">
-                    <li><label>Placeholder for assignments</label></li>
-                    <li class="text-blue"><i class="fa fa-file"></i> Assignment 1</li>
-                    <li class="text-blue"><i class="fa fa-file"></i> Assignment 2</li>
-                    <li class="text-blue"><i class="fa fa-file"></i> Assignment 3</li>
+                    <li><label>Class Assignments</label></li>
+                    @if($instructorAttachments->isNotEmpty())
+                        @foreach($instructorAttachments as $item)
+                            <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">View</a></li>
+                        @endforeach
+                    @else
+                        <li>No attached assignment files.</li>
+                    @endif
                 </ul>
 
             </div>

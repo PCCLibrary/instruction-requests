@@ -82,6 +82,7 @@
 <!-- Bootstrap Bundle with Popper -->
 {{--<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>--}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
 <script>
     $(document).ready(function() {
         // Attach event listener to checkboxes with the class 'toggle-checkbox'
@@ -94,5 +95,17 @@
         });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        $('#clearForm').click(function() {
+            // Target your form by its unique ID or class
+            $('#instructionRequestForm').find('input:text, input:password, input:file, select, textarea').val('');
+            $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);
+            $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option
+        });
+    });
+</script>
+
 </body>
 </html>

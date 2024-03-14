@@ -10,6 +10,7 @@ use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Laracasts\Flash\Flash;
@@ -41,14 +42,6 @@ class PublicInstructionRequestController extends Controller
     public function create()
     {
         $departments = $this->departmentService->getAllDepartments();
-//            ->mapWithKeys(function ($item) {
-//                // Check if $item is an array
-////                if (is_array($item) && isset($item['pcc_code']) && isset($item['pcc_name'])) {
-//                    return [$item['pcc_code'] => strtoupper($item['pcc_code']) . ' - '. $item['pcc_name']];
-////                } else {
-////                    return []; // Return an empty array if $item is not an array or does not have the expected keys
-////                }
-//            });
 
         // Retrieve necessary data for form
         $campuses = Campus::pluck('name', 'id');
@@ -72,14 +65,17 @@ class PublicInstructionRequestController extends Controller
     public function store(CreateInstructionRequestRequest $request)
     {
         try {
-            $input = $request->all();
+//            $input = $request->all();
 
-            Log::info($input); // Temporarily log the request data
+            $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
 
-            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input);
+            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
             // Flash a success message to the session
-            return redirect('/')->with('success', 'Instruction request submitted successfully.');
+            return redirect('/')
+                ->with('success', 'Instruction request submitted successfully.')
+                ->withInput();
+
         } catch (\Exception $e) {
             // Flash an error message and input data to the session
             return redirect('/')

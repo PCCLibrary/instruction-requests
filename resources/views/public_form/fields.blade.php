@@ -51,25 +51,32 @@
 
     <x-row>
     {{-- Instruction Type Field --}}
-    <x-input-select name="instruction_type"
+    <x-input-radio name="instruction_type"
                     label="Instruction Type"
-                    :options="['In-Person' => 'In-Person', 'Online' => 'Online', 'Hybrid' => 'Hybrid']"
+                    :options="['Face to Face' => 'Face to Face', 'Virtual' => 'Virtual', 'Hybrid' => 'Hybrid']"
                     :selected="old('instruction_type')"
                     classes="col-lg-6"
                     helptext=""
+                    required=true
     />
 
-    {{-- Course Modality Field --}}
-    <x-input-select name="course_modality"
-                    label="Instruction Mode"
-                    :options="['Synchronous' => 'Synchronous', 'Asynchronous' => 'Asynchronous', 'I\'m not sure' => 'I\'m not sure']"
-                    :selected="old('course_modality')"
-                    helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."
-                    classes="col-lg-6"
-    />
     </x-row>
 
     <x-row>
+
+        {{-- Course Modality Field --}}
+        <x-input-select name="course_modality"
+                        label="Instruction Mode"
+                        :options="['Synchronous' => 'Synchronous', 'Asynchronous' => 'Asynchronous', 'I\'m not sure' => 'I\'m not sure']"
+                        :selected="old('course_modality')"
+                        helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."
+                        classes="col-lg-6"
+                        required=true
+        />
+
+    </x-row>
+        <x-row>
+
     {{--     Librarian Preference Field--}}
     <x-input-select name="librarian_id"
                     label="Librarian Preference"
@@ -77,6 +84,7 @@
                     :selected="old('librarian_id')"
                     classes="col-lg-6"
                     helptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
+                    required=true
     />
 
     {{--     Campus ID Field--}}
@@ -86,6 +94,7 @@
                     :selected="old('campus_id')"
                     classes="col-lg-6"
                     helptext="Choose the campus with which you are primarily associated (if online) ?"
+                    required=true
     />
 
     </x-row>

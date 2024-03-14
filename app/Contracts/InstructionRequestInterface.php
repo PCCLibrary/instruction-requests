@@ -3,16 +3,21 @@
 namespace App\Contracts;
 
 use App\Models\InstructionRequest;
+use Illuminate\Http\Request;
 
 interface InstructionRequestInterface
 {
     /**
-     * Create a new instruction request and associated entities like Instructor, classes, and instruction request details.
+     * Create a new instruction request and associated entities like Instructor, classes,
+     * and instruction request details. Now supports handling file uploads as part of the
+     * form request.
      *
      * @param array $data Data for creating the instruction request and associated entities.
+     * @param Request $request The current HTTP request instance, used for handling file uploads.
      * @return InstructionRequest Newly created InstructionRequest object.
      */
-    public function createNewInstructionRequest(array $data): InstructionRequest;
+    public function createNewInstructionRequest(array $data, Request $request): InstructionRequest;
+
 
     /**
      * Find an instruction request by its ID.

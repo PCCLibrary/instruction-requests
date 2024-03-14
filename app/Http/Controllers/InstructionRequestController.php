@@ -92,11 +92,11 @@ class InstructionRequestController extends AppBaseController
     {
         $input = $request->all();
 
-        $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input);
+       $this->instructionRequestService->createNewInstructionRequest($input);
 
         Flash::success('Instruction Request saved successfully.');
 
-        return redirect(route('instructionRequests.index'));
+        return redirect(route('instructionRequests.index'))->with('instructionRequest', $request);
     }
 
     /**
@@ -141,9 +141,15 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
+        $syllabus = $instructionRequest->getMedia('syllabus');
+        $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
+
+
 //        Log::debug('instructionRequest to edit: '. json_encode($instructionRequest));
 
         return view('instruction_requests.edit')
+            ->with('instructorAttachments', $instructorAttachments)
+            ->with('syllabus', $syllabus)
             ->with('instructionRequest', $instructionRequest)
             ->with('librarians', $librarians)
             ->with('campuses', $campuses)

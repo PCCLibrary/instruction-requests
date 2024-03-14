@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTableAbstract;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\DataTables;
+
 
 class InstructionRequestDataTable extends DataTable
 {
@@ -26,30 +28,32 @@ class InstructionRequestDataTable extends DataTable
         return $dataTable
             ->addColumn('action', 'instruction_requests.datatables_actions')
             ->editColumn('instructor_name', function ($row) {
-                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to edit"><i class="fa fa-edit"></i> ' . $row->instructor_name . '</a>';
+                // Return instructor name without link
+                return $row->instructor_name;
             })
             ->editColumn('preferred_datetime', function ($row) {
-                // Format the preferred date as "Thu, Feb 01 - 1:30pm"
-                return Carbon::parse($row->preferred_datetime)->format('D, M d - g:ia');
+                // Format the preferred date as "03/27/2024 1:30pm"
+                return Carbon::parse($row->preferred_datetime)->format('m/d/Y g:ia');
             })
-            // Add similar editColumn calls for other columns
-            ->rawColumns(['action', 'instructor_name']); // Specify which columns contain raw HTML
-
+            ->editColumn('created_at', function ($row) {
+                // Make 'created_at' the link to edit, formatting date as "03/27/2024 1:30pm"
+                $formattedDate = Carbon::parse($row->created_at)->format('m/d/Y g:ia');
+                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to edit"><i class="fa fa-edit"></i>
+' . $formattedDate . '</a>';
+            })
+            ->rawColumns(['action', 'created_at']); // Updated to include 'created_at' in rawColumns
     }
-
 
 
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\InstructionRequest $model
+     * @param InstructionRequest $model
      * @return Builder
      */
     public function query(InstructionRequest $model)
     {
-        $search = request('search.value');
-
-        return $model->newQuery()
+        $query = $model->newQuery()
             ->leftJoin('instructors', 'instruction_requests.instructor_id', '=', 'instructors.id')
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
             ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_request_id')
@@ -63,24 +67,30 @@ class InstructionRequestDataTable extends DataTable
                 'librarians.display_name as librarian_name',
                 'instruction_requests.status',
                 'instruction_request_details.created_by',
-//                'instruction_requests.preferred_datetime',
                 'campuses.name as campus_name'
-            )
-            ->where(function ($query) use ($search) {
-                $query->where('instructors.display_name', 'like', "%$search%")
-//                    ->orWhere('instruction_requests.status', 'like', "%$search%")
-//                    ->orWhere('classes.course_name', 'like', "%$search%")
-                    ->orWhere('librarians.display_name', 'like', "%$search%")
-//                    ->orWhere('instruction_requests.preferred_datetime', 'like', "%$search%")
-                    ->orWhere('campuses.name', 'like', "%$search%");
-                // Add more columns as needed
+            );
+
+        return DataTables::eloquent($query)
+            ->filterColumn('instructor_name', function ($query, $keyword) {
+                $query->whereRaw("LOWER(instructors.display_name) LIKE ?", ["%{$keyword}%"]);
+            })
+            ->filter(function ($query) {
+                if (request()->has('search') && $search = request('search')['value']) {
+                    $query->where(function ($query) use ($search) {
+                        $query->orWhereRaw("LOWER(instructors.display_name) LIKE ?", ["%{$search}%"]);
+                    });
+                }
             });
     }
 
 
 
+
+
     /**
      * Optional method if you want to use html builder.
+     *
+     * Builds the DataTable HTML structure including buttons, columns, and other parameters.
      *
      * @return \Yajra\DataTables\Html\Builder
      */
@@ -93,35 +103,36 @@ class InstructionRequestDataTable extends DataTable
             ->parameters([
                 'dom'       => 'Bfrtip',
                 'stateSave' => true,
-                'order'     => [[0, 'desc']],
+                'order'     => [[0, 'desc']], // Set initial order to the 'Created At' column
                 'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-success btn-sm no-corner',],
                     ['extend' => 'export', 'className' => 'btn btn-yellow btn-sm no-corner',],
                     ['extend' => 'print', 'className' => 'btn btn-info btn-sm no-corner',],
+                    ['extend' => 'reload', 'className' => 'btn btn-default btn-sm no-corner',],
                 ],
             ]);
     }
 
     /**
      * Get columns.
+     * Defines the columns for the DataTable.
      *
      * @return array
      */
     protected function getColumns()
     {
         return [
+            ['name' => 'created_at', 'title' => 'Submitted', 'data' => 'created_at', 'searchable' => false, 'orderable' => true],
             ['name' => 'instructor_name', 'title' => 'Instructor Name', 'data' => 'instructor_name'],
-//            ['name' => 'instructor_email', 'title' => 'Instructor Email', 'data' => 'instructor_email'],
             ['name' => 'instruction_type', 'title' => 'Type', 'data' => 'instruction_type'],
-            ['name' => 'course_modality', 'title' => 'Modality', 'data' => 'course_modality'],
             ['name' => 'librarian_name', 'title' => 'Librarian', 'data' => 'librarian_name'],
             ['name' => 'campus_name', 'title' => 'Campus', 'data' => 'campus_name'],
             ['name' => 'course_name', 'title' => 'Course Name', 'data' => 'course_name'],
             ['name' => 'status', 'title' => 'Status', 'data' => 'status'],
-//            ['name' => 'created_by', 'title' => 'Created By', 'data' => 'created_by'],
             ['name' => 'preferred_datetime', 'title' => 'Preferred Date', 'data' => 'preferred_datetime'],
         ];
     }
+
 
     /**
      * Get filename for export.

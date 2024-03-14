@@ -10,7 +10,7 @@
 
             <div class="col-12">
 
-                <x-instruction-request-table :instructionRequests="$pendingRequests" />
+                <x-instruction-request-table :instructionRequests="$tableRequests" />
 
             </div>
         </div>
