@@ -84,30 +84,30 @@ class InstructionRequestDetailsService
             $currentDetails->fill($data);
 
             // Handle multiple file uploads for materials
-            if (isset($data['materials']) && is_array($data['materials'])) {
-                $materialsPaths = [];
-
-                foreach ($data['materials'] as $material) {
-                    // Logic to handle materials file upload
-                    $path = $material->store('materials');
-                    $materialsPaths[] = $path;
-                }
-
-                $currentDetails->materials = $materialsPaths;
-            }
-
-            // Handle multiple file uploads for assessments
-            if (isset($data['assessments']) && is_array($data['assessments'])) {
-                $assessmentsPaths = [];
-
-                foreach ($data['assessments'] as $assessment) {
-                    // Logic to handle assessments file upload
-                    $path = $assessment->store('assessments');
-                    $assessmentsPaths[] = $path;
-                }
-
-                $currentDetails->assessments = $assessmentsPaths;
-            }
+//            if (isset($data['materials']) && is_array($data['materials'])) {
+//                $materialsPaths = [];
+//
+//                foreach ($data['materials'] as $material) {
+//                    // Logic to handle materials file upload
+//                    $path = $material->store('materials');
+//                    $materialsPaths[] = $path;
+//                }
+//
+//                $currentDetails->materials = $materialsPaths;
+//            }
+//
+//            // Handle multiple file uploads for assessments
+//            if (isset($data['assessments']) && is_array($data['assessments'])) {
+//                $assessmentsPaths = [];
+//
+//                foreach ($data['assessments'] as $assessment) {
+//                    // Logic to handle assessments file upload
+//                    $path = $assessment->store('assessments');
+//                    $assessmentsPaths[] = $path;
+//                }
+//
+//                $currentDetails->assessments = $assessmentsPaths;
+//            }
 
             // Explicitly set timestamps to force an update
             $currentDetails->updated_at = now();

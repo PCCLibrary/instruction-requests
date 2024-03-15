@@ -23,7 +23,7 @@ use Spatie\MediaLibrary\HasMedia;
  * @property Campus $campus
  * @property User $librarianUser
  * @property string $instruction_type
- * @property string $course_modality
+// * @property string $course_modality
  * @property int $librarian_id
  * @property int $campus_id
  * @property string $department
@@ -31,6 +31,7 @@ use Spatie\MediaLibrary\HasMedia;
  * @property string $course_crn
  * @property integer $number_of_students
  * @property array $class_syllabus,
+ * @property string $class_description,
  * @property array $instructor_attachments,
  * @property string $assignment_description,
  * @property boolean $ada_provisions_needed
@@ -73,7 +74,7 @@ class InstructionRequest extends Model implements HasMedia
     protected $fillable = [
 //        'instruction_request_id',
         'instruction_type',
-        'course_modality',
+//        'course_modality',
         'librarian_id',
         'campus_id',
         'class_id',
@@ -82,6 +83,7 @@ class InstructionRequest extends Model implements HasMedia
         'course_number',
         'course_crn',
         'number_of_students',
+        'class_description',
 //        'class_syllabus',
 //        'instructor_attachments',
         'assignment_description',
@@ -112,7 +114,7 @@ class InstructionRequest extends Model implements HasMedia
     protected $casts = [
         'id' => 'integer',
         'instruction_type' => 'string',
-        'course_modality' => 'string',
+//        'course_modality' => 'string',
         'librarian_id' => 'integer',
         'campus_id' => 'integer',
         'class_id' => 'integer',
@@ -120,6 +122,7 @@ class InstructionRequest extends Model implements HasMedia
         'course_number' => 'string',
         'course_crn' => 'string',
         'number_of_students' => 'integer',
+        'class_description' => 'string',
 //        'class_syllabus' => 'array',
 //        'instructor_attachments' => 'array',
         'assignment_description' => 'string',
@@ -200,15 +203,16 @@ class InstructionRequest extends Model implements HasMedia
             'librarian_id' => 'required|exists:users,id',
             'campus_id' => 'required|exists:campuses,id',
             'instruction_type' => 'required|string',
-            'course_modality' => 'required|string',
+//            'course_modality' => 'required|string',
             'department' => 'nullable|string',
             'course_number' => 'nullable|string',
             'course_crn' => 'nullable|string',
             'number_of_students' => 'nullable|integer',
 //            'class_syllabus' => 'nullable|array',
 //            'instructor_attachments' => 'nullable|array',
-            'class_syllabus.*' => 'nullable|file|mimes:pdf,doc,docx|max:20480', // Example: PDF, Word document
-            'instructor_attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:20480', // Example: Images, PDF, Word document
+            'class_syllabus.*' => 'nullable|file|mimes:txt,rtf,pdf,doc,docx|max:20480',
+            'class_description' => 'nullable|string',
+            'instructor_attachments.*' => 'nullable|file|mimes:txt,rtf,pdf,doc,docx|max:20480',
             'assignment_description' => 'nullable|string',
             'ada_provisions_needed' => 'boolean',
             'ada_provisions_description' => 'nullable|string',

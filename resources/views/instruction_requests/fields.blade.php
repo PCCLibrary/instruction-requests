@@ -8,13 +8,13 @@
     />
 
     {{-- Course Modality Field --}}
-    <x-input-select name="course_modality"
-                    label="Instruction Mode"
-                    :options="['Synchronous' => 'Synchronous', 'Asynchronous' => 'Asynchronous', 'I\'m not sure' => 'I\'m not sure']"
-                    :selected="old('course_modality', $instructionRequest->course_modality ?? null)"
-                    helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."
-                    classes="col-6"
-    />
+{{--    <x-input-select name="course_modality"--}}
+{{--                    label="Instruction Mode"--}}
+{{--                    :options="['Synchronous' => 'Synchronous', 'Asynchronous' => 'Asynchronous', 'I\'m not sure' => 'I\'m not sure']"--}}
+{{--                    :selected="old('course_modality', $instructionRequest->course_modality ?? null)"--}}
+{{--                    helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."--}}
+{{--                    classes="col-6"--}}
+{{--    />--}}
 </x-row>
 
 <x-row>
@@ -68,6 +68,16 @@
                   :value="old('number_of_students', $instructionRequest->number_of_students ?? null)"
                   classes="col-3"
 
+    />
+</x-row>
+
+<x-row>
+    {{-- Class Description --}}
+    <x-textarea name="class_description"
+                label="Class description"
+                :value="old('class_description', $instructionRequest->class_description ?? null)"
+{{--                helptext="Describe the ADA accommodations needed for your class."--}}
+                classes="col-8"
     />
 </x-row>
 

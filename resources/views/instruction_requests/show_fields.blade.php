@@ -35,10 +35,10 @@
 </div>
 
 <!-- Course Modality Field -->
-<div class="col-sm-12">
-    {!! Form::label('course_modality', 'Course Modality:') !!}
-    <p>{{ $instructionRequest->course_modality }}</p>
-</div>
+{{--<div class="col-sm-12">--}}
+{{--    {!! Form::label('course_modality', 'Course Modality:') !!}--}}
+{{--    <p>{{ $instructionRequest->course_modality }}</p>--}}
+{{--</div>--}}
 
 <!-- Librarian Field -->
 <div class="col-sm-12">

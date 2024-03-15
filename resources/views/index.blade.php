@@ -13,6 +13,11 @@
         </div>
     </section>
 
+{{--    <ul>--}}
+{{--        @foreach(session()->all() as $key => $value)--}}
+{{--            <li>{{ $key }}: {{ print_r($value, true) }}</li>--}}
+{{--        @endforeach--}}
+{{--    </ul>--}}
 
 
     <div class="content px-3 mb-4">

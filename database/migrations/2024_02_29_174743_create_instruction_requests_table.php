@@ -17,7 +17,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('instructor_id'); // Ensure this matches the `instructors.id` type
             $table->string('instruction_type'); // synchronous or asynchronous
-            $table->string('course_modality');
+//            $table->string('course_modality');
             $table->unsignedBigInteger('librarian_id');
             $table->unsignedInteger('campus_id');
             $table->string('department');
@@ -25,6 +25,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->unsignedInteger('class_id');
             $table->string('course_crn');
             $table->integer('number_of_students')->nullable();
+            $table->text('class_description')->nullable();
             $table->boolean('ada_provisions_needed')->default(false);
             $table->text('ada_provisions_description')->nullable();
             $table->datetime('preferred_datetime');

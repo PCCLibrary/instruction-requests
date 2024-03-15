@@ -21,7 +21,7 @@ class InstructionRequestRepository extends BaseRepository
      */
     protected $fieldSearchable = [
         'instruction_type',
-        'course_modality',
+//        'course_modality',
         'librarian_id',
         'campus_id',
         'department',
