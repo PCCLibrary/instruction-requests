@@ -1,43 +1,5 @@
 <x-row>
-    {{-- Instruction Type Field --}}
-    <x-input-select name="instruction_type"
-                    label="Instruction Type"
-                    :options="['In-Person' => 'In-Person', 'Online' => 'Online', 'Hybrid' => 'Hybrid']"
-                    :selected="old('instruction_type', $instructionRequest->instruction_type ?? null)"
-                    classes="col-6"
-    />
-
-    {{-- Course Modality Field --}}
-{{--    <x-input-select name="course_modality"--}}
-{{--                    label="Instruction Mode"--}}
-{{--                    :options="['Synchronous' => 'Synchronous', 'Asynchronous' => 'Asynchronous', 'I\'m not sure' => 'I\'m not sure']"--}}
-{{--                    :selected="old('course_modality', $instructionRequest->course_modality ?? null)"--}}
-{{--                    helptext="Examples of asynchronous instruction include the development of tutorials, videos, research guides, having a librarian embedded in your Brightspace classroom to support students, and more."--}}
-{{--                    classes="col-6"--}}
-{{--    />--}}
-</x-row>
-
-<x-row>
-{{--     Librarian Preference Field--}}
-    <x-input-select name="librarian_id"
-                    label="Librarian Preference"
-                    :options="$librarians->pluck('display_name', 'id')->toArray()"
-                    :selected="old('librarian_id', $instructionRequest->librarian_id ?? null)"
-                    classes="col-6"
-    />
-
-{{--     Campus ID Field--}}
-    <x-input-select name="campus_id"
-                    label="Campus"
-                    :options="$campuses->pluck('name', 'id')"
-                    :selected="old('campus_id', $instructionRequest->campus_id ?? null)"
-                    classes="col-6"
-    />
-
-</x-row>
-
-<x-row>
-{{--     Department Field--}}
+    {{--     Department Field--}}
     <x-input-select name="department"
                     label="Subject"
                     :options="$departments"
@@ -72,6 +34,71 @@
 </x-row>
 
 <x-row>
+    {{-- Preferred Datetime Field --}}
+    <x-input-datetime name="preferred_datetime"
+                      label="Preferred Datetime"
+                      :value="old('preferred_datetime', $instructionRequest->preferred_datetime ?? null)"
+                      classes="col-3"
+    />
+
+    {{-- Alternate Datetime Field --}}
+    <x-input-datetime name="alternate_datetime"
+                      label="Alternate Datetime"
+                      :value="old('alternate_datetime', $instructionRequest->alternate_datetime ?? null)"
+                      classes="col-3"
+
+    />
+
+    {{-- Duration Field --}}
+    <x-input-text name="duration"
+                  label="Duration"
+                  :value="old('duration', $instructionRequest->duration ?? null)"
+                  classes="col-3"
+    />
+
+
+    {{-- Asynchronous Instruction Ready Date Field --}}
+    <x-input-date name="asynchronous_instruction_ready_date"
+                  label="Ready Date"
+                  :value="old('asynchronous_instruction_ready_date', $instructionRequest->asynchronous_instruction_ready_date ?? null)"
+                  classes="col-3"
+    />
+</x-row>
+
+<x-row>
+    {{-- Instruction Type Field --}}
+    <x-input-select name="instruction_type"
+                    label="Instruction Type"
+                    :options="[
+            'Librarian joins my class on campus',
+            'Librarian joins my remote class',
+            'Librarian provides resources to be used asynchronously']"
+                    :selected="old('instruction_type', $instructionRequest->instruction_type ?? null)"
+                    classes="col-6"
+    />
+
+</x-row>
+
+<x-row>
+{{--     Librarian Preference Field--}}
+    <x-input-select name="librarian_id"
+                    label="Librarian Preference"
+                    :options="$librarians->pluck('display_name', 'id')->toArray()"
+                    :selected="old('librarian_id', $instructionRequest->librarian_id ?? null)"
+                    classes="col-6"
+    />
+
+{{--     Campus ID Field--}}
+    <x-input-select name="campus_id"
+                    label="Campus"
+                    :options="$campuses->pluck('name', 'id')"
+                    :selected="old('campus_id', $instructionRequest->campus_id ?? null)"
+                    classes="col-6"
+    />
+
+</x-row>
+
+<x-row>
     {{-- Class Description --}}
     <x-textarea name="class_description"
                 label="Class description"
@@ -97,44 +124,6 @@
                 classes="col-8"
     />
 </x-row>
-
-<x-row>
-    {{-- Preferred Datetime Field --}}
-    <x-input-datetime name="preferred_datetime"
-                      label="Preferred Datetime"
-                      :value="old('preferred_datetime', $instructionRequest->preferred_datetime ?? null)"
-                      helptext="Enter the date and time you would prefer to have your instruction session."
-                      classes="col-3"
-    />
-
-    {{-- Alternate Datetime Field --}}
-    <x-input-datetime name="alternate_datetime"
-                      label="Alternate Datetime"
-                      :value="old('alternate_datetime', $instructionRequest->alternate_datetime ?? null)"
-                      helptext="Enter an alternate date and time for your instruction session."
-                      classes="col-3"
-
-    />
-
-    {{-- Duration Field --}}
-    <x-input-text name="duration"
-                    label="Duration"
-                    :value="old('duration', $instructionRequest->duration ?? null)"
-                    helptext="Enter the length of instruction you would like your class to receive, in minutes."
-                    classes="col-3"
-    />
-
-
-    {{-- Asynchronous Instruction Ready Date Field --}}
-    <x-input-date name="asynchronous_instruction_ready_date"
-                  label="Ready Date"
-                  :value="old('asynchronous_instruction_ready_date', $instructionRequest->asynchronous_instruction_ready_date ?? null)"
-                  classes="col-3"
-                  helptext="Asynchronous instruction ready date."
-    />
-</x-row>
-
-
 
 <x-row>
     {{-- Extra Time With Class Field --}}

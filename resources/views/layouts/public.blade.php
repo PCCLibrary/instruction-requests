@@ -6,14 +6,13 @@
     <title>Instruction Requests</title>
 
     <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2019/assets/css/styles.css?ver=6.4.1" type="text/css" media="all">
-{{--    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">--}}
-{{--    <link href="{{ asset('css/app.css') }}" rel="stylesheet">--}}
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js?ver=3.1.1" id="jquery-core-js"></script>
     <style>
         label {
             font-weight: bold;
         }
     </style>
+    @livewireStyles
 </head>
 <body class="page-template page-template-page-no-sidebar page-template-page-no-sidebar-php page page-instruction-request" data-template="base.twig" lang="en-US">
 
@@ -84,37 +83,27 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 
 <script>
-    $(document).ready(function() {
-        // Attach event listener to checkboxes with the class 'toggle-checkbox'
-        $('.toggle-checkbox').change(function() {
-            // Get the data-target value from the checkbox
-            let targetDivId = $(this).data('target');
-
-            // Toggle the visibility of the corresponding div
-            $('#' + targetDivId).toggleClass('invisible');
-        });
-    });
-
-    $('#clearForm').click(function() {
-        // Target your form by its unique ID or class
-        $('#instructionRequestForm').find('input:text, input:password, input:file, select, textarea').val('');
-        $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);
-        $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option
-        $('#ada_provisions_description').addClass('invisible');
-    });
+    // $(document).ready(function() {
+    //     // Attach event listener to checkboxes with the class 'toggle-checkbox'
+    //     $('.toggle-checkbox').change(function() {
+    //         // Get the data-target value from the checkbox
+    //         let targetDivId = $(this).data('target');
+    //
+    //         // Toggle the visibility of the corresponding div
+    //         $('#' + targetDivId).toggleClass('invisible');
+    //     });
+    // });
+    //
+    // $('#clearForm').click(function() {
+    //     // Target your form by its unique ID or class
+    //     $('#instructionRequestForm').find('input:text, input:password, input:file, select, textarea').val('');
+    //     $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);
+    //     $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option
+    //     $('#ada_provisions_description').addClass('invisible');
+    // });
 </script>
 
-{{--<script>--}}
-{{--    $(document).ready(function() {--}}
-{{--        $('#clearForm').click(function() {--}}
-{{--            // Target your form by its unique ID or class--}}
-{{--            $('#instructionRequestForm').find('input:text, input:password, input:file, select, textarea').val('');--}}
-{{--            $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);--}}
-{{--            $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option--}}
-{{--            $('#ada_provisions_description').addClass('invisible');--}}
-{{--        });--}}
-{{--    });--}}
-{{--</script>--}}
+@livewireScripts
 
 </body>
 </html>

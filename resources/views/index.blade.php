@@ -24,21 +24,21 @@
 
         <div class="card">
 
-            {!! Form::open(['route' => 'public.instruction-request.store', 'id' => 'instructionRequestForm', 'files' => true]) !!}
+{{--            {!! Form::open(['route' => 'public.instruction-request.store', 'id' => 'instructionRequestForm', 'files' => true]) !!}--}}
 
             <div class="card-body">
 
-                @include('public_form.fields')
+                <livewire:instruction-request-form />
 
             </div>
 
-            <div class="card-footer">
-                {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}
+{{--            <div class="card-footer">--}}
+{{--                {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}--}}
 {{--                <a href="{{ route('public.instruction-request.create') }}" class="btn btn-info">Cancel</a>--}}
-                <button class="btn btn-warning ml-2" id="clearForm" type="button">Clear Form</button>
-            </div>
+{{--                <button class="btn btn-warning ml-2" id="clearForm" type="button">Clear Form</button>--}}
+{{--            </div>--}}
 
-            {!! Form::close() !!}
+{{--            {!! Form::close() !!}--}}
 
         </div>
     </div>
