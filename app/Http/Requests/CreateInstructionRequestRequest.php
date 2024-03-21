@@ -27,5 +27,20 @@ class CreateInstructionRequestRequest extends FormRequest
         return InstructionRequest::rules($this);
     }
 
+    /**
+     * Customize the error messages for files
+     *
+     * @return string[]
+     */
+    public function messages()
+    {
+        return [
+            'class_syllabus.*.mimes' => 'Each class syllabus file must be a type of: :values.',
+            'class_syllabus.*.max' => 'Each class syllabus file may not be greater than :max kilobytes.',
+            'instructor_attachments.*.mimes' => 'Each instructor attachment file must be a type of: :values.',
+            'instructor_attachments.*.max' => 'Each instructor attachment file may not be greater than :max kilobytes.',
+        ];
+    }
+
 
 }

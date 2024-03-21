@@ -31,7 +31,6 @@ class HomeController extends Controller
     public function index()
     {
 
-
         // Count all instructors
         $instructorCount = Instructor::count();
 

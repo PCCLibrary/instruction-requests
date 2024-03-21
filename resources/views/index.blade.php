@@ -13,11 +13,11 @@
         </div>
     </section>
 
-{{--    <ul>--}}
-{{--        @foreach(session()->all() as $key => $value)--}}
-{{--            <li>{{ $key }}: {{ print_r($value, true) }}</li>--}}
-{{--        @endforeach--}}
-{{--    </ul>--}}
+    <ul>
+        @foreach(session()->all() as $key => $value)
+            <li>{{ $key }}: {{ print_r($value, true) }}</li>
+        @endforeach
+    </ul>
 
 
     <div class="content px-3 mb-4">
@@ -34,7 +34,6 @@
 
             <div class="card-footer">
                 {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}
-{{--                <a href="{{ route('public.instruction-request.create') }}" class="btn btn-info">Cancel</a>--}}
                 <button class="btn btn-warning ml-2" id="clearForm" type="button">Clear Form</button>
             </div>
 

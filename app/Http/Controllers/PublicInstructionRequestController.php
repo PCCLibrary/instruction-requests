@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Laracasts\Flash\Flash;
+use Throwable;
 
 /**
  * Controller for handling public instruction request form.
@@ -61,28 +62,41 @@ class PublicInstructionRequestController extends Controller
      * @param CreateInstructionRequestRequest $request
      *
      * @return RedirectResponse
+     * @throws Throwable
      */
     public function store(CreateInstructionRequestRequest $request)
     {
         try {
-//            $input = $request->all();
+            // Validate the request data
+            $validatedData = $request->validated();
 
-            $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
+            // Initialize an empty array for files
+            $files = [];
 
-            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
+            // Check if the request has file uploads and add them to the files array
+            if ($request->hasFile('class_syllabus')) {
+                $files['class_syllabus'] = $request->file('class_syllabus');
+            }
+            if ($request->hasFile('instructor_attachments')) {
+                $files['instructor_attachments'] = $request->file('instructor_attachments');
+            }
 
-            // Flash a success message to the session
+            // Call the service with the validated data and file uploads
+            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($validatedData, $files);
+
+            Flash::success('Instruction request submitted successfully.');
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();
 
-        } catch (\Exception $e) {
-            // Flash an error message and input data to the session
+        } catch (\Throwable $e) {
+            Log::error('Failed to submit the instruction request: ' . $e->getMessage());
+            Flash::error('Failed to submit the instruction request.');
             return redirect('/')
-                ->with('error', 'Failed to submit the instruction request.')
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
     }
+
 
 }

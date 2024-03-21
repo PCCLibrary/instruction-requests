@@ -104,17 +104,5 @@
     });
 </script>
 
-{{--<script>--}}
-{{--    $(document).ready(function() {--}}
-{{--        $('#clearForm').click(function() {--}}
-{{--            // Target your form by its unique ID or class--}}
-{{--            $('#instructionRequestForm').find('input:text, input:password, input:file, select, textarea').val('');--}}
-{{--            $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);--}}
-{{--            $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option--}}
-{{--            $('#ada_provisions_description').addClass('invisible');--}}
-{{--        });--}}
-{{--    });--}}
-{{--</script>--}}
-
 </body>
 </html>

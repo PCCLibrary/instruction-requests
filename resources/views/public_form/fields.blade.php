@@ -136,6 +136,7 @@
             name="class_syllabus"
             label="Attach syllabus (doc, pdf, or txt)"
             :multiple="true"
+            :errors="$errors->get('class_syllabus.*')"
             classes="col-lg-6"
             helptext="Please attach the class syllabus."
         />
@@ -236,6 +237,7 @@
             name="instructor_attachments"
             label="Attach documents (doc, pdf, or txt)"
             :multiple="true"
+            :errors="$errors->get('instructor_attachments.*')"
             classes="col-lg-6"
             helptext="Upload class assignment(s) and other relevant documents."
         />
