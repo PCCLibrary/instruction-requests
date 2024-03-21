@@ -90,13 +90,31 @@ class InstructionRequestController extends AppBaseController
      */
     public function store(CreateInstructionRequestRequest $request)
     {
-        $input = $request->all();
+        // set the context for selecting the rules
+        $context = 'create';
 
-       $this->instructionRequestService->createNewInstructionRequest($input);
+        try {
 
-        Flash::success('Instruction Request saved successfully.');
+            $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
 
-        return redirect(route('instructionRequests.index'))->with('instructionRequest', $request);
+            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
+
+            // Flash a success message to the session
+            Flash::success('Instruction Request saved successfully.');
+
+            return redirect(route('instructionRequests.index'))
+                ->withInput();
+
+        } catch (\Exception $e) {
+            // Flash an error message and input data to the session
+
+            Flash::error('Instruction Request not saved.');
+
+            return redirect(route('instructionRequests.index'))
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+
     }
 
     /**
@@ -133,6 +151,9 @@ class InstructionRequestController extends AppBaseController
         $librarians = User::all();
         $campuses = Campus::all();
         $instructors = Instructor::all();
+
+        // set the context for selecting the rules
+        $context = 'edit';
 
 //        Log::debug("departments: ". json_encode($departments));
 

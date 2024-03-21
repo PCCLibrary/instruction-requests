@@ -17,6 +17,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "livewire/livewire": "^2.12",
         "spatie/laravel-medialibrary": "^9.12",
         "yajra/laravel-datatables-buttons": "*",
         "yajra/laravel-datatables-html": "*",
