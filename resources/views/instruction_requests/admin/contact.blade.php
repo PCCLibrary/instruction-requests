@@ -30,7 +30,7 @@
                     <li><label>Class Assignments</label></li>
                     @if($instructorAttachments->isNotEmpty())
                         @foreach($instructorAttachments as $item)
-                            <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">View</a></li>
+                            <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">Download</a></li>
                         @endforeach
                     @else
                         <li>No attached assignment files.</li>
@@ -41,13 +41,21 @@
 
         </x-row>
 
-        <x-row classes="row py-0 my-0">
-            <x-textarea name="assignment_description"
-                        label="Assignment Description"
-                        :value="old('assignment_description', $instructionRequest->assignment_description ?? null)"
-                        classes="col-12"
-            />
-        </x-row>
+        @if(isset($instructionRequest->assignment_description))
+            <x-row classes="row py-0 my-0">
+
+                <div class="col-12">
+                    <b>Assignment Description</b>
+                    <p>{{ $instructionRequest->assignment_description }}</p>
+                </div>
+
+                {{--            <x-textarea name="assignment_description"--}}
+                {{--                        label="Assignment Description"--}}
+                {{--                        :value="old('assignment_description', $instructionRequest->assignment_description ?? null)"--}}
+                {{--                        classes="col-12"--}}
+                {{--            />--}}
+            </x-row>
+        @endif
 
     {!! Form::hidden('instruction_request_id', $instructionRequest->id) !!}
     {!! Form::hidden('instructor_id', $instructionRequest->instructor_id) !!}

@@ -6,9 +6,12 @@
     <title>Instruction Requests</title>
 
     <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2019/assets/css/styles.css?ver=6.4.1" type="text/css" media="all">
-{{--    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">--}}
-{{--    <link href="{{ asset('css/app.css') }}" rel="stylesheet">--}}
+
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js?ver=3.1.1" id="jquery-core-js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
         label {
@@ -87,7 +90,6 @@
     </div>
 </footer>
 <!-- Bootstrap Bundle with Popper -->
-{{--<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>--}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 
 <script>
@@ -124,12 +126,12 @@
             'remote': {
                 show: '.remote',
                 required: ['#librarian_id', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
-                notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date"],
+                notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", '#campus_id'],
             },
             'asynchronous': {
                 show: '.asynchronous',
                 required: ['#asynchronous_instruction_ready_date'],
-                notRequired: ['#librarian_id', '#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+                notRequired: ['#librarian_id', '#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration', '#campus_id'],
             }
         };
 
@@ -153,11 +155,11 @@
                     $(`label[for="${selector.substring(1)}"]`).removeClass('is-required');
                 });
 
-                if (selectedValue === 'remote' || selectedValue === 'asynchronous') {
-                    $('#campus_id').val('5').change();
-                } else {
-                    $('#campus_id').val('').change();
-                }
+                // if (selectedValue === 'remote' || selectedValue === 'asynchronous') {
+                //     $('#campus_id').val('5').change();
+                // } else {
+                //     $('#campus_id').val('').change();
+                // }
             } else {
                 ['librarian_id', 'number_of_students', 'campus_id', 'preferred_datetime', 'alternate_datetime', 'duration', 'asynchronous_instruction_ready_date'].forEach(selector => {
                     $(`#${selector}`).prop('required', false);
@@ -166,6 +168,19 @@
                 $('#campus_id').val('').change();
             }
         });
+
+        $('#librarian_id').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Select Librarian'
+        });
+
+        $('#department').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Select your subject'
+        });
+
     });
 </script>
 

@@ -1,4 +1,6 @@
-<x-fieldset legend="Instructor" xmlns="http://www.w3.org/1999/html">
+{!! Form::open(['route' => 'public.instruction-request.store', 'id' => 'instructionRequestForm', 'files' => true]) !!}
+
+<x-fieldset legend="Instructor" classes="card-body">
 
     <x-row>
         {{-- name --}}
@@ -42,7 +44,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Type of Instruction">
+<x-fieldset legend="Type of Instruction" classes="card-body">
 
     <x-row>
         {{-- Instruction Type Field --}}
@@ -61,7 +63,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Librarian" classes="on-campus remote">
+<x-fieldset legend="Librarian" classes="on-campus remote card-body">
 
     <x-row>
 
@@ -82,11 +84,10 @@
 
 </x-fieldset>
 
-
-<x-fieldset legend="Location" classes="on-campus remote">
+<x-fieldset legend="Location" classes="on-campus remote card-body">
 
     <x-row>
-
+        <input type="hidden" name="campus_id" value="5" />
         {{--     Campus ID Field--}}
         <x-input-select name="campus_id"
             label="Class Location"
@@ -100,7 +101,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Class Information">
+<x-fieldset legend="Class Information" classes="on-campus remote asynchronous card-body">
 
     <x-row>
     {{--     Department Field--}}
@@ -144,31 +145,53 @@
 
     <x-row>
 
-        {{-- class_syllabus (File Upload) --}}
-        <x-input-file
-            name="class_syllabus"
-            label="Attach syllabus (doc, pdf, or txt)"
-            :multiple="true"
-            :errors="$errors->get('class_syllabus.*')"
-            classes="col-lg-6"
-            helptext="Please attach the class class_syllabus."
-        />
-
-{{--        <x-media-library-attachment multiple name="images"/>--}}
-
-
         {{-- class_description --}}
         <x-textarea name="class_description"
-            label="Describe your class (this needs a prompt)"
+            label="Additional notes about your class (this needs a prompt)"
             :value="old('class_description')"
-            classes="col-lg-6"
+            classes="col-lg-8"
         />
 
     </x-row>
 
 </x-fieldset>
 
-<x-fieldset legend="ADA information" classes="on-line remote">
+
+<x-fieldset legend="Attachments" classes="on-campus remote asynchronous card-body">
+
+    <x-row>
+        <div class="col-12"><p class="text-gray-500 mb-4">Please use DOC, DOCX, PDF, or TXT file format.</p></div>
+
+    {{-- class_syllabus (File Upload) --}}
+        <x-input-file
+            name="class_syllabus"
+            label="Attach syllabus (doc, pdf, or txt)"
+            :multiple="true"
+            :errors="$errors->get('class_syllabus.*')"
+            classes="col-lg-6"
+{{--            helptext="Please attach the class class syllabus."--}}
+        />
+    </x-row>
+    <x-row>
+        <!-- Assessments (File Upload) -->
+        <x-input-file
+            name="instructor_attachments"
+            label="Attach assignment (doc, pdf, or txt)"
+            :multiple="true"
+            :errors="$errors->get('instructor_attachments.*')"
+            classes="col-lg-6"
+{{--            helptext="Upload class assignment(s) and other relevant documents. "--}}
+        />
+        <x-textarea name="assignment_description"
+            label="Assignment description and sample topics"
+            :value="old('assignment_description')"
+            classes="col-lg-6"
+        />
+    </x-row>
+
+</x-fieldset>
+
+<x-fieldset legend="ADA information" classes="on-campus remote card-body">
 
     <x-row>
         {{-- ADA Provisions Needed Field --}}
@@ -190,7 +213,7 @@
 
 </x-fieldset>
 
-<x-fieldset legend="Date, time and duration" classes="on-campus remote">
+<x-fieldset legend="Date, time and duration" classes="on-campus remote card-body">
 
     <x-row>
         {{-- default preferred_datetime --}}
@@ -230,7 +253,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Extra Time" classes="on-campus">
+<x-fieldset legend="Extra Time" classes="on-campus card-body">
     <x-row>
     {{-- Extra Time With Class Field --}}
         <x-textarea name="extra_time_with_class"
@@ -241,7 +264,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Asynchronous Date" classes="asynchronous">
+<x-fieldset legend="Asynchronous Date" classes="asynchronous card-body">
     <x-row>
         {{-- Asynchronous Instruction Ready Date Field --}}
         <x-input-date name="asynchronous_instruction_ready_date"
@@ -253,30 +276,10 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Assignments">
-    <x-row>
-    <!-- Assessments (File Upload) -->
-        <x-input-file
-            name="instructor_attachments"
-            label="Attach documents (doc, pdf, or txt)"
-            :multiple="true"
-            :errors="$errors->get('instructor_attachments.*')"
-            classes="col-lg-6"
-            helptext="Upload class assignment(s) and other relevant documents."
-        />
-        <x-textarea name="assignment_description"
-            label="Assignment description and sample topics"
-            :value="old('assignment_description')"
-            classes="col-lg-6"
-        />
-    </x-row>
-
-</x-fieldset>
-
-<x-fieldset legend="By the time students receive library instruction they will have:">
+<x-fieldset legend="By the time students receive library instruction they will have:" classes="on-campus remote asynchronous card-body">
 
     <x-row>
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             {{-- Received Assignment Field --}}
                 <x-input-checkbox name="received_assignment"
                   label="Received Assignment"
@@ -320,7 +323,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset>
+<x-fieldset classes="on-campus remote asynchronous card-body">
     <x-row>
         <x-textarea name="library_instruction_description"
                     label="What do you want your students to get out of library instruction?"
@@ -331,7 +334,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset>
+<x-fieldset classes="on-campus remote asynchronous card-body">
     <x-row>
 
         {{-- genai_discussion_interest Field --}}
@@ -344,3 +347,11 @@
 
     </x-row>
 </x-fieldset>
+
+<div class="card-footer">
+    {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}
+    <button class="btn btn-warning ml-2" id="clearForm" type="button">Clear Form</button>
+</div>
+
+
+{!! Form::close() !!}

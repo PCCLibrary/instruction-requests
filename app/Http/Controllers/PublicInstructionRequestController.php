@@ -45,7 +45,7 @@ class PublicInstructionRequestController extends Controller
         $departments = $this->departmentService->getAllDepartments();
 
         // Retrieve necessary data for form
-        $campuses = Campus::pluck('name', 'id');
+        $campuses = Campus::where('code', '!=', 'OL')->pluck('name', 'id');
         $departments = $this->departmentService->getAllDepartments();
         $librarians = User::where('is_admin', false)->get();
 
