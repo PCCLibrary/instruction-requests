@@ -49,21 +49,24 @@
         <x-input-select name="instruction_type"
             label="Instruction Type"
             :options="[
-            'Librarian joins my class on campus',
-            'Librarian joins my remote class',
-            'Librarian provides resources to be used asynchronously']"
+            'on-campus' => 'Librarian joins my class on campus',
+            'remote' => 'Librarian joins my remote class',
+            'asynchronous' => 'Librarian provides resources to be used asynchronously']"
             :selected="old('instruction_type')"
             classes="col-lg-6"
-            helptext=""
+            helptext="Please select what you need help with."
             required=true
         />
 
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Location">
+<x-fieldset legend="Librarian" classes="on-campus remote">
 
     <x-row>
+
+        {{--     default Librarian Preference --}}
+        <input name="librarian_id" type="hidden" value="2" />
 
         {{--     Librarian Preference Field--}}
         <x-input-select name="librarian_id"
@@ -74,6 +77,15 @@
             helptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
             required=true
         />
+
+    </x-row>
+
+</x-fieldset>
+
+
+<x-fieldset legend="Location" classes="on-campus remote">
+
+    <x-row>
 
         {{--     Campus ID Field--}}
         <x-input-select name="campus_id"
@@ -124,8 +136,9 @@
             label="Number of Students"
             type="number"
             :value="old('number_of_students')"
-            classes="col-lg-2"
+            classes="col-lg-2 on-campus remote"
             helptext="Enter the number of students in the class."
+            required=true
         />
     </x-row>
 
@@ -138,8 +151,11 @@
             :multiple="true"
             :errors="$errors->get('class_syllabus.*')"
             classes="col-lg-6"
-            helptext="Please attach the class syllabus."
+            helptext="Please attach the class class_syllabus."
         />
+
+{{--        <x-media-library-attachment multiple name="images"/>--}}
+
 
         {{-- class_description --}}
         <x-textarea name="class_description"
@@ -152,7 +168,7 @@
 
 </x-fieldset>
 
-<x-fieldset legend="ADA information">
+<x-fieldset legend="ADA information" classes="on-line remote">
 
     <x-row>
         {{-- ADA Provisions Needed Field --}}
@@ -174,10 +190,13 @@
 
 </x-fieldset>
 
-<x-fieldset legend="Date, time and duration">
+<x-fieldset legend="Date, time and duration" classes="on-campus remote">
 
     <x-row>
-    {{-- Preferred Datetime Field --}}
+        {{-- default preferred_datetime --}}
+        <input type="hidden" name="preferred_datetime" value="{{ now()->format('Y-m-d H:i:s') }}" />
+
+        {{-- Preferred Datetime Field --}}
         <x-input-datetime name="preferred_datetime"
           label="Preferred Date & Time"
           :value="old('preferred_datetime')"
@@ -186,7 +205,10 @@
           required=true
         />
 
-    {{-- Alternate Datetime Field --}}
+        {{-- default alternate_datetime --}}
+        <input type="hidden" name="alternate_datetime" value="{{ now()->format('Y-m-d H:i:s') }}" />
+
+        {{-- Alternate Datetime Field --}}
         <x-input-datetime name="alternate_datetime"
             label="Alternate Date & Time"
             :value="old('alternate_datetime')"
@@ -195,7 +217,8 @@
             required=true
         />
 
-    {{-- Duration Field --}}
+        <input type="hidden" name="duration" value="0" />
+        {{-- Duration Field --}}
         <x-input-text name="duration"
             label="Duration"
             :selected="old('duration')"
@@ -207,7 +230,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Extra Time">
+<x-fieldset legend="Extra Time" classes="on-campus">
     <x-row>
     {{-- Extra Time With Class Field --}}
         <x-textarea name="extra_time_with_class"
@@ -218,7 +241,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Asynchronous Date">
+<x-fieldset legend="Asynchronous Date" classes="asynchronous">
     <x-row>
         {{-- Asynchronous Instruction Ready Date Field --}}
         <x-input-date name="asynchronous_instruction_ready_date"

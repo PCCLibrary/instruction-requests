@@ -2,7 +2,7 @@
 @props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
 <div class="{{ $classes }}">
-    <x-label :label="$label" :required="$required" />
+    <x-label :label="$label" :name="$name" :required="$required" />
     <select class="form-control" name="{{ $name }}" id="{{ $name }}"
             @if($required)required @endif
     >

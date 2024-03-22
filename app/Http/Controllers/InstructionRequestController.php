@@ -63,7 +63,7 @@ class InstructionRequestController extends AppBaseController
     public function create()
     {
         $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::all(); // librarian model
+        $librarians = User::where('is_admin', false)->get();
         $campuses = Campus::all(); // Reflecting change to 'campuses' for clarity
         $instructors = Instructor::all(); // grab instructors
 
@@ -148,7 +148,7 @@ class InstructionRequestController extends AppBaseController
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
         $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::all();
+        $librarians = User::where('is_admin', false)->get();
         $campuses = Campus::all();
         $instructors = Instructor::all();
 

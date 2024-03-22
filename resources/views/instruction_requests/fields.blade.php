@@ -70,9 +70,9 @@
     <x-input-select name="instruction_type"
                     label="Instruction Type"
                     :options="[
-            'Librarian joins my class on campus',
-            'Librarian joins my remote class',
-            'Librarian provides resources to be used asynchronously']"
+            'on-campus' => 'Librarian joins my class on campus',
+            'remote' => 'Librarian joins my remote class',
+            'asynchronous' => 'Librarian provides resources to be used asynchronously']"
                     :selected="old('instruction_type', $instructionRequest->instruction_type ?? null)"
                     classes="col-6"
     />

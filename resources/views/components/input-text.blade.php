@@ -2,7 +2,7 @@
 @props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', 'required' => false ])
 
 <div class="{{ $classes }}">
-    <x-label :label="$label" :required="$required" />
+    <x-label :label="$label" :name="$name" :required="$required" />
     <input type="text"
            class="form-control"
            name="{{ $name }}"

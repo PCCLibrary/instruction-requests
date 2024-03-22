@@ -13,14 +13,13 @@
 
     <div class="form-group">
         {{ Form::hidden($name, '0') }}
-{{--        {{ Form::checkbox($name,  '1',  $checked) }}--}}
         <input type="checkbox"
                name="{{$name}}"
                value="1"
                @if($target)data-target="{{$target}}" class="toggle-checkbox" @endif
                @if($checked)checked @endif
         />
-        <x-label label="{{ $label }}" classes="form-check-label" />
+        <x-label label="{{ $label }}" :for="$name" classes="form-check-label" />
     </div>
 
     @if($helptext)

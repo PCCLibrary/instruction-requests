@@ -9,10 +9,17 @@
 {{--    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">--}}
 {{--    <link href="{{ asset('css/app.css') }}" rel="stylesheet">--}}
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js?ver=3.1.1" id="jquery-core-js"></script>
+
     <style>
         label {
             font-weight: bold;
         }
+
+        label.is-required:after {
+            content: " *";
+            color: red;
+        }
+
     </style>
 </head>
 <body class="page-template page-template-page-no-sidebar page-template-page-no-sidebar-php page page-instruction-request" data-template="base.twig" lang="en-US">
@@ -101,6 +108,64 @@
         $('#instructionRequestForm').find('input:radio, input:checkbox').prop('checked', false);
         $('#instructionRequestForm').find('select').prop('selectedIndex', 0); // Resets all select boxes to their first option
         $('#ada_provisions_description').addClass('invisible');
+    });
+
+    $(document).ready(function() {
+        function hideAllFieldsets() {
+            $('.on-campus, .remote, .asynchronous').addClass('d-none');
+        }
+
+        const fieldSettings = {
+            'on-campus': {
+                show: '.on-campus',
+                required: ['#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+                notRequired: ['#librarian_id', "#asynchronous_instruction_ready_date"],
+            },
+            'remote': {
+                show: '.remote',
+                required: ['#librarian_id', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+                notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date"],
+            },
+            'asynchronous': {
+                show: '.asynchronous',
+                required: ['#asynchronous_instruction_ready_date'],
+                notRequired: ['#librarian_id', '#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+            }
+        };
+
+        hideAllFieldsets();
+
+        $('select[name="instruction_type"]').change(function() {
+            const selectedValue = $(this).val();
+            hideAllFieldsets();
+
+            if (selectedValue in fieldSettings) {
+                const settings = fieldSettings[selectedValue];
+                $(settings.show).removeClass('d-none');
+
+                $.each(settings.required, function(index, selector) {
+                    $(selector).prop('required', true);
+                    $(`label[for="${selector.substring(1)}"]`).addClass('is-required');
+                });
+
+                $.each(settings.notRequired, function(index, selector) {
+                    $(selector).prop('required', false);
+                    $(`label[for="${selector.substring(1)}"]`).removeClass('is-required');
+                });
+
+                if (selectedValue === 'remote' || selectedValue === 'asynchronous') {
+                    $('#campus_id').val('5').change();
+                } else {
+                    $('#campus_id').val('').change();
+                }
+            } else {
+                ['librarian_id', 'number_of_students', 'campus_id', 'preferred_datetime', 'alternate_datetime', 'duration', 'asynchronous_instruction_ready_date'].forEach(selector => {
+                    $(`#${selector}`).prop('required', false);
+                    $(`label[for="${selector}"]`).removeClass('is-required');
+                });
+                $('#campus_id').val('').change();
+            }
+        });
     });
 </script>
 

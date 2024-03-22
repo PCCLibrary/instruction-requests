@@ -2,7 +2,7 @@
 @props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
 
 <div class="{{ $classes }}" id="{{ $name }}">
-    <x-label :label="$label" :required="$required" />
+    <x-label :label="$label" :name="$name" :required="$required" />
     <div class="form-group d-flex">
         @foreach($options as $value => $text)
             <div class="form-check">

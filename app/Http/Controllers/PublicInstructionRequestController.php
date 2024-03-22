@@ -47,7 +47,7 @@ class PublicInstructionRequestController extends Controller
         // Retrieve necessary data for form
         $campuses = Campus::pluck('name', 'id');
         $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::all(); // librarian model
+        $librarians = User::where('is_admin', false)->get();
 
 //        Log::debug('Departments: ' . json_encode($departments));
 //        Log::debug('Librarians: ' . json_encode($librarians->toArray()));
@@ -68,31 +68,23 @@ class PublicInstructionRequestController extends Controller
     {
         try {
             // Validate the request data
-            $validatedData = $request->validated();
+           // $validatedData = $request->validated();
 
-            // Initialize an empty array for files
-            $files = [];
+            $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
 
-            // Check if the request has file uploads and add them to the files array
-            if ($request->hasFile('class_syllabus')) {
-                $files['class_syllabus'] = $request->file('class_syllabus');
-            }
-            if ($request->hasFile('instructor_attachments')) {
-                $files['instructor_attachments'] = $request->file('instructor_attachments');
-            }
+            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
-            // Call the service with the validated data and file uploads
-            $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($validatedData, $files);
-
-            Flash::success('Instruction request submitted successfully.');
+            // Flash a success message to the session
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();
 
-        } catch (\Throwable $e) {
-            Log::error('Failed to submit the instruction request: ' . $e->getMessage());
-            Flash::error('Failed to submit the instruction request.');
+        } catch (\Exception $e) {
+            // Flash an error message and input data to the session
+            Flash::error('Instruction Request not saved.');
+
             return redirect('/')
+                ->with('error', 'Failed to submit the instruction request.')
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
