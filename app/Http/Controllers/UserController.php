@@ -6,6 +6,7 @@ use App\DataTables\UserDataTable;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
+use App\Models\Campus;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
@@ -31,6 +32,7 @@ class UserController extends AppBaseController
      */
     public function index(UserDataTable $userDataTable)
     {
+
         return $userDataTable->render('users.index');
 
     }
@@ -94,13 +96,18 @@ class UserController extends AppBaseController
     {
         $user = $this->userRepository->find($id);
 
+        $campuses = Campus::all()->pluck('name', 'id');; // Reflecting change to 'campuses' for clarity
+
         if (empty($user)) {
             Flash::error('User not found');
 
             return redirect(route('users.index'));
         }
 
-        return view('users.edit')->with('user', $user);
+        return view('users.edit')
+            ->with('user', $user)
+            ->with('campuses', $campuses);
+
     }
 
     /**

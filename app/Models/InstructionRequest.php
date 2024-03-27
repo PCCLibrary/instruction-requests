@@ -21,7 +21,7 @@ use Spatie\MediaLibrary\HasMedia;
  *
  * @property Instructor $Instructor
  * @property Campus $campus
- * @property User $librarianUser
+// * @property User $librarianUser
  * @property string $instruction_type
 // * @property string $course_modality
  * @property int $librarian_id
@@ -84,8 +84,6 @@ class InstructionRequest extends Model implements HasMedia
         'course_crn',
         'number_of_students',
         'class_description',
-//        'class_syllabus',
-//        'instructor_attachments',
         'assignment_description',
         'ada_provisions_needed',
         'ada_provisions_description',
@@ -114,7 +112,6 @@ class InstructionRequest extends Model implements HasMedia
     protected $casts = [
         'id' => 'integer',
         'instruction_type' => 'string',
-//        'course_modality' => 'string',
         'librarian_id' => 'integer',
         'campus_id' => 'integer',
         'class_id' => 'integer',
@@ -123,8 +120,6 @@ class InstructionRequest extends Model implements HasMedia
         'course_crn' => 'string',
         'number_of_students' => 'integer',
         'class_description' => 'string',
-//        'class_syllabus' => 'array',
-//        'instructor_attachments' => 'array',
         'assignment_description' => 'string',
         'ada_provisions_needed' => 'boolean',
         'ada_provisions_description' => 'string',
@@ -170,7 +165,7 @@ class InstructionRequest extends Model implements HasMedia
     /**
      * @return BelongsTo
      */
-    public function campus()
+    public function campus(): BelongsTo
     {
         return $this->belongsTo(Campus::class, 'campus_id');
     }
@@ -178,7 +173,7 @@ class InstructionRequest extends Model implements HasMedia
     /**
      * @return BelongsTo
      */
-    public function librarian()
+    public function librarian(): BelongsTo
     {
         return $this->belongsTo(User::class, 'librarian_id');
     }
@@ -186,7 +181,7 @@ class InstructionRequest extends Model implements HasMedia
     /**
      * @return BelongsTo
      */
-    public function classes()
+    public function classes(): BelongsTo
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
@@ -197,7 +192,7 @@ class InstructionRequest extends Model implements HasMedia
      *
      * @return array
      */
-    public function rules(Request $request)
+    public function rules(Request $request): array
     {
         $rules = [
             'librarian_id' => 'required|exists:users,id',

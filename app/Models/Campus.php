@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Eloquent as Model;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
@@ -26,7 +27,9 @@ class Campus extends Model
 
     public $fillable = [
         'name',
-        'code'
+        'code',
+        'librarian_ids' // Ensure this is fillable if you're planning to mass assign.
+
     ];
 
     /**
@@ -37,7 +40,9 @@ class Campus extends Model
     protected $casts = [
         'id' => 'integer',
         'name' => 'string',
-        'code' => 'string'
+        'code' => 'string',
+        'librarian_ids' => 'array' // Cast the librarian_ids field to an array.
+
     ];
 
     /**

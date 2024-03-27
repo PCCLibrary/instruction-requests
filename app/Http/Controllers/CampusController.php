@@ -8,13 +8,18 @@ use App\Http\Requests\UpdateCampusRequest;
 use App\Repositories\CampusRepository;
 use Laracasts\Flash\Flash;
 use App\Http\Controllers\AppBaseController;
-use Illuminate\Http\Client\Response;
+use Illuminate\Http\Response;
+use App\Models\User;
 
 class CampusController extends AppBaseController
 {
-    /** @var CampusRepository $campusRepository*/
+    /** @var CampusRepository */
     private $campusRepository;
 
+    /**
+     * CampusController constructor.
+     * @param CampusRepository $campusRepo
+     */
     public function __construct(CampusRepository $campusRepo)
     {
         $this->campusRepository = $campusRepo;
@@ -24,7 +29,6 @@ class CampusController extends AppBaseController
      * Display a listing of the Campus.
      *
      * @param CampusDataTable $campusDataTable
-     *
      * @return Response
      */
     public function index(CampusDataTable $campusDataTable)
@@ -37,21 +41,29 @@ class CampusController extends AppBaseController
      *
      * @return Response
      */
-    public function create()
+    public function create() : Response
     {
-        return view('campuses.create');
+        // Load librarians for select dropdown
+        $librarians = User::where('is_admin', false)->pluck('display_name', 'id');
+
+        return view('campuses.create')
+            ->with('librarians', $librarians);
     }
 
     /**
      * Store a newly created Campus in storage.
      *
      * @param CreateCampusRequest $request
-     *
      * @return Response
      */
-    public function store(CreateCampusRequest $request)
+    public function store(CreateCampusRequest $request) : Response
     {
         $input = $request->all();
+
+        // Ensure 'librarian_ids' is correctly encoded as JSON
+        if ($request->has('librarian_ids')) {
+            $input['librarian_ids'] = json_encode($request->librarian_ids);
+        }
 
         $campus = $this->campusRepository->create($input);
 
@@ -60,14 +72,48 @@ class CampusController extends AppBaseController
         return redirect(route('campuses.index'));
     }
 
+
+    /**
+     * Update the specified Campus in storage.
+     *
+     * Serializes the 'librarian_ids' array from the request to JSON before updating.
+     *
+     * @param int $id
+     * @param UpdateCampusRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update($id, UpdateCampusRequest $request)
+    {
+        $campus = $this->campusRepository->find($id);
+
+        if (empty($campus)) {
+            Flash::error('Campus not found');
+
+            return redirect(route('campuses.index'));
+        }
+
+        $input = $request->all();
+
+        // Ensure 'librarian_ids' is correctly encoded as JSON
+        if ($request->has('librarian_ids')) {
+            $input['librarian_ids'] = json_encode($request->librarian_ids);
+        }
+
+        $campus = $this->campusRepository->update($input, $id);
+
+        Flash::success('Campus updated successfully.');
+
+        return redirect(route('campuses.index'));
+    }
+
+
     /**
      * Display the specified Campus.
      *
      * @param int $id
-     *
      * @return Response
      */
-    public function show($id)
+    public function show(int $id) : Response
     {
         $campus = $this->campusRepository->find($id);
 
@@ -84,12 +130,15 @@ class CampusController extends AppBaseController
      * Show the form for editing the specified Campus.
      *
      * @param int $id
-     *
      * @return Response
      */
     public function edit($id)
     {
         $campus = $this->campusRepository->find($id);
+        $librarians = User::where('is_admin', false)->pluck('display_name', 'id');
+
+        // Assuming 'librarian_ids' is stored as a JSON string in the database
+        $campus->librarian_ids = json_decode($campus->librarian_ids, true);
 
         if (empty($campus)) {
             Flash::error('Campus not found');
@@ -97,39 +146,16 @@ class CampusController extends AppBaseController
             return redirect(route('campuses.index'));
         }
 
-        return view('campuses.edit')->with('campus', $campus);
+        return view('campuses.edit')
+            ->with('campus', $campus)
+            ->with('librarians', $librarians);
     }
 
-    /**
-     * Update the specified Campus in storage.
-     *
-     * @param int $id
-     * @param UpdateCampusRequest $request
-     *
-     * @return Response
-     */
-    public function update($id, UpdateCampusRequest $request)
-    {
-        $campus = $this->campusRepository->find($id);
-
-        if (empty($campus)) {
-            Flash::error('Campus not found');
-
-            return redirect(route('campuses.index'));
-        }
-
-        $campus = $this->campusRepository->update($request->all(), $id);
-
-        Flash::success('Campus updated successfully.');
-
-        return redirect(route('campuses.index'));
-    }
 
     /**
      * Remove the specified Campus from storage.
      *
      * @param int $id
-     *
      * @return Response
      */
     public function destroy($id)

@@ -17,12 +17,18 @@ class UserDataTable extends DataTable
      * @param mixed $query Results from query() method.
      * @return DataTableAbstract
      */
-    public function dataTable($query)
+    public function dataTable($query): DataTableAbstract
     {
         $dataTable = new EloquentDataTable($query);
 
+        // Use the 'addColumn' method for the campus name
+        $dataTable->addColumn('campus', function ($user) {
+            return $user->campus ? $user->campus->name : '';
+        });
+
         return $dataTable->addColumn('action', 'users.datatables_actions');
     }
+
 
     /**
      * Get query source of dataTable.
@@ -30,10 +36,13 @@ class UserDataTable extends DataTable
      * @param User $model
      * @return Builder
      */
-    public function query(User $model)
+    public function query(User $model): Builder
     {
-        return $model->newQuery();
+
+        return $model->newQuery()->with('campus')->select('users.*');
+
     }
+
 
     /**
      * Optional method if you want to use html builder.
@@ -71,6 +80,7 @@ class UserDataTable extends DataTable
             'name',
             'display_name',
             'email',
+            'campus' => ['name' => 'campus.name', 'data' => 'campus', 'title' => 'Campus'],
         ];
     }
 

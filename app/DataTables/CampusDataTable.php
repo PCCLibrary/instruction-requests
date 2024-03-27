@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Campus;
+use App\Models\User;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 
@@ -11,6 +12,8 @@ class CampusDataTable extends DataTable
     /**
      * Build DataTable class.
      *
+     * Resolves librarian IDs to display names and adds them as a new column.
+     *
      * @param mixed $query Results from query() method.
      * @return \Yajra\DataTables\DataTableAbstract
      */
@@ -18,7 +21,19 @@ class CampusDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'campuses.datatables_actions');
+        $dataTable->addColumn('action', 'campuses.datatables_actions');
+
+        // Manually resolve librarian IDs to display names
+        $dataTable->addColumn('librarians', function ($campus) {
+            $librarianIds = json_decode($campus->librarian_ids, true);
+            if (!empty($librarianIds)) {
+                $librarians = User::whereIn('id', $librarianIds)->pluck('display_name')->toArray();
+                return implode(', ', $librarians);
+            }
+            return '';
+        });
+
+        return $dataTable;
     }
 
     /**
@@ -66,7 +81,8 @@ class CampusDataTable extends DataTable
     {
         return [
             'name',
-            'code'
+            'code',
+            'librarians' => ['name' => 'librarians', 'data' => 'librarians', 'title' => 'Librarians', 'searchable' => false, 'orderable' => false],
         ];
     }
 

@@ -80,10 +80,6 @@ Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionReq
 Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
 
 
-// file uploads
-//Route::post('/file/upload', [UploadController::class, 'upload'])->name('file.upload');
-
-
 /*
 |--------------------------------------------------------------------------
 | InfyOm Generator Builder Routes
@@ -102,3 +98,5 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
     Route::post('generator_builder/generate-from-file', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile')->name('io_generator_builder_generate_from_file');
 });
+
+

@@ -87,7 +87,7 @@
 <x-fieldset legend="Location" classes="on-campus remote card-body">
 
     <x-row>
-        <input type="hidden" name="campus_id" value="5" />
+        <input type="hidden" name="campus_id" value="1" />
         {{--     Campus ID Field--}}
         <x-input-select name="campus_id"
             label="Class Location"

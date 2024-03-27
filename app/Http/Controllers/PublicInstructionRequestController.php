@@ -75,6 +75,9 @@ class PublicInstructionRequestController extends Controller
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
             // Flash a success message to the session
+
+            Flash::success('Instruction Request saved successfully.');
+
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();

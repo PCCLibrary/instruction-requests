@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -18,6 +21,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'display_name',
+        'campus_id',
         'email',
         'password',
     ];
@@ -39,5 +44,28 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'campus_id' => 'integer',
     ];
+
+    /**
+     * @return BelongsTo
+     */
+    public function campus(): BelongsTo
+    {
+        return $this->belongsTo(Campus::class, 'campus_id');
+    }
+
+    /**
+     * The campuses that the librarian is associated with.
+     *
+     * @return BelongsToMany
+     */
+    public function campuses(): BelongsToMany
+    {
+        // Define the many-to-many relationship
+        return $this->belongsToMany(Campus::class, 'campus_user', 'librarian_id', 'campus_id')
+            ->withTimestamps(); // Optional: if you want to automatically update created_at and updated_at timestamps in pivot table
+    }
+
+
 }

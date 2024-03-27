@@ -59,21 +59,28 @@
             </div>
         </div>
     </section>
+
 <div class="container mt-5">
 
-    @if(session('success'))
-        <div class="alert alert-success" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger" role="alert">
-            {{ session('error') }}
-        </div>
-    @endif
+    @include('flash::message')
 
     <div class="content-wrapper">
+
+        @if(session('success'))
+
+        <section id="success-message" class="card alert-info mb-4">
+            <div class="card-body">
+                <p><strong>Thank you for requesting a library instruction session. A librarian will contact you soon to confirm your reservation.</strong></p>
+
+                <p>Meanwhile, here are a few ways you and your students can get the most from our time together.</p>
+                <ul>
+                    <li>Please prepare your students in advance of the library session by emphasizing the importance of research skills and letting them know where and when instruction will take place.</li>
+                    <li>Plan to attend the entire session with your students. Successful library instruction depends upon active, in-class collaboration between the librarian and you as the content expert. We rely on you throughout the session to provide context for your students' needs.</li>
+                </ul>
+            </div>
+        </section>
+
+        @endif
         <section class="content">
             @yield('content')
         </section>

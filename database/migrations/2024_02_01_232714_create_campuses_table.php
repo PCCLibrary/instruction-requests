@@ -18,6 +18,7 @@ class CreateCampusesTable extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('code');
+            $table->json('librarian_ids')->nullable(); // Add this line for the JSON column
             $table->softDeletes();
             $table->timestamps();
         });

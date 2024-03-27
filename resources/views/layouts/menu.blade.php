@@ -40,3 +40,4 @@
        class="nav-link {{ Request::is('details*') ? 'active' : '' }}">
         <i class="fa fa-gear"></i> <span>Details</span></a>
 </li>
+
