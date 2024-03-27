@@ -2,10 +2,10 @@
 
 @section('content')
     <x-page-header title="Campuses" text="Edit and manage campuses, and assign librarians to notify when new requests arrive.">
-        <a class="btn btn-primary float-right"
-           href="{{ route('campuses.create') }}">
-            Add New
-        </a>
+{{--        <a class="btn btn-primary float-right"--}}
+{{--           href="{{ route('campuses.create') }}">--}}
+{{--            Add New--}}
+{{--        </a>--}}
     </x-page-header>
 
 

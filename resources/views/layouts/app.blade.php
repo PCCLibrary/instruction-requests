@@ -43,6 +43,19 @@
     @stack('third_party_stylesheets')
 
     @stack('page_css')
+
+    <style>
+        div.dataTables_wrapper div.dataTables_info {
+            padding: 1em;
+        }
+
+        div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+            margin: 0 1em 1em;
+            padding: inherit;
+            white-space: nowrap;
+            justify-content: flex-end;
+        }
+    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">

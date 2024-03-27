@@ -28,10 +28,14 @@ class CampusDataTable extends DataTable
             $librarianIds = json_decode($campus->librarian_ids, true);
             if (!empty($librarianIds)) {
                 $librarians = User::whereIn('id', $librarianIds)->pluck('display_name')->toArray();
-                return implode(', ', $librarians);
+                // Wrap each name in a span tag with the class "rounded-pill small"
+                $librariansHtml = array_map(function($name) {
+                    return "<span class=\"badge-success px-2 py-1 rounded-pill small\">$name</span>";
+                }, $librarians);
+                return implode(' ', $librariansHtml); // Use a space or any other separator as needed
             }
             return '';
-        });
+        })->rawColumns(['librarians', 'action']); // Specify the columns that should be treated as raw HTML
 
         return $dataTable;
     }
@@ -62,13 +66,10 @@ class CampusDataTable extends DataTable
                 'dom'       => 'Bfrtip',
                 'stateSave' => true,
                 'order'     => [[0, 'desc']],
-                'buttons'   => [
-                    ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'reset', 'className' => 'btn btn-default btn-sm no-corner',],
-                    ['extend' => 'reload', 'className' => 'btn btn-default btn-sm no-corner',],
-                ],
+                'buttons'   => [],
+                'searching' => false,
+                'paging'    => false,
+//                'info'      => false
             ]);
     }
 
@@ -80,9 +81,9 @@ class CampusDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'name',
+            'name' => ['title' => 'Campus'],
             'code',
-            'librarians' => ['name' => 'librarians', 'data' => 'librarians', 'title' => 'Librarians', 'searchable' => false, 'orderable' => false],
+            'librarians' => ['name' => 'librarians', 'data' => 'librarians', 'title' => 'Notifications to:', 'searchable' => false, 'orderable' => false],
         ];
     }
 
