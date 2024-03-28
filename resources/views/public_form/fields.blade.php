@@ -1,6 +1,6 @@
 {!! Form::open(['route' => 'public.instruction-request.store', 'id' => 'instructionRequestForm', 'files' => true]) !!}
 
-<x-fieldset legend="Instructor" classes="card-body">
+<x-fieldset legend="Contact information" classes="card-body">
 
     <x-row>
         {{-- name --}}
@@ -44,7 +44,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Type of Instruction" classes="card-body">
+<x-fieldset legend="Request information" classes="card-body">
 
     <x-row>
         {{-- Instruction Type Field --}}
@@ -56,14 +56,14 @@
             'asynchronous' => 'Librarian provides resources to be used asynchronously']"
             :selected="old('instruction_type')"
             classes="col-lg-6"
-            helptext="Please select what you need help with."
+            tophelptext="Please select what you need help with."
             required=true
         />
 
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="Librarian" classes="on-campus remote card-body">
+<x-fieldset classes="on-campus remote card-body">
 
     <x-row>
 
@@ -76,7 +76,7 @@
             :options="$librarians->pluck('display_name', 'id')->toArray()"
             :selected="old('librarian_id')"
             classes="col-lg-6"
-            helptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
+            tophelptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
             required=true
         />
 
@@ -84,7 +84,7 @@
 
 </x-fieldset>
 
-<x-fieldset legend="Location" classes="on-campus remote card-body">
+<x-fieldset classes="on-campus remote card-body">
 
     <x-row>
         <input type="hidden" name="campus_id" value="1" />
@@ -94,7 +94,7 @@
             :options="$campuses"
             :selected="old('campus_id')"
             classes="col-lg-6"
-            helptext="Choose the campus with which you are primarily associated (if online) ?"
+            tophelptext="Choose the campus with which you are primarily associated (if online) ?"
             required=true
     />
 
@@ -157,6 +157,28 @@
 </x-fieldset>
 
 
+<x-fieldset classes="on-campus remote card-body">
+
+    <x-row>
+        {{-- ADA Provisions Needed Field --}}
+        <x-input-checkbox name="ada_provisions_needed"
+                          label="ADA Provisions Needed"
+                          :checked="old('ada_provisions_needed')"
+                          classes="col-lg-3"
+                          target="ada_provisions_description"
+        />
+
+        {{-- ADA Provisions Description Field --}}
+        <x-textarea name="ada_provisions_description"
+                    label="Describe the ADA accommodations needed for your class."
+                    :value="old('ada_provisions_description')"
+                    {{--                helptext="Describe the ADA accommodations needed for your class."--}}
+                    classes="col-lg-9 {{ empty(old('ada_provisions_description')) ? 'invisible' : '' }}"
+        />
+    </x-row>
+
+</x-fieldset>
+
 <x-fieldset legend="Attachments" classes="on-campus remote asynchronous card-body">
 
     <x-row>
@@ -191,28 +213,6 @@
 
 </x-fieldset>
 
-<x-fieldset legend="ADA information" classes="on-campus remote card-body">
-
-    <x-row>
-        {{-- ADA Provisions Needed Field --}}
-        <x-input-checkbox name="ada_provisions_needed"
-            label="ADA Provisions Needed"
-            :checked="old('ada_provisions_needed')"
-            classes="col-lg-3"
-            target="ada_provisions_description"
-        />
-
-        {{-- ADA Provisions Description Field --}}
-        <x-textarea name="ada_provisions_description"
-            label="Describe the ADA accommodations needed for your class."
-            :value="old('ada_provisions_description')"
-        {{--                helptext="Describe the ADA accommodations needed for your class."--}}
-            classes="col-lg-9 {{ empty(old('ada_provisions_description')) ? 'invisible' : '' }}"
-        />
-    </x-row>
-
-</x-fieldset>
-
 <x-fieldset legend="Date, time and duration" classes="on-campus remote card-body">
 
     <x-row>
@@ -242,10 +242,10 @@
 
         <input type="hidden" name="duration" value="0" />
         {{-- Duration Field --}}
-        <x-input-text name="duration"
+        <x-input-duration name="duration"
             label="Duration"
             :selected="old('duration')"
-            helptext="Enter the length of instruction you would like your class to receive, in minutes."
+            helptext="Enter the length of instruction you would like your class to receive, in hours and minutes."
             classes="col-lg-4"
             required=true
         />
@@ -279,7 +279,7 @@
 <x-fieldset legend="By the time students receive library instruction they will have:" classes="on-campus remote asynchronous card-body">
 
     <x-row>
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             {{-- Received Assignment Field --}}
                 <x-input-checkbox name="received_assignment"
                   label="Received Assignment"
@@ -298,7 +298,10 @@
                     :checked="old('explored_background')"
                 />
 
-                {{-- Written Draft Field --}}
+        </div>
+        <div class="col-lg-3">
+
+        {{-- Written Draft Field --}}
                 <x-input-checkbox name="written_draft"
                     label="Written Draft"
                     :checked="old('written_draft')"
@@ -312,7 +315,7 @@
                 />
                 </div>
 
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                 {{-- Other Learning Outcome Description Field --}}
                 <x-textarea name="other_learning_outcome_description"
                     label="Other Learning Outcome"

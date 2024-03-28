@@ -29,3 +29,9 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
     white-space: nowrap;
     justify-content: flex-end;
 }
+
+form fieldset .error {
+    margin: .25em 0;
+    font-size: smaller;
+    color: red;
+}

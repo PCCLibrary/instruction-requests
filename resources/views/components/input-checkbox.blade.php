@@ -3,15 +3,14 @@
     ['name' => null,
     'label' => null,
     'checked' => false,
-    'classes' => '',
+    'classes' => null,
     'helptext' => null,
     'target' => null,
     'value' => false
     ])
 
-<div class=" {{ $classes }}">
 
-    <div class="form-group">
+    <div class="form-group {{ $classes }}">
         {{ Form::hidden($name, '0') }}
         <input type="checkbox"
                name="{{$name}}"
@@ -20,12 +19,12 @@
                @if($checked)checked @endif
         />
         <x-label label="{{ $label }}" :for="$name" classes="form-check-label" />
+        @if($helptext)
+            <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
+        @endif
     </div>
 
-    @if($helptext)
-        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
-    @endif
 
-</div>
+
 
 

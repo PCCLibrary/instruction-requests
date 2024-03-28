@@ -50,7 +50,7 @@
     />
 
     {{-- Duration Field --}}
-    <x-input-text name="duration"
+    <x-input-duration name="duration"
                   label="Duration"
                   :value="old('duration', $instructionRequest->duration ?? null)"
                   classes="col-3"

@@ -23,6 +23,13 @@
             color: red;
         }
 
+        form fieldset .error {
+            margin: .25em 0;
+            font-size: smaller;
+            color: red;
+        }
+
+
     </style>
 </head>
 <body class="page-template page-template-page-no-sidebar page-template-page-no-sidebar-php page page-instruction-request" data-template="base.twig" lang="en-US">
@@ -99,7 +106,21 @@
 <!-- Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/html-duration-picker@latest/dist/html-duration-picker.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+
 <script>
+    $(document).ready(function(){
+        $('#instructionRequestForm').validate({
+            messages: {
+                // name: "Please enter your name.",
+                // email: 'Please enter your email.',
+                // instruction_type: 'Please select the type of instruction you need.'
+            }
+        });
+    });
+
     $(document).ready(function() {
         // Attach event listener to checkboxes with the class 'toggle-checkbox'
         $('.toggle-checkbox').change(function() {

@@ -1,8 +1,11 @@
 {{-- components/input-select.blade.php --}}
-@props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'required' => false])
+@props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => 'form-group', 'helptext' => null, 'tophelptext' => null, 'required' => false])
 
 <div class="{{ $classes }}">
     <x-label :label="$label" :name="$name" :required="$required" />
+    @if($tophelptext)
+        <x-helptext name="{{ $name }}" helptext="{{ $tophelptext }}" />
+    @endif
     <select class="form-control" name="{{ $name }}" id="{{ $name }}"
             @if($required)required @endif
     >
