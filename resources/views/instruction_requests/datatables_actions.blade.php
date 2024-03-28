@@ -1,8 +1,10 @@
-<div class='d-flex justify-content-start align-content-center'>
-    <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-default btn-xs'>
-        <i class="fa fa-eye"></i>
-    </a>
-    <a href="{{ route('instructionRequests.edit', $id) }}" class='btn btn-default btn-xs'>
+{{--<div class='d-flex justify-content-start align-content-center'>--}}
+{{--    <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-default btn-xs'>--}}
+{{--        <i class="fa fa-eye"></i>--}}
+{{--    </a>--}}
+<div class='btn-group'>
+
+    <a href="{{ route('instructionRequests.edit', $id) }}" class='btn btn-success btn-xs'>
         <i class="fa fa-edit"></i>
     </a>
     {!! Form::open(['route' => ['instructionRequests.destroy', $id], 'method' => 'delete']) !!}

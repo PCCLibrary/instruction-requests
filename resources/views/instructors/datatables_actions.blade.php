@@ -1,9 +1,9 @@
 {!! Form::open(['route' => ['instructors.destroy', $id], 'method' => 'delete']) !!}
 <div class='btn-group'>
-    <a href="{{ route('instructors.show', $id) }}" class='btn btn-default btn-xs'>
-        <i class="fa fa-eye"></i>
-    </a>
-    <a href="{{ route('instructors.edit', $id) }}" class='btn btn-default btn-xs'>
+{{--    <a href="{{ route('instructors.show', $id) }}" class='btn btn-default btn-xs'>--}}
+{{--        <i class="fa fa-eye"></i>--}}
+{{--    </a>--}}
+    <a href="{{ route('instructors.edit', $id) }}" class='btn btn-success btn-xs'>
         <i class="fa fa-edit"></i>
     </a>
     {!! Form::button('<i class="fa fa-trash"></i>', [

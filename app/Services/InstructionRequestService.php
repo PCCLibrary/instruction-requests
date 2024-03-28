@@ -108,7 +108,7 @@ class InstructionRequestService implements InstructionRequestInterface
     {
 
         // Enable query logging
-//        DB::enableQueryLog();
+        DB::enableQueryLog();
 
         return DB::transaction(function () use ($id, $data) {
 
@@ -130,11 +130,11 @@ class InstructionRequestService implements InstructionRequestInterface
             // Update logic here
             $this->instructionRequestRepository->update($data, $id);
 
-//            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
+            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
 
             Flash::success('Instruction Request updated successfully.');
 
-//            DB::disableQueryLog();
+            DB::disableQueryLog();
 
             return $instructionRequest;
         });

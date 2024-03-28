@@ -37,25 +37,13 @@
     <!-- Include Dropzone.js via CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.9.2/dist/min/dropzone.min.css" />
 
-    <link href="/css/{{ asset('app.css') }}" rel="stylesheet" />
+    <link href="/library/instruction-requests/public/css/app.css" rel="stylesheet" />
 
 
     @stack('third_party_stylesheets')
 
     @stack('page_css')
 
-    <style>
-        div.dataTables_wrapper div.dataTables_info {
-            padding: 1em;
-        }
-
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination {
-            margin: 0 1em 1em;
-            padding: inherit;
-            white-space: nowrap;
-            justify-content: flex-end;
-        }
-    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
