@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Exception;
 
 class UserController extends AppBaseController
 {
@@ -44,7 +45,10 @@ class UserController extends AppBaseController
      */
     public function create()
     {
-        return view('users.create');
+        $campuses = Campus::all()->pluck('name', 'id'); // Reflecting change to 'campuses' for clarity
+
+        return view('users.create')
+            ->with('campuses', $campuses);
     }
 
     /**
@@ -145,7 +149,7 @@ class UserController extends AppBaseController
      *
      * @param int $id
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return Response
      */

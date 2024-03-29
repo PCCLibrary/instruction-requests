@@ -11,6 +11,7 @@ use App\Models\InstructionRequest;
 use App\Models\User;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -30,17 +31,23 @@ class InstructionRequestController extends AppBaseController
     /** @var DepartmentService $departmentService */
     private $departmentService;
 
+    /** @var NotificationService $notificationService */
+    private $notificationService;
+
     /**
      * Build the class and inject the services
      * @param InstructionRequestService $instructionRequestService
      * @param DepartmentService $departmentService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         InstructionRequestService $instructionRequestService,
-        DepartmentService $departmentService
+        DepartmentService $departmentService,
+        NotificationService $notificationService
     ) {
         $this->instructionRequestService = $instructionRequestService;
         $this->departmentService = $departmentService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -98,6 +105,11 @@ class InstructionRequestController extends AppBaseController
             $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
 
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
+
+            // Notify librarians
+            $this->notificationService->notifyLibrariansAboutRequest($instructionRequest);
+
+            Log::debug('received request: ' . json_encode($instructionRequest));
 
             // Flash a success message to the session
             Flash::success('Instruction Request saved successfully.');

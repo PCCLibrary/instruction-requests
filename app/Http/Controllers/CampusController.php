@@ -135,7 +135,7 @@ class CampusController extends AppBaseController
     public function edit($id)
     {
         $campus = $this->campusRepository->find($id);
-        $librarians = User::where('is_admin', false)->pluck('display_name', 'id');
+        $librarians = User::all()->pluck('display_name', 'id');
 
         // Assuming 'librarian_ids' is stored as a JSON string in the database
         $campus->librarian_ids = json_decode($campus->librarian_ids, true);

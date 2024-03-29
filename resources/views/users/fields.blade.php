@@ -1,10 +1,18 @@
 <div class="container mt-4">
     <div class="row">
 
+        @if(isset($user))
         <div class="form-group col-md-12">
             {!! Form::label('name', 'User name:') !!}
             <p>{!! $user->name !!}</p>
         </div>
+        @else
+        <!-- Display Name Field -->
+        <div class="form-group col-md-4">
+            {!! Form::label('name', 'User Name:') !!}
+            {!! Form::text('name', null, ['class' => 'form-control']) !!}
+        </div>
+        @endif
 
         <!-- Display Name Field -->
         <div class="form-group col-md-4">
