@@ -1,13 +1,21 @@
 {{--<div class='d-flex justify-content-start align-content-center'>--}}
-{{--    <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-default btn-xs'>--}}
-{{--        <i class="fa fa-eye"></i>--}}
-{{--    </a>--}}
-<div class='btn-group'>
 
-    <a href="{{ route('instructionRequests.edit', $id) }}" class='btn btn-success btn-xs'>
+<div class='d-flex justify-content-evenly'>
+
+        <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-xs mr-1 btn-info'>
+            <i class="fa fa-eye"></i>
+        </a>
+
+    <a href="{{ route('instructionRequests.edit', $id) }}" class='btn btn-success btn-xs mr-1'>
         <i class="fa fa-edit"></i>
     </a>
-    {!! Form::open(['route' => ['instructionRequests.destroy', $id], 'method' => 'delete']) !!}
+    {!! Form::open(
+        [
+            'route' => ['instructionRequests.destroy', $id],
+            'method' => 'delete',
+            'class' => 'p-0 m-0 d-inline-block'
+        ]
+    ) !!}
 
     {!! Form::button('<i class="fa fa-trash"></i>', [
         'type' => 'submit',

@@ -1,6 +1,6 @@
 <!-- resources/views/components/button-group.blade.php -->
 
-@props(['classes' => 'bg-light', 'title'=>'','headerclass' => null ])
+@props(['classes' => 'bg-light', 'title'=>'','headerclass' => null, 'footer' => null ])
 
 <div class="card {{ $classes }}">
     @if($title)
@@ -8,7 +8,17 @@
             <h5 class="p-0 m-0">{{ $title }}</h5>
         </div>
     @endif
-    <div class="card-body">
+        @if(isset($body))
+            {{ $body }}
+        @else
+        <div class="card-body">
         {{ $slot }}
-    </div>
+        </div>
+        @endif
+
+    @if(isset($footer))
+        <div class="card-footer bg-light text-dark">
+            {{ $footer }}
+        </div>
+    @endif
 </div>

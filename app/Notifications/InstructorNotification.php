@@ -6,19 +6,22 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Models\InstructionRequest;
 
 class InstructorNotification extends Notification
 {
     use Queueable;
+
+    protected $instructionRequest;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(InstructionRequest $instructionRequest)
     {
-        //
+        $this->instructionRequest = $instructionRequest;
     }
 
     /**
@@ -43,7 +46,6 @@ class InstructorNotification extends Notification
         return (new MailMessage)
             ->greeting('Hello!')
             ->line('Your instruction request has been submitted successfully.')
-            ->action('View Request', url('/'))
             ->line('Thank you for using our application!');
     }
 

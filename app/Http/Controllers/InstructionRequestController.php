@@ -109,7 +109,7 @@ class InstructionRequestController extends AppBaseController
             // Notify librarians
             $this->notificationService->notifyLibrariansAboutRequest($instructionRequest);
 
-            Log::debug('received request: ' . json_encode($instructionRequest));
+//            Log::debug('received request: ' . json_encode($instructionRequest));
 
             // Flash a success message to the session
             Flash::success('Instruction Request saved successfully.');
@@ -140,13 +140,29 @@ class InstructionRequestController extends AppBaseController
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
+        $departments = $this->departmentService->getAllDepartments();
+        $librarians = User::where('is_admin', false)->get();
+        $campuses = Campus::all(); // Reflecting change to 'campuses' for clarity
+        $instructors = Instructor::all(); // grab instructors
+
+
+        $syllabus = $instructionRequest->getMedia('syllabus');
+        $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
+
         if (empty($instructionRequest)) {
             Flash::error('Instruction Request not found');
 
             return redirect(route('instructionRequests.index'));
         }
 
-        return view('instruction_requests.show')->with('instructionRequest', $instructionRequest);
+        return view('instruction_requests.show')
+            ->with('instructorAttachments', $instructorAttachments)
+            ->with('syllabus', $syllabus)
+            ->with('instructionRequest', $instructionRequest)
+            ->with('librarians', $librarians)
+            ->with('campuses', $campuses)
+            ->with('instructors', $instructors)
+            ->with('departments', $departments);
     }
 
     /**
@@ -164,6 +180,7 @@ class InstructionRequestController extends AppBaseController
         $campuses = Campus::all();
         $instructors = Instructor::all();
 
+
         // set the context for selecting the rules
         $context = 'edit';
 
@@ -176,7 +193,6 @@ class InstructionRequestController extends AppBaseController
 
         $syllabus = $instructionRequest->getMedia('syllabus');
         $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
-
 
 //        Log::debug('instructionRequest to edit: '. json_encode($instructionRequest));
 

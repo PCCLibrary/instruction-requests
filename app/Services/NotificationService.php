@@ -28,7 +28,7 @@ class NotificationService
             $librarians = $this->getLibrariansByCampusId($instructionRequest->campus_id);
 
             // Generate the URL to view the instruction request
-            $viewUrl = route('instructionRequests.edit', $instructionRequest->id);
+            $viewUrl = route('instructionRequests.show', $instructionRequest->id);
 
             // Notify each librarian about the new instruction request
             foreach ($librarians as $librarian) {
@@ -74,22 +74,16 @@ class NotificationService
     public function confirmInstructionRequestFormSubmission(InstructionRequest $instructionRequest)
     {
         try {
-            // Directly use the instructor's email from the instruction request
-            $instructorEmail = $instructionRequest->email;
+            $instructor = $instructionRequest->instructor; // Assuming you have a relationship defined
 
-            // Construct a notifiable object on the fly for the instructor
-            $notifiableInstructor = new \Illuminate\Notifications\AnonymousNotifiable;
-            $notifiableInstructor->route('mail', $instructorEmail);
-
-            // Send the notification
-            $notifiableInstructor->notify(new InstructorNotification($instructionRequest));
-
-            Log::info("Confirmation sent to instructor: {$instructorEmail}");
+            if ($instructor) {
+                $instructor->notify(new InstructorNotification($instructionRequest));
+                Log::info("Confirmation sent to instructor: {$instructor->email}");
+            }
         } catch (\Exception $e) {
             Log::error("Failed to send form submission confirmation to instructor: {$e->getMessage()}");
         }
     }
-
 
 }
 

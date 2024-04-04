@@ -38,7 +38,7 @@ class InstructionRequestDataTable extends DataTable
             ->editColumn('created_at', function ($row) {
                 // Make 'created_at' the link to edit, formatting date as "03/27/2024 1:30pm"
                 $formattedDate = Carbon::parse($row->created_at)->format('m/d/Y g:ia');
-                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to edit"><i class="fa fa-edit"></i>
+                return '<a href="' . route('instructionRequests.show', $row->id) . '" title="click to view"><i class="fa fa-eye"></i>
 ' . $formattedDate . '</a>';
             })
             ->rawColumns(['action', 'created_at']); // Updated to include 'created_at' in rawColumns

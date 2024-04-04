@@ -330,7 +330,7 @@
     <x-row>
         <x-textarea name="library_instruction_description"
                     label="What do you want your students to get out of library instruction?"
-                    :value="old('other_learning_outcome_description')"
+                    :value="old('library_instruction_description')"
                     classes="col-lg-8"
                     helptext="Some possible learning outcomes for this session: Develop a search strategy based on their research topic Perform an efficient search of the library catalog for books and other materials Differentiate between scholarly journals and magazines Construct a query for journal, magazine, or newspaper articles and evaluate best choices in the results list Physically locate items and other resources"
         />
