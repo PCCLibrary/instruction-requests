@@ -7,13 +7,13 @@
 
         <div class="clearfix"></div>
 
-    @include('adminlte-templates::common.errors')
+        @include('adminlte-templates::common.errors')
 
         <div class="row mt-4">
 
             <div class="col-md-9">
 
-                @include('instruction_requests.show_fields')
+                @include('instruction_requests.resources.views.instruction_requests.admin_view')
 
             </div>
 
@@ -25,6 +25,6 @@
 
             </div>
 
-    </div>
+        </div>
 
 @endsection

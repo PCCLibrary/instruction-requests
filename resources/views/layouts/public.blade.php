@@ -148,12 +148,12 @@
         const fieldSettings = {
             'on-campus': {
                 show: '.on-campus',
-                required: ['#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+                required: ['#number_of_students', '#campus_id', '#preferred_datetime','#duration'],
                 notRequired: ['#librarian_id', "#asynchronous_instruction_ready_date"],
             },
             'remote': {
                 show: '.remote',
-                required: ['#librarian_id', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+                required: ['#librarian_id', '#preferred_datetime',  '#duration'],
                 notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", '#campus_id'],
             },
             'asynchronous': {

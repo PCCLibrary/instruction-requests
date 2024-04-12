@@ -63,6 +63,23 @@
     </x-row>
 </x-fieldset>
 
+<x-fieldset classes="on-campus card-body">
+
+    <x-row>
+        <input type="hidden" name="campus_id" value="1" />
+        {{--     Campus ID Field--}}
+        <x-input-select name="campus_id"
+                        label="Class Location"
+                        :options="$campuses"
+                        :selected="old('campus_id')"
+                        classes="col-lg-6"
+                        tophelptext="Choose the campus with which you are primarily associated (if online) ?"
+                        required=true
+        />
+
+    </x-row>
+</x-fieldset>
+
 <x-fieldset classes="on-campus remote card-body">
 
     <x-row>
@@ -84,22 +101,6 @@
 
 </x-fieldset>
 
-<x-fieldset classes="on-campus remote card-body">
-
-    <x-row>
-        <input type="hidden" name="campus_id" value="1" />
-        {{--     Campus ID Field--}}
-        <x-input-select name="campus_id"
-            label="Class Location"
-            :options="$campuses"
-            :selected="old('campus_id')"
-            classes="col-lg-6"
-            tophelptext="Choose the campus with which you are primarily associated (if online) ?"
-            required=true
-    />
-
-    </x-row>
-</x-fieldset>
 
 <x-fieldset legend="Class Information" classes="on-campus remote asynchronous card-body">
 
@@ -147,7 +148,7 @@
 
         {{-- class_description --}}
         <x-textarea name="class_description"
-            label="Additional notes about your class (this needs a prompt)"
+            label="Additional notes about your class."
             :value="old('class_description')"
             classes="col-lg-8"
         />
@@ -182,19 +183,6 @@
 <x-fieldset legend="Attachments" classes="on-campus remote asynchronous card-body">
 
     <x-row>
-        <div class="col-12"><p class="text-gray-500 mb-4">Please use DOC, DOCX, PDF, or TXT file format.</p></div>
-
-    {{-- class_syllabus (File Upload) --}}
-        <x-input-file
-            name="class_syllabus"
-            label="Attach syllabus (doc, pdf, or txt)"
-            :multiple="true"
-            :errors="$errors->get('class_syllabus.*')"
-            classes="col-lg-6"
-{{--            helptext="Please attach the class class syllabus."--}}
-        />
-    </x-row>
-    <x-row>
         <!-- Assessments (File Upload) -->
         <x-input-file
             name="instructor_attachments"
@@ -204,10 +192,24 @@
             classes="col-lg-6"
 {{--            helptext="Upload class assignment(s) and other relevant documents. "--}}
         />
-        <x-textarea name="assignment_description"
-            label="Assignment description and sample topics"
-            :value="old('assignment_description')"
+
+        {{-- class_syllabus (File Upload) --}}
+        <x-input-file
+            name="class_syllabus"
+            label="Attach syllabus (doc, pdf, or txt)"
+            :multiple="true"
+            :errors="$errors->get('class_syllabus.*')"
             classes="col-lg-6"
+            {{--            helptext="Please attach the class class syllabus."--}}
+        />
+
+    </x-row>
+
+    <x-row>
+        <x-textarea name="assignment_description"
+                    label="Assignment description and sample topics"
+                    :value="old('assignment_description')"
+                    classes="col-lg-6"
         />
     </x-row>
 
@@ -237,7 +239,7 @@
             :value="old('alternate_datetime')"
             helptext="Enter an alternate date and time for your instruction session."
             classes="col-lg-4"
-            required=true
+            required=false
         />
 
         <input type="hidden" name="duration" value="0" />
@@ -276,7 +278,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset legend="By the time students receive library instruction they will have:" classes="on-campus remote asynchronous card-body">
+<x-fieldset legend="By the time students receive library instruction they will have:" classes="on-campus remote card-body">
 
     <x-row>
         <div class="col-lg-3">

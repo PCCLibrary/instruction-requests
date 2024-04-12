@@ -50,6 +50,12 @@
     </tbody>
 
     </table>
+
+        <input type="hidden" name="department" value="{{ $instructionRequest->department ?? null }}">
+        <input type="hidden" name="course_number" value="{{ $instructionRequest->course_number ?? null }}">
+        <input type="hidden" name="course_crn" value="{{ $instructionRequest->course_crn ?? null }}">
+        <input type="hidden" name="number_of_students" value="{{ $instructionRequest->number_of_students ?? null }}">
+
     </x-slot>
 
     <x-slot name="footer">
@@ -74,6 +80,7 @@
             </div>
 
         @endif
+
 
     @if($syllabus->isNotEmpty() || $instructorAttachments->isNotEmpty())
     <div class="row mb-4">
@@ -164,6 +171,21 @@
         </div>
     </x-slot>
 </x-card>
+
+<input name="instruction_request_id" type="hidden" value="{{ $instructionRequest->detail->instruction_request_id }}">
+<input name="instruction_type" type="hidden" value="{{ $instructionRequest->instruction_type  }}" />
+
+<input name="instruction_type" type="hidden" value="{{ $instructionRequest->instruction_type  }}" />
+<input name="instructor_id" type="hidden" value="{{ $instructionRequest->instructor_id  }}" />
+
+<input name="librarian_id" type="hidden" value="{{ $instructionRequest->librarian_id ?? 2 }}" />
+<input name="campus_id" type="hidden" value="{{ $instructionRequest->campus_id ?? 1 }}" />
+
+<input type="hidden" name="preferred_datetime" value="{{ $instructionRequest->preferred_datetime ?? null }}">
+<input type="hidden" name="alternate_datetime" value="{{ $instructionRequest->alternate_datetime ?? null }}">
+<input type="hidden" name="duration" value="{{ $instructionRequest->duration ?? null }}">
+<input type="hidden" name="asynchronous_instruction_ready_date" value="{{ $instructionRequest->asynchronous_instruction_ready_date ?? null }}">
+
 
 {{-- Student status --}}
 <div class="row">
