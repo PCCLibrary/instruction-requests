@@ -2,9 +2,9 @@
 
 <div class='d-flex justify-content-evenly'>
 
-        <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-xs mr-1 btn-info'>
-            <i class="fa fa-eye"></i>
-        </a>
+{{--        <a href="{{ route('instructionRequests.show', $id) }}" class='btn btn-xs mr-1 btn-info'>--}}
+{{--            <i class="fa fa-eye"></i>--}}
+{{--        </a>--}}
 
     <a href="{{ route('instructionRequests.edit', $id) }}" class='btn btn-success btn-xs mr-1'>
         <i class="fa fa-edit"></i>

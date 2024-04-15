@@ -17,6 +17,20 @@
 />
 
 
+{{-- Preferred Datetime Field --}}
+<x-input-datetime name="instruction_datetime"
+                  label="Instruction Date & Time"
+                  :value="$instructionRequest->detail->instruction_datetime ?? $instructionRequest->preferred_datetime"
+                  required=true
+/>
+
+<!-- Instruction Duration (Text Input) -->
+<x-input-duration
+    name="instruction_duration"
+    label="Instruction Duration"
+    :value="$instructionRequest->detail->instruction_duration ?? $instructionRequest->duration"
+/>
+
 
 <ul class="list-unstyled mb-4">
     <li class="mb-2"><strong>Tasks Completed</strong></li>
@@ -88,48 +102,3 @@
         />
     </li>
 </ul>
-<!-- Instruction Duration (Text Input) -->
-<x-input-text
-    name="instruction_duration"
-    label="Instruction Duration"
-    :value="$instructionRequest->detail->instruction_duration ?? null"
-    classes="mb-4"
-/>
-
-<!-- Class Notes (Textarea) -->
-<x-textarea
-    name="class_notes"
-    label="Class Notes"
-    :value="$instructionRequest->detail->class_notes ?? null"
-    classes="mb-4"
-/>
-
-<!-- Assessment Notes (Textarea) -->
-<x-textarea
-    name="assessment_notes"
-    label="Assessment Notes"
-    :value="$instructionRequest->detail->assessment_notes ?? null"
-    classes="mb-4"
-/>
-
-<label>Placeholder for assignments</label>
-<ul class="list-unstyled">
-    <li class="text-blue"><i class="fa fa-file"></i> Assignment 1</li>
-    <li class="text-blue"><i class="fa fa-file"></i> Assignment 2</li>
-    <li class="text-blue"><i class="fa fa-file"></i> Assignment 3</li>
-</ul>
-<!-- Materials (File Upload) -->
-<x-input-file
-    name="materials"
-    label="Materials (File Upload)"
-    :multiple="true"
-    classes="mb-4"
-/>
-
-<!-- Assessments (File Upload) -->
-<x-input-file
-    name="assessments"
-    label="Assessments (File Upload)"
-    :multiple="true"
-    classes="mb-4"
-/>

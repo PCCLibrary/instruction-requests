@@ -13,27 +13,34 @@
 
         <div class="row mt-4">
 
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <x-card title="Edit Instruction Request"
-                        headerclass="bg-green">
+                        headerclass="bg-lightblue">
                     @include('instruction_requests.admin.editor')
                 </x-card>
 
-                <x-card title="Manage" headerclass="bg-info">
+
+                <x-card title="Manage" headerclass="bg-purple">
                     @include('instruction_requests.admin.fields')
+                </x-card>
+
+
+                <x-card title="File Attachments"
+                        headerclass="bg-blue">
+                    @include('instruction_requests.admin.file_attachments')
                 </x-card>
 
             </div>
 
-            <div class="col-md-9">
-                {{--                <x-card title="Requesting Instructor" headerclass="bg-lightblue">--}}
-                {{--                    @include('instruction_requests.admin.contact')--}}
-                {{--                </x-card>--}}
-
-                {{--                <x-card title="Instruction Request Information" headerclass="bg-purple">--}}
-                {{--                    @include('instruction_requests.fields')--}}
+            <div class="col-md-8">
                 @include('instruction_requests.admin.admin_view')
-                {{--                </x-card>--}}
+
+                <x-card title="Notes"
+                        headerclass="bg-green">
+
+                @include('instruction_requests.admin.notes')
+
+                </x-card>
             </div>
 
         </div>

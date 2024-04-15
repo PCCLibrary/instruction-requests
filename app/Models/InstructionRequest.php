@@ -72,9 +72,7 @@ class InstructionRequest extends Model implements HasMedia
      * @var string[]
      */
     protected $fillable = [
-//        'instruction_request_id',
         'instruction_type',
-//        'course_modality',
         'librarian_id',
         'campus_id',
         'class_id',

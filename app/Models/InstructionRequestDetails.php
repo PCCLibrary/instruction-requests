@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property unsignedInteger $instruction_request_id
  * @property unsignedBigInteger $assigned_librarian_id
  * @property string $instruction_duration
+ * @property datetime $instruction_datetime
  * @property string $class_notes
  * @property bool $video,
  * @property bool $non_video,
@@ -44,6 +45,7 @@ class InstructionRequestDetails extends Model
         'instruction_request_id',
         'assigned_librarian_id',
         'instruction_duration',
+        'instruction_datetime',
         'class_notes',
         'video',
         'non_video',
@@ -71,6 +73,7 @@ class InstructionRequestDetails extends Model
         'instruction_request_id' => 'integer',
         'assigned_librarian_id' => 'integer',
         'instruction_duration' => 'string',
+        'instruction_datetime' => 'datetime',
         'class_notes' => 'string',
         'video' => 'boolean',
         'non_video' => 'boolean',
@@ -97,6 +100,7 @@ class InstructionRequestDetails extends Model
         'instruction_request_id' => 'required|exists:instruction_requests,id',
         'assigned_librarian_id' => 'nullable|exists:users,id',
         'instruction_duration' => 'nullable|string',
+        'instruction_datetime' => 'nullable|date',
         'class_notes' => 'nullable|string',
         'video' => 'boolean',
         'non_video' => 'boolean',

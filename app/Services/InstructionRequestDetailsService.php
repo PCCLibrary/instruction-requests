@@ -34,7 +34,7 @@ class InstructionRequestDetailsService
     {
         $detail =  InstructionRequestDetails::where('instruction_request_id', $instructionRequestId)->first();
 
-        Log::debug('getDetailsByInstructionRequestId data:', $detail->toArray());
+//        Log::debug('getDetailsByInstructionRequestId data:', $detail->toArray());
 
         return $detail;
 
@@ -50,7 +50,7 @@ class InstructionRequestDetailsService
     {
         $detail =  $this->instructionRequestDetailsRepository->find($id);
 
-        Log::debug('getInstructionRequestDetailsById data:', $detail->toArray());
+//        Log::debug('getInstructionRequestDetailsById data:', $detail->toArray());
 
         return $detail;
 
@@ -78,7 +78,7 @@ class InstructionRequestDetailsService
         if ($currentDetails) {
             // Log the current details and data for debugging
 //            Log::debug('$currentDetails: ' . json_encode($currentDetails));
-//            Log::debug('$data: ' . json_encode($data));
+            Log::debug('$data: ' . json_encode($data));
 
             // Update boolean fields based on checkbox values
             $currentDetails->fill($data);

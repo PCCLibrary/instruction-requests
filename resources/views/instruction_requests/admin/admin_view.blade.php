@@ -82,39 +82,6 @@
         @endif
 
 
-    @if($syllabus->isNotEmpty() || $instructorAttachments->isNotEmpty())
-    <div class="row mb-4">
-{{-- Attachments --}}
-    @if($syllabus->isNotEmpty())
-        <ul class="list-unstyled col-6">
-            <li><strong>Class syllabus</strong></li>
-                @foreach($syllabus as $item)
-                    <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">View</a></li>
-                @endforeach
-        </ul>
-    @else
-        <div class="col-6">
-            <strong>No attached syllabus files.</strong>
-        </div>
-    @endif
-
-    @if($instructorAttachments->isNotEmpty())
-        <ul class="list-unstyled col-6">
-            <li><strong>Class Assignments</strong></li>
-
-                @foreach($instructorAttachments as $item)
-                    <li class="text-blue"><i class="fa fa-file"></i> {{ $item->file_name }} - <a href="{{ $item->getUrl() }}" target="_blank">Download</a></li>
-                @endforeach
-        </ul>
-    @else
-        <div class="col-6">
-            <strong>No attached assignment files.</strong>
-        </div>
-    @endif
-    </div>
-    @endif
-
-
 {{-- Date & time --}}
 
     @if($instructionRequest->instruction_type !== 'asynchronous')
@@ -186,30 +153,38 @@
 <input type="hidden" name="duration" value="{{ $instructionRequest->duration ?? null }}">
 <input type="hidden" name="asynchronous_instruction_ready_date" value="{{ $instructionRequest->asynchronous_instruction_ready_date ?? null }}">
 
-
+@if($instructionRequest->instruction_type !== 'asynchronous')
 {{-- Student status --}}
 <div class="row">
-<div class="col-6">
+<div class="col-12">
 <x-card title="Students Have:" headerclass="bg-info">
     <x-slot name="body">
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item d-flex justify-content-between">
-            <span class="text-muted">Received Assignment:</span> <strong>{{ $instructionRequest->received_assignment ? 'Yes' : 'No' }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-            <span class="text-muted">Selected Topics:</span> <strong>{{ $instructionRequest->selected_topics ? 'Yes' : 'No' }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-            <span class="text-muted">Explored Background:</span> <strong>{{ $instructionRequest->explored_background ? 'Yes' : 'No' }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-            <span class="text-muted">Written Draft:</span> <strong>{{ $instructionRequest->written_draft ? 'Yes' : 'No' }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-            <span class="text-muted">Other Learning Outcome:</span> <strong>{{ $instructionRequest->other_learning_outcome ? 'Yes' : 'No' }}</strong>
-        </li>
-    </ul>
+        <table class="table thead-dark">
+            <thead>
+            <tr>
+                <th>Received Assignment</th>
+                <th>Selected Topics</th>
+                <th>Explored Background</th>
+                <th>Written Draft</th>
+                <th>Other Learning Outcome</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><strong>{!! $instructionRequest->received_assignment ? '&#x2713;' : '' !!}</strong></td>
+                <td><strong>{!! $instructionRequest->selected_topics ? '&#x2713;' : '' !!}</strong></td>
+                <td><strong>{!! $instructionRequest->explored_background ? '&#x2713;' : '' !!}</strong></td>
+                <td><strong>{!! $instructionRequest->written_draft ? '&#x2713;' : '' !!}</strong></td>
+                <td><strong>{!! $instructionRequest->other_learning_outcome ? '&#x2713;' : '' !!}</strong></td>
+            </tr>
+            </tbody>
+        </table>
+        @if ($instructionRequest->other_learning_outcome)
+            <p>{{ $instructionRequest->other_describe }}</p>
+        @endif
+
     </x-slot>
+@endif
 
 @if(!empty($instructionRequest->other_learning_outcome_description))
         <x-slot name="footer">
@@ -220,7 +195,7 @@
 </x-card>
 </div>
 @if(!empty($instructionRequest->library_instruction_description) || !empty($instructionRequest->genai_discussion_interest))
-    <div class="col-6">
+    <div class="col-12">
         <x-card title="Other Information" headerclass="bg-info">
             @if(!empty($instructionRequest->library_instruction_description))
                     <div class="mb-4">

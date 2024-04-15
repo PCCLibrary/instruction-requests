@@ -148,6 +148,8 @@ class InstructionRequestController extends AppBaseController
 
         $syllabus = $instructionRequest->getMedia('syllabus');
         $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
+        $assessments = $instructionRequest->getMedia('assessments');
+        $materials = $instructionRequest->getMedia('materials');
 
         if (empty($instructionRequest)) {
             Flash::error('Instruction Request not found');
@@ -158,6 +160,8 @@ class InstructionRequestController extends AppBaseController
         return view('instruction_requests.show')
             ->with('instructorAttachments', $instructorAttachments)
             ->with('syllabus', $syllabus)
+            ->with('assessments', $assessments)
+            ->with('materials', $materials)
             ->with('instructionRequest', $instructionRequest)
             ->with('librarians', $librarians)
             ->with('campuses', $campuses)
@@ -193,12 +197,17 @@ class InstructionRequestController extends AppBaseController
 
         $syllabus = $instructionRequest->getMedia('syllabus');
         $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
+        $assessments = $instructionRequest->getMedia('assessments');
+        $materials = $instructionRequest->getMedia('materials');
+
 
 //        Log::debug('instructionRequest to edit: '. json_encode($instructionRequest));
 
         return view('instruction_requests.edit')
             ->with('instructorAttachments', $instructorAttachments)
             ->with('syllabus', $syllabus)
+            ->with('assessments', $assessments)
+            ->with('materials', $materials)
             ->with('instructionRequest', $instructionRequest)
             ->with('librarians', $librarians)
             ->with('campuses', $campuses)
@@ -216,23 +225,29 @@ class InstructionRequestController extends AppBaseController
      */
     public function update($id, UpdateInstructionRequestRequest $request)
     {
+        // Retrieve the existing InstructionRequest by ID
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
+        // Check if the InstructionRequest was found
         if (empty($instructionRequest)) {
             Flash::error('Instruction Request not found');
             return redirect(route('instructionRequests.index'))->with('error', 'Instruction Request not found.');
         }
 
-        $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
+        try {
+            // Update the InstructionRequest using the service
+            $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
+//            Flash::success('Instruction Request updated successfully.');
+        } catch (\Exception $e) {
+            Flash::error('Error updating Instruction Request: ' . $e->getMessage());
+            return redirect(route('instructionRequests.index'))->withErrors(['error' => $e->getMessage()]);
+        }
 
-//        Flash::success('Instruction Request updated successfully.');
-
-        // Redirect back to the edit route
+        // Redirect back to the edit route with success message
         return redirect(route('instructionRequests.edit', $id))->with('success', 'Instruction Request updated.');
     }
 
 
-    // InstructionRequestController.php
 
     /**
      * Duplicate the selected instruction request and associated detail

@@ -1,6 +1,4 @@
 <?php
-// app/Http/Controllers/InstructionRequestDetailsController.php
-// app/Http/Controllers/InstructionRequestDetailsController.php
 
 namespace App\Http\Controllers;
 

@@ -61,10 +61,6 @@ class PublicInstructionRequestController extends Controller
         $departments = $this->departmentService->getAllDepartments();
         $librarians = User::where('is_admin', false)->get();
 
-//        Log::debug('Departments: ' . json_encode($departments));
-//        Log::debug('Librarians: ' . json_encode($librarians->toArray()));
-//        Log::debug('Campuses: ' . json_encode($campuses->toArray()));
-
         return view('index', compact('librarians', 'campuses', 'departments'));
     }
 

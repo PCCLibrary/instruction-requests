@@ -1,8 +1,13 @@
-@props(['instructionRequests'])
+@props([
+    'instructionRequests',
+    'title' => 'Instruction Requests',
+    'headerClasses' => 'bg-lightblue',
+    'showStatus' => false
+])
 
 <div class="card">
-    <div class="card-header bg-lightblue">
-        <h3 class="card-title">Pending Instruction Requests</h3>
+    <div class="card-header {{ $headerClasses }}">
+        <h3 class="card-title">{{ $title }}</h3>
 
     </div>
 
@@ -13,7 +18,10 @@
             <th></th>
             <th>Instructor Name</th>
             <th>Class Name</th>
-            <th>Preferred Date & time</th>
+            <th>Received</th>
+            @if($showStatus)
+            <th>Status</th>
+            @endif
         </tr>
         </thead>
         <tbody>
@@ -26,7 +34,10 @@
                 </td>
                 <td>{{ $request->Instructor->display_name }}</td>
                 <td>{{ $request->classes->course_name }}</td>
-                <td>{{ \Carbon\Carbon::parse($request->preferred_datetime)->format('M d-g:i A') }}</td>
+                <td>{{ \Carbon\Carbon::parse($request->created_at)->format('M d-g:i A') }}</td>
+                @if($showStatus)
+                <td>{{ $request->status }}</td>
+                @endif
             </tr>
         @empty
             <tr>

@@ -31,6 +31,7 @@ class CreateInstructionRequestDetailsTable extends Migration
             $table->json('materials')->nullable();
             $table->text('assessment_notes')->nullable();
             $table->json('assessments')->nullable();
+            $table->datetime('instruction_date')->nullable();
             $table->string('created_by');
             $table->string('last_updated_by');
             $table->softDeletes();

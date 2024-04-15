@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Flash\Flash;
+use http\Exception;
 
 use Illuminate\Http\UploadedFile;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -73,7 +74,7 @@ class InstructionRequestService implements InstructionRequestInterface
             // Prepare data with the necessary IDs and default values
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
-            $data['status'] = 'pending';
+            $data['status'] = 'received';
             $data['created_by'] = $this->getCreatedBy($data);
 
             // Create the InstructionRequest
@@ -81,11 +82,14 @@ class InstructionRequestService implements InstructionRequestInterface
 
             // Create InstructionRequestDetails
             $instructionRequestDetailData = [
+                'instruction_datetime' => $data['preferred_datetime'],
                 'assigned_librarian_id' => $data['librarian_id'],
                 'instruction_request_id' => $instructionRequest->id,
+                'instruction_duration' => $data['duration'],
                 'created_by' => $data['created_by'],
                 'last_updated_by' => $data['created_by'],
             ];
+
             $instructionRequest->detail()->create($instructionRequestDetailData);
 
             // Handle 'class_syllabus' uploads
@@ -93,6 +97,12 @@ class InstructionRequestService implements InstructionRequestInterface
 
             // Handle 'class_syllabus' uploads
             $this->handleFileUploads($request, 'instructor_attachments', 'instructor_attachments', $instructionRequest);
+
+            // Handle 'materials' uploads
+            $this->handleFileUploads($request, 'materials', 'materials', $instructionRequest);
+
+            // Handle 'assessments' uploads
+            $this->handleFileUploads($request, 'assessments', 'assessments', $instructionRequest);
 
             return $instructionRequest;
         });
@@ -107,9 +117,8 @@ class InstructionRequestService implements InstructionRequestInterface
      */
     public function updateInstructionRequest(array $data, int $id): InstructionRequest
     {
-
-        // Enable query logging
-        DB::enableQueryLog();
+        // Enable query logging for debugging
+//        DB::enableQueryLog();
 
         return DB::transaction(function () use ($id, $data) {
 

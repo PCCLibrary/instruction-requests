@@ -33,12 +33,12 @@ class InstructionRequestDataTable extends DataTable
             })
             ->editColumn('preferred_datetime', function ($row) {
                 // Format the preferred date as "03/27/2024 1:30pm"
-                return Carbon::parse($row->preferred_datetime)->format('m/d/Y g:ia');
+                return Carbon::parse($row->preferred_datetime)->format('m/d/Y g:i a');
             })
             ->editColumn('created_at', function ($row) {
                 // Make 'created_at' the link to edit, formatting date as "03/27/2024 1:30pm"
-                $formattedDate = Carbon::parse($row->created_at)->format('m/d/Y g:ia');
-                return '<a href="' . route('instructionRequests.show', $row->id) . '" title="click to view"><i class="fa fa-eye"></i>
+                $formattedDate = Carbon::parse($row->created_at)->format('m/d/Y g:i a');
+                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to manage"><i class="fa fa-edit"></i>
 ' . $formattedDate . '</a>';
             })
             ->rawColumns(['action', 'created_at']); // Updated to include 'created_at' in rawColumns

@@ -87,7 +87,16 @@
             </div>
         </section>
 
+            <section id="form_notice" class="card bg-primary mb-4 alert-dismissible">
+
+                <div class="card-body">
+
+                <p class="p-0 m-0">We left your data in the form in case you need to submit a similar request. Please update as needed and submit. If you are done, you can leave this page.</p>
+                </div>
+            </section>
+
         @endif
+
         <section class="content">
             @yield('content')
         </section>
@@ -140,62 +149,59 @@
         $('#ada_provisions_description').addClass('invisible');
     });
 
-    $(document).ready(function() {
-        function hideAllFieldsets() {
-            $('.on-campus, .remote, .asynchronous').addClass('d-none');
+$(document).ready(function() {
+    function hideAllFieldsets() {
+        $('.on-campus, .remote, .asynchronous').addClass('d-none');
+    }
+
+    function applyFieldSettings(value) {
+        if (value && value in fieldSettings) {
+            const settings = fieldSettings[value];
+            $(settings.show).removeClass('d-none');
+
+            $.each(settings.required, function(index, selector) {
+                $(selector).prop('required', true);
+                $(`label[for="${selector.substring(1)}"]`).addClass('is-required');
+            });
+
+            $.each(settings.notRequired, function(index, selector) {
+                $(selector).prop('required', false);
+                $(`label[for="${selector.substring(1)}"]`).removeClass('is-required');
+            });
+        } else {
+            hideAllFieldsets(); // Hide all fieldsets if no valid instruction type is selected
         }
+    }
 
-        const fieldSettings = {
-            'on-campus': {
-                show: '.on-campus',
-                required: ['#number_of_students', '#campus_id', '#preferred_datetime','#duration'],
-                notRequired: ['#librarian_id', "#asynchronous_instruction_ready_date"],
-            },
-            'remote': {
-                show: '.remote',
-                required: ['#librarian_id', '#preferred_datetime',  '#duration'],
-                notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", '#campus_id'],
-            },
-            'asynchronous': {
-                show: '.asynchronous',
-                required: ['#asynchronous_instruction_ready_date'],
-                notRequired: ['#librarian_id', '#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration', '#campus_id'],
-            }
-        };
+    const fieldSettings = {
+        'on-campus': {
+            show: '.on-campus',
+            required: ['#number_of_students', '#campus_id', '#preferred_datetime','#duration'],
+            notRequired: ['#librarian_id', "#asynchronous_instruction_ready_date"],
+        },
+        'remote': {
+            show: '.remote',
+            required: ['#librarian_id', '#preferred_datetime', '#duration'],
+            notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", '#campus_id'],
+        },
+        'asynchronous': {
+            show: '.asynchronous',
+            required: ['#asynchronous_instruction_ready_date'],
+            notRequired: ['#librarian_id', '#number_of_students', '#campus_id', '#preferred_datetime', '#alternate_datetime', '#duration'],
+        }
+    };
 
-        hideAllFieldsets();
+    // Apply settings based on initial select value on page load
+    const initialType = $('select[name="instruction_type"]').val();
+        applyFieldSettings(initialType);
 
-        $('select[name="instruction_type"]').change(function() {
-            const selectedValue = $(this).val();
-            hideAllFieldsets();
+    // Apply settings when select value changes
+    $('select[name="instruction_type"]').change(function() {
+        applyFieldSettings($(this).val());
+    });
 
-            if (selectedValue in fieldSettings) {
-                const settings = fieldSettings[selectedValue];
-                $(settings.show).removeClass('d-none');
 
-                $.each(settings.required, function(index, selector) {
-                    $(selector).prop('required', true);
-                    $(`label[for="${selector.substring(1)}"]`).addClass('is-required');
-                });
 
-                $.each(settings.notRequired, function(index, selector) {
-                    $(selector).prop('required', false);
-                    $(`label[for="${selector.substring(1)}"]`).removeClass('is-required');
-                });
-
-                // if (selectedValue === 'remote' || selectedValue === 'asynchronous') {
-                //     $('#campus_id').val('5').change();
-                // } else {
-                //     $('#campus_id').val('').change();
-                // }
-            } else {
-                ['librarian_id', 'number_of_students', 'campus_id', 'preferred_datetime', 'alternate_datetime', 'duration', 'asynchronous_instruction_ready_date'].forEach(selector => {
-                    $(`#${selector}`).prop('required', false);
-                    $(`label[for="${selector}"]`).removeClass('is-required');
-                });
-                $('#campus_id').val('').change();
-            }
-        });
 
         $('#librarian_id').select2({
             theme: 'bootstrap4',

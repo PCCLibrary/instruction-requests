@@ -148,7 +148,7 @@
 
         {{-- class_description --}}
         <x-textarea name="class_description"
-            label="Additional notes about your class."
+            label="Additional notes about your class. If you have google drive links for your materials, please provide them here."
             :value="old('class_description')"
             classes="col-lg-8"
         />
@@ -285,7 +285,7 @@
             {{-- Received Assignment Field --}}
                 <x-input-checkbox name="received_assignment"
                   label="Received Assignment"
-                  :value="old('assignment_description')"
+                  :value="old('received_assignment')"
                 />
 
                 {{-- Selected Topics Field --}}

@@ -62,7 +62,7 @@
                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
 {{--                    <img src="https://assets.infyom.com/logo/blue_logo_150x150.png"--}}
 {{--                         class="user-image img-circle elevation-2" alt="User Image">--}}
-                    <b class="d-none d-md-inline text-capitalize">{{ Auth::user()->name }}</b>
+                    <b class="d-none d-md-inline text-capitalize">{{ Auth::user()->display_name }}</b>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <!-- User image -->
@@ -71,7 +71,7 @@
 {{--                             class="img-circle elevation-2"--}}
 {{--                             alt="User Image">--}}
                         <p>
-                            {{ Auth::user()->name }}
+                            {{ Auth::user()->display_name }}
                             <small>Member since {{ Auth::user()->created_at->format('M. Y') }}</small>
                         </p>
                     </li>
@@ -141,12 +141,9 @@
 
 <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
 
-{{--<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"--}}
-{{--        integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A=="--}}
-{{--        crossorigin="anonymous"></script>--}}
-
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/html-duration-picker@latest/dist/html-duration-picker.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/1.3/bootstrapSwitch.min.js"
         integrity="sha512-DAc/LqVY2liDbikmJwUS1MSE3pIH0DFprKHZKPcJC7e3TtAOzT55gEMTleegwyuIWgCfOPOM8eLbbvFaG9F/cA=="
