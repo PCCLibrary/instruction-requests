@@ -37,7 +37,8 @@ class HomeController extends Controller
 
         // Query InstructionRequests using whereHas to filter by related InstructionRequestDetails
         $myRequests = InstructionRequest::whereHas('detail', function ($query) use ($librarian) {
-            $query->where('assigned_librarian_id', $librarian->id);
+            $query->where('assigned_librarian_id', $librarian->id)
+                ->where('status', 'assigned');
         })->get();
 
         // Count all instructors
