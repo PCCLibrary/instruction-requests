@@ -9,11 +9,11 @@
 
         @include('adminlte-templates::common.errors')
 
-        {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}
-
         @if($instructionRequest->status == 'assigned')
             @include('instruction_requests.admin.accept')
         @endif
+
+        {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}
 
         <div class="row mt-4">
 
@@ -49,10 +49,13 @@
 
         </div>
 
-
+        {!! Form::close() !!}
 
         <x-card title="Comments" headerclass="bg-lightblue">
-        @comments(['model' => $instructionRequest])
+            @comments(['model' => $instructionRequest])
         </x-card>
+
     </div>
+
+
 @endsection
