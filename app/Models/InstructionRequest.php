@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
+use Laravelista\Comments\Commentable;
+
 
 /**
  * Class InstructionRequest
@@ -56,7 +58,7 @@ use Spatie\MediaLibrary\HasMedia;
  */
 class InstructionRequest extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, Commentable;
 
     /**
      * @var string

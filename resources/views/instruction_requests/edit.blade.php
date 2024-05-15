@@ -49,6 +49,10 @@
 
         </div>
 
-        {!! Form::close() !!}
+
+
+        <x-card title="Comments" headerclass="bg-lightblue">
+        @comments(['model' => $instructionRequest])
+        </x-card>
     </div>
 @endsection
