@@ -83,10 +83,10 @@ class PublicInstructionRequestController extends Controller
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
             // Notify librarians
-            $this->notificationService->notifyLibrariansAboutRequest($instructionRequest);
+            $this->notificationService->librarianNotification($instructionRequest);
 
             // Notify instructor
-            $this->notificationService->confirmInstructionRequestFormSubmission($instructionRequest);
+            $this->notificationService->newRequestConfirmation($instructionRequest);
 
             Log::debug('received request: ' . json_encode($instructionRequest));
 

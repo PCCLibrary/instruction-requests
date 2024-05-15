@@ -214,7 +214,7 @@ class InstructionRequestService implements InstructionRequestInterface
      * @param array $data Data containing Instructor information.
      * @return Instructor The found or created Instructor.
      */
-    protected function findOrCreateInstructor(array $data)
+    protected function findOrCreateInstructor(array $data): Instructor
     {
         $searchCriteria = ['email' => $data['email']];
         $additionalData = [
@@ -239,7 +239,7 @@ class InstructionRequestService implements InstructionRequestInterface
      * @param array $data Data containing class information.
      * @return Classes The found or created class.
      */
-    protected function findOrCreateClasses(array $data)
+    protected function findOrCreateClasses(array $data): Classes
     {
         $searchCriteria = [
             'department_code' => $data['department'],

@@ -15,20 +15,13 @@
         @endif
 
         <!-- Display Name Field -->
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
             {!! Form::label('display_name', 'Name:') !!}
             {!! Form::text('display_name', null, ['class' => 'form-control']) !!}
         </div>
 
-        <!-- Campus ID Field -->
-        <div class="form-group col-md-4">
-            {!! Form::label('campus_id', 'Campus:') !!}
-            {!! Form::select('campus_id', $campuses, old('campus_id'), ['class' => 'form-control', 'placeholder' => 'Select Campus']) !!}
-        </div>
-
-
         <!-- Email Field -->
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
             {!! Form::label('email', 'Email:') !!}
             {!! Form::email('email', null, ['class' => 'form-control']) !!}
         </div>
@@ -44,6 +37,12 @@
             {!! Form::label('password_confirmation', 'Password Confirmation:') !!}
             {!! Form::password('password_confirmation', ['class' => 'form-control']) !!}
         </div>
+
+{{--        <!-- Campus ID Field -->--}}
+{{--        <div class="form-group col-md-4">--}}
+{{--            {!! Form::label('campus_id', 'Campus:') !!}--}}
+{{--            {!! Form::select('campus_id', $campuses, old('campus_id'), ['class' => 'form-control', 'placeholder' => 'Select Campus']) !!}--}}
+{{--        </div>--}}
 
         <!-- Submit and Cancel buttons -->
         <div class="form-group col-md-12">

@@ -13,19 +13,16 @@ class LibrarianNotification extends Notification
     use Queueable;
 
     public $instructionRequest;
-    public $viewUrl;
 
     /**
      * Create a new notification instance.
      *
      * @param $instructionRequest
-     * @param string $viewUrl
      * @return void
      */
-    public function __construct($instructionRequest, string $viewUrl)
+    public function __construct($instructionRequest)
     {
         $this->instructionRequest = $instructionRequest;
-        $this->viewUrl = $viewUrl;
     }
 
     /**
@@ -45,25 +42,12 @@ class LibrarianNotification extends Notification
      * @param  mixed  $notifiable
      * @return MailMessage
      */
+
     public function toMail($notifiable) : MailMessage
     {
         return (new MailMessage)
-            ->greeting('Hello!')
-            ->line('A new instruction request has been received.')
-            ->action('View Request', $this->viewUrl)
-            ->line('Testing test');
+            ->subject('Your Instruction Request Has Been Received')
+            ->view('emails.librarians', ['request' => $this->instructionRequest]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
-    }
 }

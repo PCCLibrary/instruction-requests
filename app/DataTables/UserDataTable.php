@@ -21,10 +21,10 @@ class UserDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        // Use the 'addColumn' method for the campus name
-        $dataTable->addColumn('campus', function ($user) {
-            return $user->campus ? $user->campus->name : '';
-        });
+//        // Use the 'addColumn' method for the campus name
+//        $dataTable->addColumn('campus', function ($user) {
+//            return $user->campus ? $user->campus->name : '';
+//        });
 
         return $dataTable->addColumn('action', 'users.datatables_actions');
     }
@@ -80,7 +80,7 @@ class UserDataTable extends DataTable
 //            'name',
             'display_name' => ['title' => 'Name'],
             'email',
-            'campus' => ['name' => 'campus.name', 'data' => 'campus', 'title' => 'Campus'],
+//            'campus' => ['name' => 'campus.name', 'data' => 'campus', 'title' => 'Campus'],
         ];
     }
 

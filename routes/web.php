@@ -73,6 +73,9 @@ Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestCo
 // Resource route for managing instruction requests (accessible only by authenticated users).
 Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class)->middleware('auth');
 
+// edit instruction requests
+Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.edit');
+
 // copy instruction requests
 Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy');
 

@@ -11,6 +11,10 @@
 
         {!! Form::model($instructionRequest, ['route' => ['instructionRequests.update', $instructionRequest->id], 'method' => 'patch']) !!}
 
+        @if($instructionRequest->status == 'assigned')
+            @include('instruction_requests.admin.accept')
+        @endif
+
         <div class="row mt-4">
 
             <div class="col-md-4">

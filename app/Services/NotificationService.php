@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Campus;
 use App\Models\User;
+use App\Models\Instructor;
 use App\Notifications\LibrarianNotification;
 use App\Notifications\InstructorNotification;
 use Illuminate\Support\Facades\Log;
@@ -13,17 +14,14 @@ use App\Models\InstructionRequest;
 class NotificationService
 {
 
-
     /**
      * Notifies librarians associated with the campus of a new instruction request.
      *
      * @param InstructionRequest $instructionRequest The instruction request object.
      */
-    public function notifyLibrariansAboutRequest($instructionRequest)
+    public function librarianNotification($instructionRequest)
     {
         try {
-            // Retrieve the collection of librarian user models for the selected campus
-            // $librarians = $this->getLibrariansByCampusId($instructionRequest->campus_id);
 
             $librarians = $this->getLibrariansByCampusId($instructionRequest->campus_id);
 
@@ -66,19 +64,46 @@ class NotificationService
         return collect();
     }
 
+
+    /**
+     * Retrieves the instructor model by ID.
+     *
+     * @param int $instructorId The instructor ID.
+     * @return Instructor|null The instructor model or null if not found.
+     */
+    protected function getInstructorById(int $instructorId): ?Instructor
+    {
+        try {
+            $instructor = Instructor::find($instructorId);
+
+            if (!$instructor) {
+                Log::warning("Instructor not found with ID: {$instructorId}");
+                return null;
+            }
+
+            return $instructor;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve instructor by ID: {$e->getMessage()}");
+            return null;
+        }
+    }
+
     /**
      * Sends a confirmation notification to the instructor after they submit the instruction request form.
      *
      * @param InstructionRequest $instructionRequest The instruction request object.
      */
-    public function confirmInstructionRequestFormSubmission(InstructionRequest $instructionRequest)
+    public function newRequestConfirmation(InstructionRequest $instructionRequest)
     {
         try {
-            $instructor = $instructionRequest->instructor; // Assuming you have a relationship defined
+            // Retrieve the instructor model using the instructor_id from the instruction request
+            $instructor = $this->getInstructorById($instructionRequest->instructor_id);
 
             if ($instructor) {
                 $instructor->notify(new InstructorNotification($instructionRequest));
                 Log::info("Confirmation sent to instructor: {$instructor->email}");
+            } else {
+                Log::warning("Instructor notification not sent due to missing instructor information for request ID: {$instructionRequest->id}");
             }
         } catch (\Exception $e) {
             Log::error("Failed to send form submission confirmation to instructor: {$e->getMessage()}");

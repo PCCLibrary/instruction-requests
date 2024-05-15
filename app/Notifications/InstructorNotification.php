@@ -10,16 +10,18 @@ use App\Models\InstructionRequest;
 
 class InstructorNotification extends Notification
 {
+
     use Queueable;
 
-    protected $instructionRequest;
+    public $instructionRequest;
 
     /**
      * Create a new notification instance.
      *
+     * @param $instructionRequest
      * @return void
      */
-    public function __construct(InstructionRequest $instructionRequest)
+    public function __construct($instructionRequest)
     {
         $this->instructionRequest = $instructionRequest;
     }
@@ -44,22 +46,8 @@ class InstructorNotification extends Notification
     public function toMail($notifiable) : MailMessage
     {
         return (new MailMessage)
-            ->greeting('Hello!')
-            ->line('Your instruction request has been submitted successfully.')
-            ->line('Thank you for using our application!');
+            ->subject('Your Instruction Request Has Been Submitted')
+            ->view('emails.instructors', ['request' => $this->instructionRequest]);
     }
 
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable) : array
-    {
-        return [
-            //
-        ];
-    }
 }

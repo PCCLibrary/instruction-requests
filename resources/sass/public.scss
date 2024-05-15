@@ -1,0 +1,19 @@
+form {
+    label {
+        font-weight: bold;
+
+        &.is-required:after {
+            content: " *";
+            color: red;
+        }
+    }
+
+    fieldset {
+
+        .error {
+            margin: .25em 0;
+            font-size: smaller;
+            color: red;
+        }
+    }
+}

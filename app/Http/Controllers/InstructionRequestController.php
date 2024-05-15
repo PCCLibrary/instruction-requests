@@ -17,8 +17,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Laracasts\Flash\Flash;
 use Throwable;
+Use Exception;
 
 /**
  *
@@ -65,7 +67,7 @@ class InstructionRequestController extends AppBaseController
     /**
      * Show the form for creating a new InstructionRequest.
      *
-     * @return Response
+     * @return View
      */
     public function create()
     {
@@ -107,7 +109,7 @@ class InstructionRequestController extends AppBaseController
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
             // Notify librarians
-            $this->notificationService->notifyLibrariansAboutRequest($instructionRequest);
+            $this->notificationService->librarianNotification($instructionRequest);
 
 //            Log::debug('received request: ' . json_encode($instructionRequest));
 
@@ -134,7 +136,7 @@ class InstructionRequestController extends AppBaseController
      *
      * @param int $id
      *
-     * @return Response
+     * @return View
      */
     public function show($id)
     {
@@ -174,7 +176,7 @@ class InstructionRequestController extends AppBaseController
      *
      * @param int $id
      *
-     * @return Response
+     * @return View | RedirectResponse
      */
     public function edit($id)
     {
@@ -219,11 +221,11 @@ class InstructionRequestController extends AppBaseController
      * Update the specified InstructionRequest in storage.
      *
      * @param int $id
-     * @param \App\Http\Requests\UpdateInstructionRequestRequest $request
+     * @param UpdateInstructionRequestRequest $request
      *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update($id, UpdateInstructionRequestRequest $request)
+    public function update(int $id, UpdateInstructionRequestRequest $request)
     {
         // Retrieve the existing InstructionRequest by ID
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
@@ -284,8 +286,8 @@ class InstructionRequestController extends AppBaseController
      *
      * @param int $id
      *
-     * @return Response
-     *@throws \Exception
+     * @return RedirectResponse
+     *@throws Exception
      *
      */
     public function destroy($id)

@@ -14,3 +14,8 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
     .sass('resources/sass/app.scss', 'public/css')
     .sourceMaps();
+
+// Compile assets for the public pages
+mix.js('resources/js/public.js', 'public/js/public.js')
+    .sass('resources/sass/public.scss', 'public/css/public.css')
+    .sourceMaps();

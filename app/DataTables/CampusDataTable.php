@@ -3,9 +3,13 @@
 namespace App\DataTables;
 
 use App\Models\Campus;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\User;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\DataTableAbstract;
+use Yajra\DataTables\Html;
+
 
 class CampusDataTable extends DataTable
 {
@@ -15,7 +19,7 @@ class CampusDataTable extends DataTable
      * Resolves librarian IDs to display names and adds them as a new column.
      *
      * @param mixed $query Results from query() method.
-     * @return \Yajra\DataTables\DataTableAbstract
+     * @return DataTableAbstract
      */
     public function dataTable($query)
     {
@@ -43,8 +47,8 @@ class CampusDataTable extends DataTable
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\Campus $model
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Campus $model
+     * @return Builder
      */
     public function query(Campus $model)
     {
@@ -54,7 +58,7 @@ class CampusDataTable extends DataTable
     /**
      * Optional method if you want to use html builder.
      *
-     * @return \Yajra\DataTables\Html\Builder
+     * @return  Html\Builder
      */
     public function html()
     {

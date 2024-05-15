@@ -63,7 +63,7 @@
     </x-row>
 </x-fieldset>
 
-<x-fieldset classes="on-campus card-body">
+<x-fieldset classes="on-campus remote asynchronous card-body">
 
     <x-row>
         <input type="hidden" name="campus_id" value="1" />
@@ -94,7 +94,7 @@
             :selected="old('librarian_id')"
             classes="col-lg-6"
             tophelptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
-            required=true
+            required=false
         />
 
     </x-row>

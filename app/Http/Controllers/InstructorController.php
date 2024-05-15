@@ -54,6 +54,11 @@ class InstructorController extends AppBaseController
     {
         $input = $request->all();
 
+        // Set display_name to name if display_name is empty
+        if (empty($input['display_name'])) {
+            $input['display_name'] = $input['name'];
+        }
+
         $instructor = $this->InstructorRepository->create($input);
 
         Flash::success('Instructor saved successfully.');
@@ -119,7 +124,14 @@ class InstructorController extends AppBaseController
             return redirect(route('instructors.index'));
         }
 
-        $instructor = $this->InstructorRepository->update($request->all(), $id);
+        $input = $request->all();
+
+        // Set display_name to name if display_name is empty
+        if (empty($input['display_name'])) {
+            $input['display_name'] = $input['name'];
+        }
+
+        $instructor = $this->InstructorRepository->update($input, $id);
 
         Flash::success('Instructor updated successfully.');
 
