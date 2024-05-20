@@ -243,7 +243,8 @@ class InstructionRequestService implements InstructionRequestInterface
     {
         $searchCriteria = [
             'department_code' => $data['department'],
-            'course_number' => $data['course_number']
+            'course_number' => $data['course_number'],
+            'course_crn' => $data['course_crn']
         ];
 
         // Default course_name is department - course number unless explicitly provided

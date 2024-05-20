@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $department_code
  * @property string $course_number
  * @property string $course_name
+ * @property string $course_crn
+
  */
 class Classes extends Model
 {
@@ -29,7 +31,8 @@ class Classes extends Model
     public $fillable = [
         'department_code',
         'course_number',
-        'course_name'
+        'course_name',
+        'course_crn'
     ];
 
     /**
@@ -41,7 +44,8 @@ class Classes extends Model
         'id' => 'integer',
         'department_code' => 'string',
         'course_number' => 'string',
-        'course_name' => 'string'
+        'course_name' => 'string',
+        'course_crn' => 'string'
     ];
 
     /**

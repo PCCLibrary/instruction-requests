@@ -68,6 +68,7 @@ class ClassesDataTable extends DataTable
             'course_name',
             'department_code',
             'course_number',
+            'course_crn'
         ];
     }
 
