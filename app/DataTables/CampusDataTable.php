@@ -88,6 +88,7 @@ class CampusDataTable extends DataTable
             'name' => ['title' => 'Campus'],
             'code',
             'librarians' => ['name' => 'librarians', 'data' => 'librarians', 'title' => 'Notifications to:', 'searchable' => false, 'orderable' => false],
+            'gcal' => ['title' => 'GCal URL']
         ];
     }
 

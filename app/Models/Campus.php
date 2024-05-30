@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property string $name
  * @property string $code
+ * @property string $gcal
  */
 class Campus extends Model
 {
@@ -28,6 +29,7 @@ class Campus extends Model
     public $fillable = [
         'name',
         'code',
+        'gcal',
         'librarian_ids' // Ensure this is fillable if you're planning to mass assign.
 
     ];
@@ -41,6 +43,7 @@ class Campus extends Model
         'id' => 'integer',
         'name' => 'string',
         'code' => 'string',
+        'gcal' => 'string',
         'librarian_ids' => 'array' // Cast the librarian_ids field to an array.
 
     ];

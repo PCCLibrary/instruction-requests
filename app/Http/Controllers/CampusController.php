@@ -10,6 +10,7 @@ use Laracasts\Flash\Flash;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Response;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 
 class CampusController extends AppBaseController
 {
@@ -80,7 +81,7 @@ class CampusController extends AppBaseController
      *
      * @param int $id
      * @param UpdateCampusRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update($id, UpdateCampusRequest $request)
     {

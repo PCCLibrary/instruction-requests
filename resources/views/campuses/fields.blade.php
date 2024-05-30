@@ -10,6 +10,11 @@
     {!! Form::text('code', null, ['class' => 'form-control']) !!}
 </div>
 
+<div class="form-group col-sm-6">
+    {!! Form::label('gcal', 'Google Calendar:') !!}
+    {!! Form::text('gcal', null, ['class' => 'form-control']) !!}
+</div>
+
 <!-- Librarians Field -->
 <div class="form-group col-sm-12">
     {!! Form::label('librarian_ids[]', 'Send notifications to:') !!}
