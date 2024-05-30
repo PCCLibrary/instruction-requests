@@ -46,7 +46,7 @@ class InstructorNotification extends Notification
     public function toMail($notifiable) : MailMessage
     {
         return (new MailMessage)
-            ->subject('Your Instruction Request Has Been Submitted')
+            ->subject('Library Instruction Request Submitted')
             ->view('emails.instructors', ['request' => $this->instructionRequest]);
     }
 

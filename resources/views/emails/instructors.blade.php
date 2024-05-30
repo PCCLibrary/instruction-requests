@@ -15,6 +15,6 @@
     @endforeach
 </ul>
 <p>Our team will review your request and get back to you shortly.</p>
-<p>Best regards,<br>PCC Library Instruction Team</p>
+<p>Regards,<br>PCC Librarians</p>
 </body>
 </html>

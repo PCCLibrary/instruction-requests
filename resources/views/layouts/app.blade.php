@@ -26,7 +26,7 @@
           crossorigin="anonymous"/>
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{{--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">--}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
 
     <!-- datetime picker -->
     <link rel="stylesheet"
@@ -38,7 +38,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.9.2/dist/min/dropzone.min.css" />
 
     <link href="/library/instruction-requests/public/css/app.css" rel="stylesheet" />
-
 
     @stack('third_party_stylesheets')
 

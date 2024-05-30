@@ -150,6 +150,44 @@ class InstructionRequestService implements InstructionRequestInterface
         });
     }
 
+    /**
+     * Accept the instruction request.
+     *
+     * @param int $id
+     * @param int $userId
+     * @return void
+     */
+    public function acceptRequest(int $id, int $userId)
+    {
+        $instructionRequest = InstructionRequest::with(['instructor', 'campus', 'librarian', 'classes', 'detail'])
+            ->find($id);
+        if ($instructionRequest && $instructionRequest->status == 'assigned' && $instructionRequest->detail->assigned_librarian_id == $userId) {
+            $instructionRequest->status = 'accepted';
+            $instructionRequest->detail->assigned_librarian_id = $userId; // make sure current user is assigned
+            $instructionRequest->save();
+            Log::info("Request ID $id accepted by user ID $userId.");
+        }
+    }
+
+    /**
+     * Reject the instruction request.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function rejectRequest(int $id)
+    {
+        $instructionRequest = InstructionRequest::with(['instructor', 'campus', 'librarian', 'classes', 'detail'])
+            ->find($id);
+        if ($instructionRequest && $instructionRequest->status == 'assigned') {
+            $instructionRequest->status = 'received';
+            $instructionRequest->detail->assigned_librarian_id = 2; // No librarian preference
+            $instructionRequest->detail->save();
+            $instructionRequest->save();
+            Log::info("Request ID $id rejected and reassigned to no preference.");
+        }
+    }
+
 
     /**
      * Get the value for the 'created_by' field based on the input data.

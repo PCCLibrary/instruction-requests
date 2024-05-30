@@ -46,7 +46,7 @@ class LibrarianNotification extends Notification
     public function toMail($notifiable) : MailMessage
     {
         return (new MailMessage)
-            ->subject('Your Instruction Request Has Been Received')
+            ->subject('Instruction Request Received: [instructor name] - [campus] - [date]')
             ->view('emails.librarians', ['request' => $this->instructionRequest]);
     }
 

@@ -73,7 +73,7 @@
                         :options="$campuses"
                         :selected="old('campus_id')"
                         classes="col-lg-6"
-                        tophelptext="Choose the campus with which you are primarily associated (if online) ?"
+                        tophelptext="Select the location where your class takes place or is assigned to. If the class is not assigned to a location, select the campus with which you are primarily associated. Select “other” if you’re not sure."
                         required=true
         />
 
@@ -93,7 +93,7 @@
             :options="$librarians->pluck('display_name', 'id')->toArray()"
             :selected="old('librarian_id')"
             classes="col-lg-6"
-            tophelptext="Do you want to work with a specific librarian or a librarian from a specific campus? We will make every effort to assign your preferred librarian, but we can't guarantee their availability."
+            tophelptext="Do you want to work with a librarian from a specific campus or a specific librarian? We will try to assign your preferred librarian, but we can’t guarantee their availability."
             required=false
         />
 
@@ -144,16 +144,6 @@
         />
     </x-row>
 
-    <x-row>
-
-        {{-- class_description --}}
-        <x-textarea name="class_description"
-            label="Additional notes about your class. If you have google drive links for your materials, please provide them here."
-            :value="old('class_description')"
-            classes="col-lg-8"
-        />
-
-    </x-row>
 
 </x-fieldset>
 
@@ -213,6 +203,18 @@
         />
     </x-row>
 
+    <x-row>
+
+        {{-- class_description --}}
+        <x-textarea name="class_description"
+                    label="Additional Notes (optional)"
+                    :value="old('class_description')"
+                    classes="col-lg-8"
+                    helptext="If you have additional information for your class, or google drive links for your materials, please provide them here."
+        />
+
+    </x-row>
+
 </x-fieldset>
 
 <x-fieldset legend="Date, time and duration" classes="on-campus remote card-body">
@@ -227,7 +229,7 @@
           :value="old('preferred_datetime')"
           helptext="Enter the date and time you would prefer to have your instruction session."
           classes="col-lg-4"
-          required=true
+          required=false
         />
 
         {{-- default alternate_datetime --}}
@@ -244,12 +246,12 @@
 
         <input type="hidden" name="duration" value="0" />
         {{-- Duration Field --}}
-        <x-input-duration name="duration"
+        <x-input-text name="duration"
             label="Duration"
             :selected="old('duration')"
-            helptext="Enter the length of instruction you would like your class to receive, in hours and minutes."
+            helptext="Please enter the duration of your class in minutes only."
             classes="col-lg-4"
-            required=true
+            required=false
         />
 
     </x-row>
@@ -334,7 +336,7 @@
                     label="What do you want your students to get out of library instruction?"
                     :value="old('library_instruction_description')"
                     classes="col-lg-8"
-                    helptext="Some possible learning outcomes for this session: Develop a search strategy based on their research topic Perform an efficient search of the library catalog for books and other materials Differentiate between scholarly journals and magazines Construct a query for journal, magazine, or newspaper articles and evaluate best choices in the results list Physically locate items and other resources"
+                    helptext="Some possible learning outcomes for this session: Develop a topic and engage in exploratory learning; use the library catalog to find and request items; use library databases and search the web effectively in order to learn about a topic; evaluate information and sources based on context and information needed."
         />
     </x-row>
 </x-fieldset>

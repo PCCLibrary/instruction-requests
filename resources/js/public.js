@@ -33,6 +33,8 @@ $(document).ready(function() {
     }
 
     function applyFieldSettings(value) {
+        hideAllFieldsets(); // Hide all fieldsets first
+
         if (value && value in fieldSettings) {
             const settings = fieldSettings[value];
             $(settings.show).removeClass('d-none');
@@ -46,8 +48,6 @@ $(document).ready(function() {
                 $(selector).prop('required', false);
                 $(`label[for="${selector.substring(1)}"]`).removeClass('is-required');
             });
-        } else {
-            hideAllFieldsets(); // Hide all fieldsets if no valid instruction type is selected
         }
     }
 
@@ -55,12 +55,12 @@ $(document).ready(function() {
         'on-campus': {
             show: '.on-campus',
             required: ['#number_of_students', '#campus_id', '#preferred_datetime','#duration'],
-            notRequired: ['#librarian_id', "#asynchronous_instruction_ready_date"],
+            notRequired: ["#librarian_id", "#asynchronous_instruction_ready_date", "#alternate_datetime"],
         },
         'remote': {
             show: '.remote',
             required: ['#librarian_id', '#preferred_datetime', '#duration', '#campus_id'],
-            notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date"],
+            notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", "#alternate_datetime"],
         },
         'asynchronous': {
             show: '.asynchronous',
@@ -69,15 +69,17 @@ $(document).ready(function() {
         }
     };
 
+    // instruction type selector element
+    let instructionTypeSelect = $('select[name="instruction_type"]')
     // Apply settings based on initial select value on page load
-    const initialType = $('select[name="instruction_type"]').val();
+    const initialType = instructionTypeSelect.val();
+
     applyFieldSettings(initialType);
 
     // Apply settings when select value changes
-    $('select[name="instruction_type"]').change(function() {
+    instructionTypeSelect.change(function() {
         applyFieldSettings($(this).val());
     });
-
 
     $('#librarian_id').select2({
         theme: 'bootstrap4',

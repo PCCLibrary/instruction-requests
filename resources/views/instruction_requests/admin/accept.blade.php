@@ -4,8 +4,15 @@
             <strong>Click accept to service this request. Click reject to send it back to request scheduling.</strong>
         </div>
         <div class="col-auto">
-            <a href="#" class="btn btn-primary mx-2">Accept</a>
-            <a href="#" class="btn btn-secondary mx-2">Reject</a>
+            <form method="POST" action="{{ route('instructionRequests.accept', $instructionRequest->id) }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-success">Accept</button>
+            </form>
+
+            <form method="POST" action="{{ route('instructionRequests.reject', $instructionRequest->id) }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-danger">Reject</button>
+            </form>
         </div>
     </div>
 </div>

@@ -13,7 +13,7 @@
             </thead>
             <tbody>
             <tr>
-                <td>{{ $instructionRequest->instructor->name }}</td>
+{{--                <td>{{ $instructionRequest->instructor->name }}</td>--}}
                 <td>{{ $instructionRequest->instructor->display_name }}</td>
                 <td>{{ $instructionRequest->instructor->pronouns }}</td>
                 <td>{{ $instructionRequest->instructor->email }}</td>
@@ -114,28 +114,28 @@
         </div>
     @endif
 
-        <div class="row">
-    @if(!empty($instructionRequest->extra_time_with_class))
-        <div class="col-4">
-            <strong>Extra time needed for:</strong>
-            <p>{{ $instructionRequest->extra_time_with_class }}</p>
-        </div>
-    @endif
+    <div class="row">
+        @if(!empty($instructionRequest->extra_time_with_class))
+            <div class="col-4">
+                <strong>Extra time needed for:</strong>
+                <p>{{ $instructionRequest->extra_time_with_class }}</p>
+            </div>
+        @endif
 
-    @if(!empty($instructionRequest->class_description))
-        <div class="col-4">
-            <strong>Additional Class Notes:</strong>
-            <p>{{ $instructionRequest->class_description }}</p>
-        </div>
-    @endif
+        @if(!empty($instructionRequest->class_description))
+            <div class="col-4">
+                <strong>Additional Class Notes:</strong>
+                <p>{{ $instructionRequest->class_description }}</p>
+            </div>
+        @endif
 
-    @if($instructionRequest->ada_provisions_needed && !empty($instructionRequest->ada_provisions_description))
-    <div class="col-4">
-        <strong>ADA Provisions Description:</strong>
-        <p>{{ $instructionRequest->ada_provisions_description }}</p>
+        @if($instructionRequest->ada_provisions_needed && !empty($instructionRequest->ada_provisions_description))
+        <div class="col-4">
+            <strong>ADA Provisions Description:</strong>
+            <p>{{ $instructionRequest->ada_provisions_description }}</p>
+        </div>
+        @endif
     </div>
-    @endif
-        </div>
     </x-slot>
 </x-card>
 
@@ -153,7 +153,7 @@
 <input type="hidden" name="duration" value="{{ $instructionRequest->duration ?? null }}">
 <input type="hidden" name="asynchronous_instruction_ready_date" value="{{ $instructionRequest->asynchronous_instruction_ready_date ?? null }}">
 
-@if($instructionRequest->instruction_type !== 'asynchronous')
+{{--@if($instructionRequest->instruction_type !== 'asynchronous')--}}
 {{-- Student status --}}
 <div class="row">
 <div class="col-12">
@@ -179,21 +179,19 @@
             </tr>
             </tbody>
         </table>
-        @if ($instructionRequest->other_learning_outcome)
-            <p>{{ $instructionRequest->other_describe }}</p>
+        @if(!empty($instructionRequest->other_learning_outcome_description))
+            <x-slot name="footer">
+                <strong>Other Learning Outcome Description:</strong>
+                <p>{{ $instructionRequest->other_learning_outcome_description }}</p>
+            </x-slot>
         @endif
 
     </x-slot>
-@endif
-
-@if(!empty($instructionRequest->other_learning_outcome_description))
-        <x-slot name="footer">
-        <strong>Other Learning Outcome Description:</strong>
-        <p>{{ $instructionRequest->other_learning_outcome_description }}</p>
-        </x-slot>
-    @endif
 </x-card>
 </div>
+</div>
+{{--@endif--}}
+
 @if(!empty($instructionRequest->library_instruction_description) || !empty($instructionRequest->genai_discussion_interest))
     <div class="col-12">
         <x-card title="Other Information" headerclass="bg-info">
@@ -212,4 +210,3 @@
         </x-card>
     </div>
 @endif
-</div>

@@ -254,10 +254,10 @@ class InstructionRequestController extends AppBaseController
     /**
      * Duplicate the selected instruction request and associated detail
      *
-     * @param $id
+     * @param int $id
      * @return RedirectResponse
      */
-    public function copy($id)
+    public function copy(int $id)
     {
         $originalRequest = InstructionRequest::with('detail')->find($id);
 
@@ -282,6 +282,33 @@ class InstructionRequestController extends AppBaseController
     }
 
     /**
+     * Accept the instruction request.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function accept($id)
+    {
+        $this->instructionRequestService->acceptRequest($id, auth()->user()->id);
+        Flash::success('Instruction Request accepted.');
+
+        return redirect()->route('instructionRequests.edit', $id)->with('status', 'Request accepted.');
+    }
+
+    /**
+     * Reject the instruction request.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function reject(int $id)
+    {
+        $this->instructionRequestService->rejectRequest($id);
+        Flash::info('Instruction Request rejected.');
+        return redirect()->route('instructionRequests.edit', $id)->with('status', 'Request rejected.');
+    }
+
+    /**
      * Remove the specified InstructionRequest from storage.
      *
      * @param int $id
@@ -290,7 +317,7 @@ class InstructionRequestController extends AppBaseController
      *@throws Exception
      *
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $this->instructionRequestService->deleteInstructionRequest($id);
 

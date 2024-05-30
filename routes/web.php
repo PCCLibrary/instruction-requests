@@ -79,6 +79,12 @@ Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionReq
 // copy instruction requests
 Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy');
 
+// accept instruction request
+Route::post('/instructionRequests/{id}/accept', [App\Http\Controllers\InstructionRequestController::class, 'accept'])->name('instructionRequests.accept');
+
+// reject instruction request
+Route::post('/instructionRequests/{id}/reject', [App\Http\Controllers\InstructionRequestController::class, 'reject'])->name('instructionRequests.reject');
+
 // Resource route for managing classes
 Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
 
