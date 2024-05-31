@@ -19,7 +19,7 @@ class NotificationService
      *
      * @param InstructionRequest $instructionRequest The instruction request object.
      */
-    public function librarianNotification($instructionRequest) : InstructionRequest
+    public function librarianNotification($instructionRequest)
     {
         try {
 
