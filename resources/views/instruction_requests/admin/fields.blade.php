@@ -27,10 +27,11 @@
 />
 
 <!-- Instruction Duration (Text Input) -->
-<x-input-duration
+<x-input-text
     name="instruction_duration"
     label="Instruction Duration"
     :value="$instructionRequest->detail->instruction_duration ?? $instructionRequest->duration"
+    helptext="Duration in minutes."
 />
 
 @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
