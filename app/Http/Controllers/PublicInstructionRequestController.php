@@ -10,7 +10,6 @@ use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -32,7 +31,8 @@ class PublicInstructionRequestController extends Controller
     private $notificationService;
 
     /**
-     * Build the class and inject the services
+     * Build the class and inject the services.
+     *
      * @param InstructionRequestService $instructionRequestService
      * @param DepartmentService $departmentService
      * @param NotificationService $notificationService
@@ -68,7 +68,6 @@ class PublicInstructionRequestController extends Controller
      * Store the submitted instruction request from the public form.
      *
      * @param CreateInstructionRequestRequest $request
-     *
      * @return RedirectResponse
      * @throws Throwable
      */
@@ -76,29 +75,22 @@ class PublicInstructionRequestController extends Controller
     {
         try {
             // Validate the request data
-           // $validatedData = $request->validated();
-
             $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
 
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
-            // Notify librarians
-            $this->notificationService->librarianNotification($instructionRequest);
-
-            // Notify instructor
-            $this->notificationService->newRequestConfirmation($instructionRequest);
+            // Notify based on the status
+            $this->notificationService->notifyBasedOnStatus($instructionRequest);
 
             Log::debug('received request: ' . json_encode($instructionRequest));
 
             // Flash a success message to the session
-
             Flash::success('Instruction Request saved successfully.');
 
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();
-
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             // Flash an error message and input data to the session
             Flash::error('Instruction Request not saved.');
 
@@ -108,6 +100,4 @@ class PublicInstructionRequestController extends Controller
                 ->withInput();
         }
     }
-
-
 }

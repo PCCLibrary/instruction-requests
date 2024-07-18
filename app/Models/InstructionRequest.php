@@ -23,9 +23,7 @@ use Laravelista\Comments\Commentable;
  *
  * @property Instructor $Instructor
  * @property Campus $campus
-// * @property User $librarianUser
  * @property string $instruction_type
-// * @property string $course_modality
  * @property int $librarian_id
  * @property int $campus_id
  * @property string $department
@@ -195,7 +193,7 @@ class InstructionRequest extends Model implements HasMedia
     public function rules(Request $request): array
     {
         $rules = [
-            'librarian_id' => 'required|exists:users,id',
+            'librarian_id' => 'exists:users,id',
             'campus_id' => 'required|exists:campuses,id',
             'instruction_type' => 'required|string',
             'department' => 'nullable|string',
@@ -221,10 +219,8 @@ class InstructionRequest extends Model implements HasMedia
             'other_learning_outcome' => 'boolean',
             'other_learning_outcome_description' => 'nullable|string',
             'library_instruction_description' => 'nullable|string',
-
         ];
 
-        // Additional rules for creation
         if ($request->method() === 'POST') {
             $rules += [
                 'name' => 'required|string|max:255',
@@ -235,21 +231,35 @@ class InstructionRequest extends Model implements HasMedia
             ];
         }
 
-        // Additional rules for edit to ensure relationship integrity
         if ($request->method() === 'PUT' || $request->method() === 'PATCH') {
-            $rules += [
-                'librarian_id' => 'required|exists:users,id',
-                'campus_id' => 'required|exists:campuses,id',
-                'instructor_id' => 'required|exists:instructors,id',
-                'instruction_request_id' => 'required|exists:instruction_requests,id',
-            ];
-
-            // Merge detail rules for the edit operation
+            $rules['librarian_id'] = 'required|exists:users,id';
+            $rules['instructor_id'] = 'required|exists:instructors,id';
+            $rules['instruction_request_id'] = 'required|exists:instruction_requests,id';
             $rules = self::mergeDetailRules($rules, $request);
+        }
+
+        // Apply conditional rules based on instruction type
+        $instructionType = $request->input('instruction_type');
+        switch ($instructionType) {
+            case 'on-campus':
+                $rules['librarian_id'] = 'required|exists:users,id';
+                $rules['number_of_students'] = 'required|integer';
+                $rules['preferred_datetime'] = 'required|date';
+                $rules['duration'] = 'required|string';
+                break;
+            case 'remote':
+                $rules['librarian_id'] = 'required|exists:users,id';
+                $rules['preferred_datetime'] = 'required|date';
+                $rules['duration'] = 'required|string';
+                break;
+            case 'asynchronous':
+                $rules['asynchronous_instruction_ready_date'] = 'required|date';
+                break;
         }
 
         return $rules;
     }
+
 
     /**
      * Merge the detail rules for the edit operation.

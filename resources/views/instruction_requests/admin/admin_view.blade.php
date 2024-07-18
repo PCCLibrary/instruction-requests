@@ -29,32 +29,107 @@
 
     <x-slot name="body">
 
-    <table class="table mb-4 thead-dark">
-    <thead>
-    <tr class="bg-dark text-white">
-        <th>Instruction Type</th>
-        <th>Subject</th>
-        <th>Course Number</th>
-        <th>Course CRN</th>
-        <th>Number of Students</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>{{ $instructionRequest->instruction_type }}</td>
-        <td>{{ $instructionRequest->department }}</td>
-        <td>{{ $instructionRequest->course_number }}</td>
-        <td>{{ $instructionRequest->course_crn }}</td>
-        <td>{{ $instructionRequest->number_of_students }}</td>
-    </tr>
-    </tbody>
+    <input type="hidden" name="instruction_type" value="{{ $instructionRequest->instruction_type ?? null }}">
+    <input type="hidden" name="department" value="{{ $instructionRequest->department ?? null }}">
+    <input type="hidden" name="course_number" value="{{ $instructionRequest->course_number ?? null }}">
+    <input type="hidden" name="course_crn" value="{{ $instructionRequest->course_crn ?? null }}">
+    <input type="hidden" name="number_of_students" value="{{ $instructionRequest->number_of_students ?? null }}">
 
-    </table>
 
-        <input type="hidden" name="department" value="{{ $instructionRequest->department ?? null }}">
-        <input type="hidden" name="course_number" value="{{ $instructionRequest->course_number ?? null }}">
-        <input type="hidden" name="course_crn" value="{{ $instructionRequest->course_crn ?? null }}">
-        <input type="hidden" name="number_of_students" value="{{ $instructionRequest->number_of_students ?? null }}">
+        <x-fieldset legend="Request information" classes="card-body">
+
+            <button id="toggleEditButton" class="small btn btn-success d-flex"><i class="fa fa-edit"></i></button>
+
+            <x-row>
+
+                {{-- Instruction Type Field --}}
+                <x-input-select name="instruction_type"
+                                label="Instruction Type"
+                                :options="[
+            'on-campus' => 'Librarian joins my class on campus',
+            'remote' => 'Librarian joins my remote class',
+            'asynchronous' => 'Librarian provides resources to be used asynchronously']"
+                                :selected="$instructionRequest->instruction_type ?? null "
+                                classes="col-lg-9 edit-field"
+                                tophelptext="Please select what you need help with."
+                                required=false
+                                disabled="true"
+                />
+
+            </x-row>
+
+            <x-row>
+                {{-- Department Field --}}
+                <x-input-select name="department"
+                                label="Subject"
+                                :options="$departments"
+                                :selected=" $instructionRequest->department ?? null "
+                                classes="col-lg-6 edit-field"
+                                helptext="Choose the subject of your course."
+                                required=false
+                                disabled="true"
+                />
+
+                {{-- Course Number Field --}}
+                <x-input-text name="course_number"
+                              label="Course Number"
+                              :value="$instructionRequest->course_number ?? '' "
+                              classes="col-lg-6 edit-field"
+                              helptext='Enter the course number (e.g., "122" for course BI 122). Enter "0000" if the course has no number.'
+                              required=false
+                              disabled="true"
+                />
+
+            </x-row>
+
+            <x-row>
+
+                {{-- Course CRN Field --}}
+                <x-input-text name="course_crn"
+                              label="Course CRN"
+                              :value="$instructionRequest->course_crn ?? '' "
+                              classes="col-lg-6 edit-field"
+                              helptext="Enter the 5-digit CRN for your course. Enter 99999 if the course has no CRN."
+                              required=false
+                              disabled="true"
+                />
+
+                {{-- Number of Students Field --}}
+                <x-input-text name="number_of_students"
+                              label="Number of Students"
+                              type="number"
+                              :value="$instructionRequest->number_of_students ?? '' "
+                              classes="col-lg-6 edit-field"
+                              helptext="Enter the number of students in the class."
+                              required=false
+                              disabled="true"
+                />
+
+            </x-row>
+        </x-fieldset>
+
+{{--    <table class="table mb-4 thead-dark">--}}
+{{--    <thead>--}}
+{{--    <tr class="bg-dark text-white">--}}
+{{--        <th>Instruction Type</th>--}}
+{{--        <th>Subject</th>--}}
+{{--        <th>Course Number</th>--}}
+{{--        <th>Course CRN</th>--}}
+{{--        <th>Number of Students</th>--}}
+{{--    </tr>--}}
+{{--    </thead>--}}
+{{--    <tbody>--}}
+{{--    <tr>--}}
+{{--        <td>{{ $instructionRequest->instruction_type }}</td>--}}
+{{--        <td>{{ $instructionRequest->department }}</td>--}}
+{{--        <td>{{ $instructionRequest->course_number }}</td>--}}
+{{--        <td>{{ $instructionRequest->course_crn }}</td>--}}
+{{--        <td>{{ $instructionRequest->number_of_students }}</td>--}}
+{{--    </tr>--}}
+{{--    </tbody>--}}
+
+{{--    </table>--}}
+
 
     </x-slot>
 

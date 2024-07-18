@@ -265,7 +265,11 @@ class InstructionRequestService implements InstructionRequestInterface
 //        Log::debug('findOrCreateInstructor - Search Criteria: ' . json_encode($searchCriteria));
 //        Log::debug('findOrCreateInstructor - Additional Data: ' . json_encode($additionalData));
 
-        return Instructor::firstOrCreate($searchCriteria, $additionalData);
+//        return Instructor::firstOrCreate($searchCriteria, $additionalData);
+
+        // Attempt to find and update the instructor, or create a new one if not found
+        return Instructor::updateOrCreate($searchCriteria, $additionalData);
+
     }
 
 

@@ -30,6 +30,19 @@
             padding: 0 1em;
             margin-top: .31rem;
         }
+
+        button#toggleEditButton {
+            display: flex !important;
+            align-content: center;
+            justify-content: center;
+            width: 2em;
+            height: 2em;
+            text-align: center;
+            position: absolute;
+            right: 1em;
+            top: 4em;
+            align-items: center;
+        }
     </style>
 @endpush
 
@@ -119,6 +132,32 @@
                         }).appendTo('form');
                     });
                 });
+        });
+
+            $(document).ready(function() {
+
+            let editButton = $('#toggleEditButton')
+
+                editButton.click(function(event) {
+
+                event.preventDefault(); // Prevent the default action of the button (form submission)
+
+                $('.edit-field > input, .edit-field > select').each(function() {
+                    $(this).prop('disabled', !$(this).prop('disabled'));
+                });
+
+                // Toggle the class and text on the button
+                    editButton.toggleClass('editing');
+                if (editButton.hasClass('editing')) {
+                    editButton.removeClass('btn-success')
+                    editButton.addClass('btn-danger')
+                    editButton.html('<i class="fa fa-times"></i>');
+                } else {
+                    editButton.removeClass('btn-danger')
+                    editButton.addClass('btn-success')
+                    editButton.html('<i class="fa fa-edit"></i>');
+                }
+            });
         });
 
     </script>
