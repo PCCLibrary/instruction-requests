@@ -6,6 +6,7 @@ use App\DataTables\InstructionRequestDataTable;
 use App\Http\Requests\CreateInstructionRequestRequest;
 use App\Http\Requests\UpdateInstructionRequestRequest;
 use App\Models\Campus;
+use App\Models\Classes;
 use App\Models\Instructor;
 use App\Models\InstructionRequest;
 use App\Models\User;
@@ -98,6 +99,9 @@ class InstructionRequestController extends AppBaseController
             $input = $request->except(['class_syllabus', 'instructor_attachments']);
 
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
+
+            // Fetch related data and append to the instruction request object
+            $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
             // Notify based on the status
             $this->notificationService->notifyBasedOnStatus($instructionRequest);
@@ -209,6 +213,9 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'))->withErrors(['error' => $e->getMessage()]);
         }
 
+        // Fetch related data and append to the instruction request object
+        $instructionRequest = $this->appendAdditionalData($instructionRequest);
+
         // Notify based on the status
         $this->notificationService->notifyBasedOnStatus($instructionRequest);
 
@@ -267,6 +274,28 @@ class InstructionRequestController extends AppBaseController
         $this->instructionRequestService->rejectRequest($id);
         Flash::info('Instruction Request rejected.');
         return redirect()->route('instructionRequests.edit', $id)->with('status', 'Request rejected.');
+    }
+
+
+    /**
+     * Fetch related data for the instruction request and append to the object.
+     *
+     * @param InstructionRequest $instructionRequest
+     * @return InstructionRequest
+     */
+    protected function appendAdditionalData($instructionRequest)
+    {
+        $instructor = Instructor::find($instructionRequest->instructor_id);
+        $class = Classes::find($instructionRequest->class_id);
+        $campus = Campus::find($instructionRequest->campus_id);
+        $librarian = User::find($instructionRequest->librarian_id);
+
+        $instructionRequest->instructor_name = $instructor->display_name ?? null;
+        $instructionRequest->course_name = $class->course_name ?? null;
+        $instructionRequest->campus_name = $campus->name ?? null;
+        $instructionRequest->librarian_name = $librarian->display_name ?? null;
+
+        return $instructionRequest;
     }
 
     /**

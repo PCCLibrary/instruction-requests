@@ -5,9 +5,11 @@
 @section('heading', 'Accepted Instruction Request')
 
 @section('intro')
-    The instruction request by {{ $instructor_name }} has been accepted. Please review the details below and follow the link to edit the request in the dashboard.
+    The instruction request has been accepted. Please review the details below and follow the link to edit the request in the dashboard.
 @endsection
 
 @section('content')
-    <p><a href="{{ route('instructionRequests.edit', ['id' => $request->id]) }}">Edit Request in Dashboard</a></p>
+    <x-link-button :url="route('instructionRequests.edit', ['id' => $request->id])">
+        Edit Request in Dashboard
+    </x-link-button>
 @endsection

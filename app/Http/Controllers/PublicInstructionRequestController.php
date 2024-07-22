@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateInstructionRequestRequest;
 use App\Models\Campus;
+use App\Models\Classes;
 use App\Models\InstructionRequest;
+use App\Models\Instructor;
 use App\Models\User;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
@@ -79,10 +81,13 @@ class PublicInstructionRequestController extends Controller
 
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
+            // Fetch related data and append to the instruction request object
+            $instructionRequest = $this->appendAdditionalData($instructionRequest);
+
             // Notify based on the status
             $this->notificationService->notifyBasedOnStatus($instructionRequest);
 
-            Log::debug('received request: ' . json_encode($instructionRequest));
+//            Log::debug('received request: ' . json_encode($instructionRequest));
 
             // Flash a success message to the session
             Flash::success('Instruction Request saved successfully.');
@@ -99,5 +104,25 @@ class PublicInstructionRequestController extends Controller
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
+    }
+    /**
+     * Fetch related data for the instruction request and append to the object.
+     *
+     * @param InstructionRequest $instructionRequest
+     * @return InstructionRequest
+     */
+    protected function appendAdditionalData($instructionRequest)
+    {
+        $instructor = Instructor::find($instructionRequest->instructor_id);
+        $class = Classes::find($instructionRequest->class_id);
+        $campus = Campus::find($instructionRequest->campus_id);
+        $librarian = User::find($instructionRequest->librarian_id);
+
+        $instructionRequest->instructor_name = $instructor->display_name ?? null;
+        $instructionRequest->course_name = $class->course_name ?? null;
+        $instructionRequest->campus_name = $campus->name ?? null;
+        $instructionRequest->librarian_name = $librarian->display_name ?? null;
+
+        return $instructionRequest;
     }
 }

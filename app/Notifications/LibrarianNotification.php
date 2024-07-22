@@ -42,11 +42,16 @@ class LibrarianNotification extends Notification
      * @param  mixed  $notifiable
      * @return MailMessage
      */
-
     public function toMail($notifiable) : MailMessage
     {
+        $instructorName = $this->instructionRequest->instructor_name ?? 'Unknown Instructor';
+        $campusName = $this->instructionRequest->campus_name ?? 'Unknown Campus';
+        $currentDate = now()->format('m/d/Y');
+
+        $subject = "Instruction Request Received: $instructorName - $campusName - $currentDate";
+
         return (new MailMessage)
-            ->subject('Instruction Request Received: [instructor name] - [campus] - [date]')
+            ->subject($subject)
             ->view('emails.librarians', ['request' => $this->instructionRequest]);
     }
 

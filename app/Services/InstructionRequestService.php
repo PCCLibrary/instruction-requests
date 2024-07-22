@@ -71,6 +71,8 @@ class InstructionRequestService implements InstructionRequestInterface
             $instructor = $this->findOrCreateInstructor($data);
             $classes = $this->findOrCreateClasses($data);
 
+            // want to have the instructor display_name and course_name available in the notification
+
             // Prepare data with the necessary IDs and default values
             $data['instructor_id'] = $instructor->id;
             $data['class_id'] = $classes->id;
@@ -140,7 +142,7 @@ class InstructionRequestService implements InstructionRequestInterface
             // Update logic here
             $this->instructionRequestRepository->update($data, $id);
 
-            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
+//            Log::debug('instruction request SQL queries: ' . json_encode(DB::getQueryLog()));
 
             Flash::success('Instruction Request updated successfully.');
 

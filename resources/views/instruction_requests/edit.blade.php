@@ -32,16 +32,11 @@
         }
 
         button#toggleEditButton {
-            display: flex !important;
-            align-content: center;
-            justify-content: center;
-            width: 2em;
-            height: 2em;
-            text-align: center;
+            width: 24px;
+            height: 24px;
             position: absolute;
             right: 1em;
-            top: 4em;
-            align-items: center;
+            top: 5em;
         }
     </style>
 @endpush

@@ -8,16 +8,24 @@
                 <th>Preferred Name</th>
                 <th>Pronouns</th>
                 <th>Email</th>
-                <th>Phone</th>
+                <th>Edit</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-{{--                <td>{{ $instructionRequest->instructor->name }}</td>--}}
+                <td>{{ $instructionRequest->instructor->name }}</td>
                 <td>{{ $instructionRequest->instructor->display_name }}</td>
                 <td>{{ $instructionRequest->instructor->pronouns }}</td>
                 <td>{{ $instructionRequest->instructor->email }}</td>
-                <td>{{ $instructionRequest->instructor->phone }}</td>
+                <td>
+                    <a href="{{ route('instructors.edit', $instructionRequest->instructor->id) }}"
+                       class='btn btn-success btn-xs'
+                       target="_blank"
+                       title="Click to edit the instructor information"
+                    >
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -25,7 +33,7 @@
 </x-card>
 
 {{-- Class Information --}}
-<x-card title="Class Information" headerclass="bg-info">
+<x-card title="Request Information" headerclass="bg-info">
 
     <x-slot name="body">
 
@@ -36,9 +44,9 @@
     <input type="hidden" name="number_of_students" value="{{ $instructionRequest->number_of_students ?? null }}">
 
 
-        <x-fieldset legend="Request information" classes="card-body">
+        <x-fieldset legend="" classes="card-body">
 
-            <button id="toggleEditButton" class="small btn btn-success d-flex"><i class="fa fa-edit"></i></button>
+            <button id="toggleEditButton" class="btn btn-success btn-xs"><i class="fa fa-edit"></i></button>
 
             <x-row>
 
@@ -107,29 +115,6 @@
 
             </x-row>
         </x-fieldset>
-
-{{--    <table class="table mb-4 thead-dark">--}}
-{{--    <thead>--}}
-{{--    <tr class="bg-dark text-white">--}}
-{{--        <th>Instruction Type</th>--}}
-{{--        <th>Subject</th>--}}
-{{--        <th>Course Number</th>--}}
-{{--        <th>Course CRN</th>--}}
-{{--        <th>Number of Students</th>--}}
-{{--    </tr>--}}
-{{--    </thead>--}}
-{{--    <tbody>--}}
-{{--    <tr>--}}
-{{--        <td>{{ $instructionRequest->instruction_type }}</td>--}}
-{{--        <td>{{ $instructionRequest->department }}</td>--}}
-{{--        <td>{{ $instructionRequest->course_number }}</td>--}}
-{{--        <td>{{ $instructionRequest->course_crn }}</td>--}}
-{{--        <td>{{ $instructionRequest->number_of_students }}</td>--}}
-{{--    </tr>--}}
-{{--    </tbody>--}}
-
-{{--    </table>--}}
-
 
     </x-slot>
 
@@ -228,47 +213,53 @@
 <input type="hidden" name="duration" value="{{ $instructionRequest->duration ?? null }}">
 <input type="hidden" name="asynchronous_instruction_ready_date" value="{{ $instructionRequest->asynchronous_instruction_ready_date ?? null }}">
 
-{{--@if($instructionRequest->instruction_type !== 'asynchronous')--}}
-{{-- Student status --}}
-<div class="row">
-<div class="col-12">
-<x-card title="Students Have:" headerclass="bg-info">
-    <x-slot name="body">
-        <table class="table thead-dark">
-            <thead>
-            <tr>
-                <th>Received Assignment</th>
-                <th>Selected Topics</th>
-                <th>Explored Background</th>
-                <th>Written Draft</th>
-                <th>Other Learning Outcome</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td><strong>{!! $instructionRequest->received_assignment ? '&#x2713;' : '' !!}</strong></td>
-                <td><strong>{!! $instructionRequest->selected_topics ? '&#x2713;' : '' !!}</strong></td>
-                <td><strong>{!! $instructionRequest->explored_background ? '&#x2713;' : '' !!}</strong></td>
-                <td><strong>{!! $instructionRequest->written_draft ? '&#x2713;' : '' !!}</strong></td>
-                <td><strong>{!! $instructionRequest->other_learning_outcome ? '&#x2713;' : '' !!}</strong></td>
-            </tr>
-            </tbody>
-        </table>
-        @if(!empty($instructionRequest->other_learning_outcome_description))
-            <x-slot name="footer">
-                <strong>Other Learning Outcome Description:</strong>
-                <p>{{ $instructionRequest->other_learning_outcome_description }}</p>
-            </x-slot>
-        @endif
+@php
+    $shouldDisplay = $instructionRequest->instruction_type !== 'asynchronous' && (
+        $instructionRequest->received_assignment ||
+        $instructionRequest->selected_topics ||
+        $instructionRequest->explored_background ||
+        $instructionRequest->written_draft ||
+        $instructionRequest->other_learning_outcome
+    );
+@endphp
 
-    </x-slot>
-</x-card>
-</div>
-</div>
-{{--@endif--}}
+@if($shouldDisplay)
+
+            <x-card title="Students Have:" headerclass="bg-info">
+                <x-slot name="body">
+                    <table class="table thead-dark">
+                        <thead>
+                        <tr>
+                            <th>Received Assignment</th>
+                            <th>Selected Topics</th>
+                            <th>Explored Background</th>
+                            <th>Written Draft</th>
+                            <th>Other Learning Outcome</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><strong>{!! $instructionRequest->received_assignment ? '&#x2713;' : '' !!}</strong></td>
+                            <td><strong>{!! $instructionRequest->selected_topics ? '&#x2713;' : '' !!}</strong></td>
+                            <td><strong>{!! $instructionRequest->explored_background ? '&#x2713;' : '' !!}</strong></td>
+                            <td><strong>{!! $instructionRequest->written_draft ? '&#x2713;' : '' !!}</strong></td>
+                            <td><strong>{!! $instructionRequest->other_learning_outcome ? '&#x2713;' : '' !!}</strong></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    @if(!empty($instructionRequest->other_learning_outcome_description))
+                        <x-slot name="footer">
+                            <strong>Other Learning Outcome Description:</strong>
+                            <p>{{ $instructionRequest->other_learning_outcome_description }}</p>
+                        </x-slot>
+                    @endif
+                </x-slot>
+            </x-card>
+
+@endif
+
 
 @if(!empty($instructionRequest->library_instruction_description) || !empty($instructionRequest->genai_discussion_interest))
-    <div class="col-12">
         <x-card title="Other Information" headerclass="bg-info">
             @if(!empty($instructionRequest->library_instruction_description))
                     <div class="mb-4">
@@ -283,5 +274,4 @@
                     </div>
             @endif
         </x-card>
-    </div>
 @endif
