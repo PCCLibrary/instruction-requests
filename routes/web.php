@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicInstructionRequestController;
-use App\Http\Controllers\UploadController;
-
+//use App\Http\Controllers\UploadController;
+use Slides\Saml2\Http\Controllers\Saml2Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +15,6 @@ use App\Http\Controllers\UploadController;
 | These routes are publicly accessible and do not require authentication.
 |
 */
-
 
 // Database connection test route.
 Route::get('/db-test', function () {
@@ -27,13 +26,32 @@ Route::get('/db-test', function () {
     }
 });
 
-
 // Index page with the public form to create instruction requests.
 Route::get('/', [PublicInstructionRequestController::class, 'create'])->name('public.instruction-request.create');
 
 // Store the submitted instruction request from the public form.
 Route::post('instruction-requests', [PublicInstructionRequestController::class, 'store'])->name('public.instruction-request.store');
 
+/*
+|--------------------------------------------------------------------------
+| SAML Authentication Routes
+|--------------------------------------------------------------------------
+|
+| Routes for SAML authentication using 24Slides\laravel-saml2.
+|
+*/
+
+// Initiate the SAML login
+Route::get('/saml2/login', [Saml2Controller::class, 'login'])->name('saml2.login');
+
+// SAML logout
+Route::get('/saml2/logout', [Saml2Controller::class, 'logout'])->name('saml2.logout');
+
+// SAML ACS endpoint
+Route::post('/saml2/acs', [Saml2Controller::class, 'acs'])->name('saml2.acs');
+
+// SAML SLS endpoint
+Route::get('/saml2/sls', [Saml2Controller::class, 'sls'])->name('saml2.sls');
 
 /*
 |--------------------------------------------------------------------------
@@ -70,24 +88,23 @@ Route::resource('users', App\Http\Controllers\UserController::class)->middleware
 // Resource route for managing instruction requests (accessible only by authenticated users).
 Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestController::class)->middleware('auth');
 
-// Resource route for managing instruction requests (accessible only by authenticated users).
+// Resource route for managing instruction request details (accessible only by authenticated users).
 Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class)->middleware('auth');
 
-// edit instruction requests
-Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.edit');
+// Edit instruction requests
+Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.edit')->middleware('auth');
 
-// copy instruction requests
-Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy');
+// Copy instruction requests
+Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy')->middleware('auth');
 
-// accept instruction request
-Route::post('/instructionRequests/{id}/accept', [App\Http\Controllers\InstructionRequestController::class, 'accept'])->name('instructionRequests.accept');
+// Accept instruction request
+Route::post('/instructionRequests/{id}/accept', [App\Http\Controllers\InstructionRequestController::class, 'accept'])->name('instructionRequests.accept')->middleware('auth');
 
-// reject instruction request
-Route::post('/instructionRequests/{id}/reject', [App\Http\Controllers\InstructionRequestController::class, 'reject'])->name('instructionRequests.reject');
+// Reject instruction request
+Route::post('/instructionRequests/{id}/reject', [App\Http\Controllers\InstructionRequestController::class, 'reject'])->name('instructionRequests.reject')->middleware('auth');
 
 // Resource route for managing classes
 Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -107,5 +124,3 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
     Route::post('generator_builder/generate-from-file', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile')->name('io_generator_builder_generate_from_file');
 });
-
-

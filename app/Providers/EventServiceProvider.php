@@ -6,7 +6,16 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Slides\Saml2\Events\SignedIn;
+use App\Listeners\Saml2LoginListener;
 
+/**
+ * Class EventServiceProvider
+ *
+ * This service provider handles the registration of event listeners for the application.
+ *
+ * @package App\Providers
+ */
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -17,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        SignedIn::class => [
+            Saml2LoginListener::class,
         ],
     ];
 
