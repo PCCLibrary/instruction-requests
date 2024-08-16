@@ -19,3 +19,6 @@ mix.js('resources/js/app.js', 'public/js')
 mix.js('resources/js/public.js', 'public/js/public.js')
     .sass('resources/sass/public.scss', 'public/css/public.css')
     .sourceMaps();
+
+// copy library styles
+mix.copy('resources/css/styles.css','public/css')

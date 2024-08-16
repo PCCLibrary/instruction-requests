@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Instruction Requests</title>
 
-    <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2019/assets/css/styles.css?ver=6.4.1" type="text/css" media="all">
+{{--    <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2019/assets/css/styles.css" type="text/css" media="all">--}}
+
+    <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
 
     <link href="{{ asset('css/public.css') }}" rel="stylesheet">
 
