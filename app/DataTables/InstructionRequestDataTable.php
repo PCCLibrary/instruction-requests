@@ -11,7 +11,6 @@ use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\DataTables;
 
-
 class InstructionRequestDataTable extends DataTable
 {
     /**
@@ -20,30 +19,24 @@ class InstructionRequestDataTable extends DataTable
      * @param mixed $query Results from query() method.
      * @return DataTableAbstract
      */
-
-    public function dataTable($query)
+    public function dataTable($query): DataTableAbstract
     {
         $dataTable = new EloquentDataTable($query);
 
         return $dataTable
             ->addColumn('action', 'instruction_requests.datatables_actions')
             ->editColumn('instructor_name', function ($row) {
-                // Return instructor name without link
                 return $row->instructor_name;
             })
             ->editColumn('preferred_datetime', function ($row) {
-                // Format the preferred date as "03/27/2024 1:30pm"
                 return Carbon::parse($row->preferred_datetime)->format('m/d/Y g:i a');
             })
             ->editColumn('created_at', function ($row) {
-                // Make 'created_at' the link to edit, formatting date as "03/27/2024 1:30pm"
                 $formattedDate = Carbon::parse($row->created_at)->format('m/d/Y g:i a');
-                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to manage"><i class="fa fa-edit"></i>
-' . $formattedDate . '</a>';
+                return '<a href="' . route('instructionRequests.edit', $row->id) . '" title="click to manage"><i class="fa fa-edit"></i>' . $formattedDate . '</a>';
             })
-            ->rawColumns(['action', 'created_at']); // Updated to include 'created_at' in rawColumns
+            ->rawColumns(['action', 'created_at']);
     }
-
 
     /**
      * Get query source of dataTable.
@@ -70,7 +63,8 @@ class InstructionRequestDataTable extends DataTable
                 'campuses.name as campus_name'
             );
 
-        return DataTables::eloquent($query)
+        // Correct the static call to eloquent()
+        return app('datatables')->eloquent($query)
             ->filterColumn('instructor_name', function ($query, $keyword) {
                 $query->whereRaw("LOWER(instructors.display_name) LIKE ?", ["%{$keyword}%"]);
             })
@@ -83,14 +77,8 @@ class InstructionRequestDataTable extends DataTable
             });
     }
 
-
-
-
-
     /**
      * Optional method if you want to use html builder.
-     *
-     * Builds the DataTable HTML structure including buttons, columns, and other parameters.
      *
      * @return \Yajra\DataTables\Html\Builder
      */
@@ -115,7 +103,6 @@ class InstructionRequestDataTable extends DataTable
 
     /**
      * Get columns.
-     * Defines the columns for the DataTable.
      *
      * @return array
      */
@@ -132,7 +119,6 @@ class InstructionRequestDataTable extends DataTable
             ['name' => 'preferred_datetime', 'title' => 'Preferred Date', 'data' => 'preferred_datetime'],
         ];
     }
-
 
     /**
      * Get filename for export.
