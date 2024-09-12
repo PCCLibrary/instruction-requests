@@ -7,7 +7,6 @@
     "require": {
         "php": "^7.3|^8.0",
         "ext-json": "*",
-        "24slides/laravel-saml2": "^2.4",
         "doctrine/dbal": "~2.3",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -20,6 +19,7 @@
         "laravel/ui": "^3.4",
         "laravelista/comments": "^4.5",
         "livewire/livewire": "^2.12",
+        "onelogin/php-saml": "*",
         "spatie/laravel-medialibrary": "^9.12",
         "yajra/laravel-datatables-buttons": "*",
         "yajra/laravel-datatables-html": "*",

@@ -188,9 +188,10 @@ class InstructionRequest extends Model implements HasMedia
     /**
      * Get the validation rules that apply to the request.
      *
+     * @param Request $request
      * @return array
      */
-    public function rules(Request $request): array
+    public static function rules(Request $request): array
     {
         $rules = [
             'librarian_id' => 'exists:users,id',

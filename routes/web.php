@@ -4,8 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicInstructionRequestController;
-//use App\Http\Controllers\UploadController;
-use Slides\Saml2\Http\Controllers\Saml2Controller;
+use App\Http\Controllers\SamlController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,21 +36,18 @@ Route::post('instruction-requests', [PublicInstructionRequestController::class, 
 | SAML Authentication Routes
 |--------------------------------------------------------------------------
 |
-| Routes for SAML authentication using 24Slides\laravel-saml2.
+| Routes for SAML authentication using your custom SamlController.
 |
 */
 
 // Initiate the SAML login
-Route::get('/saml2/login', [Saml2Controller::class, 'login'])->name('saml2.login');
+Route::get('/saml2/login', [SamlController::class, 'login'])->name('saml2.login');
+
+// SAML ACS endpoint (handles SAML response)
+Route::post('/saml2/acs', [SamlController::class, 'acs'])->name('saml2.acs');
 
 // SAML logout
-Route::get('/saml2/logout', [Saml2Controller::class, 'logout'])->name('saml2.logout');
-
-// SAML ACS endpoint
-Route::post('/saml2/acs', [Saml2Controller::class, 'acs'])->name('saml2.acs');
-
-// SAML SLS endpoint
-Route::get('/saml2/sls', [Saml2Controller::class, 'sls'])->name('saml2.sls');
+Route::get('/saml2/logout', [SamlController::class, 'logout'])->name('saml2.logout');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,23 +72,23 @@ Auth::routes();
 // Home/dashboard page for authenticated users.
 Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Resource route for managing instructors (accessible only by authenticated users).
+// Resource route for managing instructors (authenticated users only).
 Route::resource('instructors', App\Http\Controllers\InstructorController::class)->middleware('auth');
 
-// Resource route for managing campuses (accessible only by authenticated users).
+// Resource route for managing campuses (authenticated users only).
 Route::resource('campuses', App\Http\Controllers\CampusController::class)->middleware('auth');
 
-// Resource route for managing users (accessible only by authenticated users).
+// Resource route for managing users (authenticated users only).
 Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
 
-// Resource route for managing instruction requests (accessible only by authenticated users).
+// Resource route for managing instruction requests (authenticated users only).
 Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestController::class)->middleware('auth');
 
-// Resource route for managing instruction request details (accessible only by authenticated users).
+// Resource route for managing instruction request details (authenticated users only).
 Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class)->middleware('auth');
 
 // Edit instruction requests
-Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.edit')->middleware('auth');
+Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'edit'])->name('instructionRequests.edit')->middleware('auth');
 
 // Copy instruction requests
 Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy')->middleware('auth');
@@ -111,8 +107,7 @@ Route::resource('classes', App\Http\Controllers\ClassesController::class)->middl
 | InfyOm Generator Builder Routes
 |--------------------------------------------------------------------------
 |
-| Routes for the InfyOm Generator Builder which is a tool to generate files
-| like models, controllers, views, etc., for your CRUD applications.
+| Routes for the InfyOm Generator Builder, which generates CRUD files.
 |
 */
 
