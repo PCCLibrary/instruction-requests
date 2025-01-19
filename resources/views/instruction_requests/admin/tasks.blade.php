@@ -13,7 +13,7 @@
         </select>
     </li>
     <li>
-        <x-textarea
+        <x-input-textarea
             name="other_describe"
             label="Describe Other"
             :value="$instructionRequest->detail->other_describe"

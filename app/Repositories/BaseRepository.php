@@ -2,103 +2,98 @@
 
 namespace App\Repositories;
 
-use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\App;
 
 abstract class BaseRepository
 {
     /**
      * @var Model
      */
-    protected $model;
+    protected Model $model;
 
     /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
-     * @param Application $app
+     * BaseRepository constructor.
      *
      * @throws \Exception
      */
-    public function __construct(Application $app)
+    public function __construct()
     {
-        $this->app = $app;
         $this->makeModel();
     }
 
     /**
-     * Get searchable fields array
-     *
-     * @return array
-     */
-    abstract public function getFieldsSearchable();
-
-    /**
-     * Configure the Model
+     * Define the model class used by the repository.
      *
      * @return string
      */
-    abstract public function model();
+    abstract public function model(): string;
 
     /**
-     * Make Model instance
+     * Define the searchable fields for the repository.
+     *
+     * @return array
+     */
+    abstract public function getFieldsSearchable(): array;
+
+    /**
+     * Instantiate and assign the model.
      *
      * @throws \Exception
-     *
-     * @return Model
      */
-    public function makeModel()
+    public function makeModel(): void
     {
-        $model = $this->app->make($this->model());
+        $model = App::make($this->model());
 
         if (!$model instanceof Model) {
-            throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
+            $class = $this->model();
+            throw new \Exception("Class {$class} must be an instance of Illuminate\\Database\\Eloquent\\Model.");
         }
 
-        return $this->model = $model;
+        $this->model = $model;
     }
 
     /**
-     * Paginate records for scaffold.
+     * Retrieve all records with optional filtering, skipping, and limiting.
      *
-     * @param int $perPage
+     * @param array $filters
+     * @param int|null $skip
+     * @param int|null $limit
      * @param array $columns
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function paginate($perPage, $columns = ['*'])
+    public function all(array $filters = [], int $skip = null, int $limit = null, array $columns = ['*'])
     {
-        $query = $this->allQuery();
-
-        return $query->paginate($perPage, $columns);
+        $query = $this->allQuery($filters, $skip, $limit);
+        return $query->get($columns);
     }
 
     /**
-     * Build a query for retrieving all records.
+     * Build a query for retrieving filtered records.
      *
-     * @param array $search
+     * @param array $filters
      * @param int|null $skip
      * @param int|null $limit
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function allQuery($search = [], $skip = null, $limit = null)
+    public function allQuery(array $filters = [], int $skip = null, int $limit = null)
     {
         $query = $this->model->newQuery();
 
-        if (count($search)) {
-            foreach($search as $key => $value) {
-                if (in_array($key, $this->getFieldsSearchable())) {
-                    $query->where($key, $value);
+        // Apply filters on searchable fields
+        if (!empty($filters)) {
+            foreach ($filters as $field => $value) {
+                if (in_array($field, $this->getFieldsSearchable(), true)) {
+                    $query->where($field, $value);
                 }
             }
         }
 
+        // Apply skip and limit
         if (!is_null($skip)) {
             $query->skip($skip);
         }
-
         if (!is_null($limit)) {
             $query->limit($limit);
         }
@@ -107,87 +102,77 @@ abstract class BaseRepository
     }
 
     /**
-     * Retrieve all records with given filter criteria
+     * Paginate the records.
      *
-     * @param array $search
-     * @param int|null $skip
-     * @param int|null $limit
+     * @param int $perPage
+     * @param array $filters
      * @param array $columns
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return LengthAwarePaginator
      */
-    public function all($search = [], $skip = null, $limit = null, $columns = ['*'])
+    public function paginate(int $perPage = 10, array $filters = [], array $columns = ['*']): LengthAwarePaginator
     {
-        $query = $this->allQuery($search, $skip, $limit);
-
-        return $query->get($columns);
+        $query = $this->allQuery($filters);
+        return $query->paginate($perPage, $columns);
     }
 
     /**
-     * Create model record
+     * Find a record by its ID.
      *
-     * @param array $input
+     * @param int $id
+     * @param array $columns
+     * @return Model|null
+     */
+    public function find(int $id, array $columns = ['*']): ?Model
+    {
+        return $this->model->find($id, $columns);
+    }
+
+    /**
+     * Find a record by its ID or throw an exception.
      *
+     * @param int $id
+     * @param array $columns
      * @return Model
      */
-    public function create($input)
+    public function findOrFail(int $id, array $columns = ['*']): Model
     {
-        $model = $this->model->newInstance($input);
-
-        $model->save();
-
-        return $model;
+        return $this->model->findOrFail($id, $columns);
     }
 
     /**
-     * Find model record for given id
+     * Create a new record in the model.
      *
-     * @param int $id
-     * @param array $columns
-     *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
+     * @param array $data
+     * @return Model
      */
-    public function find($id, $columns = ['*'])
+    public function create(array $data): Model
     {
-        $query = $this->model->newQuery();
-
-        return $query->find($id, $columns);
+        return $this->model->create($data);
     }
 
     /**
-     * Update model record for given id
+     * Update an existing record by its ID.
      *
-     * @param array $input
+     * @param array $data
      * @param int $id
-     *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model
+     * @return Model
      */
-    public function update($input, $id)
+    public function update(array $data, int $id): Model
     {
-        $query = $this->model->newQuery();
-
-        $model = $query->findOrFail($id);
-
-        $model->fill($input);
-
-        $model->save();
-
-        return $model;
+        $record = $this->findOrFail($id);
+        $record->update($data);
+        return $record;
     }
 
     /**
+     * Delete a record by its ID.
+     *
      * @param int $id
-     *
-     * @throws \Exception
-     *
-     * @return bool|mixed|null
+     * @return bool|null
      */
-    public function delete($id)
+    public function delete(int $id): ?bool
     {
-        $query = $this->model->newQuery();
-
-        $model = $query->findOrFail($id);
-
-        return $model->delete();
+        $record = $this->findOrFail($id);
+        return $record->delete();
     }
 }

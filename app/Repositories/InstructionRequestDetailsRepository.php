@@ -3,21 +3,19 @@
 namespace App\Repositories;
 
 use App\Models\InstructionRequestDetails;
-use App\Repositories\BaseRepository;
-
-/**
- * Class InstructionRequestDetailsRepository
- * @package App\Repositories
- * @version February 26, 2024, 10:37 pm UTC
-*/
 
 class InstructionRequestDetailsRepository extends BaseRepository
 {
     /**
      * @var array
      */
-    protected $fieldSearchable = [
+    protected array $fieldSearchable = [
+        'instruction_request_id',
         'assigned_librarian_id',
+        'instruction_duration',
+        'instruction_datetime',
+        'created_by',
+        'last_updated_by'
     ];
 
     /**
@@ -25,15 +23,17 @@ class InstructionRequestDetailsRepository extends BaseRepository
      *
      * @return array
      */
-    public function getFieldsSearchable()
+    public function getFieldsSearchable(): array
     {
         return $this->fieldSearchable;
     }
 
     /**
      * Configure the Model
-     **/
-    public function model()
+     *
+     * @return string
+     */
+    public function model(): string
     {
         return InstructionRequestDetails::class;
     }

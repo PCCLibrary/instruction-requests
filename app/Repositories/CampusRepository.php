@@ -3,39 +3,36 @@
 namespace App\Repositories;
 
 use App\Models\Campus;
-use App\Repositories\BaseRepository;
-
-/**
- * Class CampusRepository
- * @package App\Repositories
- * @version February 1, 2024, 11:27 pm UTC
-*/
 
 class CampusRepository extends BaseRepository
 {
     /**
-     * @var array
-     */
-    protected $fieldSearchable = [
-        'name',
-        'code'
-    ];
-
-    /**
-     * Return searchable fields
+     * Define the model associated with the repository.
      *
-     * @return array
+     * @return string
      */
-    public function getFieldsSearchable()
+    public function model(): string
     {
-        return $this->fieldSearchable;
+        return Campus::class;
     }
 
     /**
-     * Configure the Model
-     **/
-    public function model()
+     * Define the searchable fields for the repository.
+     *
+     * @return array
+     */
+    public function getFieldsSearchable(): array
     {
-        return Campus::class;
+        return ['name', 'code'];
+    }
+
+    /**
+     * Fetch campuses with their associated librarians.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getWithLibrarians(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->model->with('librarians')->get();
     }
 }

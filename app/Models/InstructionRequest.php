@@ -2,74 +2,39 @@
 
 namespace App\Models;
 
-use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\InstructionRequestDetails;
-use Illuminate\Http\Request;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Http\Request;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
-use Laravelista\Comments\Commentable;
-
+use LakM\Comments\Concerns\Commentable;
+use LakM\Comments\Contracts\CommentableContract;
 
 /**
  * Class InstructionRequest
- * @package App\Models
- * @version February 26, 2024
+ * Represents an instruction request in the system.
  *
- * @property Instructor $Instructor
- * @property Campus $campus
- * @property string $instruction_type
- * @property int $librarian_id
- * @property int $campus_id
- * @property string $department
- * @property string $course_number
- * @property string $course_crn
- * @property integer $number_of_students
- * @property array $class_syllabus,
- * @property string $class_description,
- * @property array $instructor_attachments,
- * @property string $assignment_description,
- * @property boolean $ada_provisions_needed
- * @property string $ada_provisions_description
- * @property datetime $preferred_datetime
- * @property datetime $alternate_datetime
- * @property string $duration
- * @property datetime $asynchronous_instruction_ready_date
- * @property string $extra_time_with_class
- * @property string $learning_outcomes
- * @property boolean $received_assignment
- * @property boolean $selected_topics
- * @property boolean $explored_background
- * @property boolean $written_draft
- * @property boolean $other_learning_outcome
- * @property string $other_learning_outcome_description
- * @property string $desired_student_outcomes
- * @property string $genai_discussion_interest
- * @property string $other_notes
- * @property string $status
-
+ * @package App\Models
  */
-class InstructionRequest extends Model implements HasMedia
+class InstructionRequest extends Model implements HasMedia, CommentableContract
 {
-    use SoftDeletes, InteractsWithMedia, Commentable;
+    use SoftDeletes, InteractsWithMedia, Commentable, HasFactory;
 
     /**
-     * @var string
+     * @var string Table name
      */
-    public $table = 'instruction_requests';
+    protected $table = 'instruction_requests';
 
     /**
-     * @var string[]
+     * @var string[] Dates for soft deletes and casting
      */
     protected $dates = ['deleted_at'];
 
     /**
-     * @var string[]
+     * @var string[] Mass-assignable attributes
      */
     protected $fillable = [
         'instruction_type',
@@ -101,14 +66,13 @@ class InstructionRequest extends Model implements HasMedia
         'desired_student_outcomes',
         'genai_discussion_interest',
         'other_notes',
-        'status'
+        'status',
     ];
 
     /**
-     * @var string[]
+     * @var string[] Attribute casting
      */
     protected $casts = [
-        'id' => 'integer',
         'instruction_type' => 'string',
         'librarian_id' => 'integer',
         'campus_id' => 'integer',
@@ -141,8 +105,9 @@ class InstructionRequest extends Model implements HasMedia
     ];
 
     // Define relationships
+
     /**
-     * Get the instruction request detail associated with the instruction request
+     * Get the detail associated with the instruction request.
      *
      * @return HasOne
      */
@@ -151,16 +116,19 @@ class InstructionRequest extends Model implements HasMedia
         return $this->hasOne(InstructionRequestDetails::class);
     }
 
-
     /**
+     * Get the instructor associated with the instruction request.
+     *
      * @return BelongsTo
      */
-    public function instructor()
+    public function instructor(): BelongsTo
     {
         return $this->belongsTo(Instructor::class, 'instructor_id');
     }
 
     /**
+     * Get the campus associated with the instruction request.
+     *
      * @return BelongsTo
      */
     public function campus(): BelongsTo
@@ -169,6 +137,8 @@ class InstructionRequest extends Model implements HasMedia
     }
 
     /**
+     * Get the librarian associated with the instruction request.
+     *
      * @return BelongsTo
      */
     public function librarian(): BelongsTo
@@ -177,6 +147,8 @@ class InstructionRequest extends Model implements HasMedia
     }
 
     /**
+     * Get the class associated with the instruction request.
+     *
      * @return BelongsTo
      */
     public function classes(): BelongsTo
@@ -184,9 +156,8 @@ class InstructionRequest extends Model implements HasMedia
         return $this->belongsTo(Classes::class, 'class_id');
     }
 
-
     /**
-     * Get the validation rules that apply to the request.
+     * Validation rules for instruction requests.
      *
      * @param Request $request
      * @return array
@@ -194,7 +165,7 @@ class InstructionRequest extends Model implements HasMedia
     public static function rules(Request $request): array
     {
         $rules = [
-            'librarian_id' => 'exists:users,id',
+            'librarian_id' => 'nullable|exists:users,id',
             'campus_id' => 'required|exists:campuses,id',
             'instruction_type' => 'required|string',
             'department' => 'nullable|string',
@@ -211,7 +182,6 @@ class InstructionRequest extends Model implements HasMedia
             'alternate_datetime' => 'nullable|date',
             'duration' => 'nullable|string',
             'asynchronous_instruction_ready_date' => 'nullable|date',
-            'need_extra_time' => 'boolean',
             'extra_time_with_class' => 'nullable|string',
             'received_assignment' => 'boolean',
             'selected_topics' => 'boolean',
@@ -222,34 +192,10 @@ class InstructionRequest extends Model implements HasMedia
             'library_instruction_description' => 'nullable|string',
         ];
 
-        if ($request->method() === 'POST') {
-            $rules += [
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'display_name' => 'nullable|string|max:255',
-                'pronouns' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:255',
-            ];
-        }
-
-        if ($request->method() === 'PUT' || $request->method() === 'PATCH') {
-            $rules['librarian_id'] = 'required|exists:users,id';
-            $rules['instructor_id'] = 'required|exists:instructors,id';
-            $rules['instruction_request_id'] = 'required|exists:instruction_requests,id';
-            $rules = self::mergeDetailRules($rules, $request);
-        }
-
         // Apply conditional rules based on instruction type
-        $instructionType = $request->input('instruction_type');
-        switch ($instructionType) {
+        switch ($request->input('instruction_type')) {
             case 'on-campus':
-                $rules['librarian_id'] = 'required|exists:users,id';
-                $rules['number_of_students'] = 'required|integer';
-                $rules['preferred_datetime'] = 'required|date';
-                $rules['duration'] = 'required|string';
-                break;
             case 'remote':
-                $rules['librarian_id'] = 'required|exists:users,id';
                 $rules['preferred_datetime'] = 'required|date';
                 $rules['duration'] = 'required|string';
                 break;
@@ -260,25 +206,4 @@ class InstructionRequest extends Model implements HasMedia
 
         return $rules;
     }
-
-
-    /**
-     * Merge the detail rules for the edit operation.
-     *
-     * @param array $rules
-     * @param Request $request
-     * @return array
-     */
-    private static function mergeDetailRules(array $rules, Request $request): array
-    {
-        // Create an instance of InstructionRequestDetails
-        $instructionRequestDetails = new InstructionRequestDetails;
-
-        // Get the detail rules
-        $detailRules = $instructionRequestDetails::getRules($request);
-
-        // Merge the detail rules
-        return array_merge($rules, $detailRules);
-    }
-
 }

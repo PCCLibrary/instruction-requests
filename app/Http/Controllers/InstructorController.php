@@ -2,41 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\InstructorDataTable;
-use App\Http\Requests;
-use App\Http\Requests\CreateInstructorRequest;
-use App\Http\Requests\UpdateinstructorRequest;
-use App\Repositories\IRinstructorRepository;
-use Laracasts\Flash\Flash;
-use App\Http\Controllers\AppBaseController;
-use Illuminate\Http\Response;
+use App\Repositories\IRinstructorRepository; // Injected repository
+use Illuminate\Http\Request;
 
-class InstructorController extends AppBaseController
+class InstructorController extends Controller
 {
-    /** @var IRinstructorRepository $InstructorRepository*/
-    private $InstructorRepository;
-
-    public function __construct(IRinstructorRepository $InstructorRepo)
-    {
-        $this->InstructorRepository = $InstructorRepo;
-    }
-
     /**
-     * Display a listing of the Instructor.
-     *
-     * @param InstructorDataTable $instructorDataTable
-     *
-     * @return Response
+     * The instructor repository instance.
      */
-    public function index(InstructorDataTable $instructorDataTable)
+    protected IRinstructorRepository $repository;
+
+    /**
+     * Constructor to inject the repository.
+     */
+    public function __construct(IRinstructorRepository $repository)
     {
-        return $instructorDataTable->render('instructors.index');
+        $this->repository = $repository;
     }
 
     /**
-     * Show the form for creating a new Instructor.
-     *
-     * @return Response
+     * Display a listing of the instructors.
+     */
+    public function index(Request $request)
+    {
+        // Use pagination via the repository with optional filters
+        $filters = $request->only($this->repository->getFieldsSearchable());
+        $instructors = $this->repository->paginate(10, $filters);
+
+        return view('instructors.index', compact('instructors'));
+    }
+
+    /**
+     * Show the form for creating a new instructor.
      */
     public function create()
     {
@@ -44,121 +41,54 @@ class InstructorController extends AppBaseController
     }
 
     /**
-     * Store a newly created Instructor in storage.
-     *
-     * @param CreateInstructorRequest $request
-     *
-     * @return Response
+     * Store a new instructor in the database.
      */
-    public function store(CreateInstructorRequest $request)
+    public function store(Request $request)
     {
-        $input = $request->all();
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:instructors,email',
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-        // Set display_name to name if display_name is empty
-        if (empty($input['display_name'])) {
-            $input['display_name'] = $input['name'];
-        }
+        $this->repository->create($validatedData);
 
-        $instructor = $this->InstructorRepository->create($input);
-
-        Flash::success('Instructor saved successfully.');
-
-        return redirect(route('instructors.index'));
+        return redirect()->route('instructors.index')->with('success', 'Instructor created successfully.');
     }
 
     /**
-     * Display the specified Instructor.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function show($id)
-    {
-        $instructor = $this->InstructorRepository->find($id);
-
-        if (empty($instructor)) {
-            Flash::error('Instructor not found');
-
-            return redirect(route('instructors.index'));
-        }
-
-        return view('instructors.show')->with('Instructor', $instructor);
-    }
-
-    /**
-     * Show the form for editing the specified Instructor.
-     *
-     * @param int $id
-     *
-     * @return Response
+     * Show the form for editing the specified instructor.
      */
     public function edit($id)
     {
-        $instructor = $this->InstructorRepository->find($id);
+        $instructor = $this->repository->find($id);
 
-        if (empty($instructor)) {
-            Flash::error('Instructor not found');
-
-            return redirect(route('instructors.index'));
-        }
-
-        return view('instructors.edit')->with('Instructor', $instructor);
+        return view('instructors.edit', compact('instructor'));
     }
 
     /**
-     * Update the specified Instructor in storage.
-     *
-     * @param int $id
-     * @param UpdateinstructorRequest $request
-     *
-     * @return Response
+     * Update a specific instructor.
      */
-    public function update($id, UpdateinstructorRequest $request)
+    public function update(Request $request, $id)
     {
-        $instructor = $this->InstructorRepository->find($id);
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:instructors,email,' . $id,
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-        if (empty($instructor)) {
-            Flash::error('Instructor not found');
+        $this->repository->update($validatedData, $id);
 
-            return redirect(route('instructors.index'));
-        }
-
-        $input = $request->all();
-
-        // Set display_name to name if display_name is empty
-        if (empty($input['display_name'])) {
-            $input['display_name'] = $input['name'];
-        }
-
-        $instructor = $this->InstructorRepository->update($input, $id);
-
-        Flash::success('Instructor updated successfully.');
-
-        return redirect(route('instructors.index'));
+        return redirect()->route('instructors.index')->with('success', 'Instructor updated successfully.');
     }
 
     /**
-     * Remove the specified Instructor from storage.
-     *
-     * @param int $id
-     *
-     * @return Response
+     * Remove the specified instructor.
      */
     public function destroy($id)
     {
-        $instructor = $this->InstructorRepository->find($id);
+        $this->repository->delete($id);
 
-        if (empty($instructor)) {
-            Flash::error('Instructor not found');
-
-            return redirect(route('instructors.index'));
-        }
-
-        $this->InstructorRepository->delete($id);
-
-        Flash::success('Instructor deleted successfully.');
-
-        return redirect(route('instructors.index'));
+        return redirect()->route('instructors.index')->with('success', 'Instructor deleted successfully.');
     }
 }

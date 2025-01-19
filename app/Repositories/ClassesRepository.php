@@ -3,20 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Classes;
-use App\Repositories\BaseRepository;
-
-/**
- * Class ClassesRepository
- * @package App\Repositories
- * @version February 26, 2024, 7:59 pm UTC
-*/
 
 class ClassesRepository extends BaseRepository
 {
     /**
      * @var array
      */
-    protected $fieldSearchable = [
+    protected array $fieldSearchable = [
         'department_code',
         'course_number',
         'course_name'
@@ -27,15 +20,17 @@ class ClassesRepository extends BaseRepository
      *
      * @return array
      */
-    public function getFieldsSearchable()
+    public function getFieldsSearchable(): array
     {
         return $this->fieldSearchable;
     }
 
     /**
      * Configure the Model
-     **/
-    public function model()
+     *
+     * @return string
+     */
+    public function model(): string
     {
         return Classes::class;
     }

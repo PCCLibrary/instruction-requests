@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\InstructionRequestDataTable;
 use App\Http\Requests\CreateInstructionRequestRequest;
 use App\Http\Requests\UpdateInstructionRequestRequest;
 use App\Models\Campus;
@@ -13,57 +12,25 @@ use App\Models\User;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use App\Services\NotificationService;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Laracasts\Flash\Flash;
-use Throwable;
-use Exception;
 
-/**
- * Class InstructionRequestController
- * @package App\Http\Controllers
- */
 class InstructionRequestController extends AppBaseController
 {
-    /** @var InstructionRequestService $instructionRequestService */
-    private $instructionRequestService;
-
-    /** @var DepartmentService $departmentService */
-    private $departmentService;
-
-    /** @var NotificationService $notificationService */
-    private $notificationService;
-
-    /**
-     * InstructionRequestController constructor.
-     *
-     * @param InstructionRequestService $instructionRequestService
-     * @param DepartmentService $departmentService
-     * @param NotificationService $notificationService
-     */
     public function __construct(
-        InstructionRequestService $instructionRequestService,
-        DepartmentService $departmentService,
-        NotificationService $notificationService
-    ) {
-        $this->instructionRequestService = $instructionRequestService;
-        $this->departmentService = $departmentService;
-        $this->notificationService = $notificationService;
-    }
+        private readonly InstructionRequestService $instructionRequestService,
+        private readonly DepartmentService $departmentService,
+        private readonly NotificationService $notificationService
+    ) {}
 
     /**
-     * Display a listing of the InstructionRequests.
+     * Display a listing of the InstructionRequests with Livewire PowerTable.
      *
-     * @param InstructionRequestDataTable $instructionRequestDataTable
-     * @return Response
+     * @return View
      */
-    public function index(InstructionRequestDataTable $instructionRequestDataTable)
+    public function index(): View
     {
-        return $instructionRequestDataTable->render('instruction_requests.index');
+        return view('instruction_requests.index');
     }
 
     /**
@@ -71,33 +38,28 @@ class InstructionRequestController extends AppBaseController
      *
      * @return View
      */
-    public function create()
+    public function create(): View
     {
-        $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::where('is_admin', false)->get();
-        $campuses = Campus::all();
-        $instructors = Instructor::all();
-
         return view('instruction_requests.create')
-            ->with('instructionRequest', null)
-            ->with('librarians', $librarians)
-            ->with('campuses', $campuses)
-            ->with('instructors', $instructors)
-            ->with('departments', $departments);
+            ->with([
+                'instructionRequest' => null,
+                'librarians' => User::where('is_admin', false)->get(),
+                'campuses' => Campus::all(),
+                'instructors' => Instructor::all(),
+                'departments' => $this->departmentService->getAllDepartments()
+            ]);
     }
 
     /**
      * Store a newly created InstructionRequest in storage.
      *
      * @param CreateInstructionRequestRequest $request
-     * @return Application|RedirectResponse|Redirector
-     * @throws Throwable
+     * @return RedirectResponse
      */
-    public function store(CreateInstructionRequestRequest $request)
+    public function store(CreateInstructionRequestRequest $request): RedirectResponse
     {
         try {
             $input = $request->except(['class_syllabus', 'instructor_attachments']);
-
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
             // Fetch related data and append to the instruction request object
@@ -106,11 +68,10 @@ class InstructionRequestController extends AppBaseController
             // Notify based on the status
             $this->notificationService->notifyBasedOnStatus($instructionRequest);
 
-            Flash::success('Instruction Request saved successfully.');
-
-            return redirect(route('instructionRequests.index'))->withInput();
-        } catch (Exception $e) {
-            Flash::error('Instruction Request not saved.');
+            flash('Instruction Request saved successfully.')->success();
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            flash('Instruction Request not saved.')->error();
             return redirect(route('instructionRequests.index'))
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
@@ -121,37 +82,28 @@ class InstructionRequestController extends AppBaseController
      * Display the specified InstructionRequest.
      *
      * @param int $id
-     * @return View
+     * @return View|RedirectResponse
      */
-    public function show($id)
+    public function show(int $id): View|RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
-            Flash::error('Instruction Request not found');
+            flash('Instruction Request not found')->error();
             return redirect(route('instructionRequests.index'));
         }
 
-        $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::where('is_admin', false)->get();
-        $campuses = Campus::all();
-        $instructors = Instructor::all();
-
-        $syllabus = $instructionRequest->getMedia('syllabus');
-        $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
-        $assessments = $instructionRequest->getMedia('assessments');
-        $materials = $instructionRequest->getMedia('materials');
-
-        return view('instruction_requests.show')
-            ->with('instructorAttachments', $instructorAttachments)
-            ->with('syllabus', $syllabus)
-            ->with('assessments', $assessments)
-            ->with('materials', $materials)
-            ->with('instructionRequest', $instructionRequest)
-            ->with('librarians', $librarians)
-            ->with('campuses', $campuses)
-            ->with('instructors', $instructors)
-            ->with('departments', $departments);
+        return view('instruction_requests.show')->with([
+            'instructionRequest' => $instructionRequest,
+            'librarians' => User::where('is_admin', false)->get(),
+            'campuses' => Campus::all(),
+            'instructors' => Instructor::all(),
+            'departments' => $this->departmentService->getAllDepartments(),
+            'syllabus' => $instructionRequest->getMedia('syllabus'),
+            'instructorAttachments' => $instructionRequest->getMedia('instructor_attachments'),
+            'assessments' => $instructionRequest->getMedia('assessments'),
+            'materials' => $instructionRequest->getMedia('materials')
+        ]);
     }
 
     /**
@@ -160,34 +112,26 @@ class InstructionRequestController extends AppBaseController
      * @param int $id
      * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit(int $id): View|RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
         if (empty($instructionRequest)) {
-            Flash::error('Instruction Request not found');
+            flash('Instruction Request not found')->error();
             return redirect(route('instructionRequests.index'));
         }
 
-        $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::where('is_admin', false)->get();
-        $campuses = Campus::all();
-        $instructors = Instructor::all();
-
-        $syllabus = $instructionRequest->getMedia('syllabus');
-        $instructorAttachments = $instructionRequest->getMedia('instructor_attachments');
-        $assessments = $instructionRequest->getMedia('assessments');
-        $materials = $instructionRequest->getMedia('materials');
-
-        return view('instruction_requests.edit')
-            ->with('instructorAttachments', $instructorAttachments)
-            ->with('syllabus', $syllabus)
-            ->with('assessments', $assessments)
-            ->with('materials', $materials)
-            ->with('instructionRequest', $instructionRequest)
-            ->with('librarians', $librarians)
-            ->with('campuses', $campuses)
-            ->with('instructors', $instructors)
-            ->with('departments', $departments);
+        return view('instruction_requests.edit')->with([
+            'instructionRequest' => $instructionRequest,
+            'librarians' => User::where('is_admin', false)->get(),
+            'campuses' => Campus::all(),
+            'instructors' => Instructor::all(),
+            'departments' => $this->departmentService->getAllDepartments(),
+            'syllabus' => $instructionRequest->getMedia('syllabus'),
+            'instructorAttachments' => $instructionRequest->getMedia('instructor_attachments'),
+            'assessments' => $instructionRequest->getMedia('assessments'),
+            'materials' => $instructionRequest->getMedia('materials')
+        ]);
     }
 
     /**
@@ -197,29 +141,42 @@ class InstructionRequestController extends AppBaseController
      * @param UpdateInstructionRequestRequest $request
      * @return RedirectResponse
      */
-    public function update(int $id, UpdateInstructionRequestRequest $request)
+    public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
-            Flash::error('Instruction Request not found');
-            return redirect(route('instructionRequests.index'))->with('error', 'Instruction Request not found.');
+            flash('Instruction Request not found')->error();
+            return redirect(route('instructionRequests.index'));
         }
 
         try {
-            $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
-        } catch (Exception $e) {
-            Flash::error('Error updating Instruction Request: ' . $e->getMessage());
+            $this->instructionRequestService->updateInstructionRequest($request->validated(), $id);
+            flash('Instruction Request updated successfully.')->success();
+        } catch (\Exception $e) {
+            flash('Error updating Instruction Request: ' . $e->getMessage())->error();
             return redirect(route('instructionRequests.index'))->withErrors(['error' => $e->getMessage()]);
         }
 
-        // Fetch related data and append to the instruction request object
-        $instructionRequest = $this->appendAdditionalData($instructionRequest);
+        return redirect(route('instructionRequests.edit', $id));
+    }
 
-        // Notify based on the status
-        $this->notificationService->notifyBasedOnStatus($instructionRequest);
+    /**
+     * Remove the specified InstructionRequest from storage.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function destroy(int $id): RedirectResponse
+    {
+        try {
+            $this->instructionRequestService->deleteInstructionRequest($id);
+            flash('Instruction Request deleted successfully.')->success();
+        } catch (\Exception $e) {
+            flash('Error deleting Instruction Request: ' . $e->getMessage())->error();
+        }
 
-        return redirect(route('instructionRequests.edit', $id))->with('success', 'Instruction Request updated.');
+        return redirect(route('instructionRequests.index'));
     }
 
     /**
@@ -228,12 +185,13 @@ class InstructionRequestController extends AppBaseController
      * @param int $id
      * @return RedirectResponse
      */
-    public function copy(int $id)
+    public function copy(int $id): RedirectResponse
     {
         $originalRequest = InstructionRequest::with('detail')->find($id);
 
         if (!$originalRequest) {
-            abort(404, 'Instruction Request not found');
+            flash('Instruction Request not found')->error();
+            return redirect(route('instructionRequests.index'));
         }
 
         $newRequest = $originalRequest->replicate();
@@ -244,9 +202,8 @@ class InstructionRequestController extends AppBaseController
         $newDetails->instruction_request_id = $newRequest->id;
         $newDetails->push();
 
-        Flash::success('Instruction Request copied successfully.');
-
-        return redirect()->route('instructionRequests.edit', $newRequest->id)->with('success', 'Instruction Request duplicated successfully');
+        flash('Instruction Request copied successfully.')->success();
+        return redirect(route('instructionRequests.edit', $newRequest->id));
     }
 
     /**
@@ -255,12 +212,11 @@ class InstructionRequestController extends AppBaseController
      * @param int $id
      * @return RedirectResponse
      */
-    public function accept($id)
+    public function accept(int $id): RedirectResponse
     {
-        $this->instructionRequestService->acceptRequest($id, auth()->user()->id);
-        Flash::success('Instruction Request accepted.');
-
-        return redirect()->route('instructionRequests.edit', $id)->with('status', 'Request accepted.');
+        $this->instructionRequestService->acceptRequest($id, auth()->id());
+        flash('Instruction Request accepted.')->success();
+        return redirect(route('instructionRequests.edit', $id));
     }
 
     /**
@@ -269,13 +225,12 @@ class InstructionRequestController extends AppBaseController
      * @param int $id
      * @return RedirectResponse
      */
-    public function reject(int $id)
+    public function reject(int $id): RedirectResponse
     {
         $this->instructionRequestService->rejectRequest($id);
-        Flash::info('Instruction Request rejected.');
-        return redirect()->route('instructionRequests.edit', $id)->with('status', 'Request rejected.');
+        flash('Instruction Request rejected.')->info();
+        return redirect(route('instructionRequests.edit', $id));
     }
-
 
     /**
      * Fetch related data for the instruction request and append to the object.
@@ -283,34 +238,18 @@ class InstructionRequestController extends AppBaseController
      * @param InstructionRequest $instructionRequest
      * @return InstructionRequest
      */
-    protected function appendAdditionalData($instructionRequest)
+    protected function appendAdditionalData(InstructionRequest $instructionRequest): InstructionRequest
     {
         $instructor = Instructor::find($instructionRequest->instructor_id);
         $class = Classes::find($instructionRequest->class_id);
         $campus = Campus::find($instructionRequest->campus_id);
         $librarian = User::find($instructionRequest->librarian_id);
 
-        $instructionRequest->instructor_name = $instructor->display_name ?? null;
-        $instructionRequest->course_name = $class->course_name ?? null;
-        $instructionRequest->campus_name = $campus->name ?? null;
-        $instructionRequest->librarian_name = $librarian->display_name ?? null;
+        $instructionRequest->instructor_name = $instructor?->display_name;
+        $instructionRequest->course_name = $class?->course_name;
+        $instructionRequest->campus_name = $campus?->name;
+        $instructionRequest->librarian_name = $librarian?->display_name;
 
         return $instructionRequest;
-    }
-
-    /**
-     * Remove the specified InstructionRequest from storage.
-     *
-     * @param int $id
-     * @return RedirectResponse
-     * @throws Exception
-     */
-    public function destroy(int $id)
-    {
-        $this->instructionRequestService->deleteInstructionRequest($id);
-
-        Flash::success('Instruction Request deleted successfully.');
-
-        return redirect(route('instructionRequests.index'));
     }
 }

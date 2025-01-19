@@ -3,59 +3,63 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
-/**
- * Class Campus
- * @package App\Models
- * @version February 1, 2024, 11:27 pm UTC
- *
- * @property string $name
- * @property string $code
- * @property string $gcal
- */
 class Campus extends Model
 {
     use SoftDeletes;
 
-
+    // Define table name
     public $table = 'campuses';
 
+    // Enable soft delete timestamps
     protected $dates = ['deleted_at'];
 
-
-    public $fillable = [
+    // Mass assignable fields
+    protected $fillable = [
         'name',
         'code',
         'gcal',
-        'librarian_ids' // Ensure this is fillable if you're planning to mass assign.
-
+        'librarian_ids', // Ensure this aligns with the database schema
     ];
 
-    /**
-     * The attributes that should be casted to native types.
-     *
-     * @var array
-     */
+    // Cast attributes to specific data types
     protected $casts = [
         'id' => 'integer',
         'name' => 'string',
         'code' => 'string',
         'gcal' => 'string',
-        'librarian_ids' => 'array' // Cast the librarian_ids field to an array.
-
+        'librarian_ids' => 'array', // Automatically cast JSON to array
     ];
 
     /**
-     * Validation rules
+     * Get the librarians associated with the campus.
      *
-     * @var array
+     * Assumes there's a users relationship where some are librarians.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public static $rules = [
+    public function librarians()
+    {
+        return $this->belongsToMany(
+            User::class,    // Target model
+            'campus_user',  // Pivot table name (assumed)
+            'campus_id',    // Foreign key on pivot table
+            'user_id'       // Related key on pivot table
+        );
+    }
 
-    ];
-
-
+    /**
+     * Scope a query to search campuses by name or code.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $filter
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearch($query, ?string $filter)
+    {
+        return $query->when($filter, function ($q, $filter) {
+            $q->where('name', 'like', "%{$filter}%")
+                ->orWhere('code', 'like', "%{$filter}%");
+        });
+    }
 }

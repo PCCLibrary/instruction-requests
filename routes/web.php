@@ -1,11 +1,36 @@
 <?php
+
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicInstructionRequestController;
-use App\Http\Controllers\SamlController;
+use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\CampusController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\InstructionRequestController;
+use App\Http\Controllers\InstructionRequestDetailsController;
+use App\Http\Controllers\ClassesController;
+use Livewire\Livewire;
 
+    ///*
+    //|--------------------------------------------------------------------------
+    //| Livewire Routes Configuration
+    //|--------------------------------------------------------------------------
+    //|
+    //| These routes configure Livewire to work correctly in the subdirectory setup.
+    //|
+    //*/
+    //
+    //Livewire::setScriptRoute(function($handle) {
+    //    return Route::get('/library/instruction-requests/public/vendor/livewire/livewire.js', $handle);
+    //});
+    //
+    //Livewire::setUpdateRoute(function($handle) {
+    //    return Route::post('/library/instruction-requests/public/livewire/update', $handle)
+    //        ->middleware('web');
+    //});
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -15,107 +40,83 @@ use App\Http\Controllers\SamlController;
 |
 */
 
-// Database connection test route.
+// Database connection test route
 Route::get('/db-test', function () {
     try {
         $databaseName = DB::connection()->getDatabaseName();
-        return "Connected to the '$databaseName' database successfully.";
+        return "Connected to the '{$databaseName}' database successfully.";
     } catch (\Exception $e) {
         return 'Database connection failed: ' . $e->getMessage();
     }
 });
 
-// Index page with the public form to create instruction requests.
-Route::get('/', [PublicInstructionRequestController::class, 'create'])->name('public.instruction-request.create');
+// Public form for creating instruction requests
+Route::get('/', [PublicInstructionRequestController::class, 'create'])
+    ->name('public.instruction-request.create');
 
-// Store the submitted instruction request from the public form.
-Route::post('instruction-requests', [PublicInstructionRequestController::class, 'store'])->name('public.instruction-request.store');
-
-/*
-|--------------------------------------------------------------------------
-| SAML Authentication Routes
-|--------------------------------------------------------------------------
-|
-| Routes for SAML authentication using your custom SamlController.
-|
-*/
-
-// Initiate the SAML login
-Route::get('/saml2/login', [SamlController::class, 'login'])->name('saml2.login');
-
-// SAML ACS endpoint (handles SAML response)
-Route::post('/saml2/acs', [SamlController::class, 'acs'])->name('saml2.acs');
-
-// SAML logout
-Route::get('/saml2/logout', [SamlController::class, 'logout'])->name('saml2.logout');
+// Store the submitted instruction request from the public form
+Route::post('/instruction-requests', [PublicInstructionRequestController::class, 'store'])
+    ->name('public.instruction-request.store');
 
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 |
-| Routes for user authentication. This is handled by Laravel's Auth::routes().
+| Laravel authentication routes.
 |
 */
-
 Auth::routes();
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Authenticated Routes (Dashboard)
 |--------------------------------------------------------------------------
 |
-| Routes that require the user to be authenticated. They are within the "auth" middleware.
+| These routes require the user to be authenticated and are prefixed with "/dashboard".
 |
 */
+Route::middleware(['auth'])->prefix('dashboard')->group(function () {
+    // Debug route
+    Route::get('debug-assets', function () {
+        return view('debug-assets');
+    });
 
-// Home/dashboard page for authenticated users.
-Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
+    // Dashboard home
+    Route::get('/', [HomeController::class, 'index'])->name('dashboard');
 
-// Resource route for managing instructors (authenticated users only).
-Route::resource('instructors', App\Http\Controllers\InstructorController::class)->middleware('auth');
+    /*
+    |--------------------------------------------------------------------------
+    | Resource Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('instructors', InstructorController::class);
+    Route::resource('campuses', CampusController::class);
+    Route::resource('users', UserController::class);
+    Route::resource('instructionRequests', InstructionRequestController::class);
+    Route::resource('instructionRequestDetails', InstructionRequestDetailsController::class);
+    Route::resource('classes', ClassesController::class);
 
-// Resource route for managing campuses (authenticated users only).
-Route::resource('campuses', App\Http\Controllers\CampusController::class)->middleware('auth');
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-// Resource route for managing users (authenticated users only).
-Route::resource('users', App\Http\Controllers\UserController::class)->middleware('auth');
-
-// Resource route for managing instruction requests (authenticated users only).
-Route::resource('instructionRequests', App\Http\Controllers\InstructionRequestController::class)->middleware('auth');
-
-// Resource route for managing instruction request details (authenticated users only).
-Route::resource('instructionRequestDetails', App\Http\Controllers\InstructionRequestDetailsController::class)->middleware('auth');
-
-// Edit instruction requests
-Route::get('instructionRequests/{id}/edit', [App\Http\Controllers\InstructionRequestController::class, 'edit'])->name('instructionRequests.edit')->middleware('auth');
-
-// Copy instruction requests
-Route::get('instructionRequests/{id}/copy', [App\Http\Controllers\InstructionRequestController::class, 'copy'])->name('instructionRequests.copy')->middleware('auth');
-
-// Accept instruction request
-Route::post('/instructionRequests/{id}/accept', [App\Http\Controllers\InstructionRequestController::class, 'accept'])->name('instructionRequests.accept')->middleware('auth');
-
-// Reject instruction request
-Route::post('/instructionRequests/{id}/reject', [App\Http\Controllers\InstructionRequestController::class, 'reject'])->name('instructionRequests.reject')->middleware('auth');
-
-// Resource route for managing classes
-Route::resource('classes', App\Http\Controllers\ClassesController::class)->middleware('auth');
-
-/*
-|--------------------------------------------------------------------------
-| InfyOm Generator Builder Routes
-|--------------------------------------------------------------------------
-|
-| Routes for the InfyOm Generator Builder, which generates CRUD files.
-|
-*/
-
-Route::group(['middleware' => 'auth'], function () {
-    Route::get('generator_builder', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@builder')->name('io_generator_builder');
-    Route::get('field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@fieldTemplate')->name('io_field_template');
-    Route::get('relation_field_template', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@relationFieldTemplate')->name('io_relation_field_template');
-    Route::post('generator_builder/generate', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generate')->name('io_generator_builder_generate');
-    Route::post('generator_builder/rollback', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@rollback')->name('io_generator_builder_rollback');
-    Route::post('generator_builder/generate-from-file', '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile')->name('io_generator_builder_generate_from_file');
+    /*
+    |--------------------------------------------------------------------------
+    | Instruction Requests Additional Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::get('instructionRequests/{id}/edit', [InstructionRequestController::class, 'edit'])
+        ->name('instructionRequests.edit');
+    Route::get('instructionRequests/{id}/copy', [InstructionRequestController::class, 'copy'])
+        ->name('instructionRequests.copy');
+    Route::post('instructionRequests/{id}/accept', [InstructionRequestController::class, 'accept'])
+        ->name('instructionRequests.accept');
+    Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
+        ->name('instructionRequests.reject');
 });

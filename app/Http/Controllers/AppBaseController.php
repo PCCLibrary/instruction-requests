@@ -2,37 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Response;
-use InfyOm\Generator\Utils\ResponseUtil;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
-/**
- * @SWG\Swagger(
- *   basePath="/api/v1",
- *   @SWG\Info(
- *     title="Laravel Generator APIs",
- *     version="1.0.0",
- *   )
- * )
- * This class should be parent class for other API controllers
- * Class AppBaseController
- */
 class AppBaseController extends Controller
 {
-    public function sendResponse($result, $message)
+    /**
+     * Create a success response with data and message.
+     *
+     * @param mixed $data
+     * @param string $message
+     * @return JsonResponse
+     */
+    protected function sendResponse(mixed $data, string $message = 'Operation successful'): JsonResponse
     {
-        return Response::json(ResponseUtil::makeResponse($message, $result));
-    }
-
-    public function sendError($error, $code = 404)
-    {
-        return Response::json(ResponseUtil::makeError($error), $code);
-    }
-
-    public function sendSuccess($message)
-    {
-        return Response::json([
+        return response()->json([
             'success' => true,
-            'message' => $message
-        ], 200);
+            'data' => $data,
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * Create an error response with message and optional code.
+     *
+     * @param string $message
+     * @param int $code
+     * @param array|null $errors
+     * @return JsonResponse
+     */
+    protected function sendError(string $message, int $code = 400, array $errors = null): JsonResponse
+    {
+        // Log the error (optional for debugging AJAX requests).
+        Log::error('Error Response: ' . $message, [
+            'code' => $code,
+            'errors' => $errors
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors,  // Optional debugging information
+        ], $code);
+    }
+
+    /**
+     * Create a success message response with no additional data.
+     *
+     * @param string $message
+     * @return JsonResponse
+     */
+    protected function sendSuccess(string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
     }
 }

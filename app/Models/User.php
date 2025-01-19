@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Laravelista\Comments\Commenter;
+//use Laravel\Sanctum\HasApiTokens;
+use LakM\Comments\Concerns\Commenter;
+use LakM\Comments\Contracts\CommenterContract;
 
-
-class User extends Authenticatable
+class User extends Authenticatable implements CommenterContract
 {
-    use HasApiTokens, HasFactory, Notifiable, Commenter;
+    use  HasFactory, Notifiable, Commenter;
 
     /**
      * The attributes that are mass assignable.

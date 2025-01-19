@@ -101,7 +101,7 @@
 
 <x-row>
     {{-- Class Description --}}
-    <x-textarea name="class_description"
+    <x-input-textarea name="class_description"
                 label="Class description"
                 :value="old('class_description', $instructionRequest->class_description ?? null)"
 {{--                helptext="Describe the ADA accommodations needed for your class."--}}
@@ -118,7 +118,7 @@
 {{--    {{ $instructionRequest->ada_provisions_needed }}--}}
 
     {{-- ADA Provisions Description Field --}}
-    <x-textarea name="ada_provisions_description"
+    <x-input-textarea name="ada_provisions_description"
                 label="ADA Provisions Description"
                 :value="old('ada_provisions_description', $instructionRequest->ada_provisions_description ?? null)"
                 helptext="Describe the ADA accommodations needed for your class."
@@ -128,7 +128,7 @@
 
 <x-row>
     {{-- Extra Time With Class Field --}}
-    <x-textarea name="extra_time_with_class"
+    <x-input-textarea name="extra_time_with_class"
                 label="Extra Time With Class"
                 :value="old('extra_time_with_class', $instructionRequest->extra_time_with_class ?? null)"
                 classes="col-9"
@@ -171,7 +171,7 @@
 
 <div class="col-9">
     {{-- Other Learning Outcome Description Field --}}
-    <x-textarea name="other_learning_outcome_description"
+    <x-input-textarea name="other_learning_outcome_description"
                 label="Learning Outcomes"
                 :value="old('other_learning_outcome_description', $instructionRequest->other_learning_outcome_description ?? null)"
     />
@@ -179,7 +179,7 @@
 </x-row>
 
 <x-row>
-    <x-textarea name="library_instruction_description"
+    <x-input-textarea name="library_instruction_description"
                 label="What do you want your students to get out of library instruction?"
                 :value="old('other_learning_outcome_description', $instructionRequest->library_instruction_description ?? null)"
                 classes="col-9"
@@ -189,7 +189,7 @@
 <x-row>
 
     {{-- genai_discussion_interest Field --}}
-    <x-textarea name="genai_discussion_interest"
+    <x-input-textarea name="genai_discussion_interest"
                 label="Generative AI"
                 :value="old('genai_discussion_interest', $instructionRequest->genai_discussion_interest ?? null)"
                 classes="col-9"

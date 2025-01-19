@@ -2,63 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\InstructionRequestDetailsDataTable;
-use App\Http\Requests\CreateInstructionRequestDetailsRequest;
 use App\Http\Requests\UpdateInstructionRequestDetailsRequest;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestDetailsService;
-use App\Models\Campus;
-use App\Models\Instructor;
 use App\Models\User;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
-use Laracasts\Flash\Flash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class InstructionRequestDetailsController extends AppBaseController
 {
-    /** @var InstructionRequestDetailsService $instructionRequestDetailsService */
-    private $instructionRequestDetailsService;
-
     public function __construct(
-        InstructionRequestDetailsService $instructionRequestDetailsService,
-        DepartmentService $departmentService
-    ) {
-        $this->instructionRequestDetailsService = $instructionRequestDetailsService;
-    }
+        private readonly InstructionRequestDetailsService $instructionRequestDetailsService,
+        private readonly DepartmentService $departmentService
+    ) {}
 
     /**
-     * Display a listing of the InstructionRequestDetails.
+     * Display a listing of the InstructionRequestDetails with Livewire PowerTable.
      *
-     * @return Response
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
-        // Assuming you have a DataTable for InstructionRequestDetails
-        return (new InstructionRequestDetailsDataTable())->render('instruction_request_details.index');
+        return view('instruction_request_details.index');
     }
 
     /**
      * Show the form for editing the specified InstructionRequestDetails.
      *
      * @param int $id
-     *
-     * @return Response
+     * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit(int $id): View|RedirectResponse
     {
         $instructionRequestDetails = $this->instructionRequestDetailsService->getInstructionRequestDetailsById($id);
-        $librarians = User::all(); // librarian model
 
         if (empty($instructionRequestDetails)) {
-            Flash::error('Instruction Request Details not found');
+            flash('Instruction Request Details not found')->error();
             return redirect(route('instructionRequestDetails.index'));
         }
 
-//        Log::debug('$instructionRequestDetails: '.json_encode($instructionRequestDetails));
-
-        return view('instruction_request_details.edit')
-            ->with('instructionRequestDetails', $instructionRequestDetails)
-            ->with('librarians', $librarians);
+        return view('instruction_request_details.edit')->with([
+            'instructionRequestDetails' => $instructionRequestDetails,
+            'librarians' => User::all()
+        ]);
     }
 
     /**
@@ -66,30 +52,31 @@ class InstructionRequestDetailsController extends AppBaseController
      *
      * @param int $id
      * @param UpdateInstructionRequestDetailsRequest $request
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update(int $id, UpdateInstructionRequestDetailsRequest $request)
+    public function update(int $id, UpdateInstructionRequestDetailsRequest $request): RedirectResponse
     {
         $instructionRequestDetails = $this->instructionRequestDetailsService->getInstructionRequestDetailsById($id);
 
         if (empty($instructionRequestDetails)) {
-            Flash::error('Instruction Request Details not found');
+            flash('Instruction Request Details not found')->error();
             return redirect(route('instructionRequestDetails.index'));
         }
 
-        $data = $request->all();
+        try {
+            $updatedDetails = $this->instructionRequestDetailsService->updateInstructionRequestDetails(
+                $request->validated(),
+                $instructionRequestDetails->id
+            );
 
-        // Update details using the service
-        $updatedDetails = $this->instructionRequestDetailsService->updateInstructionRequestDetails($data, (int)$instructionRequestDetails->id);
-
-        if ($updatedDetails) {
-            Flash::success('Instruction Request Details updated successfully.');
-        } else {
-            Flash::error('Failed to update Instruction Request Details.');
+            if ($updatedDetails) {
+                flash('Instruction Request Details updated successfully.')->success();
+            } else {
+                flash('Failed to update Instruction Request Details.')->error();
+            }
+        } catch (\Exception $e) {
+            flash('Error updating Instruction Request Details: ' . $e->getMessage())->error();
         }
-
-//        Log::debug('$updatedDetails: '.json_encode($updatedDetails));
 
         return redirect(route('instructionRequestDetails.index'));
     }
@@ -98,23 +85,23 @@ class InstructionRequestDetailsController extends AppBaseController
      * Remove the specified InstructionRequestDetails from storage.
      *
      * @param int $id
-     *
-     * @throws Exception
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $instructionRequestDetails = $this->instructionRequestDetailsService->getInstructionRequestDetailsById($id);
 
         if (empty($instructionRequestDetails)) {
-            Flash::error('Instruction Request Details not found');
+            flash('Instruction Request Details not found')->error();
             return redirect(route('instructionRequestDetails.index'));
         }
 
-        $this->instructionRequestDetailsService->deleteInstructionRequestDetail($id);
-
-        Flash::success('Instruction Request Details deleted successfully.');
+        try {
+            $this->instructionRequestDetailsService->deleteInstructionRequestDetail($id);
+            flash('Instruction Request Details deleted successfully.')->success();
+        } catch (\Exception $e) {
+            flash('Error deleting Instruction Request Details: ' . $e->getMessage())->error();
+        }
 
         return redirect(route('instructionRequestDetails.index'));
     }

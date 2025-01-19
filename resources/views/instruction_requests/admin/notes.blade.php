@@ -1,5 +1,5 @@
 <!-- Class Notes (Textarea) -->
-<x-textarea
+<x-input-textarea
     name="class_notes"
     label="Class Notes"
     :value="$instructionRequest->detail->class_notes ?? null"
@@ -7,7 +7,7 @@
 />
 
 <!-- Assessment Notes (Textarea) -->
-<x-textarea
+<x-input-textarea
     name="assessment_notes"
     label="Assessment Notes"
     :value="$instructionRequest->detail->assessment_notes ?? null"

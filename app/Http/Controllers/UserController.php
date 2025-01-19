@@ -2,69 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\UserDataTable;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
 use App\Models\Campus;
-use App\Http\Controllers\AppBaseController;
-use Illuminate\Http\Request;
-use Laracasts\Flash\Flash;
-use Illuminate\Http\Response;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
-use Exception;
 
 class UserController extends AppBaseController
 {
-    /** @var $userRepository UserRepository */
-    private $userRepository;
+    /** @var UserRepository */
+    private UserRepository $userRepository;
 
+    /**
+     * UserController constructor.
+     *
+     * @param UserRepository $userRepository
+     */
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
     /**
-     * Display a listing of the User.
+     * Display a listing of the User with Livewire PowerTable.
      *
-     * @param UserDataTable $userDataTable
-     *
-     * @return Response
+     * @return View
      */
-    public function index(UserDataTable $userDataTable)
+    public function index(): View
     {
-
-        return $userDataTable->render('users.index');
-
+        // Render the Livewire PowerTable for users
+        return view('users.index');
     }
 
     /**
      * Show the form for creating a new User.
      *
-     * @return Response
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
-        $campuses = Campus::all()->pluck('name', 'id'); // Reflecting change to 'campuses' for clarity
+        $campuses = Campus::pluck('name', 'id');
 
-        return view('users.create')
-            ->with('campuses', $campuses);
+        return view('users.create')->with('campuses', $campuses);
     }
 
     /**
      * Store a newly created User in storage.
      *
      * @param CreateUserRequest $request
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function store(CreateUserRequest $request)
+    public function store(CreateUserRequest $request): RedirectResponse
     {
-        $input = $request->all();
+        $input = $request->validated();
         $input['password'] = Hash::make($input['password']);
-        $user = $this->userRepository->create($input);
 
-        Flash::success('User saved successfully.');
+        $this->userRepository->create($input);
+
+        flash('User saved successfully.')->success();
 
         return redirect(route('users.index'));
     }
@@ -73,15 +70,14 @@ class UserController extends AppBaseController
      * Display the specified User.
      *
      * @param int $id
-     *
-     * @return Response
+     * @return View|RedirectResponse
      */
-    public function show($id)
+    public function show(int $id): View|RedirectResponse
     {
         $user = $this->userRepository->find($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            flash('User not found')->error();
 
             return redirect(route('users.index'));
         }
@@ -93,25 +89,23 @@ class UserController extends AppBaseController
      * Show the form for editing the specified User.
      *
      * @param int $id
-     *
-     * @return Response
+     * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit(int $id): View|RedirectResponse
     {
         $user = $this->userRepository->find($id);
 
-        $campuses = Campus::all()->pluck('name', 'id');; // Reflecting change to 'campuses' for clarity
-
         if (empty($user)) {
-            Flash::error('User not found');
+            flash('User not found')->error();
 
             return redirect(route('users.index'));
         }
 
+        $campuses = Campus::pluck('name', 'id');
+
         return view('users.edit')
             ->with('user', $user)
             ->with('campuses', $campuses);
-
     }
 
     /**
@@ -119,27 +113,28 @@ class UserController extends AppBaseController
      *
      * @param int $id
      * @param UpdateUserRequest $request
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update($id, UpdateUserRequest $request)
+    public function update(int $id, UpdateUserRequest $request): RedirectResponse
     {
         $user = $this->userRepository->find($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            flash('User not found')->error();
 
             return redirect(route('users.index'));
         }
-        $input =  $request->all();
+
+        $input = $request->validated();
         if (!empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
             unset($input['password']);
         }
-        $user = $this->userRepository->update($input, $id);
 
-        Flash::success('User updated successfully.');
+        $this->userRepository->update($input, $id);
+
+        flash('User updated successfully.')->success();
 
         return redirect(route('users.index'));
     }
@@ -148,24 +143,21 @@ class UserController extends AppBaseController
      * Remove the specified User from storage.
      *
      * @param int $id
-     *
-     * @throws Exception
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $user = $this->userRepository->find($id);
 
         if (empty($user)) {
-            Flash::error('User not found');
+            flash('User not found')->error();
 
             return redirect(route('users.index'));
         }
 
         $this->userRepository->delete($id);
 
-        Flash::success('User deleted successfully.');
+        flash('User deleted successfully.')->success();
 
         return redirect(route('users.index'));
     }

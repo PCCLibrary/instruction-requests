@@ -2,43 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\ClassesDataTable;
-use App\Http\Requests;
 use App\Http\Requests\CreateClassesRequest;
 use App\Http\Requests\UpdateClassesRequest;
 use App\Repositories\ClassesRepository;
-use Laracasts\Flash\Flash;
-use App\Http\Controllers\AppBaseController;
-use http\Client\Response;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class ClassesController extends AppBaseController
 {
-    /** @var ClassesRepository $classesRepository*/
-    private $classesRepository;
+    /** @var ClassesRepository */
+    private ClassesRepository $classesRepository;
 
+    /**
+     * ClassesController constructor.
+     *
+     * @param ClassesRepository $classesRepo
+     */
     public function __construct(ClassesRepository $classesRepo)
     {
         $this->classesRepository = $classesRepo;
     }
 
     /**
-     * Display a listing of the Classes.
+     * Display a listing of the Classes with Livewire PowerTable.
      *
-     * @param ClassesDataTable $classesDataTable
-     *
-     * @return Response
+     * @return View
      */
-    public function index(ClassesDataTable $classesDataTable)
+    public function index(): View
     {
-        return $classesDataTable->render('classes.index');
+        // Render the Livewire PowerTable for classes
+        return view('classes.index');
     }
 
     /**
      * Show the form for creating a new Classes.
      *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
         return view('classes.create');
     }
@@ -47,16 +48,15 @@ class ClassesController extends AppBaseController
      * Store a newly created Classes in storage.
      *
      * @param CreateClassesRequest $request
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse
      */
-    public function store(CreateClassesRequest $request)
+    public function store(CreateClassesRequest $request): RedirectResponse
     {
-        $input = $request->all();
+        $input = $request->validated();
 
-        $classes = $this->classesRepository->create($input);
+        $this->classesRepository->create($input);
 
-        Flash::success('Classes saved successfully.');
+//        flash('Class saved successfully.')->success();
 
         return redirect(route('classes.index'));
     }
@@ -65,15 +65,14 @@ class ClassesController extends AppBaseController
      * Display the specified Classes.
      *
      * @param int $id
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @return View|RedirectResponse
      */
-    public function show(int $id)
+    public function show(int $id): View|RedirectResponse
     {
         $classes = $this->classesRepository->find($id);
 
         if (empty($classes)) {
-            Flash::error('Classes not found');
+//            flash('Class not found.')->error();
 
             return redirect(route('classes.index'));
         }
@@ -85,15 +84,14 @@ class ClassesController extends AppBaseController
      * Show the form for editing the specified Classes.
      *
      * @param int $id
-     *
-     * @return Response
+     * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit(int $id): View|RedirectResponse
     {
         $classes = $this->classesRepository->find($id);
 
         if (empty($classes)) {
-            Flash::error('Classes not found');
+//            flash('Class not found.')->error();
 
             return redirect(route('classes.index'));
         }
@@ -106,22 +104,23 @@ class ClassesController extends AppBaseController
      *
      * @param int $id
      * @param UpdateClassesRequest $request
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update($id, UpdateClassesRequest $request)
+    public function update(int $id, UpdateClassesRequest $request): RedirectResponse
     {
         $classes = $this->classesRepository->find($id);
 
         if (empty($classes)) {
-            Flash::error('Classes not found');
+//            flash('Class not found.')->error();
 
             return redirect(route('classes.index'));
         }
 
-        $classes = $this->classesRepository->update($request->all(), $id);
+        $input = $request->validated();
 
-        Flash::success('Classes updated successfully.');
+        $this->classesRepository->update($input, $id);
+
+//        flash('Class updated successfully.')->success();
 
         return redirect(route('classes.index'));
     }
@@ -130,22 +129,21 @@ class ClassesController extends AppBaseController
      * Remove the specified Classes from storage.
      *
      * @param int $id
-     *
-     * @return Response
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $classes = $this->classesRepository->find($id);
 
         if (empty($classes)) {
-            Flash::error('Classes not found');
+//            flash('Class not found.')->error();
 
             return redirect(route('classes.index'));
         }
 
         $this->classesRepository->delete($id);
 
-        Flash::success('Classes deleted successfully.');
+//        flash('Class deleted successfully.')->success();
 
         return redirect(route('classes.index'));
     }

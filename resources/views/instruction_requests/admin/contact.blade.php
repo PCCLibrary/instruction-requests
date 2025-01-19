@@ -49,11 +49,7 @@
                     <p>{{ $instructionRequest->assignment_description }}</p>
                 </div>
 
-                {{--            <x-textarea name="assignment_description"--}}
-                {{--                        label="Assignment Description"--}}
-                {{--                        :value="old('assignment_description', $instructionRequest->assignment_description ?? null)"--}}
-                {{--                        classes="col-12"--}}
-                {{--            />--}}
+
             </x-row>
         @endif
 

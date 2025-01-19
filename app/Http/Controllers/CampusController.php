@@ -2,23 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\CampusDataTable;
 use App\Http\Requests\CreateCampusRequest;
 use App\Http\Requests\UpdateCampusRequest;
 use App\Repositories\CampusRepository;
-use Laracasts\Flash\Flash;
-use App\Http\Controllers\AppBaseController;
-use Illuminate\Http\Response;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class CampusController extends AppBaseController
 {
-    /** @var CampusRepository */
-    private $campusRepository;
+    private CampusRepository $campusRepository;
 
     /**
      * CampusController constructor.
+     *
      * @param CampusRepository $campusRepo
      */
     public function __construct(CampusRepository $campusRepo)
@@ -27,99 +24,59 @@ class CampusController extends AppBaseController
     }
 
     /**
-     * Display a listing of the Campus.
+     * Display a listing of the Campus with Livewire PowerTable.
      *
-     * @param CampusDataTable $campusDataTable
-     * @return Response
+     * @return View
      */
-    public function index(CampusDataTable $campusDataTable)
+    public function index(): View
     {
-        return $campusDataTable->render('campuses.index');
+        // Render the Livewire PowerTable for campuses
+        return view('campuses.index');
     }
 
     /**
      * Show the form for creating a new Campus.
      *
-     * @return Response
+     * @return View
      */
-    public function create() : Response
+    public function create(): View
     {
-        // Load librarians for select dropdown
-        $librarians = User::where('is_admin', false)->pluck('display_name', 'id');
+        // Fetch librarians for dropdown
+        $librarians = $this->getLibrarianOptions();
 
-        return view('campuses.create')
-            ->with('librarians', $librarians);
+        return view('campuses.create')->with('librarians', $librarians);
     }
 
     /**
      * Store a newly created Campus in storage.
      *
      * @param CreateCampusRequest $request
-     * @return Response
-     */
-    public function store(CreateCampusRequest $request) : Response
-    {
-        $input = $request->all();
-
-        // Ensure 'librarian_ids' is correctly encoded as JSON
-        if ($request->has('librarian_ids')) {
-            $input['librarian_ids'] = json_encode($request->librarian_ids);
-        }
-
-        $campus = $this->campusRepository->create($input);
-
-        Flash::success('Campus saved successfully.');
-
-        return redirect(route('campuses.index'));
-    }
-
-
-    /**
-     * Update the specified Campus in storage.
-     *
-     * Serializes the 'librarian_ids' array from the request to JSON before updating.
-     *
-     * @param int $id
-     * @param UpdateCampusRequest $request
      * @return RedirectResponse
      */
-    public function update($id, UpdateCampusRequest $request)
+    public function store(CreateCampusRequest $request): RedirectResponse
     {
-        $campus = $this->campusRepository->find($id);
+        $input = $request->validated();
 
-        if (empty($campus)) {
-            Flash::error('Campus not found');
-
-            return redirect(route('campuses.index'));
-        }
-
-        $input = $request->all();
-
-        // Ensure 'librarian_ids' is correctly encoded as JSON
-        if ($request->has('librarian_ids')) {
-            $input['librarian_ids'] = json_encode($request->librarian_ids);
-        }
-
-        $campus = $this->campusRepository->update($input, $id);
-
-        Flash::success('Campus updated successfully.');
+        $this->campusRepository->create($input);
+//
+//        // Spatie flash message for success
+//        flash('Campus saved successfully.')->success();
 
         return redirect(route('campuses.index'));
     }
 
-
     /**
-     * Display the specified Campus.
+     * Display the specified Campus details.
      *
      * @param int $id
-     * @return Response
+     * @return \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|RedirectResponse
      */
-    public function show(int $id) : Response
+    public function show(int $id): \Illuminate\Foundation\Application|RedirectResponse|\Illuminate\Routing\Redirector
     {
         $campus = $this->campusRepository->find($id);
 
         if (empty($campus)) {
-            Flash::error('Campus not found');
+            flash('Campus not found.')->error();
 
             return redirect(route('campuses.index'));
         }
@@ -131,48 +88,86 @@ class CampusController extends AppBaseController
      * Show the form for editing the specified Campus.
      *
      * @param int $id
-     * @return Response
+     * @return \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|RedirectResponse
      */
-    public function edit($id)
+    public function edit(int $id): \Illuminate\Foundation\Application|RedirectResponse|\Illuminate\Routing\Redirector
     {
         $campus = $this->campusRepository->find($id);
-        $librarians = User::all()->pluck('display_name', 'id');
-
-        // Assuming 'librarian_ids' is stored as a JSON string in the database
-        $campus->librarian_ids = json_decode($campus->librarian_ids, true);
 
         if (empty($campus)) {
-            Flash::error('Campus not found');
+//            flash('Campus not found.')->error();
 
             return redirect(route('campuses.index'));
         }
 
-        return view('campuses.edit')
-            ->with('campus', $campus)
-            ->with('librarians', $librarians);
+        $librarians = $this->getLibrarianOptions();
+
+        return view('campuses.edit')->with([
+            'campus' => $campus,
+            'librarians' => $librarians,
+        ]);
     }
 
+    /**
+     * Update the specified Campus in storage.
+     *
+     * @param int $id
+     * @param UpdateCampusRequest $request
+     * @return RedirectResponse
+     */
+    public function update(int $id, UpdateCampusRequest $request): RedirectResponse
+    {
+        $campus = $this->campusRepository->find($id);
+
+        if (empty($campus)) {
+//            flash('Campus not found.')->error();
+
+            return redirect(route('campuses.index'));
+        }
+
+        $input = $request->validated();
+
+        $this->campusRepository->update($input, $id);
+
+        // Spatie flash message for success
+        flash('Campus updated successfully.')->success();
+
+        return redirect(route('campuses.index'));
+    }
 
     /**
      * Remove the specified Campus from storage.
      *
      * @param int $id
-     * @return Response
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         $campus = $this->campusRepository->find($id);
 
         if (empty($campus)) {
-            Flash::error('Campus not found');
+//            flash('Campus not found.')->error();
 
             return redirect(route('campuses.index'));
         }
 
         $this->campusRepository->delete($id);
 
-        Flash::success('Campus deleted successfully.');
+        // Spatie flash message for success
+//        flash('Campus deleted successfully.')->success();
 
         return redirect(route('campuses.index'));
+    }
+
+    /**
+     * Get librarian options for forms (non-admin users).
+     *
+     * @return array
+     */
+    private function getLibrarianOptions(): array
+    {
+        return User::where('is_admin', false)
+            ->pluck('display_name', 'id')
+            ->toArray();
     }
 }

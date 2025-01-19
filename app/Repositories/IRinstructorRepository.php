@@ -3,43 +3,35 @@
 namespace App\Repositories;
 
 use App\Models\Instructor;
-use App\Repositories\BaseRepository;
-
-/**
- * Class IRinstructorRepository
- * @package App\Repositories
- * @version January 26, 2024, 11:59 pm UTC
-*/
 
 class IRinstructorRepository extends BaseRepository
 {
     /**
-     * @var array
+     * Specify the model class that this repository works with.
      */
-    protected $fieldSearchable = [
-        'name',
-        'display_name',
-        'pronouns',
-        'email',
-        'phone'
-    ];
-
-    /**
-     * Return searchable fields
-     *
-     * @return array
-     */
-    public function getFieldsSearchable()
+    public function model(): string
     {
-        return $this->fieldSearchable;
+        return Instructor::class; // Bind Instructor model
     }
 
     /**
-     * Configure the Model
-     * @return Instructor
-     **/
-    public function model()
+     * Specify the searchable fields for the Instructor repository.
+     */
+    public function getFieldsSearchable(): array
     {
-        return Instructor::class;
+        return [
+            'name',
+            'email',
+            'phone' // Add any other fields you want to make searchable
+        ];
     }
+
+//    /**
+//     * Example of a custom repository method.
+//     * Retrieve instructors filtered by a specific condition, if needed.
+//     */
+//    public function getInstructorsWithCustomCondition(array $conditions = [])
+//    {
+//        return $this->all($conditions); // Use the base `all()` functionality.
+//    }
 }

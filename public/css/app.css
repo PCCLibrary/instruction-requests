@@ -1,3 +1,25 @@
-label{font-weight:700}.select2-container--bootstrap4 .select2-selection--multiple{min-height:auto;padding:.5em 1em 1em}div.dataTables_wrapper div.dataTables_info{padding:1em}div.dataTables_wrapper div.dataTables_paginate ul.pagination{justify-content:flex-end;margin:0 1em 1em;padding:inherit;white-space:nowrap}form fieldset .error{color:red;font-size:smaller;margin:.25em 0}
+label {
+  font-weight: bold;
+}
 
-/*# sourceMappingURL=app.css.map*/
+.select2-container--bootstrap4 .select2-selection--multiple {
+  min-height: auto;
+  padding: 0.5em 1em 1em 1em;
+}
+
+div.dataTables_wrapper div.dataTables_info {
+  padding: 1em;
+}
+
+div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+  margin: 0 1em 1em;
+  padding: inherit;
+  white-space: nowrap;
+  justify-content: flex-end;
+}
+
+form fieldset .error {
+  margin: 0.25em 0;
+  font-size: smaller;
+  color: red;
+}

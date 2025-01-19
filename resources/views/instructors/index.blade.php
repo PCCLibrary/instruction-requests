@@ -3,17 +3,17 @@
 @section('content')
 
     <x-page-header title="Instructors" text="Manage instructors">
-            <a class="btn btn-success float-right"
-               href="{{ route('instructors.create') }}">
-                Add New
-            </a>
+{{--            <a class="btn btn-success float-right"--}}
+{{--               href="{{ route('instructors.create') }}">--}}
+{{--                Add New--}}
+{{--            </a>--}}
     </x-page-header>
 
 
 
     <div class="content px-3">
 
-        @include('flash::message')
+{{--        @include('flash::message')--}}
 
         <div class="clearfix"></div>
 
