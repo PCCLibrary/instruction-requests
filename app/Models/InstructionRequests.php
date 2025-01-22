@@ -21,7 +21,7 @@ use LakM\Comments\Contracts\CommentableContract;
  */
 class InstructionRequests extends Model implements HasMedia, CommentableContract
 {
-    use SoftDeletes, InteractsWithMedia, Commentable, HasFactory;
+    use SoftDeletes, InteractsWithMedia, Commentable;
 
     /**
      * @var string Table name

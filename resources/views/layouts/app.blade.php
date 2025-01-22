@@ -13,13 +13,15 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+{{--    @commentsStyles--}}
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900">
 {{-- Include Navigation --}}
-<x-navigation />
-
+<div x-data="{ mobileMenuOpen: false }">
+    @include('components.navigation')
+</div>
 <!-- Page Heading -->
 @if (View::hasSection('header'))
     <header class="bg-white dark:bg-gray-800 shadow">
@@ -37,7 +39,7 @@
         @yield('content')
     </div>
 </main>
-
+{{--@commentsScripts--}}
 @livewireScripts
 </body>
 </html>

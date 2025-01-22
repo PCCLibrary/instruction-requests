@@ -2,7 +2,11 @@
 @props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', 'required' => false ])
 
 <div class="{{ $classes }}">
-    <x-label-form :label="$label" :name="$name" :required="$required" />
+    @include('public_form.partials.label', [
+                'label' => $label,
+                'name' => $name,
+                'required' => $required
+            ])
     <input type="datetime-local"
            class="form-control"
            name="{{ $name }}"
@@ -12,7 +16,10 @@
          @if($required)required @endif
     />
     @if($helptext)
-        <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />
+        @include('public_form.partials.helptext', [
+            'name' => $name,
+            'helptext' => $helptext
+        ])
     @endif
 
 </div>

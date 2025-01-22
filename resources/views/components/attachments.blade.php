@@ -3,23 +3,24 @@
 
 @if($attachments->isNotEmpty())
     <ul class="space-y-2">
-        <li class="font-semibold text-gray-900 dark:text-gray-100">{{ $title }}</li>
+        <li class="text-lg font-semibold leading-6 text-gray-900">{{ $title }}</li>
         @foreach($attachments as $item)
-            <li class="text-blue-600 dark:text-blue-400">
-                <span class="inline-flex items-center">
-                    <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    {{ $item->file_name }} -
-                    <a href="{{ $item->getUrl() }}" target="_blank" class="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline">
-                        View
-                    </a>
-                </span>
+            <li class="flex items-center gap-2 text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm">{{ $item->file_name }}</span>
+                <span class="text-sm text-gray-500">-</span>
+                <a href="{{ $item->getUrl() }}"
+                   target="_blank"
+                   class="text-sm text-blue-600 hover:text-blue-800">
+                    View
+                </a>
             </li>
         @endforeach
     </ul>
 @else
-    <div class="text-gray-700 dark:text-gray-300 font-semibold">
-        No attached {{ $title }} files.
+    <div class="text-sm text-gray-600">
+        No attached {{ strtolower($title) }} files.
     </div>
 @endif

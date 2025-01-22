@@ -1,19 +1,23 @@
-<!-- resources/views/components/page-header.blade.php -->
-
+{{-- resources/views/components/page-header.blade.php --}}
 @props(['title', 'text'])
 
-<section class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-8">
-                <h1>{{ $title }}</h1>
-                <p>{{ html_entity_decode($text) }}</p>
+<section>
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+            <div class="flex-1 min-w-0 mb-4 md:mb-0 md:pr-4">
+                <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    {{ $title }}
+                </h1>
+                @if($text)
+                    <p class="mt-2 text-base text-gray-600">
+                        {{ html_entity_decode($text) }}
+                    </p>
+                @endif
             </div>
 
-            <div class="col-sm-4">
+            <div class="flex-shrink-0 flex items-center justify-start md:justify-end">
                 {{ $slot }}
             </div>
-
         </div>
     </div>
 </section>

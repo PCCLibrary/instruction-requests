@@ -1,4 +1,3 @@
-{-- components/fieldset.blade.php --}}
 @props(['legend' => null, 'classes' => null, 'id' => null])
 
 <fieldset

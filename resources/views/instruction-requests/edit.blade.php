@@ -3,32 +3,32 @@
 @section('content')
     {{-- Remove the extra container since app.blade.php already provides one --}}
     @if($instructionRequest->status === 'assigned' && $instructionRequest->detail->assigned_librarian_id === auth()->id())
-        @include('instruction-requests.admin.accept')
+        @include('instruction-requests.partials.accept')
     @endif
 
     <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}" method="POST">
         @csrf
         @method('PATCH')
 
-        <div class="grid grid-cols-12 gap-6">
+        <div class="grid grid-cols-12 gap-6 items-start">
             {{-- Left Column (4 columns) --}}
             <div class="col-span-12 md:col-span-4 space-y-6">
                 <x-card title="Manage" class="bg-sky-50">
-                    @include('instruction-requests.admin.editor')
-                    @include('instruction-requests.admin.fields')
+                    @include('instruction-requests.partials.editor')
+                    @include('instruction-requests.partials.fields')
                 </x-card>
 
                 <x-card title="File Attachments" class="bg-blue-50">
-                    @include('instruction-requests.admin.file_attachments')
+                    @include('instruction-requests.partials.file_attachments')
                 </x-card>
             </div>
 
             {{-- Right Column (8 columns) --}}
             <div class="col-span-12 md:col-span-8 space-y-6">
-                @include('instruction-requests.admin.admin_view')
+                @include('instruction-requests.partials.admin_view')
 
                 <x-card title="Notes" class="bg-green-50">
-                    @include('instruction-requests.admin.notes')
+                    @include('instruction-requests.partials.notes')
                 </x-card>
             </div>
         </div>
@@ -36,7 +36,7 @@
 
     <div class="mt-6">
         <x-card title="Comments" class="bg-sky-50">
-            @comments(['model' => $instructionRequest])
+{{--            <x-comments::index :model="$instructionRequest" />--}}
         </x-card>
     </div>
 @endsection

@@ -1,4 +1,4 @@
-<!-- resources/views/components/instructor-fields.blade.php -->
+<!-- resources/views/components/instructor-index.blade.php -->
 
 <div class="form-group col-sm-6">
     <!-- Name Field -->

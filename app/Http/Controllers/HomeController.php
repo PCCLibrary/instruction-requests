@@ -17,7 +17,7 @@ class HomeController extends Controller
      *
      * @return void
      */
-    protected $instructionRequestService;
+    protected InstructionRequestService $instructionRequestService;
 
     public function __construct(InstructionRequestService $instructionRequestService)
     {
@@ -27,7 +27,7 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @return Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\View\View
      */
     public function index()
     {

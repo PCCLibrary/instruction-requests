@@ -1,6 +1,6 @@
-@extends('layouts.app')
+{{--@extends('layouts.app')--}}
 
-@section('content')
+{{--@section('content')--}}
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -13,7 +13,7 @@
 
     <div class="content px-3">
 
-        @include('adminlte-templates::common.errors')
+{{--        @include('adminlte-templates::common.errors')--}}
 
         <div class="card">
             {!! Form::model($Instructor, ['route' => ['instructors.update', $Instructor->id], 'method' => 'patch']) !!}

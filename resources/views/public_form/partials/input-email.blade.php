@@ -1,0 +1,25 @@
+{{-- components/input-email.blade.php --}}
+@props(['name', 'label', 'value' => '', 'helptext' => null, 'classes' => 'form-group', 'required' => false])
+
+<div class="{{ $classes }}">
+    @include('public_form.partials.label', [
+                'label' => $label,
+                'name' => $name,
+                'required' => $required
+            ])
+    <input type="email"
+           class="form-control"
+           name="{{ $name }}"
+           id="{{ $name }}"
+           value="{{ old($name, $value) }}"
+           @if($helptext) aria-describedby="{{ $name }}-help" @endif
+           @if($required) required @endif
+    />
+    @if($helptext)
+        @include('public_form.partials.helptext', [
+            'name' => $name,
+            'helptext' => $helptext
+        ])
+    @endif
+
+</div>
