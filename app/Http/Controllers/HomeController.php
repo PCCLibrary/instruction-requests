@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use App\Services\InstructionRequestService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -36,7 +36,7 @@ class HomeController extends Controller
         $librarian = Auth::user();
 
         // Query InstructionRequests using whereHas to filter by related InstructionRequestDetails
-        $myRequests = InstructionRequest::whereHas('detail', function ($query) use ($librarian) {
+        $myRequests = InstructionRequests::whereHas('detail', function ($query) use ($librarian) {
             $query->where('assigned_librarian_id', $librarian->id)
                 ->where('status', 'assigned');
         })->get();

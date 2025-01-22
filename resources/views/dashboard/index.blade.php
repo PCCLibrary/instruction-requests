@@ -1,65 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    {{-- Status Boxes --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+        <x-status-box
+            :bgClass="'bg-blue-100 border-l-4 border-blue-400 text-blue-700'"
+            :icon="'fa fa-file'"
+            :infoBoxText="'Received'"
+            :count="$pendingRequests->count() ?: 0"
+        />
+        <x-status-box
+            :bgClass="'bg-amber-100 border-l-4 border-amber-400 text-amber-700'"
+            :icon="'fa fa-user'"
+            :infoBoxText="'Assigned'"
+            :count="$inProgressRequests->count() ?: 0"
+        />
+        <x-status-box
+            :bgClass="'bg-fuchsia-100 border-l-4 border-fuchsia-400 text-fuchsia-700'"
+            :icon="'fa fa-star'"
+            :infoBoxText="'Accepted'"
+            :count="$acceptedRequests->count() ?: 0"
+        />
+        <x-status-box
+            :bgClass="'bg-green-100 border-l-4 border-green-400 text-green-700'"
+            :icon="'fa fa-check'"
+            :infoBoxText="'Completed'"
+            :count="$completedRequests->count() ?: 0"
+        />
+    </div>
 
-        {{-- Left Column: Tables --}}
-        <div class="space-y-6">
-            {{-- Assigned Requests --}}
-            <x-instruction-request-table
-                :instructionRequests="$myRequests"
-                title="Assigned to {{ Auth::user()->display_name }}"
-                headerClasses="bg-olive"
-                :show-status="true"
-            />
+    {{-- Tables --}}
+    <div class="grid grid-cols-1 gap-6 mt-6">
+        {{-- Assigned Requests --}}
+        <x-instruction-request-table
+            :instructionRequests="$myRequests"
+            title="Assigned to {{ Auth::user()->display_name }}"
+            headerClasses="bg-green-50 border-b border-green-300 text-green-800"
+            :show-status="true"
+        />
 
-            {{-- Recently Received Requests --}}
-            <x-instruction-request-table
-                :instructionRequests="$tableRequests"
-                title="Recently Received Requests"
-            />
-        </div>
-
-        {{-- Right Column: Status Boxes --}}
-        <div class="space-y-6">
-            {{-- Status Boxes --}}
-            @include('components.status_box', [
-                'bgClass' => 'bg-warning',
-                'icon' => 'fa fa-file',
-                'infoBoxText' => 'Received',
-                'count' => $pendingRequests->count() ?: 0
-            ])
-            @include('components.status_box', [
-                'bgClass' => 'bg-info',
-                'icon' => 'fa fa-user',
-                'infoBoxText' => 'Assigned',
-                'count' => $inProgressRequests->count() ?: 0
-            ])
-            @include('components.status_box', [
-                'bgClass' => 'bg-teal',
-                'icon' => 'fa fa-star',
-                'infoBoxText' => 'Accepted',
-                'count' => $acceptedRequests->count() ?: 0
-            ])
-            @include('components.status_box', [
-                'bgClass' => 'bg-success',
-                'icon' => 'fa fa-check',
-                'infoBoxText' => 'Completed',
-                'count' => $completedRequests->count() ?: 0
-            ])
-            @include('components.status_box', [
-                'bgClass' => 'bg-grey',
-                'icon' => 'fa fa-graduation-cap',
-                'infoBoxText' => 'Instructors',
-                'count' => $instructorCount
-            ])
-            @include('components.status_box', [
-                'bgClass' => 'bg-dark',
-                'icon' => 'fa fa-clock',
-                'infoBoxText' => 'Instruction Hours',
-                'count' => $totalInstructionHours
-            ])
-        </div>
-
+        {{-- Recently Received Requests --}}
+        <x-instruction-request-table
+            :instructionRequests="$tableRequests"
+            title="Recently Received Requests"
+            headerClasses="bg-blue-50 border-b border-blue-300 text-blue-800"
+            :show-status="true"
+        />
     </div>
 @endsection

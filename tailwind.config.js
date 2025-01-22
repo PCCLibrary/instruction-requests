@@ -7,8 +7,11 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        // Add these lines to ensure Livewire and your components are scanned
+        './app/Livewire/**/*.php',
+        './resources/js/**/*.js',
+        './resources/js/**/*.vue',
     ],
-
     theme: {
         extend: {
             fontFamily: {
@@ -16,6 +19,5 @@ export default {
             },
         },
     },
-
     plugins: [forms],
 };

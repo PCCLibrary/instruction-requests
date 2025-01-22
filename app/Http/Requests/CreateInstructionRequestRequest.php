@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 
 class CreateInstructionRequestRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class CreateInstructionRequestRequest extends FormRequest
      */
     public function rules(): array
     {
-        return InstructionRequest::rules($this);
+        return InstructionRequests::rules($this);
     }
 
     /**

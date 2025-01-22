@@ -45,7 +45,7 @@ class InstructionRequestFilters extends Component
             'custom' => 'Custom Range'
         ];
 
-        return view('instruction_requests.partials.filters-content', compact(
+        return view('instruction-requests.partials.filters-content', compact(
             'campuses',
             'statuses',
             'types',

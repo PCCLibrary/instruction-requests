@@ -9,7 +9,7 @@ use App\Notifications\LibrarianNotification;
 use App\Notifications\InstructorNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use App\Services\InstructionRequestService;
 
 /**
@@ -32,10 +32,10 @@ class NotificationService
     /**
      * Notify based on the status of the instruction request.
      *
-     * @param InstructionRequest $instructionRequest The instruction request object.
+     * @param InstructionRequests $instructionRequest The instruction request object.
      * @return void
      */
-    public function notifyBasedOnStatus(InstructionRequest $instructionRequest)
+    public function notifyBasedOnStatus(InstructionRequests $instructionRequest)
     {
         $status = $instructionRequest->status;
         $instructor = $this->getInstructorById($instructionRequest->instructor_id);
@@ -70,11 +70,11 @@ class NotificationService
      * Send a notification to a user (librarian).
      *
      * @param User $user The user to notify.
-     * @param InstructionRequest $instructionRequest The instruction request object.
+     * @param InstructionRequests $instructionRequest The instruction request object.
      * @param string $subject The email subject.
      * @return void
      */
-    protected function sendNotification(User $user, InstructionRequest $instructionRequest, string $subject)
+    protected function sendNotification(User $user, InstructionRequests $instructionRequest, string $subject)
     {
         try {
             $user->notify(new LibrarianNotification($instructionRequest, $subject));
@@ -87,11 +87,11 @@ class NotificationService
     /**
      * Notify an instructor.
      *
-     * @param InstructionRequest $instructionRequest The instruction request object.
+     * @param InstructionRequests $instructionRequest The instruction request object.
      * @param string $subject The email subject.
      * @return void
      */
-    protected function notifyInstructor(InstructionRequest $instructionRequest, string $subject)
+    protected function notifyInstructor(InstructionRequests $instructionRequest, string $subject)
     {
         try {
             $instructor = $this->getInstructorById($instructionRequest->instructor_id);
@@ -109,11 +109,11 @@ class NotificationService
     /**
      * Notify librarians associated with the campus of an instruction request.
      *
-     * @param InstructionRequest $instructionRequest The instruction request object.
+     * @param InstructionRequests $instructionRequest The instruction request object.
      * @param string $subject The email subject.
      * @return void
      */
-    protected function notifyLibrarians(InstructionRequest $instructionRequest, string $subject)
+    protected function notifyLibrarians(InstructionRequests $instructionRequest, string $subject)
     {
         try {
             $librarians = $this->getLibrariansByCampusId($instructionRequest->campus_id);

@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Instructor;
 use App\Models\Campus;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 
 class StatusChangeNotification extends Notification
 {
@@ -23,11 +23,11 @@ class StatusChangeNotification extends Notification
     /**
      * Create a new notification instance.
      *
-     * @param InstructionRequest $instructionRequest
+     * @param InstructionRequests $instructionRequest
      * @param string $subject
      * @return void
      */
-    public function __construct(InstructionRequest $instructionRequest, string $subject)
+    public function __construct(InstructionRequests $instructionRequest, string $subject)
     {
         $this->instructionRequest = $instructionRequest;
         $this->subject = $subject;

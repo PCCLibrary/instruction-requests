@@ -9,7 +9,7 @@ use Livewire\WithFileUploads;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use Illuminate\Support\Facades\Auth;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use App\Models\Campus;
 use App\Models\User;
 

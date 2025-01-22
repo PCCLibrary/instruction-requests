@@ -2,7 +2,7 @@
 
 namespace App\Contracts;
 
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -13,27 +13,27 @@ interface InstructionRequestServiceInterface
      *
      * @param array $data
      * @param Request $request
-     * @return InstructionRequest
+     * @return InstructionRequests
      */
-    public function createNewInstructionRequest(array $data, Request $request): InstructionRequest;
+    public function createNewInstructionRequest(array $data, Request $request): InstructionRequests;
 
     /**
      * Update an existing instruction request and its details.
      *
      * @param array $data
      * @param int $id
-     * @return InstructionRequest
+     * @return InstructionRequests
      * @throws \Exception When instruction request not found
      */
-    public function updateInstructionRequest(array $data, int $id): InstructionRequest;
+    public function updateInstructionRequest(array $data, int $id): InstructionRequests;
 
     /**
      * Find an instruction request by ID.
      *
      * @param int $id
-     * @return InstructionRequest|null
+     * @return InstructionRequests|null
      */
-    public function findInstructionRequestById(int $id): ?InstructionRequest;
+    public function findInstructionRequestById(int $id): ?InstructionRequests;
 
     /**
      * Delete an instruction request.
@@ -75,13 +75,13 @@ interface InstructionRequestServiceInterface
      * @param Request $request
      * @param string $fieldName
      * @param string $collectionName
-     * @param InstructionRequest $instructionRequest
+     * @param InstructionRequests $instructionRequest
      * @return void
      */
     public function handleFileUploads(
         Request $request,
         string $fieldName,
         string $collectionName,
-        InstructionRequest $instructionRequest
+        InstructionRequests $instructionRequest
     ): void;
 }

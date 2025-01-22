@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 
 class InstructionRequestRepository extends BaseRepository
 {
@@ -38,6 +38,6 @@ class InstructionRequestRepository extends BaseRepository
      */
     public function model(): string
     {
-        return InstructionRequest::class;
+        return InstructionRequests::class;
     }
 }

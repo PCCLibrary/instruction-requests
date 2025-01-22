@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
@@ -41,15 +41,15 @@ class InstructionRequestDataTable extends DataTable
     /**
      * Get query source of dataTable.
      *
-     * @param InstructionRequest $model
+     * @param InstructionRequests $model
      * @return Builder
      */
-    public function query(InstructionRequest $model)
+    public function query(InstructionRequests $model)
     {
         $query = $model->newQuery()
             ->leftJoin('instructors', 'instruction_requests.instructor_id', '=', 'instructors.id')
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
-            ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_request_id')
+            ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_requests_id')
             ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
             ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id')
             ->select(

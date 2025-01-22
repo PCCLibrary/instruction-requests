@@ -1,6 +1,6 @@
 [
         {
-            "name": "instruction_request_id",
+            "name": "instruction_requests_id",
             "dbType": "unsignedInteger",
             "htmlType": "number",
             "validations": "required|exists:instruction_requests,id",

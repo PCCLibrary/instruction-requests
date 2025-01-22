@@ -10,7 +10,7 @@ class CustomPathGenerator implements PathGenerator
 
     public function getPath(Media $media): string
     {
-        // Use instruction_request_id to organize files at the root
+        // Use instruction_requests_id to organize files at the root
         return 'uploads/' . $media->model->id . '/';
     }
 

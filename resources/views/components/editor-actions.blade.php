@@ -1,15 +1,30 @@
-<!-- resources/views/components/button-group.blade.php -->
+@props(['route', 'showBack' => false])
 
-@props(['route', 'showBack' => false ])
+<div class="flex justify-between items-center">
+    <div class="space-x-2">
+        <button
+            type="submit"
+            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+        >
+            Save
+        </button>
 
-<div class="d-flex justify-content-between">
-<div class="button-group ">
-        {!! Form::submit('Save', ['class' => 'btn btn-success']) !!}
-        <a href="{{ $route }}" class="btn btn-warning">Cancel</a>
-</div>
-@if ($showBack)
-    <div class="button-group":>
-        <a href="{{ $route }}" class="btn btn-dark ml-4">Back to List</a>
+        <a
+            href="{{ $route }}"
+            class="inline-flex items-center px-4 py-2 bg-yellow-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600 focus:bg-yellow-600 active:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150"
+        >
+            Cancel
+        </a>
     </div>
-@endif
+
+    @if ($showBack)
+        <div>
+            <a
+                href="{{ $route }}"
+                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150"
+            >
+                Back to List
+            </a>
+        </div>
+    @endif
 </div>

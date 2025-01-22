@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @package App\Models
  * @version February 26, 2024, 10:37 pm UTC
  *
- * @property unsignedInteger $instruction_request_id
+ * @property unsignedInteger $instruction_requests_id
  * @property unsignedBigInteger $assigned_librarian_id
  * @property string $instruction_duration
  * @property datetime $instruction_datetime
@@ -42,7 +42,7 @@ class InstructionRequestDetails extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'instruction_request_id',
+        'instruction_requests_id',
         'assigned_librarian_id',
         'instruction_duration',
         'instruction_datetime',
@@ -70,7 +70,7 @@ class InstructionRequestDetails extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'instruction_request_id' => 'integer',
+        'instruction_requests_id' => 'integer',
         'assigned_librarian_id' => 'integer',
         'instruction_duration' => 'string',
         'instruction_datetime' => 'datetime',
@@ -97,7 +97,7 @@ class InstructionRequestDetails extends Model
      * @var array
      */
     public static $rules = [
-        'instruction_request_id' => 'required|exists:instruction_requests,id',
+        'instruction_requests_id' => 'required|exists:instruction_requests,id',
         'assigned_librarian_id' => 'nullable|exists:users,id',
         'instruction_duration' => 'nullable|string',
         'instruction_datetime' => 'nullable|date',

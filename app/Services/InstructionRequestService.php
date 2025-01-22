@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Contracts\InstructionRequestServiceInterface;
 use App\Models\Classes;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use App\Models\Instructor;
 use App\Repositories\InstructionRequestRepository;
 use App\Contracts\InstructionRequestDetailsServiceInterface;
@@ -26,7 +26,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         $this->detailsService = $detailsService;
     }
 
-    public function createNewInstructionRequest(array $data, Request $request): InstructionRequest
+    public function createNewInstructionRequest(array $data, Request $request): InstructionRequests
     {
         return DB::transaction(function () use ($data, $request) {
             $instructor = $this->findOrCreateInstructor($data);
@@ -43,7 +43,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             $instructionRequest->detail()->create([
                 'instruction_datetime' => $data['preferred_datetime'],
                 'assigned_librarian_id' => $data['librarian_id'],
-                'instruction_request_id' => $instructionRequest->id,
+                'instruction_requests_id' => $instructionRequest->id,
                 'instruction_duration' => $data['duration'],
                 'created_by' => $data['created_by'],
                 'last_updated_by' => $data['created_by'],
@@ -56,7 +56,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         });
     }
 
-    public function updateInstructionRequest(array $data, int $id): InstructionRequest
+    public function updateInstructionRequest(array $data, int $id): InstructionRequests
     {
         return DB::transaction(function () use ($data, $id) {
             $instructionRequest = $this->findInstructionRequestById($id);
@@ -75,7 +75,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         });
     }
 
-    public function findInstructionRequestById(int $id): ?InstructionRequest
+    public function findInstructionRequestById(int $id): ?InstructionRequests
     {
         return $this->repository->find($id);
     }
@@ -131,7 +131,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         Request $request,
         string $fieldName,
         string $collectionName,
-        InstructionRequest $instructionRequest
+        InstructionRequests $instructionRequest
     ): void {
         if ($request->hasFile($fieldName)) {
             foreach ($request->file($fieldName) as $file) {
@@ -140,7 +140,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         }
     }
 
-    private function processFileUploads(Request $request, InstructionRequest $instructionRequest): void
+    private function processFileUploads(Request $request, InstructionRequests $instructionRequest): void
     {
         $fileTypes = [
             'class_syllabus' => 'syllabus',

@@ -15,7 +15,7 @@ class CreateInstructionRequestDetailsTable extends Migration
     {
         Schema::create('instruction_request_details', function (Blueprint $table) {
             $table->increments('id'); // Primary key for the details table
-            $table->unsignedInteger('instruction_request_id');
+            $table->unsignedInteger('instruction_requests_id');
             $table->unsignedBigInteger('assigned_librarian_id')->nullable(); // Librarian might not be assigned initially
             $table->boolean('video')->default(false);
             $table->boolean('non_video')->default(false);
@@ -37,8 +37,8 @@ class CreateInstructionRequestDetailsTable extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Define the foreign key constraint for instruction_request_id
-            $table->foreign('instruction_request_id')->references('id')->on('instruction_requests')->onDelete('cascade');
+            // Define the foreign key constraint for instruction_requests_id
+            $table->foreign('instruction_requests_id')->references('id')->on('instruction_requests')->onDelete('cascade');
 
             // Define the foreign key constraint for assigned_librarian_id
             $table->foreign('assigned_librarian_id')->references('id')->on('users')->onDelete('set null');
@@ -54,7 +54,7 @@ class CreateInstructionRequestDetailsTable extends Migration
     {
         Schema::table('instruction_request_details', function (Blueprint $table) {
             // Drop foreign key constraints
-            $table->dropForeign(['instruction_request_id']);
+            $table->dropForeign(['instruction_requests_id']);
             $table->dropForeign(['assigned_librarian_id']);
         });
 

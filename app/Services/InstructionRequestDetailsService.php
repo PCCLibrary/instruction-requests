@@ -18,7 +18,7 @@ class InstructionRequestDetailsService implements InstructionRequestDetailsServi
 
     public function getDetailsByInstructionRequestId(int $instructionRequestId): ?InstructionRequestDetails
     {
-        return $this->repository->model()::where('instruction_request_id', $instructionRequestId)->first();
+        return $this->repository->model()::where('instruction_requests_id', $instructionRequestId)->first();
     }
 
     public function updateInstructionRequestDetails(array $data, int $instructionRequestId): ?InstructionRequestDetails

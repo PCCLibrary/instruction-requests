@@ -9,7 +9,7 @@
         ])
 
 <div class="{{ $classes }}">
-    <x-label :label="$label" :name="$name" :required="$required" />
+    <x-label-form :label="$label" :name="$name" :required="$required" />
     <input type="file" name="{{ $name }}[]"  multiple />
     @if($helptext)
         <x-helptext name="{{ $name }}" helptext="{{ $helptext }}" />

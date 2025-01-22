@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateInstructionRequestRequest;
 use App\Models\Campus;
 use App\Models\Classes;
-use App\Models\InstructionRequest;
+use App\Models\InstructionRequests;
 use App\Models\Instructor;
 use App\Models\User;
 use App\Services\DepartmentService;
@@ -15,7 +15,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Laracasts\Flash\Flash;
 use Throwable;
 
 /**
@@ -90,26 +89,23 @@ class PublicInstructionRequestController extends Controller
 //            Log::debug('received request: ' . json_encode($instructionRequest));
 
             // Flash a success message to the session
-            Flash::success('Instruction Request saved successfully.');
-
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();
         } catch (Throwable $e) {
             // Flash an error message and input data to the session
-            Flash::error('Instruction Request not saved.');
-
             return redirect('/')
                 ->with('error', 'Failed to submit the instruction request.')
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
     }
+
     /**
      * Fetch related data for the instruction request and append to the object.
      *
-     * @param InstructionRequest $instructionRequest
-     * @return InstructionRequest
+     * @param InstructionRequests $instructionRequest
+     * @return InstructionRequests
      */
     protected function appendAdditionalData($instructionRequest)
     {

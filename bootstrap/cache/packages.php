@@ -1,4 +1,25 @@
 <?php return array (
+  'blade-ui-kit/blade-heroicons' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'BladeUI\\Heroicons\\BladeHeroiconsServiceProvider',
+    ),
+  ),
+  'blade-ui-kit/blade-icons' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
+    ),
+  ),
+  'blade-ui-kit/blade-ui-kit' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'BladeUIKit\\BladeUIKitServiceProvider',
+    ),
+  ),
   'graham-campbell/security' => 
   array (
     'providers' => 
