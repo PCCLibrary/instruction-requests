@@ -24,10 +24,10 @@
                             {{ __('Instructors') }}
                         </a>
 
-                        <a href="{{ route('classes.index') }}"
-                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
-                            {{ __('Classes') }}
-                        </a>
+{{--                        <a href="{{ route('classes.index') }}"--}}
+{{--                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">--}}
+{{--                            {{ __('Classes') }}--}}
+{{--                        </a>--}}
 
                         <a href="{{ route('users.index') }}"
                            class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
@@ -39,12 +39,6 @@
                             {{ __('Instruction Requests') }}
                         </a>
 
-                        @can('viewAny', \App\Models\User::class)
-                            <a href="{{ route('users.index') }}"
-                               class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
-                                {{ __('Users') }}
-                            </a>
-                        @endcan
                     </div>
                 </div>
             </div>
@@ -81,7 +75,7 @@
                             <a href="{{ route('profile.index') }}"
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                role="menuitem">
-                                {{ __('Profile') }}
+                                {{ __('My Account') }}
                             </a>
 
                             <form method="POST" action="{{ route('logout') }}">
@@ -159,12 +153,6 @@
                 {{ __('Instruction Requests') }}
             </a>
 
-            @can('viewAny', \App\Models\User::class)
-                <a href="{{ route('users.index') }}"
-                   class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
-                    {{ __('Users') }}
-                </a>
-            @endcan
         </div>
 
         {{-- Mobile menu profile section --}}
@@ -182,7 +170,7 @@
                 <div class="mt-3 space-y-1">
                     <a href="{{ route('profile.index') }}"
                        class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-cyan-600">
-                        {{ __('Profile') }}
+                        {{ __('My Account') }}
                     </a>
 
                     <form method="POST" action="{{ route('logout') }}">

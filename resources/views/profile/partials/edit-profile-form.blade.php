@@ -1,11 +1,11 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
+            {{ __('Name and Email') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information.") }}
+            {{ __("Update your name, display name, and email.") }}
         </p>
     </header>
 
@@ -50,7 +50,9 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-button bgClass="bg-cyan-700 dark:bg-cyan-900" hoverClass="hover:bg-cyan-800 dark:hover:bg-cyan-900">
+                {{ __('Save') }}
+            </x-button>
 
             @if (session('status') === 'profile-updated')
                 <p

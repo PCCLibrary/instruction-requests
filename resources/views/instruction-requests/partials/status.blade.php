@@ -8,7 +8,7 @@
 <input type="hidden" name="created_by" value="{{ $createdBy }}">
 <input type="hidden" name="last_updated_by" value="{{ $lastUpdatedBy }}">
 
-<div class="mb-4 mt-4">
+<div class="mb-4">
     <label for="status" class="block text-sm font-medium text-gray-700">Request Status</label>
     <select id="status" name="status"
             class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -56,6 +56,7 @@
     <p class="mt-2 text-sm text-gray-500">Duration in minutes.</p>
 </div>
 
+
 @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
     <div class="my-4" x-data="{ isOpen: false }">
         <button type="button" @click="isOpen = true"
@@ -92,6 +93,4 @@
     </div>
 @endif
 
-@include('instruction-requests.partials.calendar')
-
-@include('instruction-requests.partials.tasks')
+{{--@include('instruction-requests.partials.calendar')--}}

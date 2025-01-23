@@ -1,6 +1,6 @@
 {{-- resources/views/instruction-requests/admin/partials/other-info.blade.php --}}
 @if(!empty($instructionRequest->library_instruction_description) || !empty($instructionRequest->genai_discussion_interest))
-    <x-card title="Other Information" class="bg-gray-50">
+    <x-card title="Other Information" class="bg-gray-50 mb-4">
         <x-slot name="body">
             <div class="space-y-6">
                 <div class="overflow-x-auto">

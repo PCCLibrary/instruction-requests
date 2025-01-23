@@ -2,29 +2,30 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="text-xl font-semibold leading-tight text-gray-800">
-        {{ __('Edit Campus') }}
-    </h2>
+    <x-breadcrumbs :breadcrumbs="[
+            ['label' => 'Manage Campuses', 'route' => 'campuses.index'],
+            ['label' => 'Edit Campus'] // No route for this one
+        ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Editing Campus: <span class="font-weight-lighter text-gray-500">{{ $campus->name }}</span>
+    </h1>
+
 @endsection
 
 @section('content')
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <form action="{{ route('campuses.update', $campus) }}" method="POST" class="p-6">
-                    @csrf
-                    @method('PUT')
 
-                    @include('campuses.partials.fields')
+    <form action="{{ route('campuses.update', $campus) }}" method="POST" class="p-4 bg-white shadow-sm sm:rounded-lg">
+        @csrf
+        @method('PUT')
 
-                    <div class="gap-4 mt-6">
-                        <x-editor-actions
-                            route="{{ route('campuses.index') }}"
-                            :showBack="(bool)$campus"
-                        />
-                    </div>
-                </form>
-            </div>
+        @include('campuses.partials.fields')
+
+        <div class="gap-4 mt-6">
+            <x-editor-actions
+                route="{{ route('campuses.index') }}"
+                :showBack="(bool)$campus"
+            />
         </div>
-    </div>
+    </form>
+
 @endsection

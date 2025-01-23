@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/admin/partials/date-time.blade.php --}}
-<x-card title="Date and Time Information" class="bg-gray-50">
+<x-card title="Date and Time Information" class="bg-gray-50 mb-4">
     <x-slot name="body">
         <div class="overflow-x-auto">
             @if($instructionRequest->instruction_type !== 'asynchronous')

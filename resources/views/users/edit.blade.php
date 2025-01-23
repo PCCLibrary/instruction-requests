@@ -1,23 +1,25 @@
 @extends('layouts.app')
 
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+            ['label' => 'Manage Librarian Accounts', 'route' => 'users.index'],
+            ['label' => 'Edit User'] // No route for this one
+        ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Edit User
+    </h1>
+
+@endsection
+
 @section('content')
-    <section class="content-header">
-        <h1>
-            User
-        </h1>
-   </section>
-   <div class="content">
-       @include('adminlte-templates::common.errors')
-       <div class="box box-primary">
-           <div class="box-body">
-               <div class="row d-block w-100">
-                   {!! Form::model($user, ['route' => ['users.update', $user->id], 'method' => 'patch']) !!}
 
-                        @include('users.fields')
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <x-card class="mb-4">
+            @include('profile.partials.edit-profile-form')
+        </x-card>
+        <x-card class="mb-4">
+            @include('profile.partials.update-password-form')
+        </x-card>
+    </div>
 
-                   {!! Form::close() !!}
-               </div>
-           </div>
-       </div>
-   </div>
 @endsection

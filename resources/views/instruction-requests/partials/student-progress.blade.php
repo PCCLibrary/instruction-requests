@@ -10,7 +10,7 @@
 @endphp
 
 @if($shouldDisplay)
-    <x-card title="Students Have:" class="bg-gray-50">
+    <x-card title="Students Have:" class="bg-gray-50 mb-4">
         <x-slot name="body">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">

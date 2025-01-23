@@ -2,9 +2,14 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="text-xl font-semibold leading-tight text-gray-800">
-        {{ __('Edit Instructor') }}
-    </h2>
+    <x-breadcrumbs :breadcrumbs="[
+            ['label' => 'Manage Instructors', 'route' => 'instructors.index'],
+            ['label' => 'Edit Instructor'] // No route for this one
+        ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Editing Instructor: <span class="font-weight-lighter text-gray-500">{{ $instructor->display_name }}</span>
+    </h1>
+
 @endsection
 
 @section('content')

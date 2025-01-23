@@ -2,13 +2,13 @@
 @props( [
         'name',
         'label',
-        'classes' => 'form-group',
+        'class' => 'form-group',
         'helptext' => null,
         'required' => false,
         'errors' => []
         ])
 
-<div class="{{ $classes }}">
+<div class="{{ $class }}">
     <x-label-form :label="$label" :name="$name" :required="$required" />
     <input type="file" name="{{ $name }}[]"  multiple />
     @if($helptext)

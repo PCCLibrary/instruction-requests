@@ -65,6 +65,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 'classes.course_name',
                 'librarians.display_name as librarian_name',
                 'instruction_requests.status',
+                'instruction_request_details.instruction_datetime',
                 'instruction_request_details.created_by',
                 'instruction_request_details.last_updated_by',
                 'campuses.name as campus_name'
@@ -99,8 +100,8 @@ final class InstructionRequestTable extends PowerGridComponent
             ->add('campus_name')
             ->add('course_name')
             ->add('status', fn (InstructionRequests $model) => ucfirst($model->status))
-            ->add('preferred_datetime')
-            ->add('preferred_datetime_formatted', fn (InstructionRequests $model) =>
+            ->add('instruction_datetime')
+            ->add('instruction_datetime_formatted', fn (InstructionRequests $model) =>
             $model->preferred_datetime ? Carbon::parse($model->preferred_datetime)->format('m/d/Y g:i a') : '')
             ->add('last_updated_by');
     }
@@ -115,6 +116,12 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(false),
+
+            Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_datetime')
+                ->sortable()
+                ->searchable()
+                ->visibleInExport(false),
+
 
             Column::make('Submitted', 'created_at')
                 ->hidden()
@@ -144,19 +151,8 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Preferred Date', 'preferred_datetime_formatted', 'preferred_datetime')
-                ->sortable()
-                ->searchable()
-                ->visibleInExport(false),
-
-            Column::make('Preferred Date', 'preferred_datetime')
-                ->hidden()
-                ->visibleInExport(true),
-
             Column::action('Action')
                 ->visibleInExport(false)
-                ->sortable(false) // Explicitly set as not sortable
-                ->searchable(false) // Explicitly set as not searchable
         ];
     }
 
@@ -166,6 +162,12 @@ final class InstructionRequestTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+            Filter::inputText('instructor_name', 'instructors.display_name'),
+
+            Filter::inputText('librarian_name', 'librarians.display_name'),
+            Filter::inputText('campus_name', 'campuses.name'),
+
+
             Filter::select('status', 'instruction_requests.status')
                 ->dataSource([
                     ['value' => 'received', 'label' => 'Received'],
@@ -185,9 +187,8 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->optionValue('value')
                 ->optionLabel('label'),
 
-            Filter::datepicker('created_at'),
-
-            Filter::datepicker('preferred_datetime'),
+            Filter::datepicker('created_at', 'instruction_requests.created_at'),
+            Filter::datepicker('instruction_datetime'),
         ];
     }
 

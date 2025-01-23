@@ -1,23 +1,21 @@
 @extends('layouts.app')
 
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+            ['label' => 'Manage Librarian Accounts'],
+        ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+       Manage Librarian Accounts
+    </h1>
+
+    <p>Add and manage librarian accounts.</p>
+
+
+@endsection
+
 @section('content')
-    <x-page-header title="Librarians" text="Manage librarian user accounts">
-           <a class="btn btn-success float-right"
-              href="{!! route('users.create') !!}">Add New</a>
-    </x-page-header>
 
-    <div class="content px-3">
+    @include('users.table')
 
-{{--        @include('flash::message')--}}
-
-        <div class="clearfix"></div>
-
-        <div class="card">
-            <div class="card-body p-0">
-                @include('users.table')
-            </div>
-
-        </div>
-    </div>
 @endsection
 

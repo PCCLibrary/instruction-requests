@@ -2,7 +2,7 @@
 @props(['attachments', 'title'])
 
 @if($attachments->isNotEmpty())
-    <ul class="space-y-2">
+    <ul class="space-y-2 mb-4">
         <li class="text-lg font-semibold leading-6 text-gray-900">{{ $title }}</li>
         @foreach($attachments as $item)
             <li class="flex items-center gap-2 text-gray-900">

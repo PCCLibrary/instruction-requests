@@ -1,25 +1,18 @@
 @extends('layouts.app')
 
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+            ['label' => 'Manage Instructors'] // No route for this one
+        ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Manage Instructors
+    </h1>
+    <p>Edit and manage instructors.</p>
+
+@endsection
 @section('content')
 
-    <x-page-header title="Instructors" text="Manage instructors">
-{{--            <a class="btn btn-success float-right"--}}
-{{--               href="{{ route('instructors.create') }}">--}}
-{{--                Add New--}}
-{{--            </a>--}}
-    </x-page-header>
-
-    <div class="content px-3">
-
-        <div class="clearfix"></div>
-
-        <div class="card">
-            <div class="card-body p-0">
-                @include('instructors.table')
-            </div>
-
-        </div>
-    </div>
+ @include('instructors.table')
 
 @endsection
 

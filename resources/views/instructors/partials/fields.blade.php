@@ -1,4 +1,4 @@
-<!-- resources/views/instructors/partials/fields.blade.php -->
+<!-- resources/views/instructors/partials/status.blade.php -->
 <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
     <div>
         <x-input-text name="name" label="Name"

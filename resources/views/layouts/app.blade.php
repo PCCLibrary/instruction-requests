@@ -24,17 +24,16 @@
 </div>
 <!-- Page Heading -->
 @if (View::hasSection('header'))
-    <header class="bg-white dark:bg-gray-800 shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <header class="py-6 bg-white dark:bg-gray-800 shadow">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             @yield('header')
         </div>
     </header>
 @endif
 
-<x-alerts/>
-
 <!-- Page Content -->
-<main class="py-6">
+<main class="py-0">
+    <x-alerts/>
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         @yield('content')
     </div>

@@ -1,8 +1,8 @@
 {{-- resources/views/instruction-requests/admin/partials/request-info.blade.php --}}
-<x-card class="bg-gray-50">
+<x-card class="bg-gray-50 mb-4">
     <x-slot name="title">
         <div class="flex justify-between items-center">
-            <h5 class="text-base font-medium leading-6 text-gray-900">Request Information</h5>
+            <h5 class="mb-0 text-2xl font-bold tracking-tight text-gray-900">Request Information</h5>
             <button type="button"
                     x-data="editToggle"
                     @click="toggleEdit"
@@ -14,7 +14,7 @@
     </x-slot>
 
     <x-slot name="body">
-        <div class="p-4 space-y-6">
+        <div class="p-4">
             <div class="space-y-4">
                 <x-input-select
                     name="instruction_type"
@@ -76,7 +76,7 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="space-y-6">
+{{--        <div class="p-4">--}}
             @if(isset($instructionRequest->librarian->display_name) || isset($instructionRequest->campus->name))
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @if($instructionRequest->librarian->display_name)
@@ -94,6 +94,6 @@
                     @endif
                 </div>
             @endif
-        </div>
+{{--        </div>--}}
     </x-slot>
 </x-card>

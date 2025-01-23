@@ -9,6 +9,8 @@
 {{-- Request Information Section --}}
 @include('instruction-requests.partials.request-info', ['instructionRequest' => $instructionRequest, 'departments' => $departments])
 
+{{-- Course Materials Section --}}
+
 {{-- Date and Time Section --}}
 @include('instruction-requests.partials.date-time', ['instructionRequest' => $instructionRequest])
 
