@@ -8,7 +8,7 @@
             </label>
             <select wire:model.live="dateRange"
                     id="date-range"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="block w-full bg-white rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">All Time</option>
                 @foreach($dateRanges as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -23,7 +23,7 @@
             </label>
             <select wire:model.live="selectedCampus"
                     id="campus-filter"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="bg-white block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">All Campuses</option>
                 @foreach($campuses as $campus)
                     <option value="{{ $campus->id }}">{{ $campus->name }}</option>
@@ -38,7 +38,7 @@
             </label>
             <select wire:model.live="selectedStatus"
                     id="status-filter"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="bg-white block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">All Statuses</option>
                 @foreach($statuses as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -53,7 +53,7 @@
             </label>
             <select wire:model.live="selectedType"
                     id="type-filter"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="bg-white block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">All Types</option>
                 @foreach($types as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -90,7 +90,7 @@
     <div class="flex justify-end space-x-3 px-4 pb-4">
         <button wire:click="resetFilters"
                 type="button"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                class="inline-flex items-center px-4 py-2 border bg-amber-50 border-amber-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Reset Filters
         </button>
         <button wire:click="applyFilters"

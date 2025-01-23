@@ -1,39 +1,29 @@
+<!-- resources/views/campuses/create.blade.php -->
 @extends('layouts.app')
 
+@section('header')
+    <h2 class="text-xl font-semibold leading-tight text-gray-800">
+        {{ __('Create Campus') }}
+    </h2>
+@endsection
+
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-12">
-                    <h1>Create Campus</h1>
-                </div>
+    <div class="py-12">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                <form action="{{ route('campuses.store') }}" method="POST" class="p-6">
+                    @csrf
+
+                    @include('campuses.partials.    fields')
+
+                    <div class="gap-4 mt-6">
+                        <x-editor-actions
+                            route="{{ route('campuses.index') }}"
+                            :showBack="false"
+                        />
+                    </div>
+                </form>
             </div>
-        </div>
-    </section>
-
-    <div class="content px-3">
-
-        @include('adminlte-templates::common.errors')
-
-        <div class="card">
-
-            {!! Form::open(['route' => 'campuses.store']) !!}
-
-            <div class="card-body">
-
-                <div class="row">
-                    @include('campuses.fields')
-                </div>
-
-            </div>
-
-            <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('campuses.index') }}" class="btn btn-default">Cancel</a>
-            </div>
-
-            {!! Form::close() !!}
-
         </div>
     </div>
 @endsection

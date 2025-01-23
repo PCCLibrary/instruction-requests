@@ -74,27 +74,19 @@ final class ClassesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::add()
-                ->title('Course Name')
-                ->field('course_name')
+            Column::make('Course Name','course_name')
                 ->searchable()
                 ->sortable(),
 
-            Column::add()
-                ->title('Department')
-                ->field('department_code')
-                ->searchable()
-                ->sortable(),
+            Column::make('Department','department_code'),
+//                ->searchable()
+//                ->sortable(),
 
-            Column::add()
-                ->title('Course #')
-                ->field('course_number')
-                ->searchable()
-                ->sortable(),
+            Column::make('Course #','course_number'),
+//                ->searchable()
+//                ->sortable(),
 
-            Column::add()
-                ->title('CRN')
-                ->field('course_crn')
+            Column::make('CRN','course_crn')
                 ->searchable()
                 ->sortable(),
 
@@ -109,8 +101,8 @@ final class ClassesTable extends PowerGridComponent
     {
         return [
             Filter::inputText('course_name'),
-            Filter::inputText('department_code'),
-            Filter::inputText('course_number'),
+//            Filter::inputText('department_code'),
+//            Filter::inputText('course_number'),
             Filter::inputText('course_crn'),
         ];
     }

@@ -22,10 +22,19 @@ class Instructor extends Model
 {
     use SoftDeletes, Notifiable;
 
+    /**
+     * @var string
+     */
     public $table = 'instructors';
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var string[]
+     */
     public $fillable = [
         'name',
         'display_name',
@@ -53,9 +62,24 @@ class Instructor extends Model
      *
      * @var array
      */
-    public static $rules = [
-
+    public static array $rules = [
+        'name' => 'required|string|max:255',
+        'display_name' => 'required|string|max:255',
+        'pronouns' => 'nullable|string|max:255',
+        'email' => 'required|email|unique:instructors,email',
+        'phone' => 'nullable|string|max:20'
     ];
+
+
+    /**
+     * @return array|string[]
+     */
+    public function rules(): array
+    {
+        $rules = Instructor::$rules;
+        $rules['email'] = 'required|email|unique:instructors,email,' . $this->route('instructor');
+        return $rules;
+    }
 
 
 }

@@ -159,9 +159,9 @@ abstract class BaseRepository
      */
     public function update(array $data, int $id): Model
     {
-        $record = $this->findOrFail($id);
+        $record = $this->model->newQuery()->findOrFail($id);
         $record->update($data);
-        return $record;
+        return $record->fresh();  // Always return a fresh instance
     }
 
     /**

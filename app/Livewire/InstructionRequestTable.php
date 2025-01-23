@@ -194,25 +194,16 @@ final class InstructionRequestTable extends PowerGridComponent
     /**
      * Define the action buttons for each row
      */
-//    public function actions(InstructionRequests $row): array
-//    {
-//        return [
-//            Button::add('edit')
-//                ->slot('Edit: '.$row->id)
-//                ->id()
-//                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-//                ->dispatch('edit', ['rowId' => $row->id])
-//        ];
-//    }
     public function actionsFromView($row): View
     {
         return view('components.table-actions', [
-            'row' => $row,
+            'id' => $row->id,
             'editRoute' => 'instructionRequests.edit',
             'deleteEvent' => 'confirmDelete',
-            'canEdit' => true,  // Add authorization logic here if needed
-            'canDelete' => true, // Add authorization logic here if needed
-            'size' => 'w-4 h-4'
+            'canEdit' => true,
+            'canDelete' => true,
+            'size' => 'w-4 h-4',
+            'routeKeyName' => 'instructionRequest'
         ]);
     }
 

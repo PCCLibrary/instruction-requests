@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\IRinstructorRepository; // Injected repository
+use App\Repositories\InstructorRepository; // Injected repository
 use Illuminate\Http\Request;
 
 class InstructorController extends Controller
@@ -10,12 +10,12 @@ class InstructorController extends Controller
     /**
      * The instructor repository instance.
      */
-    protected IRinstructorRepository $repository;
+    protected InstructorRepository $repository;
 
     /**
      * Constructor to inject the repository.
      */
-    public function __construct(IRinstructorRepository $repository)
+    public function __construct(InstructorRepository $repository)
     {
         $this->repository = $repository;
     }

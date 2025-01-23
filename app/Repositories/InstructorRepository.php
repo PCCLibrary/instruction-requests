@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Instructor;
 
-class IRinstructorRepository extends BaseRepository
+class InstructorRepository extends BaseRepository
 {
     /**
      * Specify the model class that this repository works with.

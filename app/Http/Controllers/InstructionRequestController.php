@@ -13,6 +13,7 @@ use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class InstructionRequestController extends AppBaseController
@@ -147,28 +148,56 @@ class InstructionRequestController extends AppBaseController
      * @param UpdateInstructionRequestRequest $request
      * @return RedirectResponse
      */
+    // In InstructionRequestController.php
     public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
+        Log::info('Controller received update request', [
+            'id' => $id,
+            'raw_input' => $request->all(),  // Log raw input
+            'validated_data' => $request->validated()  // Log validated data
+        ]);
+
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
-//            flash('Instruction Request not found')->error();
+            Log::warning('Instruction request not found', ['id' => $id]);
             session()->flash('error', 'Instruction Request not found.');
-
             return redirect(route('instructionRequests.index'));
         }
 
-        try {
-            $this->instructionRequestService->updateInstructionRequest($request->validated(), $id);
-//            flash('Instruction Request updated successfully.')->success();
-            session()->flash('success', 'Instruction Request updated successfully.');
-        } catch (\Exception $e) {
-//            flash('Error updating Instruction Request: ' . $e->getMessage())->error();
-            session()->flash('error', 'Error updating Instruction Request: ' . $e->getMessage());
-            return redirect(route('instructionRequests.index'))->withErrors(['error' => $e->getMessage()]);
-        }
+        Log::info('Found instruction request', [
+            'id' => $id,
+            'current_status' => $instructionRequest->status,
+            'has_details' => $instructionRequest->detail ? 'yes' : 'no'
+        ]);
 
-        return redirect(route('instructionRequests.edit', $id));
+        try {
+            $validatedData = $request->validated();
+            Log::debug('Validated data before service call:', $validatedData);
+
+            $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
+
+            Log::info('Update completed', [
+                'id' => $id,
+                'updated_status' => $updated->status,
+                'has_details' => $updated->detail ? 'yes' : 'no'
+            ]);
+
+            session()->flash('success', 'Instruction Request updated successfully.');
+            return redirect(route('instructionRequests.edit', $id));
+
+        } catch (\Exception $e) {
+            Log::error('Error updating instruction request', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            session()->flash('error', 'Error updating Instruction Request: ' . $e->getMessage());
+            return redirect(route('instructionRequests.index'))
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
     }
 
     /**

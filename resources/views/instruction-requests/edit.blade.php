@@ -6,7 +6,11 @@
         @include('instruction-requests.partials.accept')
     @endif
 
-    <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}" method="POST">
+    <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}"
+          id="updateInstructionRequestForm"
+          method="POST"
+          enctype="multipart/form-data"
+    >
         @csrf
         @method('PATCH')
 
