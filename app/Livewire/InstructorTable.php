@@ -122,8 +122,12 @@ final class InstructorTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::inputText('name'),
-            Filter::inputText('display_name'),
+            Filter::inputText('name')
+                ->operators(['contains']),
+
+            Filter::inputText('display_name')
+                ->operators(['contains']),
+
         ];
     }
 

@@ -38,12 +38,6 @@
             {!! Form::password('password_confirmation', ['class' => 'form-control']) !!}
         </div>
 
-{{--        <!-- Campus ID Field -->--}}
-{{--        <div class="form-group col-md-4">--}}
-{{--            {!! Form::label('campus_id', 'Campus:') !!}--}}
-{{--            {!! Form::select('campus_id', $campuses, old('campus_id'), ['class' => 'form-control', 'placeholder' => 'Select Campus']) !!}--}}
-{{--        </div>--}}
-
         <!-- Submit and Cancel buttons -->
         <div class="form-group col-md-12">
             {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}

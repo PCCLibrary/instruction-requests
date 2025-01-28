@@ -28,10 +28,10 @@
             <tbody class="bg-white divide-y divide-gray-200">
             @forelse($instructionRequests as $request)
                 <tr class="{{ $loop->index % 2 === 0 ? 'bg-gray-50' : '' }}">
-                    <td class="px-4 py-4 whitespace-nowrap">{{ $request->Instructor->display_name }}</td>
+                    <td class="px-4 py-4 whitespace-nowrap">{{ $request->Instructor->name }}</td>
                     <td class="px-4 py-4 whitespace-nowrap">{{ $request->classes->course_name }}</td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        {{ \Carbon\Carbon::parse($request->created_at)->format('M d - g:i A') }}
+                        {{ \Carbon\Carbon::parse($request->created_at)->timezone('America/Los_Angeles')->format('M d - g:i A') }}
                     </td>
                     @if($showStatus)
                         <td class="px-4 py-4 whitespace-nowrap">{{ $request->status }}</td>

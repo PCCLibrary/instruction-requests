@@ -135,7 +135,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Librarian', 'librarian_name')
+            Column::make('Assigned', 'librarian_name')
                 ->sortable()
                 ->searchable(),
 
@@ -162,10 +162,27 @@ final class InstructionRequestTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::inputText('instructor_name', 'instructors.display_name'),
+            Filter::inputText('instructor_name', 'instructors.display_name')
+                ->operators(['contains']),
 
-            Filter::inputText('librarian_name', 'librarians.display_name'),
-            Filter::inputText('campus_name', 'campuses.name'),
+            Filter::inputText('librarian_name', 'librarians.display_name')
+            ->operators(['contains']),
+
+//            Filter::inputText('campus_name', 'campuses.name')
+//                ->operators(['contains']),
+
+            Filter::select('campus_name', 'campuses.code')
+                ->dataSource([
+                    ['value' => 'OL', 'label' => 'Online'],
+                    ['value' => 'CAS', 'label' => 'Cascade'],
+                    ['value' => 'RC', 'label' => 'Rock Creek'],
+                    ['value' => 'SE', 'label' => 'Southeast'],
+                    ['value' => 'SY', 'label' => 'Sylvania'],
+                    ['value' => 'O', 'label' => 'Other'],
+
+                ])
+                ->optionValue('value')
+                ->optionLabel('label'),
 
 
             Filter::select('status', 'instruction_requests.status')

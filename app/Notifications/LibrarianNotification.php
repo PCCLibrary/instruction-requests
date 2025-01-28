@@ -1,58 +1,28 @@
 <?php
 
+// LibrarianNotification.php
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
 
-class LibrarianNotification extends Notification
+/**
+ * Notification for librarians about instruction requests
+ *
+ * Sends email notifications to librarians about new and updated
+ * library instruction requests that require their attention.
+ */
+class LibrarianNotification extends BaseEmailNotification
 {
-    use Queueable;
-
-    public $instructionRequest;
-
     /**
-     * Create a new notification instance.
+     * Get the mail representation of the notification
      *
-     * @param $instructionRequest
-     * @return void
+     * @param mixed $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function __construct($instructionRequest)
+    public function toMail($notifiable): MailMessage
     {
-        $this->instructionRequest = $instructionRequest;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
-    {
-        return ['mail'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return MailMessage
-     */
-    public function toMail($notifiable) : MailMessage
-    {
-        $instructorName = $this->instructionRequest->instructor_name ?? 'Unknown Instructor';
-        $campusName = $this->instructionRequest->campus_name ?? 'Unknown Campus';
-        $currentDate = now()->format('m/d/Y');
-
-        $subject = "Instruction Request Received: $instructorName - $campusName - $currentDate";
-
         return (new MailMessage)
-            ->subject($subject)
-            ->view('emails.librarians', ['request' => $this->instructionRequest]);
+            ->subject($this->getSubject())
+            ->view('emails.librarian.new_request', $this->prepareMailData());
     }
-
 }

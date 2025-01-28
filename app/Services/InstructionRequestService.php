@@ -14,29 +14,40 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Service for handling instruction request operations
+ */
 class InstructionRequestService implements InstructionRequestServiceInterface
 {
     /**
      * @var InstructionRequestRepository
      */
     private InstructionRequestRepository $repository;
+
     /**
      * @var InstructionRequestDetailsServiceInterface
      */
     private InstructionRequestDetailsServiceInterface $detailsService;
 
     /**
+     * @var NotificationService
+     */
+    private NotificationService $notificationService;
+
+    /**
      * @param InstructionRequestRepository $repository
      * @param InstructionRequestDetailsServiceInterface $detailsService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         InstructionRequestRepository $repository,
-        InstructionRequestDetailsServiceInterface $detailsService
+        InstructionRequestDetailsServiceInterface $detailsService,
+        NotificationService $notificationService
     ) {
         $this->repository = $repository;
         $this->detailsService = $detailsService;
+        $this->notificationService = $notificationService;
     }
-
     /**
      * @param array $data
      * @param Request $request
@@ -44,31 +55,74 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     public function createNewInstructionRequest(array $data, Request $request): InstructionRequests
     {
+        Log::debug('Starting createNewInstructionRequest', [
+            'data' => $data,
+            'has_files' => $request->hasFile('class_syllabus') || $request->hasFile('instructor_attachments')
+        ]);
+
         return DB::transaction(function () use ($data, $request) {
-            $instructor = $this->findOrCreateInstructor($data);
-            $classes = $this->findOrCreateClasses($data);
+            try {
+                // Handle JSON fields
+                foreach (['materials', 'assessments'] as $field) {
+                    if (isset($data[$field]) && is_array($data[$field])) {
+                        Log::debug("Converting $field to JSON", ['value' => $data[$field]]);
+                        $data[$field] = json_encode($data[$field]);
+                    }
+                }
 
-            $data['instructor_id'] = $instructor->id;
-            $data['class_id'] = $classes->id;
-            $data['status'] = 'received';
-            $data['created_by'] = $this->getCreatedBy($data);
+                // Create or find related records
+                $instructor = $this->findOrCreateInstructor($data);
+                $classes = $this->findOrCreateClasses($data);
 
-            $instructionRequest = $this->repository->create($data);
+                Log::debug('Created/found related records', [
+                    'instructor_id' => $instructor->id,
+                    'class_id' => $classes->id
+                ]);
 
-            // Create associated details
-            $instructionRequest->detail()->create([
-                'instruction_datetime' => $data['preferred_datetime'],
-                'assigned_librarian_id' => $data['librarian_id'],
-                'instruction_requests_id' => $instructionRequest->id,
-                'instruction_duration' => $data['duration'],
-                'created_by' => $data['created_by'],
-                'last_updated_by' => $data['created_by'],
-            ]);
+                // Prepare instruction request data
+                $data['instructor_id'] = $instructor->id;
+                $data['class_id'] = $classes->id;
+                $data['status'] = 'received';
+                $data['created_by'] = $this->getCreatedBy($data);
 
-            // Handle file uploads
-            $this->processFileUploads($request, $instructionRequest);
+                // Create main instruction request
+                $instructionRequest = $this->repository->create($data);
 
-            return $instructionRequest->load(['detail', 'instructor', 'classes']);
+                Log::debug('Created instruction request', [
+                    'id' => $instructionRequest->id,
+                    'status' => $instructionRequest->status
+                ]);
+
+                // Create associated details
+                $detailsData = [
+                    'instruction_datetime' => $data['preferred_datetime'],
+                    'assigned_librarian_id' => $data['librarian_id'],
+                    'instruction_requests_id' => $instructionRequest->id,
+                    'instruction_duration' => $data['duration'],
+                    'created_by' => $data['created_by'],
+                    'last_updated_by' => $data['created_by'],
+                ];
+
+                $instructionRequest->detail()->create($detailsData);
+
+                Log::debug('Created instruction request details', ['details' => $detailsData]);
+
+                // Handle file uploads
+                $this->processFileUploads($request, $instructionRequest);
+
+                // Load relationships and send notifications
+                $instructionRequest->load(['detail', 'instructor', 'classes']);
+                $this->notificationService->notifyBasedOnStatus($instructionRequest);
+
+                return $instructionRequest;
+
+            } catch (\Exception $e) {
+                Log::error('Failed in createNewInstructionRequest', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                throw $e;
+            }
         });
     }
 
@@ -77,7 +131,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      * @param int $id
      * @return InstructionRequests
      */
-
     public function updateInstructionRequest(array $data, int $id): InstructionRequests
     {
         Log::info('Service received update data', [
@@ -94,11 +147,13 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 throw new \Exception('Instruction request not found');
             }
 
+            $oldStatus = $instructionRequest->status;
+
             // Separate main request data and details data
             $mainRequestData = array_intersect_key($data, array_flip([
                 'campus_id',
                 'instruction_type',
-                'status', // Added status to details data
+                'status',
                 'department',
                 'course_number',
                 'course_crn',
@@ -141,10 +196,9 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'materials',
                 'assessment_notes',
                 'assessments',
-                'assigned_librarian_id',  // Add this to the details fields
+                'assigned_librarian_id',
             ]));
 
-            // Handle librarian assignment in details (using assigned_librarian_id)
             if (isset($data['assigned_librarian_id'])) {
                 Log::info('Preparing librarian assignment', [
                     'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id ?? null,
@@ -152,12 +206,10 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 ]);
             }
 
-            // Update main request (explicitly excluding librarian_id)
             if (!empty($mainRequestData)) {
                 $this->repository->update($mainRequestData, $id);
             }
 
-            // Update details if they exist and if we have details data
             if ($instructionRequest->detail && (!empty($detailsData))) {
                 Log::info('Before details update', [
                     'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id,
@@ -174,15 +226,20 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 ]);
             }
 
-            // Handle file uploads if request object is available
             if (request()->hasFile('materials') || request()->hasFile('assessments')) {
                 $this->processFileUploads(request(), $instructionRequest);
             }
 
-            // Return fresh instance with relationships
-            return $instructionRequest->fresh(['detail', 'instructor', 'classes']);
+            $updatedRequest = $instructionRequest->fresh(['detail', 'instructor', 'classes']);
+
+            if ($updatedRequest->status !== $oldStatus) {
+                $this->handleStatusChange($updatedRequest, $oldStatus, $updatedRequest->status);
+            }
+
+            return $updatedRequest;
         });
     }
+
     /**
      * Find an instruction request by ID.
      *
@@ -214,6 +271,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
+     * Accept a request.
      * @param int $id
      * @param int $userId
      * @return void
@@ -225,13 +283,18 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             if ($request && $request->status === 'assigned' &&
                 $request->detail->assigned_librarian_id === $userId) {
+                $oldStatus = $request->status;
                 $request->update(['status' => 'accepted']);
                 $request->detail->update(['assigned_librarian_id' => $userId]);
+
+                $this->handleStatusChange($request->fresh(), $oldStatus, 'accepted');
             }
         });
     }
 
+
     /**
+     * Reject a request.
      * @param int $id
      * @return void
      */
@@ -241,8 +304,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             $request = $this->findInstructionRequestById($id);
 
             if ($request && $request->status === 'assigned') {
+                $oldStatus = $request->status;
                 $request->update(['status' => 'received']);
                 $request->detail->update(['assigned_librarian_id' => null]);
+
+                $this->handleStatusChange($request->fresh(), $oldStatus, 'received');
             }
         });
     }
@@ -367,5 +433,20 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'course_name' => $data['class_title'] ?? "{$data['department']} - {$data['course_number']}"
             ]
         );
+    }
+
+    /**
+     * Handle status changes and trigger notifications
+     *
+     * @param InstructionRequests $request
+     * @param string $oldStatus
+     * @param string $newStatus
+     * @return void
+     */
+    protected function handleStatusChange(InstructionRequests $request, string $oldStatus, string $newStatus): void
+    {
+        if ($oldStatus !== $newStatus) {
+            $this->notificationService->notifyBasedOnStatus($request);
+        }
     }
 }

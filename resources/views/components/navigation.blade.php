@@ -55,7 +55,7 @@
                                     aria-expanded="false"
                                     aria-haspopup="true">
                                 <x-heroicon-o-user class="h-5 w-5 mr-2" />
-                                {{ Auth::user()->name }}
+                                {{ Auth::user()->display_name }}
                                 <x-heroicon-s-chevron-down class="ml-2 h-4 w-4" />
                             </button>
                         </div>

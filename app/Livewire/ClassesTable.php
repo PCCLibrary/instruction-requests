@@ -100,10 +100,14 @@ final class ClassesTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::inputText('course_name'),
+            Filter::inputText('course_name')
+                ->operators(['contains']),
+
 //            Filter::inputText('department_code'),
 //            Filter::inputText('course_number'),
-            Filter::inputText('course_crn'),
+            Filter::inputText('course_crn')
+                ->operators(['contains']),
+
         ];
     }
 

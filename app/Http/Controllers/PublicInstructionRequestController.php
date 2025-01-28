@@ -75,25 +75,36 @@ class PublicInstructionRequestController extends Controller
     public function store(CreateInstructionRequestRequest $request)
     {
         try {
-            // Validate the request data
-            $input = $request->except(['class_syllabus', 'instructor_attachments']); // Prepare input excluding files
+            // Validate and prepare input data
+            $input = $request->except(['class_syllabus', 'instructor_attachments']);
 
+            // Create instruction request with files
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
-            // Fetch related data and append to the instruction request object
+            // Fetch related data and append
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
-            // Notify based on the status
+            Log::debug('Store operation completed', [
+                'request_id' => $instructionRequest->id,
+                'has_details' => !is_null($instructionRequest->detail),
+                'instructor' => $instructionRequest->instructor_name,
+                'class' => $instructionRequest->course_name
+            ]);
+
+            // Trigger notifications
             $this->notificationService->notifyBasedOnStatus($instructionRequest);
 
-//            Log::debug('received request: ' . json_encode($instructionRequest));
-
-            // Flash a success message to the session
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
                 ->withInput();
+
         } catch (Throwable $e) {
-            // Flash an error message and input data to the session
+            Log::error('Store operation failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $input ?? null
+            ]);
+
             return redirect('/')
                 ->with('error', 'Failed to submit the instruction request.')
                 ->withErrors(['error' => $e->getMessage()])

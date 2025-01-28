@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
+
 
 class UpdateUserRequest extends FormRequest
 {
@@ -25,8 +27,12 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         $id = $this->route('user');
+
+        Log::info('Update User ID: ' . $id);
+
         $rules = [
             'name'     => 'required',
+            'display_name' => 'required',
             'email'    => 'required|email|unique:users,email,'.$id,
             'campus_id' => 'required|exists:campuses,id',
             'password' => 'confirmed'

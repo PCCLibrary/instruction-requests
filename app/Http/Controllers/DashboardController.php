@@ -10,7 +10,7 @@ use App\Models\Instructor;
 use App\Models\InstructionRequestDetails;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -36,10 +36,35 @@ class HomeController extends Controller
         $librarian = Auth::user();
 
         // Query InstructionRequests using whereHas to filter by related InstructionRequestDetails
-        $myRequests = InstructionRequests::whereHas('detail', function ($query) use ($librarian) {
-            $query->where('assigned_librarian_id', $librarian->id)
-                ->where('status', 'assigned');
-        })->get();
+        $myRequests = InstructionRequests::with('detail')
+            ->whereHas('detail', function ($query) use ($librarian) {
+                $query->where([
+                    'assigned_librarian_id' => $librarian->id
+                ]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $acceptedRequests = InstructionRequests::with('detail')
+            ->whereHas('detail', function ($query) use ($librarian) {
+                $query->where([
+                    'assigned_librarian_id' => $librarian->id,
+                    'status' => 'accepted'
+                ]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $completedRequests = InstructionRequests::with('detail')
+            ->whereHas('detail', function ($query) use ($librarian) {
+                $query->where([
+                    'assigned_librarian_id' => $librarian->id,
+                    'status' => 'completed'
+                ]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
 
         // Count all instructors
         $instructorCount = Instructor::count();
@@ -57,10 +82,10 @@ class HomeController extends Controller
         $inProgressRequests = $this->instructionRequestService->getRequestsByStatus('assigned');
 
         // Get all in-progress instruction requests
-        $acceptedRequests = $this->instructionRequestService->getRequestsByStatus('accepted');
+//        $acceptedRequests = $this->instructionRequestService->getRequestsByStatus('accepted');
 
         // Get all completed instruction requests
-        $completedRequests = $this->instructionRequestService->getRequestsByStatus('completed');
+//        $completedRequests = $this->instructionRequestService->getRequestsByStatus('completed');
 
         // Pass the data to the view
         return view('dashboard.index', compact(

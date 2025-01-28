@@ -85,8 +85,12 @@ final class UserTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::inputText('display_name'),
-            Filter::inputText('email'),
+            Filter::inputText('display_name')
+                ->operators(['contains']),
+
+            Filter::inputText('email')
+                ->operators(['contains']),
+
         ];
     }
 

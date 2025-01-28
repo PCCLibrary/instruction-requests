@@ -39,10 +39,13 @@ class ProfileController extends AppBaseController
 
             $user->save();
 
-            flash('Profile updated successfully.')->success();
+            session()->flash('success', 'Profile updated successfully.');
+
             return redirect(route('profile.index'));  // Changed from profile.edit
         } catch (\Exception $e) {
-            flash('Error updating profile: ' . $e->getMessage())->error();
+//            flash('Error updating profile: ' . $e->getMessage())->error();
+
+            session()->flash('error', 'Error updating profile: ' . $e->getMessage());
             return redirect(route('profile.index'))->withInput();  // Changed from profile.edit
         }
     }
@@ -68,10 +71,12 @@ class ProfileController extends AppBaseController
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            flash('Account deleted successfully.')->success();
+//            flash('Account deleted successfully.')->success();
+            session()->flash('success', 'Account deleted successfully.');
             return redirect('/');
         } catch (\Exception $e) {
-            flash('Error deleting account: ' . $e->getMessage())->error();
+//            flash('Error deleting account: ' . $e->getMessage())->error();
+            session()->flash('error', 'Error deleting account: ' . $e->getMessage());
             return redirect(route('profile.index'))->withInput();  // Changed from profile.edit
         }
     }

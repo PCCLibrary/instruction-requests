@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\CampusController;
@@ -54,6 +54,7 @@ Route::get('/db-test', function () {
 Route::get('/', [PublicInstructionRequestController::class, 'create'])
     ->name('public.instruction-request.create');
 
+
 // Store the submitted instruction request from the public form
 Route::post('/instruction-requests', [PublicInstructionRequestController::class, 'store'])
     ->name('public.instruction-request.store');
@@ -83,7 +84,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     });
 
     // Dashboard home
-    Route::get('/', [HomeController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------

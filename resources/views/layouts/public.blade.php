@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Instruction Requests</title>
 
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 {{--    <link rel="stylesheet" id="pcc-library-style-css" href="https://www.pcc.edu/library/wp-content/themes/Lib2024/assets/css/styles.css" type="text/css" media="all">--}}
 
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
@@ -15,8 +16,16 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <style>
+        .is-required:after {
+            content: '*';
+            color: red;
+            font-size: .9em;
+        }
+    </style>
 </head>
 <body class="page-template page-template-page-no-sidebar page-template-page-no-sidebar-php page page-instruction-request" data-template="base.twig" lang="en-US">
 
