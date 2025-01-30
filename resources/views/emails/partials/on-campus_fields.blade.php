@@ -1,32 +1,30 @@
-<ul>
-    @if (!empty($request['instructor_name']))
-        <li><strong>Instructor Name:</strong> {{ $request['instructor_name'] }}</li>
-    @endif
-    @if (!empty($request['course_crn']))
-        <li><strong>Course CRN:</strong> {{ $request['course_crn'] }}</li>
-    @endif
-    @if (!empty($request['course_number']))
-        <li><strong>Course Number:</strong> {{ $request['course_number'] }}</li>
-    @endif
-    @if (!empty($request['course_department']))
-        <li><strong>Department:</strong> {{ $request['course_department'] }}</li>
-    @endif
-    @if (!empty($request['date_requested']))
-        <li><strong>Date Requested:</strong> {{ $request['date_requested'] }}</li>
-    @endif
-    @if (!empty($request['campus_name']))
-        <li><strong>Campus Name:</strong> {{ $request['campus_name'] }}</li>
-    @endif
-    @if (!empty($request['preferred_datetime']))
-        <li><strong>Preferred Date & Time:</strong> {{ $request['preferred_datetime'] }}</li>
-    @endif
-    @if (!empty($request['alternate_datetime']))
-        <li><strong>Alternate Date & Time:</strong> {{ $request['alternate_datetime'] }}</li>
-    @endif
-    @if (!empty($request['number_of_students']))
-        <li><strong>Number of Students:</strong> {{ $request['number_of_students'] }}</li>
-    @endif
-    @if (!empty($request['duration']))
-        <li><strong>Duration:</strong> {{ $request['duration'] }}</li>
-    @endif
-</ul>
+{{-- resources/views/emails/partials/on-campus_fields.blade.php --}}
+<div class="type-specific-fields">
+    <h3 style="margin: 15px 0;">On-Campus Session Details</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        @if(!empty($request['preferred_datetime']))
+            <tr>
+                <td style="padding: 8px 0;"><strong>Preferred Date & Time:</strong></td>
+                <td>{{ $request['preferred_datetime'] }}</td>
+            </tr>
+        @endif
+        @if(!empty($request['alternate_datetime']))
+            <tr>
+                <td style="padding: 8px 0;"><strong>Alternate Date & Time:</strong></td>
+                <td>{{ $request['alternate_datetime'] }}</td>
+            </tr>
+        @endif
+        @if(!empty($request['number_of_students']))
+            <tr>
+                <td style="padding: 8px 0;"><strong>Number of Students:</strong></td>
+                <td>{{ $request['number_of_students'] }}</td>
+            </tr>
+        @endif
+        @if(!empty($request['duration']))
+            <tr>
+                <td style="padding: 8px 0;"><strong>Duration:</strong></td>
+                <td>{{ $request['duration'] }}</td>
+            </tr>
+        @endif
+    </table>
+</div>

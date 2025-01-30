@@ -1,5 +1,8 @@
-@extends('emails.layouts.base')
+@extends('emails.base')
 
 @section('content')
-    <p>Our team will review your request and get back to you shortly.</p>
+    <p>PCC Librarians will review your request and get back to you shortly.</p>
+@endsection
+
+@section('dashboard_link')
 @endsection

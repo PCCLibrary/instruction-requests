@@ -1,23 +1,12 @@
-<ul>
-    @if (!empty($request['instructor_name']))
-        <li><strong>Instructor Name:</strong> {{ $request['instructor_name'] }}</li>
-    @endif
-    @if (!empty($request['course_crn']))
-        <li><strong>Course CRN:</strong> {{ $request['course_crn'] }}</li>
-    @endif
-    @if (!empty($request['course_number']))
-        <li><strong>Course Number:</strong> {{ $request['course_number'] }}</li>
-    @endif
-    @if (!empty($request['course_department']))
-        <li><strong>Department:</strong> {{ $request['course_department'] }}</li>
-    @endif
-    @if (!empty($request['date_requested']))
-        <li><strong>Date Requested:</strong> {{ $request['date_requested'] }}</li>
-    @endif
-    @if (!empty($request['campus_name']))
-        <li><strong>Campus Name:</strong> {{ $request['campus_name'] }}</li>
-    @endif
-    @if (!empty($request['asynchronous_instruction_ready_date']))
-        <li><strong>Asynchronous Instruction Ready Date:</strong> {{ $request['asynchronous_instruction_ready_date'] }}</li>
-    @endif
-</ul>
+{{-- resources/views/emails/partials/asynchronous_fields.blade.php --}}
+<div class="type-specific-fields">
+    <h3 style="margin: 15px 0;">Asynchronous Instruction Details</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        @if(!empty($request['asynchronous_instruction_ready_date']))
+            <tr>
+                <td style="padding: 8px 0;"><strong>Materials Needed By:</strong></td>
+                <td>{{ $request['asynchronous_instruction_ready_date'] }}</td>
+            </tr>
+        @endif
+    </table>
+</div>

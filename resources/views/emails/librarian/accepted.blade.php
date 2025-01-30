@@ -1,7 +1,7 @@
 @extends('emails.base')
 
 @section('content')
-    <p>A new instruction request has been submitted.</p>
+    <p>This request has been accepted.</p>
 @endsection
 
 @section('dashboard_link')

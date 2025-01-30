@@ -8,9 +8,9 @@ use App\Models\Classes;
 use App\Models\InstructionRequests;
 use App\Models\Instructor;
 use App\Models\User;
+use App\Notifications\RequestReceivedNotification;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
-use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,29 +23,23 @@ use Throwable;
 class PublicInstructionRequestController extends Controller
 {
     /** @var InstructionRequestService $instructionRequestService */
-    private $instructionRequestService;
+    private InstructionRequestService $instructionRequestService;
 
     /** @var DepartmentService $departmentService */
-    private $departmentService;
-
-    /** @var NotificationService $notificationService */
-    private $notificationService;
+    private DepartmentService $departmentService;
 
     /**
      * Build the class and inject the services.
      *
      * @param InstructionRequestService $instructionRequestService
      * @param DepartmentService $departmentService
-     * @param NotificationService $notificationService
      */
     public function __construct(
         InstructionRequestService $instructionRequestService,
         DepartmentService $departmentService,
-        NotificationService $notificationService
     ) {
         $this->instructionRequestService = $instructionRequestService;
         $this->departmentService = $departmentService;
-        $this->notificationService = $notificationService;
     }
 
     /**
@@ -53,11 +47,8 @@ class PublicInstructionRequestController extends Controller
      *
      * @return View
      */
-    public function create()
+    public function create(): View
     {
-        $departments = $this->departmentService->getAllDepartments();
-
-        // Retrieve necessary data for form
         $campuses = Campus::where('code', '!=', 'OL')->pluck('name', 'id');
         $departments = $this->departmentService->getAllDepartments();
         $librarians = User::where('is_admin', false)->get();
@@ -72,7 +63,7 @@ class PublicInstructionRequestController extends Controller
      * @return RedirectResponse
      * @throws Throwable
      */
-    public function store(CreateInstructionRequestRequest $request)
+    public function store(CreateInstructionRequestRequest $request): RedirectResponse
     {
         try {
             // Validate and prepare input data
@@ -81,22 +72,23 @@ class PublicInstructionRequestController extends Controller
             // Create instruction request with files
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
+            if (empty($instructionRequest)) {
+                throw new \Exception('Failed to create instruction request');
+            }
+
             // Fetch related data and append
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
-            Log::debug('Store operation completed', [
-                'request_id' => $instructionRequest->id,
-                'has_details' => !is_null($instructionRequest->detail),
-                'instructor' => $instructionRequest->instructor_name,
-                'class' => $instructionRequest->course_name
-            ]);
-
-            // Trigger notifications
-            $this->notificationService->notifyBasedOnStatus($instructionRequest);
+//            Log::debug('Store operation completed', [
+//                'request_id' => $instructionRequest->id,
+//                'has_details' => !is_null($instructionRequest->detail),
+//                'instructor' => $instructionRequest->instructor_name,
+//                'class' => $instructionRequest->course_name
+//            ]);
 
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
-                ->withInput();
+                ->withInput($input);
 
         } catch (Throwable $e) {
             Log::error('Store operation failed', [
@@ -118,17 +110,17 @@ class PublicInstructionRequestController extends Controller
      * @param InstructionRequests $instructionRequest
      * @return InstructionRequests
      */
-    protected function appendAdditionalData($instructionRequest)
+    protected function appendAdditionalData(InstructionRequests $instructionRequest): InstructionRequests
     {
         $instructor = Instructor::find($instructionRequest->instructor_id);
         $class = Classes::find($instructionRequest->class_id);
         $campus = Campus::find($instructionRequest->campus_id);
         $librarian = User::find($instructionRequest->librarian_id);
 
-        $instructionRequest->instructor_name = $instructor->display_name ?? null;
-        $instructionRequest->course_name = $class->course_name ?? null;
-        $instructionRequest->campus_name = $campus->name ?? null;
-        $instructionRequest->librarian_name = $librarian->display_name ?? null;
+        $instructionRequest->instructor_name = $instructor?->display_name;
+        $instructionRequest->course_name = $class?->course_name;
+        $instructionRequest->campus_name = $campus?->name;
+        $instructionRequest->librarian_name = $librarian?->display_name;
 
         return $instructionRequest;
     }

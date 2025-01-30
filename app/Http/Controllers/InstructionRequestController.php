@@ -9,9 +9,12 @@ use App\Models\Classes;
 use App\Models\Instructor;
 use App\Models\InstructionRequests;
 use App\Models\User;
+use App\Notifications\RequestAcceptedNotification;
+use App\Notifications\RequestAssignedNotification;
+use App\Notifications\RequestReceivedNotification;
+use App\Notifications\RequestRejectedNotification;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
-use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -21,7 +24,6 @@ class InstructionRequestController extends AppBaseController
     public function __construct(
         private readonly InstructionRequestService $instructionRequestService,
         private readonly DepartmentService $departmentService,
-        private readonly NotificationService $notificationService
     ) {}
 
     /**
@@ -66,14 +68,27 @@ class InstructionRequestController extends AppBaseController
             // Fetch related data and append to the instruction request object
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
-            // Notify based on the status
-            $this->notificationService->notifyBasedOnStatus($instructionRequest);
+            // Send notifications
+            if ($instructionRequest->instructor) {
+                $instructionRequest->instructor->notify(new RequestReceivedNotification($instructionRequest));
+            }
 
-//            flash('Instruction Request saved successfully.')->success();
+            // Notify campus librarians
+            if ($instructionRequest->campus && !empty($instructionRequest->campus->librarian_ids)) {
+                Log::debug('Notifying campus librarians', [
+                    'campus' => $instructionRequest->campus->name,
+                    'librarian_ids' => $instructionRequest->campus->librarian_ids
+                ]);
+
+                User::whereIn('id', $instructionRequest->campus->librarian_ids)
+                    ->each(function($librarian) use ($instructionRequest) {
+                        $librarian->notify(new RequestReceivedNotification($instructionRequest));
+                    });
+            }
+
             session()->flash('success', 'Instruction Request saved successfully.');
             return redirect(route('instructionRequests.index'));
         } catch (\Exception $e) {
-//            flash('Instruction Request not saved.')->error();
             session()->flash('error', 'Instruction Request not saved.');
             return redirect(route('instructionRequests.index'))
                 ->withErrors(['error' => $e->getMessage()])
@@ -92,9 +107,7 @@ class InstructionRequestController extends AppBaseController
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
-//            flash('Instruction Request not found')->error();
             session()->flash('error', 'Instruction Request not found.');
-
             return redirect(route('instructionRequests.index'));
         }
 
@@ -122,9 +135,7 @@ class InstructionRequestController extends AppBaseController
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
-//            flash('Instruction Request not found')->error();
             session()->flash('error', 'Instruction Request not found.');
-
             return redirect(route('instructionRequests.index'));
         }
 
@@ -148,13 +159,12 @@ class InstructionRequestController extends AppBaseController
      * @param UpdateInstructionRequestRequest $request
      * @return RedirectResponse
      */
-    // In InstructionRequestController.php
     public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
         Log::info('Controller received update request', [
             'id' => $id,
-            'raw_input' => $request->all(),  // Log raw input
-            'validated_data' => $request->validated()  // Log validated data
+            'raw_input' => $request->all(),
+            'validated_data' => $request->validated()
         ]);
 
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
@@ -175,7 +185,16 @@ class InstructionRequestController extends AppBaseController
             $validatedData = $request->validated();
             Log::debug('Validated data before service call:', $validatedData);
 
+            $oldStatus = $instructionRequest->status;
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
+
+            // Check if status changed to assigned
+            if ($oldStatus !== $updated->status && $updated->status === 'assigned' && $updated->detail?->assigned_librarian_id) {
+                $librarian = User::find($updated->detail->assigned_librarian_id);
+                if ($librarian) {
+                    $librarian->notify(new RequestAssignedNotification($updated));
+                }
+            }
 
             Log::info('Update completed', [
                 'id' => $id,
@@ -210,10 +229,8 @@ class InstructionRequestController extends AppBaseController
     {
         try {
             $this->instructionRequestService->deleteInstructionRequest($id);
-//            flash('Instruction Request deleted successfully.')->success();
             session()->flash('success', 'Instruction Request deleted successfully.');
         } catch (\Exception $e) {
-//            flash('Error deleting Instruction Request: ' . $e->getMessage())->error();
             session()->flash('error', 'Error deleting Instruction Request: ' . $e->getMessage());
         }
 
@@ -231,7 +248,6 @@ class InstructionRequestController extends AppBaseController
         $originalRequest = InstructionRequests::with('detail')->find($id);
 
         if (!$originalRequest) {
-//            flash('Instruction Request not found')->error();
             session()->flash('error', 'Instruction Request not found.');
             return redirect(route('instructionRequests.index'));
         }
@@ -244,7 +260,6 @@ class InstructionRequestController extends AppBaseController
         $newDetails->instruction_requests_id = $newRequest->id;
         $newDetails->push();
 
-//        flash('Instruction Request copied successfully.')->success();
         session()->flash('success', 'Instruction Request copied successfully.');
         return redirect(route('instructionRequests.edit', $newRequest->id));
     }
@@ -257,8 +272,19 @@ class InstructionRequestController extends AppBaseController
      */
     public function accept(int $id): RedirectResponse
     {
+        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+        if (empty($instructionRequest)) {
+            session()->flash('error', 'Instruction Request not found.');
+            return redirect(route('instructionRequests.index'));
+        }
+
         $this->instructionRequestService->acceptRequest($id, auth()->id());
-//        flash('Instruction Request accepted.')->success();
+
+        if ($instructionRequest->instructor) {
+            $instructionRequest->instructor->notify(new RequestAcceptedNotification($instructionRequest));
+        }
+
         session()->flash('success', 'Instruction Request accepted.');
         return redirect(route('instructionRequests.edit', $id));
     }
@@ -271,8 +297,19 @@ class InstructionRequestController extends AppBaseController
      */
     public function reject(int $id): RedirectResponse
     {
+        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+        if (empty($instructionRequest)) {
+            session()->flash('error', 'Instruction Request not found.');
+            return redirect(route('instructionRequests.index'));
+        }
+
         $this->instructionRequestService->rejectRequest($id);
-//        flash('Instruction Request rejected.')->info();
+
+        if ($instructionRequest->instructor) {
+            $instructionRequest->instructor->notify(new RequestRejectedNotification($instructionRequest));
+        }
+
         session()->flash('info', 'Instruction Request rejected.');
         return redirect(route('instructionRequests.edit', $id));
     }

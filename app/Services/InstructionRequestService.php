@@ -6,6 +6,11 @@ use App\Contracts\InstructionRequestServiceInterface;
 use App\Models\Classes;
 use App\Models\InstructionRequests;
 use App\Models\Instructor;
+use App\Models\User;
+use App\Notifications\RequestAcceptedNotification;
+use App\Notifications\RequestAssignedNotification;
+use App\Notifications\RequestReceivedNotification;
+use App\Notifications\RequestRejectedNotification;
 use App\Repositories\InstructionRequestRepository;
 use App\Contracts\InstructionRequestDetailsServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -13,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
 /**
  * Service for handling instruction request operations
@@ -30,24 +37,19 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     private InstructionRequestDetailsServiceInterface $detailsService;
 
     /**
-     * @var NotificationService
-     */
-    private NotificationService $notificationService;
-
-    /**
+     * Constructor for InstructionRequestService
+     *
      * @param InstructionRequestRepository $repository
      * @param InstructionRequestDetailsServiceInterface $detailsService
-     * @param NotificationService $notificationService
      */
     public function __construct(
         InstructionRequestRepository $repository,
         InstructionRequestDetailsServiceInterface $detailsService,
-        NotificationService $notificationService
     ) {
         $this->repository = $repository;
         $this->detailsService = $detailsService;
-        $this->notificationService = $notificationService;
     }
+
     /**
      * @param array $data
      * @param Request $request
@@ -110,9 +112,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 // Handle file uploads
                 $this->processFileUploads($request, $instructionRequest);
 
-                // Load relationships and send notifications
-                $instructionRequest->load(['detail', 'instructor', 'classes']);
-                $this->notificationService->notifyBasedOnStatus($instructionRequest);
+                // Load relationships for notifications
+                $instructionRequest->load(['detail', 'instructor', 'classes', 'campus']);
+
+                // Send initial notifications
+                $this->handleStatusChange($instructionRequest, '', 'received');
 
                 return $instructionRequest;
 
@@ -230,7 +234,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $this->processFileUploads(request(), $instructionRequest);
             }
 
-            $updatedRequest = $instructionRequest->fresh(['detail', 'instructor', 'classes']);
+            $updatedRequest = $instructionRequest->fresh(['detail', 'instructor', 'classes', 'campus']);
 
             if ($updatedRequest->status !== $oldStatus) {
                 $this->handleStatusChange($updatedRequest, $oldStatus, $updatedRequest->status);
@@ -287,11 +291,10 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $request->update(['status' => 'accepted']);
                 $request->detail->update(['assigned_librarian_id' => $userId]);
 
-                $this->handleStatusChange($request->fresh(), $oldStatus, 'accepted');
+                $this->handleStatusChange($request->fresh(['detail', 'instructor', 'classes', 'campus']), $oldStatus, 'accepted');
             }
         });
     }
-
 
     /**
      * Reject a request.
@@ -308,7 +311,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $request->update(['status' => 'received']);
                 $request->detail->update(['assigned_librarian_id' => null]);
 
-                $this->handleStatusChange($request->fresh(), $oldStatus, 'received');
+                $this->handleStatusChange($request->fresh(['detail', 'instructor', 'classes', 'campus']), $oldStatus, 'received');
             }
         });
     }
@@ -332,13 +335,121 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
+     * Handle status changes and send appropriate notifications
+     *
+     * Sends notifications based on status transitions:
+     * - New request ('' -> received): Notify instructor and campus librarians
+     * - Assignment (-> assigned): Notify assigned librarian
+     * - Acceptance (-> accepted): Notify instructor
+     * - Rejection (assigned -> received): Notify campus librarians
+     *
+     * Future status transitions:
+     * - Scheduled: Will integrate with calendar system (not implemented)
+     *
+     * @param InstructionRequests $request The request with status change
+     * @param string $oldStatus Previous status
+     * @param string $newStatus New status
+     * @return void
+     * @throws \Exception if notification fails
+     */
+    protected function handleStatusChange(InstructionRequests $request, string $oldStatus, string $newStatus): void
+    {
+        Log::info('Handling status change', [
+            'request_id' => $request->id,
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus
+        ]);
+
+        try {
+            // Initial request received
+            if ($newStatus === 'received' && $oldStatus === '') {
+                // Notify instructor
+                if ($request->instructor) {
+                    $request->instructor->notify(new RequestReceivedNotification(
+                        $request->id,
+                        $oldStatus,
+                        $newStatus
+                    ));
+                }
+
+                // Notify campus librarians if available
+                if ($request->campus && !empty($request->campus->librarian_ids)) {
+                    User::whereIn('id', $request->campus->librarian_ids)
+                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
+                            $librarian->notify(new RequestReceivedNotification(
+                                $request->id,
+                                $oldStatus,
+                                $newStatus
+                            ));
+                        });
+                }
+            }
+
+            // Request assigned to librarian
+            if ($newStatus === 'assigned' && $request->detail?->assigned_librarian_id) {
+                $librarian = User::find($request->detail->assigned_librarian_id);
+                if ($librarian) {
+                    $librarian->notify(new RequestAssignedNotification(
+                        $request->id,
+                        $oldStatus,
+                        $newStatus
+                    ));
+                }
+            }
+
+            // Request accepted by librarian
+            if ($newStatus === 'accepted' && $request->instructor) {
+                $request->instructor->notify(new RequestAcceptedNotification(
+                    $request->id,
+                    $oldStatus,
+                    $newStatus
+                ));
+            }
+
+            // Request rejected (status changed back to received)
+            if ($oldStatus === 'assigned' && $newStatus === 'received' && $request->campus) {
+                // Notify campus librarians
+                if (!empty($request->campus->librarian_ids)) {
+                    User::whereIn('id', $request->campus->librarian_ids)
+                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
+                            $librarian->notify(new RequestRejectedNotification(
+                                $request->id,
+                                $oldStatus,
+                                $newStatus
+                            ));
+                        });
+                }
+            }
+
+            // TODO: Implement calendar integration when status changes to 'scheduled'
+            /**
+            if ($newStatus === 'scheduled') {
+            // Create calendar event
+            // Send calendar notification to instructor
+            // $request->instructor->notify(new RequestScheduledNotification($request));
+            }
+             **/
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send status change notifications', [
+                'request_id' => $request->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * @param Request $request
      * @param string $fieldName
      * @param string $collectionName
      * @param InstructionRequests $instructionRequest
      * @return void
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
      */
     public function handleFileUploads(
         Request $request,
@@ -362,12 +473,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      * @param Request $request
      * @param InstructionRequests $instructionRequest
      * @return void
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
      */
     private function processFileUploads(Request $request, InstructionRequests $instructionRequest): void
     {
-
         Log::debug('Starting file upload process', [
             'has_materials' => $request->hasFile('materials'),
             'has_assessments' => $request->hasFile('assessments'),
@@ -394,7 +504,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     {
         return Auth::check() ? Auth::user()->display_name : ($input['name'] ?? 'Unknown');
     }
-
 
     /**
      * Find or create an instructor based on email.
@@ -434,19 +543,5 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             ]
         );
     }
-
-    /**
-     * Handle status changes and trigger notifications
-     *
-     * @param InstructionRequests $request
-     * @param string $oldStatus
-     * @param string $newStatus
-     * @return void
-     */
-    protected function handleStatusChange(InstructionRequests $request, string $oldStatus, string $newStatus): void
-    {
-        if ($oldStatus !== $newStatus) {
-            $this->notificationService->notifyBasedOnStatus($request);
-        }
-    }
 }
+
