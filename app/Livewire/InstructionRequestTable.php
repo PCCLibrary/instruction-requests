@@ -35,8 +35,7 @@ final class InstructionRequestTable extends PowerGridComponent
         $this->showCheckBox();
 
         return [
-            PowerGrid::header()
-                ->showSearchInput(),
+            PowerGrid::header(),
 
             PowerGrid::footer()
                 ->showPerPage()
@@ -260,6 +259,35 @@ final class InstructionRequestTable extends PowerGridComponent
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
+
+    #[\Livewire\Attributes\On('filterByLibrarian')]
+    public function filterByLibrarian($name): void
+    {
+        $this->filters['input_text']['librarians.display_name'] = $name;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    #[\Livewire\Attributes\On('filterByCampus')]
+    public function filterByCampus($code): void
+    {
+        $this->filters['select']['campuses.code'] = $code;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    #[\Livewire\Attributes\On('filterByStatus')]
+    public function filterByStatus($status): void
+    {
+        $this->filters['select']['instruction_requests.status'] = $status;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    #[\Livewire\Attributes\On('clearFilters')]
+    public function clearFilters(): void
+    {
+        $this->filters = [];
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
     /**
      * Define event listeners
      */
@@ -271,6 +299,10 @@ final class InstructionRequestTable extends PowerGridComponent
                 'confirmDelete',
                 'delete',
                 'instructionRequestUpdated' => '$refresh',
+                'filterByLibrarian',
+                'filterByCampus',
+                'filterByStatus',
+                'clearFilters'
             ]
         );
     }

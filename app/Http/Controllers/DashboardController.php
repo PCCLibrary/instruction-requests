@@ -31,12 +31,23 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
         // Retrieve the currently authenticated user (librarian)
         $librarian = Auth::user();
 
-        // Query InstructionRequests using whereHas to filter by related InstructionRequestDetails
-        $myRequests = InstructionRequests::with('detail')
+        // Get assigned requests - limited to 10, newest first
+        $myAssignedRequests = InstructionRequests::with('detail')
+            ->whereHas('detail', function ($query) use ($librarian) {
+                $query->where([
+                    'assigned_librarian_id' => $librarian->id,
+                    'status' => 'assigned'
+                ]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        // Get accepted requests - limited to 10, newest first
+        $myAcceptedRequests = InstructionRequests::with('detail')
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
                     'assigned_librarian_id' => $librarian->id,
@@ -44,18 +55,10 @@ class DashboardController extends Controller
                 ]);
             })
             ->orderBy('created_at', 'desc')
+            ->take(10)
             ->get();
 
-        $acceptedRequests = InstructionRequests::with('detail')
-            ->whereHas('detail', function ($query) use ($librarian) {
-                $query->where([
-                    'assigned_librarian_id' => $librarian->id,
-                    'status' => 'accepted'
-                ]);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-
+        // Get completed requests - limited to 10, newest first
         $completedRequests = InstructionRequests::with('detail')
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
@@ -64,40 +67,34 @@ class DashboardController extends Controller
                 ]);
             })
             ->orderBy('created_at', 'desc')
+            ->take(10)
             ->get();
 
+//        // Count all instructors
+//        $instructorCount = Instructor::count();
+//
+//        // Sum all instruction_duration fields in instruction_request_details
+//        $totalInstructionHours = InstructionRequestDetails::sum('instruction_duration');
 
-        // Count all instructors
-        $instructorCount = Instructor::count();
-
-        // Sum all instruction_duration fields in instruction_request_details
-        $totalInstructionHours = InstructionRequestDetails::sum('instruction_duration');
-
-        // Get last 10 pending instruction requests for table
+        // Get last 10 pending instruction requests for table (already limited)
         $tableRequests = $this->instructionRequestService->getRequestsByStatus('received', 10);
 
-        // get all pending requests
-        $pendingRequests = $this->instructionRequestService->getRequestsByStatus('received');
+        // Get all pending requests - limited to 10, newest first
+        $receivedRequests = $this->instructionRequestService->getRequestsByStatus('received', 10);
 
-        // Get all in-progress instruction requests
-        $inProgressRequests = $this->instructionRequestService->getRequestsByStatus('assigned');
-
-        // Get all in-progress instruction requests
-//        $acceptedRequests = $this->instructionRequestService->getRequestsByStatus('accepted');
-
-        // Get all completed instruction requests
-//        $completedRequests = $this->instructionRequestService->getRequestsByStatus('completed');
+//        // Get all in-progress instruction requests - limited to 10, newest first
+//        $inProgressRequests = $this->instructionRequestService->getRequestsByStatus('assigned', 10);
 
         // Pass the data to the view
         return view('dashboard.index', compact(
             'librarian',
-            'instructorCount',
-            'totalInstructionHours',
-            'myRequests',
-            'pendingRequests',
-            'acceptedRequests',
+//            'instructorCount',
+//            'totalInstructionHours',
+            'myAssignedRequests',
+            'receivedRequests',
+            'myAcceptedRequests',
             'tableRequests',
-            'inProgressRequests',
+//            'inProgressRequests',
             'completedRequests'
         ));
     }

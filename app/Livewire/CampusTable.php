@@ -42,7 +42,7 @@ final class CampusTable extends PowerGridComponent
                 $librarianIds = is_array($model->librarian_ids) ? $model->librarian_ids : [];
                 $librarians = User::whereIn('id', $librarianIds)->pluck('display_name');
                 return $librarians->map(fn($name) =>
-                "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800\">$name</span>"
+                "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-300 text-green-800\">$name</span>"
                 )->implode(' ');
             })
             ->add('gcal');

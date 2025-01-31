@@ -15,7 +15,8 @@
 
 @section('content')
 
-{{--    @include('instruction-requests.partials.filters')--}}
+    <livewire:request-filters />
+
     @include('instruction-requests.partials.table')
 
 @endsection
