@@ -119,6 +119,14 @@ class InstructionRequestDetails extends Model
     ];
 
     /**
+     * Get the librarian assigned to this instruction request.
+     */
+    public function assignedLibrarian(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_librarian_id');
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @param Request $request

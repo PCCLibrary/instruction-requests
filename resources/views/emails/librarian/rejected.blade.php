@@ -1,7 +1,7 @@
 @extends('emails.base')
 
 @section('content')
-    <p>This request has been rejected by {{ $request['librarian_name'] }}.</p>
+    <p>This request has been rejected.</p>
 
     <p style="margin: 20px 0;">
         <a href="{{ $dashboardUrl }}" class="button">View Request Details</a>

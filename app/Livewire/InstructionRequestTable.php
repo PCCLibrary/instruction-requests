@@ -21,8 +21,11 @@ final class InstructionRequestTable extends PowerGridComponent
     use WithExport;
 
     // Define table properties
-    public string $tableName = 'instruction_requests';
+    public string $tableName = 'instruction_requests.instruction_requests';
     public string $primaryKey = 'instruction_requests.id';
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'desc';
+    public bool $withSortStringNumber = true;
 
     /**
      * Configure the table setup including export functionality
@@ -117,6 +120,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->searchable()
                 ->visibleInExport(false),
 
+
             Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_datetime')
                 ->sortable()
                 ->searchable()
@@ -129,27 +133,39 @@ final class InstructionRequestTable extends PowerGridComponent
 
             Column::make('Instructor', 'instructor_name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->visibleInExport(true),
+
 
             Column::make('Type', 'instruction_type')
                 ->sortable()
-                ->searchable(),
+                ->visibleInExport(true),
+
+//                ->searchable(),
 
             Column::make('Assigned', 'librarian_name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->visibleInExport(true),
+
 
             Column::make('Campus', 'campus_name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->visibleInExport(true),
+
 
             Column::make('Course', 'course_name')
                 ->sortable()
-                ->searchable(),
+                ->visibleInExport(true),
+
+//                ->searchable(),
 
             Column::make('Status', 'status')
                 ->sortable()
-                ->searchable(),
+                ->visibleInExport(true),
+
+//                ->searchable(),
 
             Column::action('Action')
                 ->visibleInExport(false)

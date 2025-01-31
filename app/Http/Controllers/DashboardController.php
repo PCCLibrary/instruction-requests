@@ -39,7 +39,8 @@ class DashboardController extends Controller
         $myRequests = InstructionRequests::with('detail')
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
-                    'assigned_librarian_id' => $librarian->id
+                    'assigned_librarian_id' => $librarian->id,
+                    'status' => 'accepted'
                 ]);
             })
             ->orderBy('created_at', 'desc')

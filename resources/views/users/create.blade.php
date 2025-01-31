@@ -3,10 +3,10 @@
 @section('header')
     <x-breadcrumbs :breadcrumbs="[
             ['label' => 'Manage Librarian Accounts', 'route' => 'users.index'],
-            ['label' => 'Create User'] // No route for this one
+            ['label' => 'Add Librarian'] // No route for this one
         ]" />
     <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-        Create User
+        Add Librarian
     </h1>
 
 @endsection

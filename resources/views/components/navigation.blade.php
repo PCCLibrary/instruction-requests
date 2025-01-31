@@ -15,30 +15,24 @@
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a href="{{ route('campuses.index') }}"
-                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
+                           class="hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('campuses.*') ? 'text-white' : 'text-gray-200' }}">
                             {{ __('Campuses') }}
                         </a>
 
                         <a href="{{ route('instructors.index') }}"
-                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
+                           class="hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('instructors.*') ? 'text-white' : 'text-gray-200' }}">
                             {{ __('Instructors') }}
                         </a>
 
-{{--                        <a href="{{ route('classes.index') }}"--}}
-{{--                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">--}}
-{{--                            {{ __('Classes') }}--}}
-{{--                        </a>--}}
-
                         <a href="{{ route('users.index') }}"
-                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
+                           class="hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('users.*') ? 'text-white' : 'text-gray-200' }}">
                             {{ __('Librarians') }}
                         </a>
 
                         <a href="{{ route('instructionRequests.index') }}"
-                           class="text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium">
+                           class="hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('instructionRequests.*') ? 'text-white' : 'text-gray-200' }}">
                             {{ __('Instruction Requests') }}
                         </a>
-
                     </div>
                 </div>
             </div>
@@ -50,7 +44,7 @@
                     <div x-data="{ open: false }" @click.away="open = false" class="ml-3 relative">
                         <div>
                             <button @click="open = !open"
-                                    class="flex items-center text-white hover:bg-cyan-600 px-3 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-cyan-700 focus:ring-white"
+                                    class="flex items-center text-white hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
                                     id="user-menu-button"
                                     aria-expanded="false"
                                     aria-haspopup="true">
@@ -67,13 +61,13 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                             class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-cyan-800"
                              role="menu"
                              aria-orientation="vertical"
                              aria-labelledby="user-menu-button"
                              tabindex="-1">
                             <a href="{{ route('profile.index') }}"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                               class="block px-4 py-2 text-sm hover:bg-cyan-700 {{ Route::is('profile.*') ? 'text-white' : 'text-gray-200' }}"
                                role="menuitem">
                                 {{ __('My Account') }}
                             </a>
@@ -81,7 +75,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 hover:text-white"
                                         role="menuitem">
                                     {{ __('Logout') }}
                                 </button>
@@ -95,7 +89,7 @@
             <div class="-mr-2 flex md:hidden">
                 <button type="button"
                         @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="bg-cyan-600 inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-cyan-700 focus:ring-white">
+                        class="bg-cyan-600 inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-cyan-500 focus:outline-none">
                     <span class="sr-only">Open main menu</span>
                     <svg class="h-6 w-6"
                          :class="{'hidden': mobileMenuOpen, 'block': !mobileMenuOpen }"
@@ -129,30 +123,24 @@
          x-transition:leave-end="transform opacity-0 scale-95">
         <div class="px-2 pt-2 pb-3 space-y-1 container mx-auto">
             <a href="{{ route('campuses.index') }}"
-               class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
+               class="hover:bg-cyan-800 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('campuses.*') ? 'text-white' : 'text-gray-200' }}">
                 {{ __('Campuses') }}
             </a>
 
             <a href="{{ route('instructors.index') }}"
-               class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
+               class="hover:bg-cyan-800 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('instructors.*') ? 'text-white' : 'text-gray-200' }}">
                 {{ __('Instructors') }}
             </a>
 
-            <a href="{{ route('classes.index') }}"
-               class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
-                {{ __('Classes') }}
-            </a>
-
             <a href="{{ route('users.index') }}"
-               class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
+               class="hover:bg-cyan-800 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('users.*') ? 'text-white' : 'text-gray-200' }}">
                 {{ __('Librarians') }}
             </a>
 
             <a href="{{ route('instructionRequests.index') }}"
-               class="text-white hover:bg-cyan-600 block px-3 py-2 rounded-md text-base font-medium">
+               class="hover:bg-cyan-800 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('instructionRequests.*') ? 'text-white' : 'text-gray-200' }}">
                 {{ __('Instruction Requests') }}
             </a>
-
         </div>
 
         {{-- Mobile menu profile section --}}
@@ -169,14 +157,14 @@
                 </div>
                 <div class="mt-3 space-y-1">
                     <a href="{{ route('profile.index') }}"
-                       class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-cyan-600">
+                       class="block px-3 py-2 rounded-md text-base font-medium hover:bg-cyan-800 {{ Route::is('profile.*') ? 'text-white' : 'text-gray-200' }}">
                         {{ __('My Account') }}
                     </a>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
-                                class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-cyan-600">
+                                class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 hover:text-white">
                             {{ __('Logout') }}
                         </button>
                     </form>
