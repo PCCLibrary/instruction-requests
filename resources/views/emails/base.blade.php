@@ -24,21 +24,24 @@
             border-radius: 8px;
         }
         .header {
-            background-color: #0064a4;
+            background-color: #008099;
             color: #ffffff;
             padding: 20px;
-            border-radius: 8px 8px 0 0;
+            border-radius: 0;
             margin: -20px -20px 20px -20px;
         }
         .button {
             display: inline-block;
-            background-color: #0064a4;
+            background-color: #008099;
             color: #ffffff !important;
             padding: 12px 24px;
             text-decoration: none;
             border-radius: 4px;
             font-weight: bold;
             margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #005362;
         }
         .details {
             background-color: #f8f9fa;
@@ -69,8 +72,6 @@
         </h1>
     </div>
 
-    @yield('content')
-
     <div class="details">
         @include('emails.partials.common_fields', ['request' => $request])
 
@@ -83,7 +84,9 @@
         @includeWhen(View::exists($typeTemplate), $typeTemplate, ['request' => $request])
     </div>
 
-    @yield('dashboard_link')
+    @yield('content')
+
+    {{--    @yield('dashboard_link')--}}
 
     <div class="footer">
         <p>Thank you,<br>PCC Librarians</p>

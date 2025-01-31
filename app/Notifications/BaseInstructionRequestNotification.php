@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Models\InstructionRequests;
 use App\Models\User;
 use App\Repositories\InstructionRequestRepository;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -118,7 +119,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
      * Get instruction request data formatted for email templates.
      *
      * @return array<string, mixed>
-     * @throws \RuntimeException|\Exception If request not found
+     *  @throws \RuntimeException|\Exception If request not found
      */
     protected function getTemplateData(): array
     {
@@ -152,7 +153,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
                 'asynchronous_instruction_ready_date' => $request->asynchronous_instruction_ready_date,
                 'duration' => $request->duration,
                 'campus_name' => $request->campus->name,
-                'instructor_name' => $request->instructor->display_name,
+                'instructor_name' => $request->instructor->name,
                 'librarian_name' => $assignedLibrarian?->display_name,
                 'ada_provisions_needed' => $request->ada_provisions_needed,
                 'ada_provisions_description' => $request->ada_provisions_description,
@@ -172,19 +173,40 @@ abstract class BaseInstructionRequestNotification extends Notification implement
      * Build formatted subject line for email.
      *
      * @return string
+     * @throws \Exception
      */
     protected function buildSubjectLine(): string
     {
         $data = $this->getTemplateData();
 
-        $parts = array_filter([
-            $data['preferred_datetime'],
-            $data['campus_name'],
-            $data['instruction_type'],
-            "{$data['course_department']}{$data['course_number']}"
-        ]);
+        // Format datetime
+        $formattedDateTime = $this->formatDateTime($data['preferred_datetime']);
 
-        return "Instruction Request: " . implode(' - ', $parts);
+        // Prepare parts of the subject line
+        $parts = [
+            "Date: {$formattedDateTime}",
+            "Campus: {$data['campus_name']}",
+            "Class: {$data['course_department']}{$data['course_number']}",
+        ];
+
+        // Add librarian name if available
+        if (!empty($data['librarian_name'])) {
+            $parts[] = "Librarian: {$data['librarian_name']}";
+        }
+
+        return "Instruction Request: " . implode(', ', $parts);
+    }
+
+// Helper method to format datetime
+    protected function formatDateTime(string $dateTime): string
+    {
+        try {
+            $carbonDate = Carbon::parse($dateTime);
+            return $carbonDate->format('Y-m-d h:ia');
+        } catch (\Exception $e) {
+            // Fallback to original format if parsing fails
+            return $dateTime;
+        }
     }
 
     /**
@@ -194,11 +216,20 @@ abstract class BaseInstructionRequestNotification extends Notification implement
      */
     protected function generateDashboardEditUrl(): string
     {
-        return sprintf(
-            '%s/dashboard/instructionRequests/%d/edit',
+
+        $dashboardUrl = sprintf(
+            '%spublic/dashboard/instructionRequests/%d/edit',
             config('app.url'),
             $this->requestId
         );
+
+        Log::debug('Dashboard URL Generation', [
+            'request_id' => $this->requestId,
+            'generated_url' => $dashboardUrl,
+            'app_url' => config('app.url')
+        ]);
+
+        return $dashboardUrl;
     }
 
     /**

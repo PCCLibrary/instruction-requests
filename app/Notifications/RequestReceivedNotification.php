@@ -56,6 +56,16 @@ class RequestReceivedNotification extends BaseInstructionRequestNotification
         ]);
 
         try {
+
+
+            Log::debug('Notification Email Preparation', [
+                'notification_class' => get_class($this),
+                'recipient_type' => get_class($notifiable),
+                'template_name' => $templateName,
+                'dashboard_url' => $this->generateDashboardEditUrl(),
+                'template_data_keys' => array_keys($templateData)
+            ]);
+
             return (new MailMessage)
                 ->subject($this->buildSubjectLine())
                 ->view($templateName, [

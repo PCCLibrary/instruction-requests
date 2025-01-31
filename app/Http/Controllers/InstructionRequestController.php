@@ -9,10 +9,6 @@ use App\Models\Classes;
 use App\Models\Instructor;
 use App\Models\InstructionRequests;
 use App\Models\User;
-use App\Notifications\RequestAcceptedNotification;
-use App\Notifications\RequestAssignedNotification;
-use App\Notifications\RequestReceivedNotification;
-use App\Notifications\RequestRejectedNotification;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
 use Illuminate\Http\RedirectResponse;
@@ -67,24 +63,6 @@ class InstructionRequestController extends AppBaseController
 
             // Fetch related data and append to the instruction request object
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
-
-            // Send notifications
-            if ($instructionRequest->instructor) {
-                $instructionRequest->instructor->notify(new RequestReceivedNotification($instructionRequest));
-            }
-
-            // Notify campus librarians
-            if ($instructionRequest->campus && !empty($instructionRequest->campus->librarian_ids)) {
-                Log::debug('Notifying campus librarians', [
-                    'campus' => $instructionRequest->campus->name,
-                    'librarian_ids' => $instructionRequest->campus->librarian_ids
-                ]);
-
-                User::whereIn('id', $instructionRequest->campus->librarian_ids)
-                    ->each(function($librarian) use ($instructionRequest) {
-                        $librarian->notify(new RequestReceivedNotification($instructionRequest));
-                    });
-            }
 
             session()->flash('success', 'Instruction Request saved successfully.');
             return redirect(route('instructionRequests.index'));
@@ -185,16 +163,7 @@ class InstructionRequestController extends AppBaseController
             $validatedData = $request->validated();
             Log::debug('Validated data before service call:', $validatedData);
 
-            $oldStatus = $instructionRequest->status;
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
-
-            // Check if status changed to assigned
-            if ($oldStatus !== $updated->status && $updated->status === 'assigned' && $updated->detail?->assigned_librarian_id) {
-                $librarian = User::find($updated->detail->assigned_librarian_id);
-                if ($librarian) {
-                    $librarian->notify(new RequestAssignedNotification($updated));
-                }
-            }
 
             Log::info('Update completed', [
                 'id' => $id,
@@ -281,10 +250,6 @@ class InstructionRequestController extends AppBaseController
 
         $this->instructionRequestService->acceptRequest($id, auth()->id());
 
-        if ($instructionRequest->instructor) {
-            $instructionRequest->instructor->notify(new RequestAcceptedNotification($instructionRequest));
-        }
-
         session()->flash('success', 'Instruction Request accepted.');
         return redirect(route('instructionRequests.edit', $id));
     }
@@ -305,10 +270,6 @@ class InstructionRequestController extends AppBaseController
         }
 
         $this->instructionRequestService->rejectRequest($id);
-
-        if ($instructionRequest->instructor) {
-            $instructionRequest->instructor->notify(new RequestRejectedNotification($instructionRequest));
-        }
 
         session()->flash('info', 'Instruction Request rejected.');
         return redirect(route('instructionRequests.edit', $id));
