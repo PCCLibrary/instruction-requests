@@ -4,11 +4,10 @@
     <x-breadcrumbs :breadcrumbs="[
             ['label' => 'Instruction Requests', 'route' => 'instructionRequests.index'],
             ['label' => 'Manage Instruction Request'] // No route for this one
-        ]" />
+        ]"/>
     <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
         Manage Instruction Request
     </h1>
-
 
 @endsection
 
@@ -38,6 +37,11 @@
                     @include('instruction-requests.partials.status')
                 </x-card>
 
+                @if($instructionRequest->status === 'accepted')
+                <x-card title="Calendar" class="bg-cyan-50 mb-4">
+                @include('instruction-requests.partials.calendar')  </x-card>
+                @endif
+
                 <x-card title="File Attachments" class="bg-blue-50 mb-4">
                     @include('instruction-requests.partials.file-attachments')
                 </x-card>
@@ -50,7 +54,7 @@
             {{-- Right Column (8 columns) --}}
             <div class="col-span-12 md:col-span-8 ">
 
-                @include('instruction-requests.partials.request-details')
+                @include('instruction-requests.partials.request-fields')
 
                 <x-card title="Notes" class="bg-gray-50">
                     @include('instruction-requests.partials.notes')
@@ -66,18 +70,18 @@
     </div>
 @endsection
 
-@push('third_party_scripts')
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('editToggle', () => ({
-                isEditing: false,
-                toggleEdit() {
-                    this.isEditing = !this.isEditing
-                    document.querySelectorAll('.edit-field input, .edit-field select').forEach(el => {
-                        el.disabled = !this.editing
-                    })
-                }
-            }))
-        })
-    </script>
-@endpush
+{{--@push('third_party_scripts')--}}
+{{--    <script>--}}
+{{--        document.addEventListener('alpine:init', () => {--}}
+{{--            Alpine.data('editToggle', () => ({--}}
+{{--                isEditing: false,--}}
+{{--                toggleEdit() {--}}
+{{--                    this.isEditing = !this.isEditing--}}
+{{--                    document.querySelectorAll('.edit-field input, .edit-field select').forEach(el => {--}}
+{{--                        el.disabled = !this.editing--}}
+{{--                    })--}}
+{{--                }--}}
+{{--            }))--}}
+{{--        })--}}
+{{--    </script>--}}
+{{--@endpush--}}

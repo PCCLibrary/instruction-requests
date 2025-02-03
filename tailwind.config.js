@@ -17,6 +17,12 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            spacing: {
+                '6': '1.5rem',
+                '7': '2rem',
+                '8': '2.5rem',
+                '9': '3rem',
+            },
         },
     },
     plugins: [forms],

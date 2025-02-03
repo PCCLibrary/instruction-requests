@@ -29,9 +29,8 @@
         ]
     ]"
     />
-
-    <div class="grid grid-cols-2 grid-rows-1 gap-4">
-        <div class="flex flex-col gap-4"> {{-- Column 1: Assigned  --}}
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-5 flex flex-col gap-4"> {{-- Column 1: Assigned (4 columns) --}}
             <x-instruction-request-table
                 :instructionRequests="$myAssignedRequests"
                 title="Assigned to {{ Auth::user()->display_name }}"
@@ -59,14 +58,14 @@
             />
         </div>
 
-        <div class="h-full"> {{-- Column 2: Received --}}
+        <div class="col-span-7 h-full"> {{-- Column 2: Received (8 columns) --}}
             <x-instruction-request-table
                 :instructionRequests="$receivedRequests"
                 title="Recently Received Requests"
                 headerBgColor="bg-blue-500"
                 :showStatus="true"
                 :showClass="true"
-                :showInstructor="false"
+                :showInstructor="true"
                 :showCampus="true"
                 :showDate="true"
                 :compact="false"
@@ -74,7 +73,6 @@
             />
         </div>
     </div>
-
 
 
 @endsection

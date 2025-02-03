@@ -21,9 +21,9 @@ final class CampusTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //$this->showCheckBox();
         return [
-            PowerGrid::header()->showSearchInput(),
+//            PowerGrid::header()->showSearchInput(),
             PowerGrid::footer()->showPerPage()->showRecordCount(),
         ];
     }
@@ -75,7 +75,7 @@ final class CampusTable extends PowerGridComponent
             'editRoute' => 'campuses.edit',
             'deleteEvent' => 'confirmDelete',
             'canEdit' => true,
-            'canDelete' => true,
+            'canDelete' => false,
             'size' => 'w-4 h-4',
             'routeKeyName' => 'campus'
         ]);

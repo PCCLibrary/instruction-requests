@@ -26,11 +26,11 @@ final class ClassesTable extends PowerGridComponent
      */
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //$this->showCheckBox();
 
         return [
-            PowerGrid::header()
-                ->showSearchInput(),
+            PowerGrid::header(),
+                //->showSearchInput(),
 
             PowerGrid::footer()
                 ->showPerPage()

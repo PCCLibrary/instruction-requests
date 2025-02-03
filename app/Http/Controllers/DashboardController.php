@@ -34,8 +34,8 @@ class DashboardController extends Controller
         // Retrieve the currently authenticated user (librarian)
         $librarian = Auth::user();
 
-        // Get assigned requests - limited to 10, newest first
-        $myAssignedRequests = InstructionRequests::with('detail')
+        // Get accepted requests - limited to 10, newest first
+        $myAssignedRequests = InstructionRequests::with(['detail', 'instructor', 'classes'])
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
                     'assigned_librarian_id' => $librarian->id,
@@ -47,7 +47,7 @@ class DashboardController extends Controller
             ->get();
 
         // Get accepted requests - limited to 10, newest first
-        $myAcceptedRequests = InstructionRequests::with('detail')
+        $myAcceptedRequests = InstructionRequests::with(['detail', 'instructor', 'classes'])
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
                     'assigned_librarian_id' => $librarian->id,
@@ -59,7 +59,7 @@ class DashboardController extends Controller
             ->get();
 
         // Get completed requests - limited to 10, newest first
-        $completedRequests = InstructionRequests::with('detail')
+        $completedRequests = InstructionRequests::with(['detail', 'instructor', 'classes'])
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where([
                     'assigned_librarian_id' => $librarian->id,

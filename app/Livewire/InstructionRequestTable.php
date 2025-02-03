@@ -14,6 +14,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Responsive;
+
 use Illuminate\Support\Facades\Auth;
 
 final class InstructionRequestTable extends PowerGridComponent
@@ -32,9 +34,11 @@ final class InstructionRequestTable extends PowerGridComponent
      */
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //$this->showCheckBox();
 
         return [
+
+
             PowerGrid::header(),
 
             PowerGrid::footer()
