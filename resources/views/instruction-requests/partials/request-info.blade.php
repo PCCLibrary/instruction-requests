@@ -3,13 +3,6 @@
     <x-slot name="title">
         <div class="flex justify-between items-center">
             <h5 class="mb-0 text-2xl font-bold tracking-tight text-gray-900">Request Information</h5>
-            <button type="button"
-                    x-data="editToggle"
-                    @click="toggleEdit"
-                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-cyan-700 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">Edit Request &nbsp;
-                <x-heroicon-s-pencil-square class="h-4 w-4" />
-                <span x-text="isEditing ? 'Save' : 'Edit'"></span>
-            </button>
         </div>
     </x-slot>
 

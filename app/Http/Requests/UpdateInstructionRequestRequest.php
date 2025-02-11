@@ -45,6 +45,7 @@ class UpdateInstructionRequestRequest extends FormRequest
             'assessment_notes' => 'sometimes|nullable|string',
             'materials.*' => 'sometimes|file|mimes:txt,rtf,pdf,doc,docx|max:20480',
             'assessments.*' => 'sometimes|file|mimes:txt,rtf,pdf,doc,docx|max:20480',
+            'room' => 'sometimes|nullable|string',
         ];
 
         // Apply conditional rules based on instruction type

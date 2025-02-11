@@ -552,6 +552,18 @@
         "inView": true
     },
     {
+        "name": "room",
+        "dbType": "text",
+        "htmlType": "text",
+        "validations": "",
+        "searchable": false,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": false,
+        "inView": true
+    },
+    {
         "name": "assessments",
         "dbType": "text",
         "htmlType": "file",

@@ -34,6 +34,7 @@ class CreateInstructionRequestDetailsTable extends Migration
             $table->datetime('instruction_date')->nullable();
             $table->string('created_by');
             $table->string('last_updated_by');
+            $table->string('room')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

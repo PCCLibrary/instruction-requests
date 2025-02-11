@@ -1,7 +1,5 @@
 {{-- resources/views/instruction-requests/admin/partials/contact-info.blade.php --}}
-<x-card title="Contact Information" class="mb-4">
-    <x-slot name="body">
-    <div class="overflow-x-auto">
+
     <table class="min-w-full divide-y divide-gray-200">
         <thead>
         <tr class="bg-gray-50">
@@ -29,6 +27,3 @@
         </tr>
         </tbody>
     </table>
-</div>
-    </x-slot>
-</x-card>

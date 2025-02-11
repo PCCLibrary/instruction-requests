@@ -73,6 +73,18 @@
             "inIndex": false,
             "inView": true
         },
+    {
+        "name": "room",
+        "dbType": "text",
+        "htmlType": "text",
+        "validations": "",
+        "searchable": false,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": false,
+        "inView": true
+    },
         {
             "name": "assessment_notes",
             "dbType": "text",

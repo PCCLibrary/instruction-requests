@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property json $assessments
  * @property string $created_by
  * @property string $last_updated_by
+ * @property string $room
  */
 
 class InstructionRequestDetails extends Model
@@ -60,7 +61,8 @@ class InstructionRequestDetails extends Model
         'assessment_notes',
         'assessments',
         'created_by',
-        'last_updated_by'
+        'last_updated_by',
+        'room'
     ];
 
     /**
@@ -88,7 +90,8 @@ class InstructionRequestDetails extends Model
         'assessment_notes' => 'string',
         'assessments' => 'array',
         'created_by' => 'string',
-        'last_updated_by' => 'string'
+        'last_updated_by' => 'string',
+        'room' => 'string'
     ];
 
     /**
@@ -115,7 +118,9 @@ class InstructionRequestDetails extends Model
         'assessment_notes' => 'nullable|string',
         'assessments' => 'nullable|array',
         'created_by' => 'required|string',
-        'last_updated_by' => 'required|string'
+        'last_updated_by' => 'required|string',
+        'room' => 'nullable|string',
+
     ];
 
     /**

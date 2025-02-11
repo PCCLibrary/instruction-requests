@@ -103,6 +103,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                     'instruction_duration' => $data['duration'],
                     'created_by' => $data['created_by'],
                     'last_updated_by' => $data['created_by'],
+                    'room' => ''
                 ];
 
                 $instructionRequest->detail()->create($detailsData);
@@ -201,6 +202,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'assessment_notes',
                 'assessments',
                 'assigned_librarian_id',
+                'room'
             ]));
 
             if (isset($data['assigned_librarian_id'])) {

@@ -52,7 +52,7 @@
     <div class="mb-4">
         <label for="instruction_datetime" class="block text-sm font-medium text-gray-700">Instruction Date & Time</label>
         <input type="datetime-local" id="instruction_datetime" name="instruction_datetime"
-               value="{{ old('instruction_datetime', $instructionRequest->detail->instruction_datetime ?? $instructionRequest->preferred_datetime) }}"
+               value="{{ old('instruction_datetime', ($instructionRequest->detail->instruction_datetime ?? $instructionRequest->preferred_datetime)?->format('Y-m-d\TH:i')) }}"
                required
                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
     </div>
@@ -64,4 +64,19 @@
                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
         <p class="mt-2 text-sm text-gray-500">Duration in minutes.</p>
     </div>
+
+    <div class="mb-4">
+        @include('instruction-requests.partials.room')
+    </div>
+
+    @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
+        <div class="my-4" x-data="{ isOpen: false }">
+            <button type="button" @click="isOpen = true"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Create Google Calendar Event
+            </button>
+
+            @include('instruction-requests.partials.gcal')
+        </div>
+    @endif
 </div>
