@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
 use LakM\Comments\Concerns\Commentable;
@@ -190,6 +191,9 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
             'other_learning_outcome' => 'boolean',
             'other_learning_outcome_description' => 'nullable|string',
             'library_instruction_description' => 'nullable|string',
+            'desired_student_outcomes' => 'nullable|string',
+            'genai_discussion_interest' => 'nullable|string',
+            'other_notes' => 'nullable|string'
         ];
 
         // Apply conditional rules based on instruction type
@@ -203,6 +207,12 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
                 $rules['asynchronous_instruction_ready_date'] = 'required|date';
                 break;
         }
+
+        Log::debug('Fields after validation', [
+            'desired_student_outcomes' => $data['desired_student_outcomes'] ?? 'missing',
+            'other_notes' => $data['other_notes'] ?? 'missing',
+            // etc
+        ]);
 
         return $rules;
     }

@@ -9,15 +9,28 @@
     @unauthorized-comment-updated.window="$wire.$refresh"
     class="lakm_commenter space-y-6"
 >
-    <div
-        class="text-lg font-bold dark:!text-white"
-        @style([
-            'color: ' . config('comments.primary_color'),
-        ])
-    >
-        {{ __('Comments') }}
-        <span x-text="getTotal()"></span>
+    <div class="flex items-center justify-between">
+        <div class="text-lg font-bold dark:!text-white"
+            @style([
+                'color: ' . config('comments.primary_color'),
+            ])
+        >
+            {{ __('Comments') }}
+            <span x-text="getTotal()"></span>
+        </div>
+
+        <div class="flex gap-x-2">
+            @if(Helpers::isModernTheme())
+                <x-comments::link type="a" route="#create-comment-form">
+                    <x-comments::icons.create/>
+                </x-comments::link>
+            @else
+                <x-comments::link class="dark:!text-white !border-b-0" type="a" route="#create-comment-form">{{ __('Create Comment') }}</x-comments::link>
+            @endif
+        </div>
     </div>
+
+
     <div class="flex flex-col gap-y-2 sm:flex-row sm:items-center sm:justify-between">
         @if (($total > 1 || $filter === 'own') && config('comments.show_filters'))
             <div @class([
@@ -68,25 +81,12 @@
             </div>
         @endif
 
-        <div class="flex gap-x-2">
-            <div
-                @style([
-                    'color: ' . config('comments.primary_color'),
-                ])
-            >
-                @if(Helpers::isModernTheme())
-                    <x-comments::link type="a" route="#create-comment-form">
-                        <x-comments::icons.create/>
-                    </x-comments::link>
-                @else
-                   <x-comments::link class="dark:!text-white !border-b-0" type="a" route="#create-comment-form">{{ __('Create Comment') }}</x-comments::link>
-                @endif
-            </div>
-            @if($guestMode && SecureGuestMode::enabled() && SecureGuestMode::allowed())
+        @if($guestMode && SecureGuestMode::enabled() && SecureGuestMode::allowed())
+            <div class="flex gap-x-2">
                 <div class="w-1 h-6 bg-slate-500"></div>
                 <x-comments::link type="button" wire:click="logOut">{{ __('Log out') }}</x-comments::link>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 
     <div wire:loading.flex class="items-center gap-x-2 sm:gap-x-4">

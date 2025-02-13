@@ -243,11 +243,11 @@
                         'helptext' => 'Enter an alternate date/time for your instruction session.',
                         'classes' => 'col-lg-4'
                     ])
-                    <input type="hidden" name="duration" value="0" />
+                    <input type="hidden" name="instruction_duration" value="0" />
                     @include('public_form.partials.input-text', [
-                        'name' => 'duration',
+                        'name' => 'instruction_duration',
                         'label' => 'Duration',
-                        'selected' => old('duration'),
+                        'selected' => old('instruction_duration'),
                         'helptext' => 'Please enter the duration of your class in minutes only.',
                         'classes' => 'col-lg-4'
                     ])

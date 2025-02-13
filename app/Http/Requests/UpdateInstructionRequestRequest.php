@@ -27,6 +27,22 @@ class UpdateInstructionRequestRequest extends FormRequest
             'duration' => 'sometimes|nullable|string',
             'asynchronous_instruction_ready_date' => 'sometimes|nullable|date',
             'status' => 'sometimes|required|string|in:received,assigned,accepted,rejected,completed',
+            'class_description' => 'sometimes|nullable|string',
+            'assignment_description' => 'sometimes|nullable|string',
+            'ada_provisions_needed' => 'sometimes|boolean',
+            'ada_provisions_description' => 'sometimes|nullable|string',
+            'extra_time_with_class' => 'sometimes|nullable|string',
+            'learning_outcomes' => 'sometimes|nullable|string',
+            'explored_background' => 'sometimes|boolean',
+            'received_assignment' => 'sometimes|boolean',
+            'selected_topics' => 'sometimes|boolean',
+            'written_draft' => 'sometimes|boolean',
+            'other_learning_outcome' => 'sometimes|boolean',
+            'other_learning_outcome_description' => 'sometimes|nullable|string',
+            'library_instruction_description' => 'sometimes|nullable|string',
+            'desired_student_outcomes' => 'sometimes|nullable|string',
+            'genai_discussion_interest' => 'sometimes|nullable|string',
+            'other_notes' => 'sometimes|nullable|string',
 
             // Details fields that can be updated
             'assigned_librarian_id' => 'sometimes|nullable|exists:users,id',  // Added this
@@ -76,7 +92,13 @@ class UpdateInstructionRequestRequest extends FormRequest
             'research_guide',
             'handout',
             'developed_assignment',
-            'other_materials'
+            'other_materials',
+            'ada_provisions_needed',
+            'explored_background',
+            'received_assignment',
+            'selected_topics',
+            'written_draft',
+            'other_learning_outcome',
         ];
 
         foreach ($booleanFields as $field) {

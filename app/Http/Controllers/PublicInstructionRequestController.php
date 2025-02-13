@@ -51,7 +51,8 @@ class PublicInstructionRequestController extends Controller
     {
         $campuses = Campus::where('code', '!=', 'OL')->pluck('name', 'id');
         $departments = $this->departmentService->getAllDepartments();
-        $librarians = User::where('is_admin', false)->get();
+//        $librarians = User::where('is_admin', false)->get();
+        $librarians =  User::orderedLibrariansScope()->get();
 
         return view('index', compact('librarians', 'campuses', 'departments'));
     }

@@ -42,7 +42,7 @@ class InstructionRequestController extends AppBaseController
         return view('instruction-requests.create')
             ->with([
                 'instructionRequest' => null,
-                'librarians' => User::where('is_admin', false)->get(),
+                'librarians' => User::orderedLibrariansScope()->get(),
                 'campuses' => Campus::all(),
                 'instructors' => Instructor::all(),
                 'departments' => $this->departmentService->getAllDepartments()
@@ -91,7 +91,8 @@ class InstructionRequestController extends AppBaseController
 
         return view('instruction-requests.show')->with([
             'instructionRequest' => $instructionRequest,
-            'librarians' => User::where('is_admin', false)->get(),
+//            'librarians' => User::where('is_admin', false)->get(),
+            'librarians' => User::orderedLibrariansScope()->get(),
             'campuses' => Campus::all(),
             'instructors' => Instructor::all(),
             'departments' => $this->departmentService->getAllDepartments(),
@@ -119,7 +120,8 @@ class InstructionRequestController extends AppBaseController
 
         return view('instruction-requests.edit')->with([
             'instructionRequest' => $instructionRequest,
-            'librarians' => User::where('is_admin', false)->get(),
+//            'librarians' => User::where('is_admin', false)->get(),
+            'librarians' => User::orderedLibrariansScope()->get(),
             'campuses' => Campus::all(),
             'instructors' => Instructor::all(),
             'departments' => $this->departmentService->getAllDepartments(),

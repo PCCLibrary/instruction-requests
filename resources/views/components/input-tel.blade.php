@@ -2,7 +2,7 @@
 
 <div class="space-y-1 {{ $classes }}">
     @if($label)
-        <x-label :value="$label" :for="$name" :required="$required" />
+        <x-input-label :value="$label" :for="$name" :required="$required" />
     @endif
     <input type="tel"
            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"

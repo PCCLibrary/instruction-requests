@@ -2,7 +2,7 @@
 @props(['name', 'label', 'options', 'selected' => null, 'showOther' => false, 'classes' => null, 'helptext' => null, 'required' => false])
 
 <div class="space-y-1 {{ $classes }}" id="{{ $name }}">
-    <x-label :value="$label" :for="$name" :required="$required" />
+    <x-input-label :value="$label" :for="$name" :required="$required" />
     <div class="space-y-2">
         @foreach($options as $value => $text)
             <div class="flex items-center">

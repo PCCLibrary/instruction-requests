@@ -53,7 +53,7 @@ return [
      * Database column or model accessor name to
      * get the name of the user.
      */
-    'user_name_column' => 'name',
+    'user_name_column' => 'display_name',
 
     /**
      * Database column or model accessor email to
@@ -74,8 +74,8 @@ return [
 
     // When guest mode unable no authentication required
     'guest_mode' => [
-        'enabled' => true,
-        'email_enabled' => true,
+        'enabled' => false,
+        'email_enabled' => false,
         'secured' => false,
     ],
 
@@ -121,10 +121,10 @@ return [
      * Keep null to disable this feature.
      * This can be table column name or accessor
      */
-    'profile_url_column' => 'name',
+    'profile_url_column' => 'null',
 
     // When set to false filters won't be displayed in comments list
-    'show_filters' => true,
+    'show_filters' => false,
 
     // Default comments sort order, See Sort::class for available values
     'default_sort' => Sort::TOP,

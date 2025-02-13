@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,6 +16,19 @@ use LakM\Comments\Contracts\CommenterContract;
 class User extends Authenticatable implements CommenterContract
 {
     use  HasFactory, Notifiable, Commenter;
+
+    /**
+     * The priority of librarian ids.
+     *
+     * @var array<int, int>
+     */
+    public static array $priorityLibrarianIds = [
+        6,  // Sylvania Librarian
+        5,  // Southeast Librarian
+        4,  // Rock Creek Librarian
+        3,  // Cascade Librarian
+        2   // No librarian preference
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +62,17 @@ class User extends Authenticatable implements CommenterContract
         'email_verified_at' => 'datetime',
         'campus_id' => 'integer',
     ];
+
+    /**
+     * Order librarians with priority accounts first, then alphabetically
+     */
+    public static function orderedLibrariansScope(): Builder
+    {
+        return static::query()
+            ->where('is_admin', false)
+            ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
+            ->orderBy('display_name');
+    }
 
     /**
      * @return BelongsTo

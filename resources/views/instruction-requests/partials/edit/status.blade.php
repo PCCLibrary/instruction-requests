@@ -66,17 +66,19 @@
     </div>
 
     <div class="mb-4">
-        @include('instruction-requests.partials.room')
+        @include('instruction-requests.partials.edit.room')
     </div>
 
     @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
+        <hr class="mb-6" />
         <div class="my-4" x-data="{ isOpen: false }">
             <button type="button" @click="isOpen = true"
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <x-heroicon-o-calendar-date-range class="h-4 w-4 text-white mr-2" />
                 Create Google Calendar Event
             </button>
 
-            @include('instruction-requests.partials.gcal')
+            @include('instruction-requests.partials.edit.gcal')
         </div>
     @endif
 </div>
