@@ -96,7 +96,9 @@ class CampusController extends AppBaseController
 
     private function getLibrarianOptions(): array
     {
-        return User::where('is_admin', false)
+        return User::orderedLibrariansScope()
+            ->whereNotIn('id', [2]) // Exclude user ID 2
+            ->get()
             ->pluck('display_name', 'id')
             ->toArray();
     }

@@ -89,7 +89,7 @@
                     @include('instruction-requests.partials.edit.save')
                 </x-card>
 
-                <x-card title="Status" class="bg-amber-50 mb-4">
+                <x-card title="Status" class="bg-teal-50 mb-4">
                     @include('instruction-requests.partials.edit.status')
                 </x-card>
 

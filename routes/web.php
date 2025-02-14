@@ -112,8 +112,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     | Instruction Requests Additional Routes
     |--------------------------------------------------------------------------
     */
-    Route::get('instructionRequests/{id}/edit', [InstructionRequestController::class, 'edit'])
-        ->name('instructionRequests.edit');
+//    Route::get('instructionRequests/{id}/edit', [InstructionRequestController::class, 'edit'])
+//        ->name('instructionRequests.edit');
     Route::get('instructionRequests/{id}/copy', [InstructionRequestController::class, 'copy'])
         ->name('instructionRequests.copy');
     Route::post('instructionRequests/{id}/accept', [InstructionRequestController::class, 'accept'])

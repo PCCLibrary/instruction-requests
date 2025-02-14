@@ -156,8 +156,22 @@
     @if($showFooter)
         <div class="bg-white px-4 py-2 border-t border-gray-200">
             <div class="flex justify-end">
+                <a href="{{ route('instructionRequests.create') }}"
+                   class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4 mr-2"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create New Request
+                </a>
                 <a href="{{ route('instructionRequests.index') }}"
-                   class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-50 bg-teal-600 border border-gray-300 rounded-md hover:bg-teal-800 transition-colors">
+                   class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors">
                     <span>View all requests</span>
                     <x-heroicon-o-arrow-right class="w-4 h-4" />
                 </a>

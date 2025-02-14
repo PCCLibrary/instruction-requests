@@ -1,3 +1,4 @@
+{{-- components/fieldset --}}
 @props(['legend' => null, 'classes' => null, 'id' => null])
 
 <fieldset

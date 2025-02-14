@@ -1,6 +1,8 @@
 @props(['route', 'showBack' => false])
 
-<div class="flex justify-between items-center">
+
+<div class="flex flex-wrap justify-between items-center gap-4">
+
     <div class="space-x-2">
         <button
             type="submit"
