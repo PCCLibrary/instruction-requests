@@ -84,39 +84,40 @@
             {{-- ************************
                  Campus + Librarian
             ************************ --}}
+            <div class="row">
             <fieldset class="on-campus remote asynchronous card-body">
-                <div class="row">
+{{--                <div class="row">--}}
                     <input type="hidden" name="campus_id" value="1" />
                     @include('public_form.partials.input-select', [
                         'name' => 'campus_id',
                         'label' => 'Class Location',
                         'options' => $campuses,
                         'selected' => old('campus_id'),
-                        'classes' => 'col-lg-6',
+                        'classes' => 'col-lg-12',
                         'tophelptext' => 'Select the location where your class takes place or is assigned to.
                         If the class is not assigned to a location, select the campus with which you are primarily associated.
                         Select “other” if you’re not sure.',
                         'required' => true
                     ])
-                </div>
+{{--                </div>--}}
             </fieldset>
 
             <fieldset class="on-campus remote card-body">
-                <div class="row">
+{{--                <div class="row">--}}
                     <input name="librarian_id" type="hidden" value="2" />
                     @include('public_form.partials.input-select', [
                         'name' => 'librarian_id',
                         'label' => 'Librarian Preference',
                         'options' => $librarians->pluck('display_name', 'id')->toArray(),
                         'selected' => old('librarian_id'),
-                        'classes' => 'col-lg-6',
+                        'classes' => 'col-lg-12',
                         'tophelptext' => 'Do you want to work with a librarian from a specific campus or a specific librarian?
                         We will try to assign your preferred librarian, but we can’t guarantee their availability.',
                         'required' => false
                     ])
-                </div>
+{{--                </div>--}}
             </fieldset>
-
+            </div>
             {{-- ************************
                  Class Information
             ************************ --}}
@@ -176,7 +177,7 @@
                         'name' => 'ada_provisions_description',
                         'label' => 'Describe the ADA accommodations needed for your class.',
                         'value' => old('ada_provisions_description'),
-                        'classes' => 'col-lg-9 ' . (empty(old('ada_provisions_description')) ? 'invisible' : '')
+                        'classes' => 'col-lg-8 ' . (empty(old('ada_provisions_description')) ? 'invisible' : '')
                     ])
                 </div>
             </fieldset>
@@ -187,16 +188,25 @@
             <fieldset class="on-campus remote asynchronous card-body">
                 <legend>Attachments</legend>
                 <div class="row mb-4">
+                    @include('public_form.partials.url-manager', [
+                        'name' => 'class_description',
+                        'label' => 'Links to Google docs',
+                        'value' => old('class_description'),
+                        'classes' => 'col-lg-8',
+                        'helptext' => 'If you have Google Drive links for materials, please provide them here.'
+                    ])
+                </div>
+                <div class="row mb-4">
                     @include('public_form.partials.input-file', [
                         'name' => 'instructor_attachments',
-                        'label' => 'Attach assignment (doc, pdf, or txt)',
+                        'label' => 'Attach assignment (doc, docx, pdf, ppt, pptx, txt, rtf)',
                         'multiple' => true,
                         'errors' => $errors->get('instructor_attachments.*'),
                         'classes' => 'col-lg-6'
                     ])
                     @include('public_form.partials.input-file', [
                         'name' => 'class_syllabus',
-                        'label' => 'Attach syllabus (doc, pdf, or txt)',
+                        'label' => 'Attach assignment (doc, docx, pdf, ppt, pptx, txt, rtf)',
                         'multiple' => true,
                         'errors' => $errors->get('class_syllabus.*'),
                         'classes' => 'col-lg-6'
@@ -205,20 +215,14 @@
                 <div class="row">
                     @include('public_form.partials.textarea', [
                         'name' => 'assignment_description',
-                        'label' => 'Assignment description and sample topics',
+                        'label' => 'Assignment description, sample topics or additional notes',
                         'value' => old('assignment_description'),
-                        'classes' => 'col-lg-6'
-                    ])
-                </div>
-                <div class="row">
-                    @include('public_form.partials.textarea', [
-                        'name' => 'class_description',
-                        'label' => 'Additional Notes (optional)',
-                        'value' => old('class_description'),
                         'classes' => 'col-lg-8',
-                        'helptext' => 'If you have additional information for your class, or Google Drive links for materials, please provide them here.'
+                        'helptext' => 'Include any additional information that will help the librarian prepare for your class.'
+
                     ])
                 </div>
+
             </fieldset>
 
             {{-- ************************
@@ -243,9 +247,9 @@
                         'helptext' => 'Enter an alternate date/time for your instruction session.',
                         'classes' => 'col-lg-4'
                     ])
-                    <input type="hidden" name="instruction_duration" value="0" />
+                    <input type="hidden" name="duration" value="0" />
                     @include('public_form.partials.input-text', [
-                        'name' => 'instruction_duration',
+                        'name' => 'duration',
                         'label' => 'Duration',
                         'selected' => old('instruction_duration'),
                         'helptext' => 'Please enter the duration of your class in minutes only.',
@@ -306,8 +310,7 @@
                             'label' => 'Explored Background',
                             'checked' => old('explored_background')
                         ])
-                    </div>
-                    <div class="col-lg-3">
+
                         @include('public_form.partials.input-checkbox', [
                             'name' => 'written_draft',
                             'label' => 'Written Draft',
@@ -315,7 +318,7 @@
                         ])
                         @include('public_form.partials.input-checkbox', [
                             'name' => 'other_learning_outcome',
-                            'label' => 'Other Learning Outcome',
+                            'label' => 'Other work related to the assignment',
                             'checked' => old('other_learning_outcome'),
                             'target' => 'other_learning_outcome_description'
                         ])

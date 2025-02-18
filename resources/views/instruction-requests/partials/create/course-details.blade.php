@@ -1,7 +1,6 @@
-{{-- resources/views/instruction-requests/partials/create/request-info.blade.php --}}
-<x-card title="Request Information" class="bg-gray-50 mb-4">
-    <div class="space-y-4">
-
+{{-- /views/instruction-requests/partials/create/course-details.blade.php --}}
+<x-fieldset legend="Course Details" classes="bg-white on-campus-fields remote-fields asynchronous-fields">
+    <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
                 <x-input-select
@@ -40,12 +39,14 @@
             <div>
                 <x-input-text
                     name="number_of_students"
+                    classes="on-campus-fields remote-fields"
                     id="number_of_students"
                     label="Number of Students"
                     type="number"
                     :value="old('number_of_students')"
                     help-text="Enter the number of students in the class."
-                    required
+                    x-bind:required="$store.createFormState[name]?.required"
+                    x-bind:disabled="$store.createFormState[name]?.disabled"
                 />
             </div>
         </div>
@@ -57,6 +58,9 @@
                     id="campus_id"
                     label="Campus"
                     :options="$campuses->pluck('name', 'id')->toArray()"
+                    :selected="old('campus_id')"
+                    help-text="Select the location where your class takes place or is assigned to."
+                    required
                 />
             </div>
 
@@ -66,45 +70,10 @@
                     id="librarian_id"
                     label="Librarian Preference"
                     :options="$librarians->pluck('display_name', 'id')->toArray()"
+                    :selected="old('librarian_id')"
+                    help-text="We will try to assign your preferred librarian, but we can't guarantee their availability."
                 />
             </div>
         </div>
-
-        <div>
-            <x-input-textarea
-                name="desired_student_outcomes"
-                id="desired_student_outcomes"
-                label="Desired Student Outcomes"
-                :value="old('desired_student_outcomes')"
-                help-text="What specific outcomes would you like your students to achieve?"
-            />
-        </div>
-
-        <div>
-            <x-input-textarea
-                name="other_notes"
-                id="other_notes"
-                label="Other Notes"
-                :value="old('other_notes')"
-                help-text="Any additional information or special requirements?"
-            />
-        </div>
-
-        <div>
-            <x-input-select
-                name="instruction_type"
-                id="instruction_type"
-                label="Instruction Type"
-                :options="[
-                        'on-campus' => 'Librarian joins my class on campus',
-                        'remote' => 'Librarian joins my remote class',
-                        'asynchronous' => 'Librarian provides resources to be used asynchronously'
-                    ]"
-                :selected="old('instruction_type')"
-                help-text="Please select what you need help with."
-                required
-                x-on:change="instructionType = $event.target.value"
-            />
-        </div>
     </div>
-</x-card>
+</x-fieldset>

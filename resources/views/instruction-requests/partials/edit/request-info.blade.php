@@ -1,4 +1,4 @@
-{{-- resources/views/instruction-requests/partials/request-info.blade.php --}}
+{{-- resources/views/instruction-requests/partials/course-details.blade.php --}}
 <x-card class="bg-gray-50 mb-4">
     <x-slot name="title">
         <div class="flex justify-between items-center">
@@ -94,22 +94,15 @@
 
                 <div class="">
                     <x-input-textarea
-                        name="desired_student_outcomes"
-                        label="Desired Student Outcomes"
-                        :value="$instructionRequest->desired_student_outcomes"
+                        name="assignment_description"
+                        label="Assignment Description"
+                        :value="$instructionRequest->assignment_description"
                         class="edit-field"
-                        helptext="What specific outcomes would you like your students to achieve?"
+                        helptext="Assignment description."
                         x-bind:disabled="isDisabled"
                     />
 
-                    <x-input-textarea
-                        name="other_notes"
-                        label="Other Notes"
-                        :value="$instructionRequest->other_notes"
-                        class="edit-field"
-                        helptext="Any additional information or special requirements?"
-                        x-bind:disabled="isDisabled"
-                    />
+
                 </div>
             </div>
         </div>

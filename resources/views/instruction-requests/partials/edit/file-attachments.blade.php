@@ -37,3 +37,11 @@
     :multiple="true"
     :errors="$errors->get('assessments.*')"
 />
+
+<x-input-url-manager
+    name="class_description"
+    label="Google Docs"
+    :value="$instructionRequest->class_description"
+    class="edit-field"
+    helptext="Google doc links"
+/>
