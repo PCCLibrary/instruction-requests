@@ -7,12 +7,6 @@
                 'name' => $name,
                 'required' => $required
             ])
-    @if($helptext)
-        @include('public_form.partials.helptext', [
-            'name' => $name,
-            'helptext' => $helptext
-        ])
-    @endif
     <textarea class="form-control"
               name="{{ $name }}"
               id="{{ $name }}"
@@ -20,4 +14,10 @@
               @if($helptext) aria-describedby="{{ $name }}-help" @endif
               @if($required)required @endif
     >{{ old($name, $value) }}</textarea>
+    @if($helptext)
+        @include('public_form.partials.helptext', [
+            'name' => $name,
+            'helptext' => $helptext
+        ])
+    @endif
 </div>

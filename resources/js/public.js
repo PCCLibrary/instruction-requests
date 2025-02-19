@@ -81,7 +81,22 @@ $(document).ready(function() {
     let instructionTypeSelect = $('select[name="instruction_type"]');
     applyFieldSettings(instructionTypeSelect.val()); // Apply initial settings
 
+    // Debug logging for checkbox existence
+    console.log('Checkbox exists on page load:', $('input[type="checkbox"][name="ada_provisions_needed"]').length);
+
+    // Simple checkbox handler with debug logging
+    // $('input[type="checkbox"][name="ada_provisions_needed"]').on('change', function() {
+    $('input[type="checkbox"]').on('change', function() {
+        console.log('Checkbox changed!');
+        console.log('Checkbox checked state:', this.checked);
+        const descriptionId = $(this).data('target');
+        console.log('Target element ID:', descriptionId);
+        $('#' + descriptionId).toggleClass('invisible', !this.checked);
+    });
+
     instructionTypeSelect.change(function() {
         applyFieldSettings($(this).val());
+        console.log('Instruction type changed');
+        console.log('Checkbox exists after change:', $('input[type="checkbox"][name="ada_provisions_needed"]').length);
     });
 });

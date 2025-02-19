@@ -1,4 +1,4 @@
-{{-- resources/views/instruction-requests/partials/date-time-fields.blade.php --}}
+{{-- resources/views/instruction-requests/partials/scheduling.blade.php --}}
 <x-card title="Date, Time and Duration" class="bg-gray-50 mb-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {

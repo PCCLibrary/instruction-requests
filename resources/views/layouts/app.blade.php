@@ -41,5 +41,6 @@
 <x-footer/>
 @commentsScripts
 @livewireScripts
+
 </body>
 </html>

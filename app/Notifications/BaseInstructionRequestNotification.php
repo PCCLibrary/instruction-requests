@@ -194,7 +194,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
             $parts[] = "Librarian: {$data['librarian_name']}";
         }
 
-        return "Instruction Request: " . implode(', ', $parts);
+        return "Library Instruction Request: " . implode(', ', $parts);
     }
 
 // Helper method to format datetime

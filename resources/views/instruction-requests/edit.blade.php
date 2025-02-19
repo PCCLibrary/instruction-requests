@@ -106,25 +106,7 @@
             {{-- Right Column (8 columns) - Toggle Editable --}}
             <div class="col-span-12 md:col-span-8">
                 {{-- Edit Toggle Button --}}
-                <div class="flex justify-end mb-4">
-                    <button type="button"
-                            @click="toggleEdit"
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
-                            :class="isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
-                    >
-                        <template x-if="!isEditing">
-                            <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                        </template>
-                        <template x-if="isEditing">
-                            <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </template>
-                        <span x-text="isEditing ? 'Save Changes' : 'Edit Request'"></span>
-                    </button>
-                </div>
+                @include('instruction-requests.partials.edit.toggle-edit-button')
 
                 {{-- Contact Information --}}
                 @include('instruction-requests.partials.edit.contact-info')

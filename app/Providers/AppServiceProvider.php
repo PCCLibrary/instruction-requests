@@ -9,6 +9,7 @@ use App\Services\InstructionRequestService;
 use App\Services\InstructionRequestDetailsService;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
+use LakM\Comments\CommentServiceProvider;
 
 /**
  * Service provider for binding interfaces to their concrete implementations
@@ -31,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Bind the InstructionRequestDetailsServiceInterface to the InstructionRequestDetailsService
         $this->app->bind(InstructionRequestDetailsServiceInterface::class, InstructionRequestDetailsService::class);
+
+        $this->app->register(CommentServiceProvider::class);
+
     }
 
     /**

@@ -11,8 +11,10 @@
 
 @php
     $attributes = $attributes->class([
-        'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300',
-        'bg-gray-100' => $disabled
+        'w-full rounded-md focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300',
+        'text-gray-800 bg-white border-gray-300 shadow-sm' => !$disabled,
+        'text-gray-200 bg-gray-100 border-gray-200' => $disabled
+
     ])->merge([
         'type' => 'date',
         'name' => $name,
