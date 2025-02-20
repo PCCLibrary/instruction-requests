@@ -1,5 +1,15 @@
 @extends('layouts.app')
 
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+        ['label' => 'Instruction Requests', 'route' => 'instructionRequests.index'],
+        ['label' => 'Create New Instruction Request']
+    ]"/>
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Create New Instruction Request
+    </h1>
+@endsection
+
 @section('content')
     <form action="{{ route('instructionRequests.store') }}"
           id="createInstructionRequestForm"
@@ -82,14 +92,12 @@
     >
         @csrf
 
-        <x-card title="" class="bg-emerald-100 mb-4">
-            @include('instruction-requests.partials.create.save')
-        </x-card>
+        @include('instruction-requests.partials.create.create-header')
 
         <x-card title="Request Information" class="bg-white">
             <div class="space-y-6">
                 {{-- These sections are always visible --}}
-                @include('instruction-requests.partials.create.contact-info')
+                @include('instruction-requests.partials.create.instructor-info')
 
                 <x-fieldset legend="" class="bg-white">
                     <div class="space-y-6">

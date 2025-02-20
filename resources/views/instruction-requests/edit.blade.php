@@ -4,7 +4,7 @@
     <x-breadcrumbs :breadcrumbs="[
         ['label' => 'Instruction Requests', 'route' => 'instructionRequests.index'],
         ['label' => 'Manage Instruction Request']
-    ]" />
+    ]"/>
     <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
         Manage Instruction Request
     </h1>
@@ -74,22 +74,27 @@
         @method('PATCH')
 
         {{-- Essential Hidden Fields --}}
-        <input type="hidden" name="instruction_requests_id" value="{{ $instructionRequest->detail->instruction_requests_id }}">
+        <input type="hidden" name="instruction_requests_id"
+               value="{{ $instructionRequest->detail->instruction_requests_id }}">
         <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">
-{{--        <input type="hidden" name="librarian_id" value="{{ $instructionRequest->librarian_id ?? auth()->id() }}">--}}
-{{--        <input type="hidden" name="campus_id" value="{{ $instructionRequest->campus_id }}">--}}
+        {{--        <input type="hidden" name="librarian_id" value="{{ $instructionRequest->librarian_id ?? auth()->id() }}">--}}
+        {{--        <input type="hidden" name="campus_id" value="{{ $instructionRequest->campus_id }}">--}}
         <input type="hidden" name="class_id" value="{{ $instructionRequest->class_id }}">
         <input type="hidden" name="created_by" value="{{ $instructionRequest->detail->created_by }}">
         <input type="hidden" name="last_updated_by" value="{{ auth()->user()->display_name }}">
 
+        @include('instruction-requests.partials.edit.edit-header')
+
+        {{-- Editable Fields --}}
+
         <div class="grid grid-cols-12 gap-6 items-start">
             {{-- Left Column (4 columns) - Always Editable --}}
             <div class="col-span-12 md:col-span-4 items-start">
-                <x-card title="" class="bg-emerald-50 mb-4">
-                    @include('instruction-requests.partials.edit.save')
-                </x-card>
+                {{--                <x-card title="" class="bg-emerald-50 mb-4">--}}
+                {{--                    @include('instruction-requests.partials.edit.save')--}}
+                {{--                </x-card>--}}
 
-                <x-card title="Status" class="bg-teal-50 mb-4">
+                <x-card title="Status" class="bg-blue-50 mb-4">
                     @include('instruction-requests.partials.edit.status')
                 </x-card>
 
@@ -105,11 +110,9 @@
 
             {{-- Right Column (8 columns) - Toggle Editable --}}
             <div class="col-span-12 md:col-span-8">
-                {{-- Edit Toggle Button --}}
-                @include('instruction-requests.partials.edit.toggle-edit-button')
 
                 {{-- Contact Information --}}
-                @include('instruction-requests.partials.edit.contact-info')
+                @include('instruction-requests.partials.edit.instructor-info')
 
                 {{-- Request Information Card --}}
                 @include('instruction-requests.partials.edit.request-info')
@@ -136,8 +139,9 @@
 
     {{-- Comments Section --}}
     <div class="mt-6">
-{{--        <x-card title="Comments" class="bg-sky-50">--}}
-            <x-comments:: :model="$instructionRequest" />
-{{--        </x-card>--}}
+        <x-card title="Comments" class="bg-blue-50">
+            <x-comments:: :model="$instructionRequest"/>
+        </x-card>
     </div>
+
 @endsection

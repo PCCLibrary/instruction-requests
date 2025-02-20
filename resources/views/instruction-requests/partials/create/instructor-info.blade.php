@@ -1,5 +1,5 @@
-{{-- resources/views/instruction-requests/partials/create/contact-info.blade.php --}}
-<x-fieldset legend="Contact Information" classes="bg-white">
+{{-- resources/views/instruction-requests/partials/create/instructor-info.blade.php --}}
+<x-fieldset legend="Instructor Information" classes="bg-white">
     <div class="space-y-6">
         {{-- Name and Display Name Row --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

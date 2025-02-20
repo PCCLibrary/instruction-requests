@@ -5,13 +5,14 @@
 <div
     x-cloak
     x-data
-    class="space-y-8 dark:text-white lakm_commenter"
+    class="space-y-4 dark:text-white lakm_commenter"
+    {{--    class="space-y-8 dark:text-white lakm_commenter"--}}
 >
     @if(config('comments.should_confirm_link_visit'))
         <x-comments::link-visit-confirm-modal/>
     @endif
     <livewire:comments-list :model="$model"/>
-    <hr class="text-gray-400"/>
+{{--    <hr class="text-gray-400"/>--}}
     <div id="create-comment-form">
         <livewire:comments-create-form :model="$model"/>
     </div>

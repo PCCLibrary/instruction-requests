@@ -29,7 +29,7 @@
     class="lakm_commenter"
 >
     <x-comments::modal class="!w-[32rem]">
-        <div class="px-4 py-2 space-y-6">
+        <div class="px-4 py-2 space-y-2">
             <div class="flex flex-col items-center space-y-2">
                 <span class="font-bold text-xl">Leaving {{config('app.name')}}</span>
                 <span x-show="isURLValid">Your about to visit the following url</span>

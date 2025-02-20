@@ -7,7 +7,7 @@
         },
     }"
     @unauthorized-comment-updated.window="$wire.$refresh"
-    class="lakm_commenter space-y-6"
+    class="lakm_commenter space-y-2"
 >
     <div class="flex items-center justify-between">
         <div class="text-lg font-bold dark:!text-white"

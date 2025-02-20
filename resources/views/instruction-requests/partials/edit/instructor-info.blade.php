@@ -1,5 +1,5 @@
-{{-- resources/views/instruction-requests/admin/partials/contact-info.blade.php --}}
-<x-card title="Contact Information" class="bg-white mb-4">
+{{-- resources/views/instruction-requests/admin/partials/instructor-info.blade.php --}}
+<x-card title="Instructor Information" class="bg-white mb-4">
     <table class="min-w-full divide-y divide-gray-200">
         <thead>
         <tr class="bg-gray-50">
