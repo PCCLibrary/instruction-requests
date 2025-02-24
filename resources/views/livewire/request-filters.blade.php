@@ -26,20 +26,20 @@
                 </div>
             </div>
 
-            <a href="{{ route('instructionRequests.create') }}"
-               class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-4 w-4 mr-2"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 4v16m8-8H4" />
-                </svg>
-                Create New Request
-            </a>
+{{--            <a href="{{ route('instructionRequests.create') }}"--}}
+{{--               class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors">--}}
+{{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
+{{--                     class="h-4 w-4 mr-2"--}}
+{{--                     fill="none"--}}
+{{--                     viewBox="0 0 24 24"--}}
+{{--                     stroke="currentColor">--}}
+{{--                    <path stroke-linecap="round"--}}
+{{--                          stroke-linejoin="round"--}}
+{{--                          stroke-width="2"--}}
+{{--                          d="M12 4v16m8-8H4" />--}}
+{{--                </svg>--}}
+{{--                Create New Request--}}
+{{--            </a>--}}
         </div>
     </div>
 </div>

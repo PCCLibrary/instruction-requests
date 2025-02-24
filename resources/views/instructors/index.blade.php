@@ -7,7 +7,7 @@
     <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
         Manage Instructors
     </h1>
-    <p>Edit and manage instructors.</p>
+    <p>Edit and manage instructors. New instructors can be added when filling in a Instruction Request Form.</p>
 
 @endsection
 @section('content')

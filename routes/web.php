@@ -12,32 +12,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\InstructionRequestController;
 use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Http\Controllers\ClassesController;
+use App\Http\Controllers\Auth\Saml2Controller;
 use Livewire\Livewire;
 
-    ///*
-    //|--------------------------------------------------------------------------
-    //| Livewire Routes Configuration
-    //|--------------------------------------------------------------------------
-    //|
-    //| These routes configure Livewire to work correctly in the subdirectory setup.
-    //|
-    //*/
-    //
-    //Livewire::setScriptRoute(function($handle) {
-    //    return Route::get('/library/instruction-requests/public/vendor/livewire/livewire.js', $handle);
-    //});
-    //
-    //Livewire::setUpdateRoute(function($handle) {
-    //    return Route::post('/library/instruction-requests/public/livewire/update', $handle)
-    //        ->middleware('web');
-    //});
 /*
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
-|
-| These routes are publicly accessible and do not require authentication.
-|
 */
 
 // Database connection test route
@@ -54,7 +35,6 @@ Route::get('/db-test', function () {
 Route::get('/', [PublicInstructionRequestController::class, 'create'])
     ->name('public.instruction-request.create');
 
-
 // Store the submitted instruction request from the public form
 Route::post('/instruction-requests', [PublicInstructionRequestController::class, 'store'])
     ->name('public.instruction-request.store');
@@ -63,19 +43,24 @@ Route::post('/instruction-requests', [PublicInstructionRequestController::class,
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
-|
-| Laravel authentication routes.
-|
 */
+
+// Standard Laravel authentication routes
 Auth::routes();
+
+// SAML2 routes
+Route::prefix('saml2')->middleware('guest')->group(function () {
+    Route::get('login', [Saml2Controller::class, 'login'])->name('saml2.login');
+    Route::post('acs', [Saml2Controller::class, 'acs'])->name('saml2.acs');
+    Route::get('logout', [Saml2Controller::class, 'logout'])->name('saml2.logout');
+    Route::get('sls', [Saml2Controller::class, 'sls'])->name('saml2.sls');
+    Route::get('metadata', [Saml2Controller::class, 'metadata'])->name('saml2.metadata');
+});
 
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes (Dashboard)
 |--------------------------------------------------------------------------
-|
-| These routes require the user to be authenticated and are prefixed with "/dashboard".
-|
 */
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Debug route
@@ -112,8 +97,6 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     | Instruction Requests Additional Routes
     |--------------------------------------------------------------------------
     */
-//    Route::get('instructionRequests/{id}/edit', [InstructionRequestController::class, 'edit'])
-//        ->name('instructionRequests.edit');
     Route::get('instructionRequests/{id}/copy', [InstructionRequestController::class, 'copy'])
         ->name('instructionRequests.copy');
     Route::post('instructionRequests/{id}/accept', [InstructionRequestController::class, 'accept'])

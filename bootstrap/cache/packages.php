@@ -1,4 +1,15 @@
 <?php return array (
+  '24slides/laravel-saml2' => 
+  array (
+    'aliases' => 
+    array (
+      'Saml2' => 'Slides\\Saml2\\Facades\\Auth',
+    ),
+    'providers' => 
+    array (
+      0 => 'Slides\\Saml2\\ServiceProvider',
+    ),
+  ),
   'blade-ui-kit/blade-heroicons' => 
   array (
     'providers' => 

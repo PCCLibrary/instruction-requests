@@ -4,7 +4,7 @@
 
 /* resources/css/app.css */
 .choices__list--multiple .choices__item {
-    @apply text-white rounded-full px-2 py-1 text-xs m-1 bg-sky-400 hover:bg-sky-600;
+    @apply text-white rounded-full px-2 py-1 text-xs m-1 bg-sky-600 hover:bg-sky-800;
 }
 
 .choices__list--multiple .choices__item .choices__button {

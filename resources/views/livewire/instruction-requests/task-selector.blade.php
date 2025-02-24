@@ -8,8 +8,8 @@
                     wire:click="toggleTask('{{ $value }}')"
                     @class([
                         'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
-                        'bg-blue-100 text-blue-800 hover:bg-blue-200' => in_array($value, $selectedTasks),
-                        'bg-gray-100 text-gray-800 hover:bg-gray-200' => !in_array($value, $selectedTasks),
+                        'bg-sky-600 text-white hover:bg-sky-800' => in_array($value, $selectedTasks),
+                        'bg-white text-gray-800 hover:bg-sky-200' => !in_array($value, $selectedTasks),
                     ])
                 >
                     {{ $label }}
