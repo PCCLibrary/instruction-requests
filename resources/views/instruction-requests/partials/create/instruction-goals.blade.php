@@ -7,7 +7,6 @@
                 label="What do you want your students to get out of library instruction?"
                 :value="old('library_instruction_description')"
                 help-text="Examples: developing a topic, searching effectively, evaluating sources, etc."
-                required
             />
         </div>
 

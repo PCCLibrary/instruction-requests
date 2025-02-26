@@ -5,16 +5,16 @@ import './bootstrap';
 import '../../vendor/power-components/livewire-powergrid/dist/tailwind.css'
 import '../../vendor/power-components/livewire-powergrid/dist/powergrid'
 
-// resources/js/app.js
-
+// Flatpickr for date pickers
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/flatpickr.min.css'
 
-
+// Choices.js for select inputs
 import Choices from 'choices.js';
 import 'choices.js/public/assets/styles/choices.min.css';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize choices for librarian select - this is for campus editor
     const librarianSelect = document.querySelector('.choices-librarian-select');
 
     if (librarianSelect) {
@@ -30,20 +30,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
 
-document.addEventListener('DOMContentLoaded', () => {
+    // Handle form submission for librarian select - this is for campus editor
     const form = document.querySelector('form');
-    const librarianSelect = document.getElementById('librarian_ids');
+    const librarianIdsSelect = document.getElementById('librarian_ids');
 
-    if (form && librarianSelect) {
+    if (form && librarianIdsSelect) {
         form.addEventListener('submit', () => {
             // Ensure the select has the correct values before submission
-            const choicesInstance = librarianSelect.choices;
+            const choicesInstance = librarianIdsSelect.choices;
             if (choicesInstance) {
                 const selectedValues = choicesInstance.getValue(true);
-                librarianSelect.value = selectedValues;
+                librarianIdsSelect.value = selectedValues;
             }
         });
     }
+
+    // This function is no longer needed as we're handling everything in Alpine.js now
+    // Left a comment here to acknowledge we've intentionally removed it
+
+    // Log when Livewire is initialized
+    document.addEventListener('livewire:initialized', () => {
+        console.log('Livewire initialized');
+    });
 });

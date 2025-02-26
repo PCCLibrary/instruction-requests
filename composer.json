@@ -7,6 +7,7 @@
         "blade-ui-kit/blade-heroicons": "^2.5",
         "blade-ui-kit/blade-icons": "^1.7",
         "blade-ui-kit/blade-ui-kit": "^0.6.4",
+        "joshhanley/livewire-autocomplete": "^2.1",
         "lakm/laravel-comments": "^2.2",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.10",

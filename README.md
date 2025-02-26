@@ -1,65 +1,99 @@
-<h1 align="center"><img src="https://assets.infyom.com/open-source/infyom-logo.png" alt="InfyOm"></h1>
+# Library Instruction System Documentation
 
-# Laravel Boilerplate for AdminLTE Theme
+## 1. System Overview
 
-Laravel Boilerplate with [AdminLTE](https://adminlte.io/) Theme with [InfyOm Laravel Generator](https://github.com/InfyOmLabs/laravel-generator).
-Following things are ready to be used directly with AdminLTE Theme.
+### 1.1 Purpose
+The Library Instruction System is a Laravel 11 web application designed to streamline the process of scheduling and managing library instruction sessions between faculty and librarians within the Portland Community College network.
 
-- Signup
-- Login
-- Forgot Password
-- Password Reset
-- Home Layout with Sidebar
+### 1.2 Technical Evolution
+* **Originally:** Laravel 8, Infyom Generator, AdminLTE, Yajra DataTables
+* **Current:** Laravel 11, Livewire 3, Tailwind CSS, Livewire PowerGrid 6.1
 
-## Documentation
+### 1.3 Current Implementation Status
 
-Read [Documentation](https://infyom.com/open-source/laravelgenerator/docs/8.0/boilerplates) for detailed installation steps and usage.
+#### Working Features
+- Request viewing and management
+- Status updates across multiple states
+- File attachments for various document types
+- Basic dashboard functionality
+- Instruction request creation
+- Editing existing requests
+- Copying existing requests
 
-## Support Us
+#### Technical Components
+- Custom Blade components
+- Alpine.js for frontend interactions
+- Spatie Media Library for file management
+- Standard Laravel authentication
 
-We have created [14+ Laravel packages](https://github.com/InfyOmLabs) and invested a lot of resources into creating these all packages and maintaining them.
+## 2. Core Components
 
-You can support us by either sponsoring us or buying one of our paid products. Or help us by spreading the word about us on social platforms via tweets and posts.
+### 2.1 Request Lifecycle
+1. Faculty submits instruction request
+2. System creates/links instructor record
+3. Request enters `received` status
+4. Librarians can:
+    - View requests
+    - Assign requests
+    - Accept requests
+    - Mark requests complete
+    - Reject or copy requests
 
-### Buy our Paid Products
+### 2.2 Request Statuses
+- `received`: Initial state
+- `assigned`: Librarian assigned
+- `accepted`: Librarian confirmed
+- `completed`: Session finished
+- `copied`: Request duplicated
 
-[![InfyGPT](https://assets.infyom.com/open-source/infygpt-inline.png)](https://bit.ly/infy-gpt)
+### 2.3 Key Models
+- `InstructionRequests`: Central model
+    - Relates to Instructor
+    - Relates to Classes
+    - Relates to Campus
+    - Associated with `InstructionRequestDetails`
 
-You can also check out our other paid products on [CodeCanyon](https://1.envato.market/BXAnR1).
+- `Instructor`: Faculty representation
+- `User`: Librarian accounts (manually created)
 
-### Sponsors
+## 3. File Handling
+Supports file collections with the following specifications:
 
-[Become a sponsor](https://opencollective.com/infyomlabs#sponsor) and get your logo on our README on Github with a link to your site.
+### Supported File Types
+- Plain text (.txt)
+- Rich Text Format (.rtf)
+- Portable Document Format (.pdf)
+- Microsoft Word Documents (.doc, .docx)
+- Microsoft PowerPoint Presentations (.ppt, .pptx)
 
-<a href="https://opencollective.com/infyomlabs#sponsor"><img src="https://opencollective.com/infyomlabs/sponsors.svg?width=890"></a>
+### Upload Restrictions
+- Maximum file size: 8 MB per file
+- File collections:
+    - Course syllabi
+    - Instructor attachments
+    - Teaching materials
+    - Assessment documents
 
-### Backers
+## 4. Notification System
+Provides notifications for:
+- Request received
+- Request assigned
+- Request accepted
+- Request rejected
 
-[Become a backer](https://opencollective.com/infyomlabs#backer) and get your image on our README on Github with a link to your site.
+## 5. Authentication
+- Standard Laravel authentication
+- Manual user creation
+- No role-based access control
 
-<a href="https://opencollective.com/infyomlabs#backer"><img src="https://opencollective.com/infyomlabs/backers.svg?width=890"></a>
+## 6. Development Environment
+- Framework: Laravel 11
+- PHP Version: 8.2+
+- Timezone: America/Los_Angeles
+- Date Format: YYYY-MM-DD H:i:s
+- Access: Internal VPN network
 
-### Follow Us
-
-- [Twitter](https://twitter.com/infyom)
-- [Facebook](https://www.facebook.com/infyom)
-- [LinkedIn](https://in.linkedin.com/company/infyom-technologies)
-- [Youtube](https://www.youtube.com/channel/UC8IvwfChD6i7Wp4yZp3tNsQ)
-- [Contact Us](https://infyom.com/contact-us)
-
-## Made with InfyOm Generator
-
-Also, Do not forget to add your website to [Made with InfyOm Generator List](https://github.com/InfyOmLabs/laravel-generator/blob/develop/made-with-generator.md) list.
-
-## Security
-
-If you discover any security-related issues, create an issue using the issue tracker.
-
-## Credits
-
-- [InfyOm Technologies](https://github.com/infyomlabs)
-- [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+## 7. System Requirements
+- PHP 8.2+
+- Composer dependencies
+- Node.js 18+ for frontend compilation

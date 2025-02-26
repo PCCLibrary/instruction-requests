@@ -43,6 +43,12 @@ class UpdateInstructionRequestRequest extends FormRequest
             'desired_student_outcomes' => 'sometimes|nullable|string',
             'genai_discussion_interest' => 'sometimes|nullable|string',
             'other_notes' => 'sometimes|nullable|string',
+            'instructor_id' => 'required|exists:instructors,id',
+            'name' => 'required|string|max:255',
+            'display_name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'pronouns' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
 
             // Details fields that can be updated
             'assigned_librarian_id' => 'sometimes|nullable|exists:users,id',  // Added this

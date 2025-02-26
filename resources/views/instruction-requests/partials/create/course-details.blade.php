@@ -45,8 +45,6 @@
                     type="number"
                     :value="old('number_of_students')"
                     help-text="Enter the number of students in the class."
-                    x-bind:required="$store.createFormState[name]?.required"
-                    x-bind:disabled="$store.createFormState[name]?.disabled"
                 />
             </div>
         </div>

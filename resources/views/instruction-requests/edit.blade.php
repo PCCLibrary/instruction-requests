@@ -20,53 +20,53 @@
           method="POST"
           enctype="multipart/form-data"
           x-data="{
-            isEditing: false,
-            instructionType: '{{ $instructionRequest->instruction_type }}',
-            initializeForm() {
-                console.log('Form initialized, edit state:', this.isEditing);
-                Alpine.store('formState', {
-                    isEditing: this.isEditing
-                });
-            },
-            toggleEdit() {
-                this.isEditing = !this.isEditing;
-                Alpine.store('formState').isEditing = this.isEditing;
-                console.log('Edit state toggled to:', this.isEditing);
+        isEditing: false,
+        instructionType: '{{ $instructionRequest->instruction_type }}',
+        initializeForm() {
+            console.log('Form initialized, edit state:', this.isEditing);
+            Alpine.store('formState', {
+                isEditing: this.isEditing
+            });
+        },
+        toggleEdit() {
+            this.isEditing = !this.isEditing;
+            Alpine.store('formState').isEditing = this.isEditing;
+            console.log('Edit state toggled to:', this.isEditing);
 
-                if (this.isEditing) {
-                    this.validateForm();
-                }
-            },
-            validateForm() {
-                const form = document.getElementById('updateInstructionRequestForm');
-                const studentsInput = form.querySelector('#number_of_students');
-                if (studentsInput && studentsInput.value) {
-                    const numStudents = parseInt(studentsInput.value);
-                    if (numStudents <= 0) {
-                        studentsInput.setCustomValidity('Number of students must be greater than 0');
-                    } else {
-                        studentsInput.setCustomValidity('');
-                    }
-                }
-            },
-            updateRequiredFields() {
-                console.log('Updating required fields for type:', this.instructionType);
-
-                const asyncField = document.getElementById('asynchronous_instruction_ready_date');
-                const preferredField = document.getElementById('preferred_datetime');
-                const durationField = document.getElementById('duration');
-
-                if (this.instructionType === 'asynchronous') {
-                    asyncField?.setAttribute('required', 'required');
-                    preferredField?.removeAttribute('required');
-                    durationField?.removeAttribute('required');
+            if (this.isEditing) {
+                this.validateForm();
+            }
+        },
+        validateForm() {
+            const form = document.getElementById('updateInstructionRequestForm');
+            const studentsInput = form.querySelector('#number_of_students');
+            if (studentsInput && studentsInput.value) {
+                const numStudents = parseInt(studentsInput.value);
+                if (numStudents <= 0) {
+                    studentsInput.setCustomValidity('Number of students must be greater than 0');
                 } else {
-                    asyncField?.removeAttribute('required');
-                    preferredField?.setAttribute('required', 'required');
-                    durationField?.setAttribute('required', 'required');
+                    studentsInput.setCustomValidity('');
                 }
             }
-      }"
+        },
+        updateRequiredFields() {
+            console.log('Updating required fields for type:', this.instructionType);
+
+            const asyncField = document.getElementById('asynchronous_instruction_ready_date');
+            const preferredField = document.getElementById('preferred_datetime');
+            const durationField = document.getElementById('duration');
+
+            if (this.instructionType === 'asynchronous') {
+                asyncField?.setAttribute('required', 'required');
+                preferredField?.removeAttribute('required');
+                durationField?.removeAttribute('required');
+            } else {
+                asyncField?.removeAttribute('required');
+                preferredField?.setAttribute('required', 'required');
+                durationField?.setAttribute('required', 'required');
+            }
+        }
+    }"
           x-init="initializeForm()"
           @instruction-type-changed.window="instructionType = $event.detail; updateRequiredFields()"
     >
@@ -76,7 +76,7 @@
         {{-- Essential Hidden Fields --}}
         <input type="hidden" name="instruction_requests_id"
                value="{{ $instructionRequest->detail->instruction_requests_id }}">
-        <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">
+{{--        <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">--}}
         {{--        <input type="hidden" name="librarian_id" value="{{ $instructionRequest->librarian_id ?? auth()->id() }}">--}}
         {{--        <input type="hidden" name="campus_id" value="{{ $instructionRequest->campus_id }}">--}}
         <input type="hidden" name="class_id" value="{{ $instructionRequest->class_id }}">

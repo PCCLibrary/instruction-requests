@@ -14,21 +14,24 @@
 
         {{-- Status Items --}}
         <div class="bg-white">
-            <div class="flex divide-x divide-gray-200">
-                @foreach($items as $item)
-                    <div class="flex-1 p-4">
-                        <div class="flex items-center gap-3">
+            <div class="flex flex-col md:grid md:grid-cols-2 xl:flex xl:flex-row divide-y md:divide-y-0 xl:divide-y-0">
+                @foreach($items as $index => $item)
+                    <div class="flex-1 p-3 sm:p-4 border-gray-200 {{-- Consistent borders --}}
+                        md:border-r md:last:border-r-0 xl:border-r xl:last:border-r-0
+                        @if($index === 1 && count($items) > 1) md:border-b @endif
+                    ">
+                        <div class="flex items-center gap-2">
                             {{-- Icon container with matching table header colors --}}
-                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center {{ $item['iconBgColor'] }}">
+                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center {{ $item['iconBgColor'] }}">
                                 <x-dynamic-component
                                     :component="'heroicon-o-'.$item['icon']"
-                                    class="w-5 h-5 text-white"
+                                    class="w-4 h-4 md:w-5 md:h-5 text-white"
                                 />
                             </div>
 
                             {{-- Content --}}
                             <div class="min-w-0 flex-1">
-                                <p class="text-2xl font-semibold text-gray-900">
+                                <p class="text-xl md:text-2xl font-semibold text-gray-900">
                                     {{ $item['count'] }}
                                 </p>
                                 <p class="text-sm text-gray-500 truncate">

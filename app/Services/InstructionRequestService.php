@@ -205,6 +205,37 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'room'
             ]));
 
+            // Extract instructor data
+            $instructorData = array_intersect_key($data, array_flip([
+                'instructor_id',
+                'name',
+                'display_name',
+                'pronouns',
+                'email',
+                'phone'
+            ]));
+
+            // If we have instructor data and ID, update the instructor
+            if (!empty($instructorData) && isset($instructorData['instructor_id'])) {
+                $instructorId = $instructorData['instructor_id'];
+
+                // Remove instructor_id from the data to update
+                $instructorUpdateData = array_diff_key($instructorData, ['instructor_id' => '']);
+
+                // Only update if we have data to update
+                if (!empty($instructorUpdateData)) {
+                    $instructor = Instructor::find($instructorId);
+                    if ($instructor) {
+                        $instructor->update($instructorUpdateData);
+                    }
+                }
+
+                // Make sure the main request has the instructor_id
+                if (!isset($mainRequestData['instructor_id'])) {
+                    $mainRequestData['instructor_id'] = $instructorId;
+                }
+            }
+
             if (isset($data['assigned_librarian_id'])) {
                 Log::info('Preparing librarian assignment', [
                     'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id ?? null,

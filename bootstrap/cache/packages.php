@@ -38,6 +38,13 @@
       0 => 'GrahamCampbell\\Security\\SecurityServiceProvider',
     ),
   ),
+  'joshhanley/livewire-autocomplete' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'LivewireAutocomplete\\LivewireAutocompleteServiceProvider',
+    ),
+  ),
   'lakm/laravel-comments' => 
   array (
     'providers' => 
