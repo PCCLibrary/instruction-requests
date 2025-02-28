@@ -49,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
 // Get the base path for the application
         $basePath = '/library/instruction-requests/public';
 
+
         // Configure Livewire assets
         Livewire::setScriptRoute(function ($handle) use ($basePath) {
             return Route::get($basePath . '/vendor/livewire/livewire.js', $handle)
@@ -65,5 +66,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Force Livewire to use absolute paths
         config(['livewire.inject_assets' => true]);
+
+        // Configure the media library disk
+        config(['media-library.disk_name' => 'public']);
+
     }
 }
