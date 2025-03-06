@@ -57,15 +57,15 @@ $(document).ready(function() {
         },
         'remote': {
             show: '.remote',
-            required: ['#librarian_id', '#preferred_datetime', '#duration', '#campus_id'],
-            notRequired: ['#number_of_students', "#asynchronous_instruction_ready_date", "#alternate_datetime"],
+            required: ['#number_of_students', '#librarian_id', '#preferred_datetime', '#duration', '#campus_id'],
+            notRequired: ["#asynchronous_instruction_ready_date", "#alternate_datetime"],
             disable: ["#asynchronous_instruction_ready_date"]
         },
         'asynchronous': {
             show: '.asynchronous',
-            required: ['#asynchronous_instruction_ready_date', '#campus_id'],
-            notRequired: ['#librarian_id', '#number_of_students', '#preferred_datetime', '#alternate_datetime', '#duration'],
-            disable: ['#librarian_id', '#preferred_datetime', '#alternate_datetime', '#duration']
+            required: ['#number_of_students', '#librarian_id', '#asynchronous_instruction_ready_date', '#campus_id'],
+            notRequired: ['#preferred_datetime', '#alternate_datetime', '#duration'],
+            disable: [ '#preferred_datetime', '#alternate_datetime', '#duration']
         }
     };
 

@@ -68,7 +68,7 @@
                         'label' => 'Instruction Type',
                         'options' => [
                             'on-campus' => 'Librarian joins my class on campus',
-                            'remote' => 'Librarian joins my remote class',
+                            'remote' => 'Librarian joins my online (scheduled meeting) class',
                             'asynchronous' => 'Librarian provides resources to be used asynchronously'
                         ],
                         'selected' => old('instruction_type'),
@@ -90,13 +90,13 @@
                     <input type="hidden" name="campus_id" value="1" />
                     @include('public_form.partials.input-select', [
                         'name' => 'campus_id',
-                        'label' => 'Class Location',
+                        'label' => 'Campus Preference',
                         'options' => $campuses,
                         'selected' => old('campus_id'),
                         'classes' => 'col-lg-12',
                         'tophelptext' => 'Select the location where your class takes place or is assigned to.
                         If the class is not assigned to a location, select the campus with which you are primarily associated.
-                        Select “other” if you’re not sure.',
+                        Select “No campus preference” if you’re not sure.',
                         'required' => true
                     ])
 {{--                </div>--}}
@@ -154,7 +154,7 @@
                         'label' => 'Number of Students',
                         'type' => 'number',
                         'value' => old('number_of_students'),
-                        'classes' => 'col-lg-2 on-campus remote',
+                        'classes' => 'col-lg-2 on-campus remote asynchronous',
                         'helptext' => 'Enter the number of students in the class.',
                         'required' => true
                     ])

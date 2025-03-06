@@ -9,7 +9,7 @@
                 label="Instruction Type"
                 :options="[
                     'on-campus' => 'Librarian joins my class on campus',
-                    'remote' => 'Librarian joins my remote class',
+                    'remote' => 'Librarian joins my online (scheduled meeting) class',
                     'asynchronous' => 'Librarian provides resources to be used asynchronously'
                 ]"
                 :selected="old('instruction_type')"

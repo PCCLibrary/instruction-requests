@@ -192,11 +192,12 @@ final class InstructionRequestTable extends PowerGridComponent
 
             Filter::select('campus_name', 'campuses.code')
                 ->dataSource([
-                    ['value' => 'OL', 'label' => 'Online'],
+                    ['value' => 'NCP', 'label' => 'No Campus Preference'],
                     ['value' => 'CAS', 'label' => 'Cascade'],
                     ['value' => 'RC', 'label' => 'Rock Creek'],
                     ['value' => 'SE', 'label' => 'Southeast'],
                     ['value' => 'SY', 'label' => 'Sylvania'],
+                    ['value' => 'OL', 'label' => 'Online'],
                     ['value' => 'O', 'label' => 'Other'],
 
                 ])

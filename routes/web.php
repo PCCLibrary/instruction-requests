@@ -50,6 +50,9 @@ Auth::routes();
 
 // SAML2 routes
 Route::prefix('saml2')->middleware('guest')->group(function () {
+
+    // Keep these routes for backward compatibility with existing views
+
     Route::get('login', [Saml2Controller::class, 'login'])->name('saml2.login');
     Route::post('acs', [Saml2Controller::class, 'acs'])->name('saml2.acs');
     Route::get('logout', [Saml2Controller::class, 'logout'])->name('saml2.logout');
@@ -103,4 +106,5 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         ->name('instructionRequests.accept');
     Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
         ->name('instructionRequests.reject');
+
 });
