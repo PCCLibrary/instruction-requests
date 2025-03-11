@@ -1,15 +1,4 @@
 <?php return array (
-  '24slides/laravel-saml2' => 
-  array (
-    'aliases' => 
-    array (
-      'Saml2' => 'Slides\\Saml2\\Facades\\Auth',
-    ),
-    'providers' => 
-    array (
-      0 => 'Slides\\Saml2\\ServiceProvider',
-    ),
-  ),
   'blade-ui-kit/blade-heroicons' => 
   array (
     'providers' => 
@@ -57,6 +46,17 @@
     'providers' => 
     array (
       0 => 'Laravel\\Breeze\\BreezeServiceProvider',
+    ),
+  ),
+  'laravel/socialite' => 
+  array (
+    'aliases' => 
+    array (
+      'Socialite' => 'Laravel\\Socialite\\Facades\\Socialite',
+    ),
+    'providers' => 
+    array (
+      0 => 'Laravel\\Socialite\\SocialiteServiceProvider',
     ),
   ),
   'laravel/tinker' => 
@@ -128,6 +128,13 @@
     'providers' => 
     array (
       0 => 'PowerComponents\\LivewirePowerGrid\\Providers\\PowerGridServiceProvider',
+    ),
+  ),
+  'socialiteproviders/manager' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'SocialiteProviders\\Manager\\ServiceProvider',
     ),
   ),
   'spatie/laravel-honeypot' => 

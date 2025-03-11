@@ -12,8 +12,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\InstructionRequestController;
 use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Http\Controllers\ClassesController;
-use App\Http\Controllers\Auth\Saml2Controller;
+use App\Http\Controllers\Auth\SamlAuthController;
 use Livewire\Livewire;
+use Illuminate\Support\Facades\Log;
+
+use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,18 +53,38 @@ Route::post('/instruction-requests', [PublicInstructionRequestController::class,
 // Standard Laravel authentication routes
 Auth::routes();
 
-// SAML2 routes
+/*
+|--------------------------------------------------------------------------
+| SAML2 Authentication Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle the SAML2 authentication flow with PCC's identity provider.
+| - login: Initiates the SAML2 authentication flow
+| - acs: Processes the SAML response from the IdP (Assertion Consumer Service)
+| - logout: Handles local logout
+| - metadata: Provides SP metadata for IdP configuration
+|
+*/
 Route::prefix('saml2')->middleware('guest')->group(function () {
+    // Initiates the SAML2 authentication flow by redirecting to the IdP
+    Route::get('login', [SamlAuthController::class, 'login'])
+        ->name('saml2.login');
 
-    // Keep these routes for backward compatibility with existing views
 
-    Route::get('login', [Saml2Controller::class, 'login'])->name('saml2.login');
-    Route::post('acs', [Saml2Controller::class, 'acs'])->name('saml2.acs');
-    Route::get('logout', [Saml2Controller::class, 'logout'])->name('saml2.logout');
-    Route::get('sls', [Saml2Controller::class, 'sls'])->name('saml2.sls');
-    Route::get('metadata', [Saml2Controller::class, 'metadata'])->name('saml2.metadata');
+    // Processes the SAML2 assertion response from the IdP (Assertion Consumer Service)
+    // Accept both POST and GET methods to handle different binding types
+    Route::match(['get', 'post'], 'acs', [SamlAuthController::class, 'handleCallback'])
+        ->name('saml2.acs')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+    // Performs a local logout
+    Route::get('logout', [SamlAuthController::class, 'logout'])
+        ->name('saml2.logout');
+
+    // Returns the SAML2 Service Provider metadata as XML
+    Route::get('metadata', [SamlAuthController::class, 'metadata'])
+        ->name('saml2.metadata');
 });
-
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes (Dashboard)
@@ -106,5 +131,9 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         ->name('instructionRequests.accept');
     Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
         ->name('instructionRequests.reject');
-
 });
+
+// Add this for debugging during development only (remove in production)
+// Route::get('debug', function () {
+//     dd(Socialite::driver('saml2')->user());
+// })->name('saml2.debug');

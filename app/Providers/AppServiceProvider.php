@@ -10,6 +10,8 @@ use App\Services\InstructionRequestDetailsService;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 use LakM\Comments\CommentServiceProvider;
+use Illuminate\Support\Facades\Event;
+
 
 /**
  * Service provider for binding interfaces to their concrete implementations
@@ -49,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
 // Get the base path for the application
         $basePath = '/library/instruction-requests/public';
 
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('saml2', \SocialiteProviders\Saml2\Provider::class);
+        });
 
         // Configure Livewire assets
         Livewire::setScriptRoute(function ($handle) use ($basePath) {
