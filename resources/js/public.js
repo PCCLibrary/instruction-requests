@@ -1,3 +1,8 @@
+// Disable Dropzone auto-discovery immediately
+if (typeof Dropzone !== 'undefined') {
+    Dropzone.autoDiscover = false;
+}
+
 $(document).ready(function() {
     /**
      * Hide all fieldsets and destroy Select2 instances if initialized.
@@ -81,22 +86,211 @@ $(document).ready(function() {
     let instructionTypeSelect = $('select[name="instruction_type"]');
     applyFieldSettings(instructionTypeSelect.val()); // Apply initial settings
 
-    // Debug logging for checkbox existence
-    console.log('Checkbox exists on page load:', $('input[type="checkbox"][name="ada_provisions_needed"]').length);
-
-    // Simple checkbox handler with debug logging
-    // $('input[type="checkbox"][name="ada_provisions_needed"]').on('change', function() {
+    // Checkbox handler
     $('input[type="checkbox"]').on('change', function() {
-        console.log('Checkbox changed!');
-        console.log('Checkbox checked state:', this.checked);
         const descriptionId = $(this).data('target');
-        console.log('Target element ID:', descriptionId);
         $('#' + descriptionId).toggleClass('invisible', !this.checked);
     });
 
     instructionTypeSelect.change(function() {
         applyFieldSettings($(this).val());
-        console.log('Instruction type changed');
-        console.log('Checkbox exists after change:', $('input[type="checkbox"][name="ada_provisions_needed"]').length);
     });
+
+    // ************************
+    // Dropzone Implementation
+    // ************************
+    
+    /**
+     * Get file icon based on file extension
+     * @param {string} fileName - The file name
+     * @returns {string} - Font Awesome icon class
+     */
+    function getFileIcon(fileName) {
+        const extension = fileName.split('.').pop().toLowerCase();
+        const iconMap = {
+            'pdf': 'fa-file-pdf-o',
+            'doc': 'fa-file-word-o',
+            'docx': 'fa-file-word-o',
+            'ppt': 'fa-file-powerpoint-o',
+            'pptx': 'fa-file-powerpoint-o',
+            'txt': 'fa-file-text-o',
+            'rtf': 'fa-file-text-o'
+        };
+        
+        return iconMap[extension] || 'fa-file-o';
+    }
+    
+    /**
+     * Get CSRF token from meta tag
+     * @returns {string|null}
+     */
+    function getCsrfToken() {
+        return $('meta[name="csrf-token"]').attr('content') || null;
+    }
+
+    /**
+     * Generate a token for uploading files
+     * @returns {Promise<string>} - Upload token
+     */
+    function generateUploadToken() {
+        console.log('Generating upload token with URL:', baseUrl + '/api/token/generate');
+        
+        const headers = {};
+        const csrfToken = getCsrfToken();
+        
+        if (csrfToken) {
+            headers['X-CSRF-TOKEN'] = csrfToken;
+            console.log('CSRF token found:', csrfToken);
+        } else {
+            console.warn('No CSRF token found in meta tag');
+        }
+        
+        return $.ajax({
+            url: baseUrl + '/api/token/generate',
+            method: 'POST',
+            headers: headers
+        }).then(response => {
+            console.log('Token generation successful:', response);
+            return response;
+        }).catch(error => {
+            console.error('Token generation failed:', error);
+            throw error;
+        });
+    }
+    
+    // Get an upload token when the page loads
+    if ($('#dropzone-upload').length > 0 && $('#dropzone-preview-template').length > 0) {
+        console.log('Dropzone elements found, initializing upload process');
+        generateUploadToken()
+            .then(response => {
+                if (response && response.token) {
+                    console.log('Token received and saved:', response.token);
+                    $('#upload-token').val(response.token);
+
+                    // Initialize Dropzone with the token
+                    initializeDropzone(response.token);
+
+                    // Set a timer to warn about token expiration
+                    setTimeout(function() {
+                        alert('Your upload session is about to expire. Please submit the form or refresh the page to continue uploading files.');
+                    }, 110 * 60 * 1000); // 110 minutes (just before the 2-hour token expires)
+                } else {
+                    console.error('Invalid token response:', response);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to generate upload token:', error);
+            });
+    } else {
+        console.log('Dropzone elements not found, skipping initialization');
+        console.log('Elements check:', {
+            dropzoneUpload: $('#dropzone-upload').length,
+            dropzonePreviewTemplate: $('#dropzone-preview-template').length
+        });
+    }
+    
+    /**
+     * Initialize Dropzone with the provided token
+     * @param {string} token - Upload token
+     */
+    function initializeDropzone(token) {
+        // Get preview template
+        const previewTemplate = document.querySelector('#dropzone-preview-template');
+        if (!previewTemplate) {
+            console.error('Dropzone preview template not found');
+            return;
+        }
+        
+        console.log('Initializing Dropzone with token:', token);
+
+        // Create a new Dropzone instance
+        try {
+            const myDropzone = new Dropzone('#dropzone-upload', {
+                url: baseUrl + '/api/media/upload',
+                paramName: 'file', // The name used for the file upload
+                maxFilesize: 20, // MB
+                maxFiles: 4,
+                acceptedFiles: '.pdf,.doc,.docx,.ppt,.pptx,.txt,.rtf',
+                addRemoveLinks: true,
+                previewTemplate: previewTemplate.innerHTML,
+                headers: {
+                    'X-Upload-Token': token,
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                init: function() {
+                    console.log('Dropzone initialized successfully');
+                    
+                    this.on('addedfile', function(file) {
+                        console.log('File added to Dropzone:', file.name);
+                    });
+                    
+                    this.on('sending', function(file, xhr, formData) {
+                        console.log('Sending file:', file.name);
+                        console.log('Headers:', xhr.requestHeaders);
+                    });
+                    
+                    this.on('success', function(file, response) {
+                        console.log('File uploaded successfully:', file.name, response);
+                        // Set the file ID as a data attribute
+                        $(file.previewElement).attr('data-file-id', response.file.id);
+                        
+                        // Update the icon based on the file type
+                        const iconClass = getFileIcon(file.name);
+                        $(file.previewElement).find('.fa-file').removeClass('fa-file').addClass(iconClass);
+                    });
+                
+                    this.on('removedfile', function(file) {
+                        const fileId = $(file.previewElement).attr('data-file-id');
+                        console.log('File removed from Dropzone:', file.name, 'ID:', fileId);
+                        
+                        if (fileId) {
+                            // Delete the file on the server
+                            $.ajax({
+                                url: baseUrl + '/api/media/delete/' + fileId,
+                                method: 'DELETE',
+                                headers: {
+                                    'X-Upload-Token': token,
+                                    'X-CSRF-TOKEN': getCsrfToken()
+                                }
+                            }).done(function() {
+                                console.log('File deleted from server:', file.name, 'ID:', fileId);
+                            }).fail(function(error) {
+                                console.error('Failed to delete file from server:', error);
+                            });
+                        }
+                    });
+                    
+                    this.on('error', function(file, errorMessage, xhr) {
+                        console.error('Error uploading file:', file.name, errorMessage);
+                        if (xhr) {
+                            console.error('XHR status:', xhr.status, 'Response:', xhr.responseText);
+                        }
+                        
+                        if (typeof errorMessage === 'string') {
+                            $(file.previewElement).find('[data-dz-errormessage]').text(errorMessage);
+                        } else if (errorMessage.message) {
+                            $(file.previewElement).find('[data-dz-errormessage]').text(errorMessage.message);
+                        }
+                    });
+                    
+                    // Clear the form button functionality
+                    $('#clearForm').on('click', function() {
+                        console.log('Removing all files from Dropzone');
+                        myDropzone.removeAllFiles(true);
+                    });
+                }
+            });
+            
+            // Store Dropzone instance in a global variable for form submission
+            window.dropzoneInstance = myDropzone;
+            
+            // Add form submission handler to ensure token is included
+            $('#instructionRequestForm').on('submit', function() {
+                console.log('Form is being submitted. Token value:', $('#upload-token').val());
+            });
+            
+        } catch (error) {
+            console.error('Error initializing Dropzone:', error);
+        }
+    }
 });

@@ -197,19 +197,12 @@
                     ])
                 </div>
                 <div class="row mb-4">
-                    @include('public_form.partials.input-file', [
-                        'name' => 'instructor_attachments',
-                        'label' => 'Attach assignment (doc, docx, pdf, ppt, pptx, txt, rtf)',
-                        'multiple' => true,
-                        'errors' => $errors->get('instructor_attachments.*'),
-                        'classes' => 'col-lg-6'
-                    ])
-                    @include('public_form.partials.input-file', [
-                        'name' => 'class_syllabus',
-                        'label' => 'Attach assignment (doc, docx, pdf, ppt, pptx, txt, rtf)',
-                        'multiple' => true,
-                        'errors' => $errors->get('class_syllabus.*'),
-                        'classes' => 'col-lg-6'
+                    @include('public_form.partials.dropzone', [
+                        'name' => 'materials',
+                        'label' => 'Upload Files (doc, docx, pdf, ppt, pptx, txt, rtf)',
+                        'helptext' => 'Drop files here or click to browse. Maximum 4 files, 20MB each.',
+                        'classes' => 'col-lg-12',
+                        'errors' => $errors->get('materials.*')
                     ])
                 </div>
                 <div class="row">
@@ -219,10 +212,8 @@
                         'value' => old('assignment_description'),
                         'classes' => 'col-lg-8',
                         'helptext' => 'Include any additional information that will help the librarian prepare for your class.'
-
                     ])
                 </div>
-
             </fieldset>
 
             {{-- ************************

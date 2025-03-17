@@ -69,6 +69,15 @@ class PublicInstructionRequestController extends Controller
         try {
             // Validate and prepare input data
             $input = $request->except(['class_syllabus', 'instructor_attachments']);
+            $uploadToken = $request->input('upload_token');
+
+            Log::info('Processing instruction request submission', [
+                'has_token' => !empty($uploadToken),
+                'token' => $uploadToken,
+                'form_data' => array_keys($input),
+                'request_method' => $request->method(),
+                'content_type' => $request->header('Content-Type')
+            ]);
 
             // Create instruction request with files
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
@@ -77,15 +86,42 @@ class PublicInstructionRequestController extends Controller
                 throw new \Exception('Failed to create instruction request');
             }
 
+            Log::info('Instruction request created', [
+                'request_id' => $instructionRequest->id,
+                'status' => $instructionRequest->status
+            ]);
+
+            // Associate uploaded files with the instruction request if a token was provided
+            if ($uploadToken) {
+                Log::info('Calling associateFiles with token', [
+                    'token' => $uploadToken,
+                    'request_id' => $instructionRequest->id
+                ]);
+
+                $fileAssociationResult = app(\App\Http\Controllers\MediaController::class)->associateFiles(
+                    $uploadToken, 
+                    $instructionRequest->id
+                );
+
+                Log::info('File association completed', [
+                    'success' => $fileAssociationResult ? 'true' : 'false',
+                    'token' => $uploadToken,
+                    'request_id' => $instructionRequest->id
+                ]);
+            } else {
+                Log::warning('No upload token provided for file association');
+            }
+
             // Fetch related data and append
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
-//            Log::debug('Store operation completed', [
-//                'request_id' => $instructionRequest->id,
-//                'has_details' => !is_null($instructionRequest->detail),
-//                'instructor' => $instructionRequest->instructor_name,
-//                'class' => $instructionRequest->course_name
-//            ]);
+            Log::info('Store operation completed', [
+                'request_id' => $instructionRequest->id,
+                'has_details' => !is_null($instructionRequest->detail),
+                'instructor' => $instructionRequest->instructor_name ?? 'unknown',
+                'class' => $instructionRequest->course_name ?? 'unknown',
+                'had_token' => !empty($uploadToken)
+            ]);
 
             return redirect('/')
                 ->with('success', 'Instruction request submitted successfully.')
@@ -94,6 +130,9 @@ class PublicInstructionRequestController extends Controller
         } catch (Throwable $e) {
             Log::error('Store operation failed', [
                 'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
                 'input' => $input ?? null
             ]);

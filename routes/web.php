@@ -51,13 +51,11 @@ Route::post('/instruction-requests', [PublicInstructionRequestController::class,
 |--------------------------------------------------------------------------
 */
 // Public file upload routes
-Route::post('/api/token/generate', [MediaController::class, 'generateToken'])
+Route::post('/api/token/generate', [MediaController::class, 'generateUploadToken'])
     ->name('media.token.generate');
-    
 Route::post('/api/media/upload', [MediaController::class, 'publicUpload'])
     ->name('media.upload.public');
-    
-Route::delete('/api/media/delete/{id}', [MediaController::class, 'delete'])
+Route::delete('/api/media/delete/{id}', [MediaController::class, 'publicDelete'])
     ->name('media.delete.public');
 
 /*
