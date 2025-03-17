@@ -13,6 +13,7 @@ use App\Http\Controllers\InstructionRequestController;
 use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\Auth\SamlAuthController;
+use App\Http\Controllers\MediaController;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Log;
 
@@ -43,6 +44,21 @@ Route::get('/', [PublicInstructionRequestController::class, 'create'])
 // Store the submitted instruction request from the public form
 Route::post('/instruction-requests', [PublicInstructionRequestController::class, 'store'])
     ->name('public.instruction-request.store');
+
+/*
+|--------------------------------------------------------------------------
+| File Upload Routes
+|--------------------------------------------------------------------------
+*/
+// Public file upload routes
+Route::post('/api/token/generate', [MediaController::class, 'generateToken'])
+    ->name('media.token.generate');
+    
+Route::post('/api/media/upload', [MediaController::class, 'publicUpload'])
+    ->name('media.upload.public');
+    
+Route::delete('/api/media/delete/{id}', [MediaController::class, 'delete'])
+    ->name('media.delete.public');
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +147,16 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         ->name('instructionRequests.accept');
     Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
         ->name('instructionRequests.reject');
+        
+    /*
+    |--------------------------------------------------------------------------
+    | Admin File Upload Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/media/upload', [MediaController::class, 'upload'])
+        ->name('media.upload');
+    Route::delete('/media/delete/{id}', [MediaController::class, 'delete'])
+        ->name('media.delete');
 });
 
 // Add this for debugging during development only (remove in production)
