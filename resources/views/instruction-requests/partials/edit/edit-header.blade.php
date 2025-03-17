@@ -4,19 +4,27 @@
             <div>
                 <div class="flex items-center mb-2">
                     <x-heroicon-s-calendar class="h-5 w-5 mr-2 text-gray-500" />
-                    <span class="font-semibold text-gray-700">Received:</span>
+                    <span class="font-semibold text-gray-700">Instruction Date:</span>
                 </div>
                 <p class="text-sm text-gray-900">
-                    {{ \Carbon\Carbon::parse($instructionRequest->created_at)->format('M d, Y g:i A') }}
+                    @if($instructionRequest->detail && $instructionRequest->detail->instruction_datetime)
+                        {{ \Carbon\Carbon::parse($instructionRequest->detail->instruction_datetime)->format('M d, Y g:i A') }}
+                    @else
+                        Not Scheduled
+                    @endif
                 </p>
             </div>
             <div>
                 <div class="flex items-center mb-2">
-                    <x-heroicon-s-user class="h-5 w-5 mr-2 text-gray-500" />
-                    <span class="font-semibold text-gray-700">Created By:</span>
+                    <x-heroicon-o-user-circle class="h-5 w-5 mr-2 text-gray-500" />
+                    <span class="font-semibold text-gray-700">Assigned Librarian:</span>
                 </div>
                 <p class="text-sm text-gray-900">
-                    {{ $instructionRequest->detail->created_by }}
+                    @if($instructionRequest->detail && $instructionRequest->detail->assigned_librarian_id)
+                        {{ App\Models\User::find($instructionRequest->detail->assigned_librarian_id)->display_name ?? 'N/A' }}
+                    @else
+                        Not Assigned
+                    @endif
                 </p>
             </div>
             <div>
@@ -55,29 +63,29 @@
             </div>
             <div>
                 <div class="flex items-center mb-2">
-                    <x-heroicon-o-user-circle class="h-5 w-5 mr-2 text-gray-500" />
-                    <span class="font-semibold text-gray-700">Assigned Librarian:</span>
+                    <x-heroicon-s-user class="h-5 w-5 mr-2 text-gray-500" />
+                    <span class="font-semibold text-gray-700">Instructor:</span>
                 </div>
                 <p class="text-sm text-gray-900">
-                    {{ $instructionRequest->assignedLibrarian->display_name ?? 'N/A' }}
+                    {{ $instructionRequest->instructor->display_name ?? $instructionRequest->instructor->name ?? 'N/A' }}
+                </p>
+            </div>
+            <div>
+                <div class="flex items-center mb-2">
+                    <x-heroicon-o-users class="h-5 w-5 mr-2 text-gray-500" />
+                    <span class="font-semibold text-gray-700">Students:</span>
+                </div>
+                <p class="text-sm text-gray-900">
+                    {{ $instructionRequest->number_of_students ?? 'N/A' }}
                 </p>
             </div>
             <div>
                 <div class="flex items-center mb-2">
                     <x-heroicon-o-clock class="h-5 w-5 mr-2 text-gray-500" />
-                    <span class="font-semibold text-gray-700">Scheduled:</span>
+                    <span class="font-semibold text-gray-700">Duration:</span>
                 </div>
                 <p class="text-sm text-gray-900">
-                    Not Scheduled
-                </p>
-            </div>
-            <div>
-                <div class="flex items-center mb-2">
-                    <x-heroicon-s-pencil-square class="h-5 w-5 mr-2 text-gray-500" />
-                    <span class="font-semibold text-gray-700">Last Updated By:</span>
-                </div>
-                <p class="text-sm text-gray-900">
-                    {{ $instructionRequest->detail->last_updated_by }}
+                    {{ $instructionRequest->detail->instruction_duration ?? 'Not Set' }}
                 </p>
             </div>
         </div>

@@ -1,0 +1,133 @@
+# codemcp.toml - Configuration for Library Instruction System
+
+[project]
+name = "library-instruction-system"
+description = "A Laravel-based system for managing library instruction requests between faculty and librarians"
+language = "php"
+framework = "laravel"
+
+[paths]
+# Core Laravel directories
+models = "app/Models"
+controllers = "app/Http/Controllers"
+services = "app/Services"
+repositories = "app/Repositories"
+views = "resources/views"
+routes = "routes"
+config = "config"
+js = "resources/js"
+css = "resources/css"
+migrations = "database/migrations"
+tests = "tests"
+
+[ignore]
+# Directories and files to ignore
+patterns = [
+    "vendor/**",
+    "node_modules/**",
+    "public/storage/**",
+    "storage/**",
+    "bootstrap/cache/**",
+    ".git/**",
+    "*.log",
+    ".env*"
+]
+
+[conventions]
+# Coding conventions specific to the project
+indentation = "spaces"
+indent_size = 4
+line_ending = "LF"
+php_version = "8.2"
+laravel_version = "11.0"
+
+[commands]
+# Useful commands for development
+serve = "php artisan serve"
+migrate = "php artisan migrate"
+rollback = "php artisan migrate:rollback"
+test = "php artisan test"
+seed = "php artisan db:seed"
+cache_clear = "php artisan cache:clear"
+route_list = "php artisan route:list"
+tinker = "php artisan tinker"
+make_controller = "php artisan make:controller"
+make_model = "php artisan make:model"
+make_migration = "php artisan make:migration"
+make_seeder = "php artisan make:seeder"
+make_test = "php artisan make:test"
+composer_update = "composer update"
+npm_install = "npm install"
+npm_run_dev = "npm run dev"
+npm_run_build = "npm run build"
+git_status = "git status"
+git_pull = "git pull"
+git_push = "git push"
+
+[features]
+# Key features of the project
+request_lifecycle = [
+    "received",
+    "assigned",
+    "accepted",
+    "completed",
+    "copied"
+]
+file_types = [
+    "pdf",
+    "doc",
+    "docx",
+    "txt",
+    "rtf",
+    "ppt",
+    "pptx"
+]
+
+[dependencies]
+# Key project dependencies
+php = [
+    "laravel/framework",
+    "spatie/laravel-medialibrary",
+    "livewire/livewire",
+    "power-components/livewire-powergrid"
+]
+js = [
+    "alpine.js",
+    "tailwindcss",
+    "choices.js",
+    "flatpickr"
+]
+
+[structure]
+# Important project-specific patterns and structures
+models = [
+    "InstructionRequests",
+    "InstructionRequestDetails",
+    "Instructor",
+    "Classes",
+    "Campus",
+    "User"
+]
+controllers = [
+    "InstructionRequestController",
+    "PublicInstructionRequestController",
+    "InstructorController",
+    "CampusController",
+    "UserController",
+    "ClassesController"
+]
+services = [
+    "InstructionRequestService",
+    "InstructionRequestDetailsService",
+    "DepartmentService",
+    "MediaLibrary"
+]
+repositories = [
+    "BaseRepository",
+    "InstructionRequestRepository",
+    "InstructionRequestDetailsRepository"
+]
+
+[hooks]
+# Git hooks configuration (if needed)
+pre_commit = "php artisan test"
