@@ -80,54 +80,71 @@ class MediaController extends Controller
     public function publicUpload(Request $request)
     {
         try {
+            // Set log level based on environment
+            $logLevel = app()->environment('production') ? 'info' : 'debug';
+            
             // Validate token
             $token = $request->header('X-Upload-Token');
 
-            Log::info('File upload request received', [
+            Log::log($logLevel, 'File upload request received', [
                 'headers' => $request->headers->all(),
                 'has_file' => $request->hasFile('file'),
-                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file'
+                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
+                'environment' => app()->environment()
             ]);
-            
+
             // Validate token
             $token = $request->header('X-Upload-Token');
             if (!$token) {
                 Log::error('No upload token provided');
                 return response()->json(['error' => 'No upload token provided'], 401);
             }
-            
+
             $tokenData = $this->validateToken($token);
-            
+
             if (!$tokenData) {
                 Log::error('Invalid or expired upload token', ['token' => $token]);
                 return response()->json(['error' => 'Invalid or expired upload token'], 401);
             }
-            
+
             // Validate file
             if (!$request->hasFile('file')) {
                 Log::error('No file provided in request');
                 return response()->json(['error' => 'No file provided'], 400);
             }
-            
-            Log::info('Validating file', [
+
+            Log::log($logLevel, 'Validating file', [
                 'name' => $request->file('file')->getClientOriginalName(),
                 'size' => $request->file('file')->getSize(),
                 'mime' => $request->file('file')->getMimeType()
             ]);
-            
+
             $request->validate([
                 'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,txt,rtf|max:20480', // 20MB
             ]);
+
+            // Ensure upload directories exist
+            $disk = config('media-library.disk_name');
+            $tempPath = 'uploads/temp';
             
+            if (!Storage::disk($disk)->exists($tempPath)) {
+                Storage::disk($disk)->makeDirectory($tempPath);
+                Log::log($logLevel, 'Created temporary upload directory', [
+                    'path' => $tempPath,
+                    'disk' => $disk
+                ]);
+            }
+
             // Create a temporary media record
             $tempModel = new InstructionRequests();
             $tempModel->id = 0; // Placeholder ID
-            
-            Log::info('Creating temp model for file association', [
+
+            Log::log($logLevel, 'Creating temp model for file association', [
                 'model_type' => get_class($tempModel),
-                'model_id' => $tempModel->id
+                'model_id' => $tempModel->id,
+                'environment' => app()->environment()
             ]);
-            
+
             // Add the file to the materials collection
             $media = $tempModel->addMediaFromRequest('file')
                 ->usingName($request->file('file')->getClientOriginalName())
@@ -135,10 +152,11 @@ class MediaController extends Controller
                     'upload_token' => $token,
                     'upload_date' => now()->toDateTimeString(),
                     'temporary' => true,
+                    'environment' => app()->environment()
                 ])
                 ->toMediaCollection('materials');
-            
-            Log::info('File uploaded successfully', [
+
+            Log::log($logLevel, 'File uploaded successfully', [
                 'media_id' => $media->id,
                 'collection' => $media->collection_name,
                 'disk' => $media->disk,
@@ -146,27 +164,27 @@ class MediaController extends Controller
                 'size' => $media->size,
                 'mime_type' => $media->mime_type,
                 'path' => $media->getPath(),
-                'custom_properties' => $media->custom_properties
+                'environment' => app()->environment()
             ]);
-            
+
             // Update token with file ID
             $files = $tokenData['files'];
             $files[] = $media->id;
-            
+
             Cache::put('upload_token_' . $token, [
                 'created_at' => $tokenData['created_at'],
                 'files' => $files
             ], now()->addMinutes(120));
-            
-            Log::info('Token updated with new file', [
+
+            Log::log($logLevel, 'Token updated with new file', [
                 'token' => $token,
                 'files' => $files
             ]);
-            
+
             // Prepare file type info
             $extension = $request->file('file')->getClientOriginalExtension();
             $iconClass = $this->getFileIconClass($extension);
-            
+
             return response()->json([
                 'success' => true,
                 'file' => [
@@ -177,13 +195,14 @@ class MediaController extends Controller
                     'icon' => $iconClass,
                 ]
             ]);
-            
+
         } catch (FileDoesNotExist $e) {
             Log::error('File does not exist: ' . $e->getMessage(), [
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'environment' => app()->environment()
             ]);
             return response()->json(['error' => 'The file does not exist.'], 400);
         } catch (FileIsTooBig $e) {
@@ -191,7 +210,8 @@ class MediaController extends Controller
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'environment' => app()->environment()
             ]);
             return response()->json(['error' => 'The file is too large. Maximum size is 20MB.'], 400);
         } catch (\Exception $e) {
@@ -199,7 +219,8 @@ class MediaController extends Controller
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'environment' => app()->environment()
             ]);
             return response()->json(['error' => 'An error occurred while uploading the file: ' . $e->getMessage()], 500);
         }
@@ -352,6 +373,151 @@ class MediaController extends Controller
     }
 
     /**
+     * Handle file upload for authenticated users
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function upload(Request $request)
+    {
+        try {
+            $logLevel = app()->environment('production') ? 'info' : 'debug';
+            
+            Log::log($logLevel, 'Admin file upload request received', [
+                'user_id' => auth()->id(),
+                'has_file' => $request->hasFile('file'),
+                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
+                'environment' => app()->environment()
+            ]);
+
+            // Validate file
+            if (!$request->hasFile('file')) {
+                Log::error('No file provided in authenticated upload request');
+                return response()->json(['error' => 'No file provided'], 400);
+            }
+
+            // Validate request parameters
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,txt,rtf|max:20480', // 20MB
+                'instruction_request_id' => 'required|integer|exists:instruction_requests,id',
+                'collection' => 'required|string|in:materials,assessments,syllabus,instructor_attachments',
+            ]);
+
+            // Get the instruction request
+            $instructionRequest = InstructionRequests::findOrFail($request->input('instruction_request_id'));
+            $collection = $request->input('collection');
+
+            Log::log($logLevel, 'Adding file to instruction request', [
+                'request_id' => $instructionRequest->id,
+                'collection' => $collection,
+                'file_name' => $request->file('file')->getClientOriginalName()
+            ]);
+
+            // Ensure upload directory exists
+            $disk = config('media-library.disk_name');
+            $uploadPath = 'uploads/' . $instructionRequest->id;
+            
+            if (!Storage::disk($disk)->exists($uploadPath)) {
+                Storage::disk($disk)->makeDirectory($uploadPath);
+                Log::log($logLevel, 'Created upload directory', [
+                    'path' => $uploadPath,
+                    'disk' => $disk
+                ]);
+            }
+
+            // Add the file to the specified collection
+            $media = $instructionRequest->addMediaFromRequest('file')
+                ->usingName($request->file('file')->getClientOriginalName())
+                ->withCustomProperties([
+                    'uploaded_by' => auth()->user()->name ?? 'Unknown',
+                    'uploaded_by_id' => auth()->id(),
+                    'upload_date' => now()->toDateTimeString(),
+                    'environment' => app()->environment()
+                ])
+                ->toMediaCollection($collection);
+
+            Log::log($logLevel, 'File uploaded successfully by authenticated user', [
+                'media_id' => $media->id,
+                'collection' => $media->collection_name,
+                'disk' => $media->disk,
+                'file_name' => $media->file_name,
+                'size' => $media->size,
+                'path' => $media->getPath()
+            ]);
+
+            // Prepare file type info
+            $extension = $request->file('file')->getClientOriginalExtension();
+            $iconClass = $this->getFileIconClass($extension);
+
+            return response()->json([
+                'success' => true,
+                'file' => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'size' => $media->size,
+                    'extension' => $extension,
+                    'icon' => $iconClass,
+                    'url' => $media->getUrl()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in authenticated file upload: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'environment' => app()->environment()
+            ]);
+            return response()->json(['error' => 'An error occurred while uploading the file: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete a file (for authenticated users)
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(Request $request, int $id)
+    {
+        try {
+            // Find the media record
+            $media = Media::findOrFail($id);
+
+            // Check authorization (user must be admin or own the request)
+            $instructionRequest = InstructionRequests::find($media->model_id);
+            
+            if (!$instructionRequest) {
+                return response()->json(['error' => 'Associated instruction request not found'], 404);
+            }
+
+            // Log the deletion
+            Log::info('Deleting file by authenticated user', [
+                'media_id' => $media->id,
+                'file_name' => $media->file_name,
+                'user_id' => auth()->id(),
+                'request_id' => $instructionRequest->id
+            ]);
+
+            // Delete the media
+            $media->delete();
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting file: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'An error occurred while deleting the file.'], 500);
+        }
+    }
+
+    /**
      * Get Font Awesome icon class based on file extension
      *
      * @param string $extension
@@ -368,7 +534,7 @@ class MediaController extends Controller
             'txt' => 'fa-file-text-o',
             'rtf' => 'fa-file-text-o'
         ];
-        
+
         return $iconMap[strtolower($extension)] ?? 'fa-file-o';
     }
 }

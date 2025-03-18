@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
 use App\Http\Controllers\InstructorController;
@@ -161,3 +162,21 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 // Route::get('debug', function () {
 //     dd(Socialite::driver('saml2')->user());
 // })->name('saml2.debug');
+
+// Environment test route (not available in production)
+if (!app()->environment('production')) {
+    Route::get('/env-test', function () {
+        return [
+            'environment' => app()->environment(),
+            'app_url' => config('app.url'),
+            'filesystem_driver' => config('filesystems.default'),
+            'media_disk' => config('media-library.disk_name'),
+            'public_disk_root' => config('filesystems.disks.public.root'),
+            'public_disk_url' => config('filesystems.disks.public.url'),
+            'storage_link_exists' => file_exists(public_path('storage')),
+            'upload_path_exists' => Storage::disk(config('media-library.disk_name'))->exists('uploads/temp'),
+            'php_version' => PHP_VERSION,
+            'server_time' => now()->toDateTimeString(),
+            'timezone' => config('app.timezone')
+        ];
+    })->name('env.test');

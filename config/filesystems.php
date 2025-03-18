@@ -44,8 +44,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => public_path('storage'), // Points directly to public/storage
-            'url' => '/library/instruction-requests/public/storage',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL', 'http://localhost:8888/library/instruction-requests').'/storage',
             'visibility' => 'public',
         ],
 
