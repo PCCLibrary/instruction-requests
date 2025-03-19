@@ -146,7 +146,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         ->name('instructionRequests.accept');
     Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
         ->name('instructionRequests.reject');
-        
+
     /*
     |--------------------------------------------------------------------------
     | Admin File Upload Routes
@@ -180,3 +180,5 @@ if (!app()->environment('production')) {
             'timezone' => config('app.timezone')
         ];
     })->name('env.test');
+
+}

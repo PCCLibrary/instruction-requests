@@ -159,8 +159,26 @@ $(document).ready(function() {
     }
     
     // Get an upload token when the page loads
+    // Initialize Dropzone with the token
     if ($('#dropzone-upload').length > 0 && $('#dropzone-preview-template').length > 0) {
         console.log('Dropzone elements found, initializing upload process');
+        
+        // Debug the DOM elements to ensure they exist as expected
+        console.log('Dropzone DOM elements:', {
+            dropzoneUpload: document.getElementById('dropzone-upload'),
+            dropzonePreviewTemplate: document.getElementById('dropzone-preview-template'),
+            uploadToken: document.getElementById('upload-token')
+        });
+        
+        // Check if baseUrl is defined
+        console.log('Base URL:', typeof baseUrl !== 'undefined' ? baseUrl : 'undefined');
+        
+        // Define fallback baseUrl if not set
+        if (typeof baseUrl === 'undefined') {
+            baseUrl = window.location.origin;
+            console.log('Using fallback baseUrl:', baseUrl);
+        }
+        
         generateUploadToken()
             .then(response => {
                 if (response && response.token) {
@@ -180,12 +198,15 @@ $(document).ready(function() {
             })
             .catch(error => {
                 console.error('Failed to generate upload token:', error);
+                // Display error message to user
+                $('#dropzone-upload').prepend('<div class="alert alert-danger">Failed to initialize file upload system. Please try again or contact support.</div>');
             });
     } else {
         console.log('Dropzone elements not found, skipping initialization');
         console.log('Elements check:', {
             dropzoneUpload: $('#dropzone-upload').length,
-            dropzonePreviewTemplate: $('#dropzone-preview-template').length
+            dropzonePreviewTemplate: $('#dropzone-preview-template').length,
+            uploadToken: $('#upload-token').length
         });
     }
     
