@@ -4,6 +4,13 @@ if (typeof Dropzone !== 'undefined') {
 }
 
 $(document).ready(function() {
+    // Set up CSRF token for all AJAX requests
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     /**
      * Hide all fieldsets and destroy Select2 instances if initialized.
      */
@@ -134,21 +141,15 @@ $(document).ready(function() {
      */
     function generateUploadToken() {
         console.log('Generating upload token with URL:', baseUrl + '/api/token/generate');
-        
-        const headers = {};
-        const csrfToken = getCsrfToken();
-        
-        if (csrfToken) {
-            headers['X-CSRF-TOKEN'] = csrfToken;
-            console.log('CSRF token found:', csrfToken);
-        } else {
-            console.warn('No CSRF token found in meta tag');
-        }
-        
+
+        // We already set up the CSRF token in the $.ajaxSetup call
         return $.ajax({
             url: baseUrl + '/api/token/generate',
-            method: 'POST',
-            headers: headers
+            type: 'POST',
+            // Empty data to ensure it's a proper POST request with content
+            data: JSON.stringify({}),
+            contentType: 'application/json',
+            dataType: 'json'
         }).then(response => {
             console.log('Token generation successful:', response);
             return response;
@@ -236,10 +237,14 @@ $(document).ready(function() {
                 previewTemplate: previewTemplate.innerHTML,
                 headers: {
                     'X-Upload-Token': token,
-                    'X-CSRF-TOKEN': getCsrfToken()
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 init: function() {
                     console.log('Dropzone initialized successfully');
+                    console.log('Dropzone headers:', {
+                        'X-Upload-Token': token,
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    });
                     
                     this.on('addedfile', function(file) {
                         console.log('File added to Dropzone:', file.name);

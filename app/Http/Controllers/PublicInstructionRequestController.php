@@ -98,16 +98,37 @@ class PublicInstructionRequestController extends Controller
                     'request_id' => $instructionRequest->id
                 ]);
 
-                $fileAssociationResult = app(\App\Http\Controllers\MediaController::class)->associateFiles(
-                    $uploadToken, 
-                    $instructionRequest->id
-                );
+                try {
+                    $fileAssociationResult = app(\App\Http\Controllers\MediaController::class)->associateFiles(
+                        $uploadToken,
+                        $instructionRequest->id
+                    );
 
-                Log::info('File association completed', [
-                    'success' => $fileAssociationResult ? 'true' : 'false',
-                    'token' => $uploadToken,
-                    'request_id' => $instructionRequest->id
-                ]);
+                    Log::info('File association completed', [
+                        'success' => $fileAssociationResult ? 'true' : 'false',
+                        'token' => $uploadToken,
+                        'request_id' => $instructionRequest->id
+                    ]);
+                    
+                    // Check if any files exist after association
+                    $mediaCount = $instructionRequest->getMedia('materials')->count();
+                    Log::info('Media count after association', [
+                        'request_id' => $instructionRequest->id,
+                        'media_count' => $mediaCount,
+                        'collections' => [
+                            'materials' => $instructionRequest->getMedia('materials')->count(),
+                            'syllabus' => $instructionRequest->getMedia('syllabus')->count(),
+                            'instructor_attachments' => $instructionRequest->getMedia('instructor_attachments')->count(),
+                        ]
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error during file association', [
+                        'token' => $uploadToken,
+                        'request_id' => $instructionRequest->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
             } else {
                 Log::warning('No upload token provided for file association');
             }

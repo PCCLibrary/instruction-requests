@@ -50,14 +50,19 @@ Route::post('/instruction-requests', [PublicInstructionRequestController::class,
 |--------------------------------------------------------------------------
 | File Upload Routes
 |--------------------------------------------------------------------------
+| These routes handle file uploads for both public and authenticated users.
+| They are exempt from CSRF verification in the VerifyCsrfToken middleware.
 */
 // Public file upload routes
 Route::post('/api/token/generate', [MediaController::class, 'generateUploadToken'])
-    ->name('media.token.generate');
+    ->name('media.token.generate')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 Route::post('/api/media/upload', [MediaController::class, 'publicUpload'])
-    ->name('media.upload.public');
+    ->name('media.upload.public')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 Route::delete('/api/media/delete/{id}', [MediaController::class, 'publicDelete'])
-    ->name('media.delete.public');
+    ->name('media.delete.public')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 /*
 |--------------------------------------------------------------------------
