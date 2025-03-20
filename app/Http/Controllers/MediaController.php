@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InstructionRequests;
+use App\Models\TemporaryUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class MediaController extends Controller
 {
     /**
-     * Generate a secure upload token valid for 120 minutes
+     * Generate a secure upload token valid for 120 minutes and create a TemporaryUpload record
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -32,13 +33,16 @@ class MediaController extends Controller
                 'method' => request()->method()
             ]);
 
-            Cache::put('upload_token_' . $token, [
-                'created_at' => now(),
-                'files' => []
-            ], now()->addMinutes(120)); // 2 hour expiration
+            // Create a new TemporaryUpload record with a 2-hour expiration
+            $temporaryUpload = TemporaryUpload::create([
+                'upload_token' => $token,
+                'expires_at' => now()->addHours(2),
+            ]);
 
             Log::info('Token generated successfully', [
-                'token' => $token
+                'token' => $token,
+                'temp_upload_id' => $temporaryUpload->id,
+                'expires_at' => $temporaryUpload->expires_at
             ]);
 
             return response()->json(['token' => $token]);
@@ -52,41 +56,54 @@ class MediaController extends Controller
     }
 
     /**
-     * Validate upload token
+     * Validate upload token by finding a valid TemporaryUpload record
      *
      * @param string $token
-     * @return array|bool
+     * @return TemporaryUpload|bool
      */
     private function validateToken(string $token)
     {
-        $tokenData = Cache::get('upload_token_' . $token);
-        
-        if (!$tokenData) {
-            Log::warning('Token not found in cache', ['token' => $token]);
-            return false;
-        }
-        
-        if (now()->diffInMinutes($tokenData['created_at']) > 120) {
-            Log::warning('Token expired', [
-                'token' => $token, 
-                'created_at' => $tokenData['created_at'],
-                'age' => now()->diffInMinutes($tokenData['created_at']) . ' minutes'
+        try {
+            $temporaryUpload = TemporaryUpload::where('upload_token', $token)->first();
+
+            if (!$temporaryUpload) {
+                Log::warning('Token not found', ['token' => $token]);
+                return false;
+            }
+
+            if ($temporaryUpload->hasExpired()) {
+                Log::warning('Token expired', [
+                    'token' => $token,
+                    'created_at' => $temporaryUpload->created_at,
+                    'expires_at' => $temporaryUpload->expires_at,
+                    'age' => now()->diffInMinutes($temporaryUpload->created_at) . ' minutes'
+                ]);
+                return false;
+            }
+
+            // Get media IDs associated with this temporary upload
+            $mediaIds = $temporaryUpload->getMedia('materials')->pluck('id')->toArray();
+
+            Log::debug('Token validated successfully', [
+                'token' => $token,
+                'temporary_upload_id' => $temporaryUpload->id,
+                'files_count' => count($mediaIds),
+                'files' => $mediaIds
             ]);
-            Cache::forget('upload_token_' . $token);
+
+            return $temporaryUpload;
+        } catch (\Exception $e) {
+            Log::error('Error validating token', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
-        
-        Log::debug('Token validated successfully', [
-            'token' => $token,
-            'files_count' => count($tokenData['files']),
-            'files' => $tokenData['files']
-        ]);
-        
-        return $tokenData;
     }
 
     /**
-     * Handle file upload for public form
+     * Handle file upload for public form using TemporaryUpload model
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -96,9 +113,6 @@ class MediaController extends Controller
         try {
             // Set log level based on environment
             $logLevel = app()->environment('production') ? 'info' : 'debug';
-            
-            // Validate token
-            $token = $request->header('X-Upload-Token');
 
             Log::log($logLevel, 'File upload request received', [
                 'headers' => $request->headers->all(),
@@ -114,9 +128,10 @@ class MediaController extends Controller
                 return response()->json(['error' => 'No upload token provided'], 401);
             }
 
-            $tokenData = $this->validateToken($token);
+            // Validate token and get the temporary upload record
+            $temporaryUpload = $this->validateToken($token);
 
-            if (!$tokenData) {
+            if (!$temporaryUpload) {
                 Log::error('Invalid or expired upload token', ['token' => $token]);
                 return response()->json(['error' => 'Invalid or expired upload token'], 401);
             }
@@ -140,7 +155,7 @@ class MediaController extends Controller
             // Ensure upload directories exist
             $disk = config('media-library.disk_name');
             $tempPath = 'uploads/temp';
-            
+
             if (!Storage::disk($disk)->exists($tempPath)) {
                 Storage::disk($disk)->makeDirectory($tempPath);
                 Log::log($logLevel, 'Created temporary upload directory', [
@@ -149,36 +164,16 @@ class MediaController extends Controller
                 ]);
             }
 
-            // Create a temporary media record
-            $tempModel = new InstructionRequests();
-            
-            // We need to temporarily save the model to get a real ID in the database
-            // This is required for Media Library to work properly
-            // Fill all required fields to satisfy the database constraints
-            $tempModel->fill([
-                'instruction_type' => 'temp',
-                'status' => 'temp',
-                'campus_id' => 1, // Default campus
-                'department' => 'temp',
-                'course_number' => 'temp',
-                'course_crn' => 'temp',
-                'number_of_students' => 0,
-                'instructor_id' => 1 // Use a default instructor ID
-            ]);
-            
-            // Save to get a database ID
-            $tempModel->save();
-
-            Log::log($logLevel, 'Creating temp model for file association', [
-                'model_type' => get_class($tempModel),
-                'model_id' => $tempModel->id,
-                'temp_model_saved' => $tempModel->exists,
+            Log::log($logLevel, 'Using temporary upload for file association', [
+                'model_type' => get_class($temporaryUpload),
+                'model_id' => $temporaryUpload->id,
+                'token' => $temporaryUpload->upload_token,
                 'environment' => app()->environment()
             ]);
 
             try {
-                // Add the file to the materials collection
-                $media = $tempModel->addMediaFromRequest('file')
+                // Add the file to the materials collection of the TemporaryUpload model
+                $media = $temporaryUpload->addMediaFromRequest('file')
                     ->usingName($request->file('file')->getClientOriginalName())
                     ->withCustomProperties([
                         'upload_token' => $token,
@@ -188,7 +183,7 @@ class MediaController extends Controller
                         'environment' => app()->environment()
                     ])
                     ->toMediaCollection('materials');
-                
+
                 // Log detailed information about the media record
                 Log::log($logLevel, 'Media record created', [
                     'media_id' => $media->id,
@@ -199,20 +194,10 @@ class MediaController extends Controller
                     'file_name' => $media->file_name,
                     'disk' => $media->disk
                 ]);
-                
-                // After successful media creation, mark the temporary model for deletion after association
-                // We don't delete it immediately because we need it for the media association
-                $tempModel->status = 'to_delete';
-                $tempModel->save();
-                
-                Log::log($logLevel, 'Temporary model marked for deletion', [
-                    'temp_model_id' => $tempModel->id,
-                    'status' => $tempModel->status
-                ]);
-                
+
             } catch (\Exception $e) {
                 Log::error('Failed to create media record', [
-                    'temp_model_id' => $tempModel->id,
+                    'temp_upload_id' => $temporaryUpload->id,
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
@@ -230,30 +215,9 @@ class MediaController extends Controller
                 'environment' => app()->environment()
             ]);
 
-            // Update token with file ID
-            $files = $tokenData['files'];
-            $files[] = $media->id;
-
-            Log::log($logLevel, 'Preparing to update token with file ID', [
-                'token' => $token,
-                'media_id' => $media->id,
-                'media_id_type' => gettype($media->id),
-                'old_files' => $tokenData['files'],
-                'new_files' => $files
-            ]);
-
-            Cache::put('upload_token_' . $token, [
-                'created_at' => $tokenData['created_at'],
-                'files' => $files
-            ], now()->addMinutes(120));
-
-            // Verify the token was updated properly
-            $updatedToken = Cache::get('upload_token_' . $token);
-            Log::log($logLevel, 'Token updated with new file', [
-                'token' => $token,
-                'files' => $updatedToken['files'] ?? 'token not found',
-                'cache_success' => !empty($updatedToken)
-            ]);
+            // Refresh the expiration time on the temporary upload
+            $temporaryUpload->expires_at = now()->addHours(2);
+            $temporaryUpload->save();
 
             // Prepare file type info
             $extension = $request->file('file')->getClientOriginalExtension();
@@ -312,40 +276,45 @@ class MediaController extends Controller
         try {
             // Validate token
             $token = $request->header('X-Upload-Token');
-            $tokenData = $this->validateToken($token);
-            
-            if (!$tokenData) {
+            $temporaryUpload = $this->validateToken($token);
+
+            if (!$temporaryUpload) {
                 return response()->json(['error' => 'Invalid or expired upload token'], 401);
             }
-            
+
             // Find the media record
             $media = Media::find($id);
-            
+
             if (!$media) {
                 return response()->json(['error' => 'File not found'], 404);
             }
-            
+
             // Verify the media belongs to this token
             $fileToken = $media->getCustomProperty('upload_token');
             if ($fileToken !== $token) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
-            
+
             // Delete the media
             $media->delete();
-            
-            // Update token data
-            $files = array_diff($tokenData['files'], [$id]);
-            
-            Cache::put('upload_token_' . $token, [
-                'created_at' => $tokenData['created_at'],
-                'files' => $files
-            ], now()->addMinutes(120));
-            
+
+            Log::info('Media file deleted', [
+                'media_id' => $id,
+                'token' => $token,
+                'temporary_upload_id' => $temporaryUpload->id
+            ]);
+
+            // Refresh the expiration time on the temporary upload
+            $temporaryUpload->expires_at = now()->addHours(2);
+            $temporaryUpload->save();
+
             return response()->json(['success' => true]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error deleting file: ' . $e->getMessage());
+            Log::error('Error deleting file: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['error' => 'An error occurred while deleting the file.'], 500);
         }
     }

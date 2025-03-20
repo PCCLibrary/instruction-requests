@@ -41,25 +41,30 @@ The current implementation of creating temporary `InstructionRequests` models fo
 - It creates database constraints issues (such as with the required `instructor_id` field)
 - It generates unnecessary database entries that need cleanup
 
-**Preferred Approach**: Use Spatie Media Library's built-in `TemporaryUpload` model specifically designed for this purpose:
+**Implementation Solution**: Create a custom `TemporaryUpload` model since the free version of Spatie Media Library doesn't include the `TemporaryUpload` model that's available in the Pro version.
 
 1. **Benefits**:
-   - Purpose-built for temporary file storage 
+   - Purpose-built for temporary file storage
    - No database constraint issues
    - Clean separation of concerns
-   - Built-in expiration/cleanup
+   - Configurable expiration/cleanup
 
-2. **Implementation Strategy**:
-   - Update the `publicUpload` method to use `TemporaryUpload` model
-   - Store the token and custom properties on the media records
-   - Associate files with real models after form submission
+2. **Implementation Status**:
+   - Created a custom `TemporaryUpload` model in `app/Models/TemporaryUpload.php`
+   - Added migration for the `temporary_uploads` table
+   - Created `CleanTemporaryUploads` command for scheduled cleanup
+   - Updated `MediaController.php` to use `TemporaryUpload` instead of temp `InstructionRequests`
+   - Modified the token management to use database records instead of cache
+   - Updated the file association logic to handle the different model type
 
-3. **Migration Path**:
-   - Update the `MediaController.php` to use `TemporaryUpload` instead of temp `InstructionRequests`
-   - Modify the file association logic to handle the different model type
-   - Utilize Spatie's built-in cleanup for temporary files
+3. **Custom TemporaryUpload Model Structure**:
+   - `id`: Primary key
+   - `upload_token`: Unique token for identifying the upload session (string, 100 chars)
+   - `expires_at`: When the temporary upload expires (timestamp)
+   - `created_at`/`updated_at`: Standard timestamps
+   - `deleted_at`: Soft delete column
 
-This approach maintains the current user experience while implementing a cleaner, more sustainable architecture for file uploads.
+This approach maintains the current user experience while implementing a cleaner, more sustainable architecture for file uploads. It avoids the need for the Pro version of Spatie Media Library by implementing a custom solution with the same core functionality.
 
 ## Common Issues and Debugging
 

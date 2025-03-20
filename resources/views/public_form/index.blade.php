@@ -102,7 +102,7 @@
 {{--                </div>--}}
             </fieldset>
 
-            <fieldset class="on-campus remote card-body">
+            <fieldset class="on-campus remote asynchronous card-body">
 {{--                <div class="row">--}}
                     <input name="librarian_id" type="hidden" value="2" />
                     @include('public_form.partials.input-select', [
