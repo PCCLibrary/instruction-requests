@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Clean up temporary files daily
-        $schedule->command('media:cleanup-temp')->daily();
+        $schedule->command('uploads:clean')->daily();
     }
 
     /**

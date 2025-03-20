@@ -333,22 +333,25 @@ class MediaController extends Controller
             'request_id' => $requestId
         ]);
 
-        $tokenData = $this->validateToken($token);
+        $temporaryUpload = $this->validateToken($token);
 
-        if (!$tokenData) {
+        if (!$temporaryUpload) {
             Log::error('Invalid token when associating files', ['token' => $token]);
             return false;
         }
 
-        if (empty($tokenData['files'])) {
+        // Get all media associated with this temporary upload
+        $mediaItems = $temporaryUpload->getMedia('materials');
+
+        if ($mediaItems->isEmpty()) {
             Log::warning('No files to associate', ['token' => $token]);
             return true; // Nothing to do, but not an error
         }
 
         Log::info('Found files to associate', [
             'token' => $token,
-            'file_count' => count($tokenData['files']),
-            'files' => $tokenData['files']
+            'file_count' => $mediaItems->count(),
+            'temp_upload_id' => $temporaryUpload->id
         ]);
 
         try {
@@ -364,105 +367,54 @@ class MediaController extends Controller
             $associatedCount = 0;
             $errorCount = 0;
 
-            foreach ($tokenData['files'] as $fileId) {
+            foreach ($mediaItems as $media) {
                 Log::info('Processing file association', [
-                    'file_id' => $fileId,
+                    'file_id' => $media->id,
+                    'file_name' => $media->file_name,
                     'request_id' => $requestId
                 ]);
 
-                if (is_null($fileId)) {
-                    Log::warning('Skipping null file ID', [
-                        'token' => $token, 
-                        'request_id' => $requestId
-                    ]);
-                    $errorCount++;
-                    continue;
-                }
+                try {
+                    $media->model_id = $requestId;
+                    $media->model_type = InstructionRequests::class;
+                    $media->setCustomProperty('temporary', false);
+                    $media->setCustomProperty('associated', true);
+                    $media->setCustomProperty('associated_date', now()->toDateTimeString());
+                    $media->save();
 
-                $media = Media::find($fileId);
-
-                if ($media) {
-                    Log::info('Found media to associate', [
-                        'file_id' => $fileId,
-                        'file_name' => $media->file_name,
-                        'old_model_id' => $media->model_id,
-                        'old_model_type' => $media->model_type,
-                        'custom_properties' => $media->custom_properties
+                    Log::info('Associated file with request', [
+                        'file_id' => $media->id,
+                        'request_id' => $requestId,
+                        'filename' => $media->file_name,
+                        'new_path' => $media->getPath(),
+                        'new_model_id' => $media->model_id,
+                        'new_model_type' => $media->model_type,
+                        'saved_successfully' => $media->wasChanged()
                     ]);
 
-                    try {
-                        $media->model_id = $requestId;
-                        $media->model_type = InstructionRequests::class;
-                        $media->setCustomProperty('temporary', false);
-                        $media->setCustomProperty('associated', true);
-                        $media->setCustomProperty('associated_date', now()->toDateTimeString());
-                        $media->save();
-
-                        Log::info('Associated file with request', [
-                            'file_id' => $fileId,
-                            'request_id' => $requestId,
-                            'filename' => $media->file_name,
-                            'new_path' => $media->getPath(),
-                            'new_model_id' => $media->model_id,
-                            'new_model_type' => $media->model_type,
-                            'saved_successfully' => $media->wasChanged()
-                        ]);
-
-                        $associatedCount++;
-                    } catch (\Exception $e) {
-                        Log::error('Error updating media record', [
-                            'file_id' => $fileId,
-                            'request_id' => $requestId,
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString()
-                        ]);
-                        $errorCount++;
-                    }
-                } else {
-                    Log::warning('Media not found for association', [
-                        'file_id' => $fileId,
-                        'request_id' => $requestId
+                    $associatedCount++;
+                } catch (\Exception $e) {
+                    Log::error('Error updating media record', [
+                        'file_id' => $media->id,
+                        'request_id' => $requestId,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
                     $errorCount++;
                 }
             }
 
-            // Clear the token
-            Cache::forget('upload_token_' . $token);
-
-            // Clean up any temporary instruction requests
-            try {
-                $tempRequests = InstructionRequests::where('status', 'temp')
-                    ->orWhere('status', 'to_delete')
-                    ->get();
-                
-                Log::info('Found temporary requests to clean up', [
-                    'count' => $tempRequests->count(),
-                    'ids' => $tempRequests->pluck('id')->toArray()
-                ]);
-
-                foreach ($tempRequests as $tempRequest) {
-                    Log::info('Cleaning up temporary instruction request', [
-                        'temp_id' => $tempRequest->id,
-                        'status' => $tempRequest->status,
-                        'created_at' => $tempRequest->created_at->toDateTimeString()
-                    ]);
-
-                    // We don't need to delete the media because it's already been reassociated
-                    $tempRequest->delete();
-                }
-            } catch (\Exception $e) {
-                Log::warning('Error cleaning up temporary requests', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                // Continue processing - this is just cleanup
-            }
+            // Delete the temporary upload (soft delete)
+            $temporaryUpload->delete();
+            Log::info('Deleted temporary upload record', [
+                'temp_upload_id' => $temporaryUpload->id,
+                'token' => $token
+            ]);
 
             Log::info('File association completed', [
                 'token' => $token,
                 'request_id' => $requestId,
-                'total_files' => count($tokenData['files']),
+                'total_files' => $mediaItems->count(),
                 'associated_count' => $associatedCount,
                 'error_count' => $errorCount
             ]);
@@ -492,7 +444,7 @@ class MediaController extends Controller
     {
         try {
             $logLevel = app()->environment('production') ? 'info' : 'debug';
-            
+
             Log::log($logLevel, 'Admin file upload request received', [
                 'user_id' => auth()->id(),
                 'has_file' => $request->hasFile('file'),
@@ -526,7 +478,7 @@ class MediaController extends Controller
             // Ensure upload directory exists
             $disk = config('media-library.disk_name');
             $uploadPath = 'uploads/' . $instructionRequest->id;
-            
+
             if (!Storage::disk($disk)->exists($uploadPath)) {
                 Storage::disk($disk)->makeDirectory($uploadPath);
                 Log::log($logLevel, 'Created upload directory', [
@@ -598,7 +550,7 @@ class MediaController extends Controller
 
             // Check authorization (user must be admin or own the request)
             $instructionRequest = InstructionRequests::find($media->model_id);
-            
+
             if (!$instructionRequest) {
                 return response()->json(['error' => 'Associated instruction request not found'], 404);
             }
