@@ -1,0 +1,397 @@
+                    $media->save();
+
+                    // Get the new path using the model's getPath method after updating model properties
+                    // This ensures the correct path is used based on the CustomPathGenerator
+                    $targetDir = $media->getPath();
+                    
+                    // Clean the path to handle potential absolute paths
+                    $targetDir = $this->cleanPath($targetDir);
+                    
+                    // Path already has trailing slash from CustomPathGenerator
+                    $targetPath = $targetDir . $media->file_name;
+                    
+                    // Log model update info
+                    Log::debug('*** MEDIA RECORD UPDATED ***', [
+                        'file_id' => $media->id,
+                        'old_path' => 'uploads/temp/',
+                        'new_path' => $targetDir,
+                        'original_media_path' => $media->getPath(),
+                        'cleaned_media_path' => $this->cleanPath($media->getPath()),
+                        'source_path' => $sourcePath,
+                        'target_path' => $targetPath,
+                        'old_model_id' => $temporaryUpload->id,
+                        'new_model_id' => $requestId,
+                        'old_model_type' => get_class($temporaryUpload),
+                        'new_model_type' => InstructionRequests::class,
+                        'custom_properties' => $media->custom_properties
+                    ]);
+                    
+                    // Check if the source file exists
+                    if (!Storage::disk($disk)->exists($sourcePath)) {
+                        Log::warning('Source file not found for move operation', [
+                            'file_id' => $media->id,
+                            'file_name' => $media->file_name,
+                            'source_path' => $sourcePath
+                        ]);
+                        
+                        // If the source file doesn't exist where expected, try to find it
+                        $altSourcePaths = [
+                            'uploads/temp/' . $media->file_name,  // With trailing slash
+                            'uploads/temp' . $media->file_name,   // Without trailing slash 
+                            'uploadstemp/' . $media->file_name,   // No slash variation
+                            'uploadstemp' . $media->file_name,    // Even more wrong path but worth checking
+                            $media->file_name                     // Just the filename
+                        ];
+                        
+                        $sourceExists = false;
+                        foreach ($altSourcePaths as $altPath) {
+                            if (Storage::disk($disk)->exists($altPath)) {
+                                $sourcePath = $altPath;
+                                $sourceExists = true;
+                                Log::debug('Found source file in alternative location', [
+                                    'file_path' => $altPath
+                                ]);
+                                break;
+                            }
+                        }
+                        
+                        if (!$sourceExists) {
+                            Log::error('Source file not found after searching alternatives', [
+                                'file_id' => $media->id,
+                                'file_name' => $media->file_name
+                            ]);
+                            continue; // Skip this file
+                        }
+                    }
+                    
+                    // Ensure the target directory exists
+                    if (!Storage::disk($disk)->exists($targetDir)) {
+                        Storage::disk($disk)->makeDirectory($targetDir);
+                        Log::debug('Created target directory', [
+                            'directory' => $targetDir,
+                            'created' => Storage::disk($disk)->exists($targetDir)
+                        ]);
+                    }
+                    
+                    // Move the file using Laravel's Storage facade
+                    Log::debug('Moving file', [
+                        'from' => $sourcePath,
+                        'to' => $targetPath,
+                        'disk' => $disk
+                    ]);
+                    
+                    // Use copy then delete pattern to avoid path issues
+                    if (Storage::disk($disk)->copy($sourcePath, $targetPath)) {
+                        // Delete the source file after successful copy
+                        Storage::disk($disk)->delete($sourcePath);
+                        
+                        Log::debug('*** FILE PHYSICALLY MOVED ***', [
+                            'from' => $sourcePath,
+                            'to' => $targetPath,
+                            'file_id' => $media->id,
+                            'original_deleted' => !Storage::disk($disk)->exists($sourcePath),
+                            'destination_exists' => Storage::disk($disk)->exists($targetPath),
+                            'destination_size' => Storage::disk($disk)->exists($targetPath) ? 
+                                Storage::disk($disk)->size($targetPath) : 0
+                        ]);
+                    } else {
+                        Log::error('Failed to move file', [
+                            'from' => $sourcePath,
+                            'to' => $targetPath
+                        ]);
+                    }
+
+                    // Get URL directly from media library
+                    $finalUrl = $media->getUrl();
+                    
+                    // Update additional logging info
+                    Log::debug('*** FILE ASSOCIATION COMPLETED ***', [
+                        'file_id' => $media->id,
+                        'request_id' => $requestId,
+                        'filename' => $media->file_name,
+                        'path' => $targetDir,
+                        'final_path' => $targetDir . $media->file_name,
+                        'media_path' => $media->getPath(),
+                        'new_model_id' => $media->model_id,
+                        'new_model_type' => $media->model_type,
+                        'saved_successfully' => true,
+                        'file_exists_at_final_location' => Storage::disk($disk)->exists($targetPath),
+                        'final_file_size' => Storage::disk($disk)->exists($targetPath) ? 
+                            Storage::disk($disk)->size($targetPath) : 0,
+                        'final_url' => $finalUrl,
+                        'completion_time' => now()->toDateTimeString()
+                    ]);
+
+                    $associatedCount++;
+                } catch (\Exception $e) {
+                    Log::error('Error updating media record', [
+                        'file_id' => $media->id,
+                        'request_id' => $requestId,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    $errorCount++;
+                }
+            }
+
+            // Delete the temporary upload (soft delete)
+            $temporaryUpload->delete();
+            Log::info('Deleted temporary upload record', [
+                'temp_upload_id' => $temporaryUpload->id,
+                'token' => $token
+            ]);
+
+            Log::info('File association completed', [
+                'token' => $token,
+                'request_id' => $requestId,
+                'total_files' => $mediaItems->count(),
+                'associated_count' => $associatedCount,
+                'error_count' => $errorCount
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Error associating files: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'token' => $token,
+                'request_id' => $requestId
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Handle file upload for authenticated users
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function upload(Request $request)
+    {
+        try {
+            $logLevel = app()->environment('production') ? 'info' : 'debug';
+
+            Log::log($logLevel, 'Admin file upload request received', [
+                'user_id' => auth()->id(),
+                'has_file' => $request->hasFile('file'),
+                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
+                'environment' => app()->environment()
+            ]);
+
+            // Validate file
+            if (!$request->hasFile('file')) {
+                Log::error('No file provided in authenticated upload request');
+                return response()->json(['error' => 'No file provided'], 400);
+            }
+
+            // Validate request parameters
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,txt,rtf|max:20480', // 20MB
+                'instruction_request_id' => 'required|integer|exists:instruction_requests,id',
+                'collection' => 'required|string|in:materials,assessments,syllabus,instructor_attachments',
+            ]);
+
+            // Get the instruction request
+            $instructionRequest = InstructionRequests::findOrFail($request->input('instruction_request_id'));
+            $collection = $request->input('collection');
+
+            Log::log($logLevel, 'Adding file to instruction request', [
+                'request_id' => $instructionRequest->id,
+                'collection' => $collection,
+                'file_name' => $request->file('file')->getClientOriginalName()
+            ]);
+
+            // Ensure upload directory exists
+            $disk = config('media-library.disk_name');
+
+            // Add the file to the specified collection
+            $media = $instructionRequest->addMediaFromRequest('file')
+                ->usingName($request->file('file')->getClientOriginalName())
+                ->withCustomProperties([
+                    'uploaded_by' => auth()->user()->name ?? 'Unknown',
+                    'uploaded_by_id' => auth()->id(),
+                    'upload_date' => now()->toDateTimeString(),
+                    'environment' => app()->environment()
+                ])
+                ->toMediaCollection($collection);
+
+            // Make sure the path is cleaned of any absolute paths
+            $mediaPath = $this->cleanPath($media->getPath());
+
+            Log::log($logLevel, 'File uploaded successfully by authenticated user', [
+                'media_id' => $media->id,
+                'collection' => $media->collection_name,
+                'disk' => $media->disk,
+                'file_name' => $media->file_name,
+                'size' => $media->size,
+                'path' => $mediaPath,
+                'full_path' => $mediaPath . $media->file_name,
+                'url' => $media->getUrl()
+            ]);
+
+            // Prepare file type info
+            $extension = $request->file('file')->getClientOriginalExtension();
+            $iconClass = $this->getFileIconClass($extension);
+
+            return response()->json([
+                'success' => true,
+                'file' => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'size' => $media->size,
+                    'extension' => $extension,
+                    'icon' => $iconClass,
+                    'url' => $media->getUrl()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in authenticated file upload: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'environment' => app()->environment()
+            ]);
+            return response()->json(['error' => 'An error occurred while uploading the file: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete a file (for authenticated users)
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(Request $request, int $id)
+    {
+        try {
+            // Find the media record
+            $media = Media::findOrFail($id);
+
+            // Check authorization (user must be admin or own the request)
+            $instructionRequest = InstructionRequests::find($media->model_id);
+
+            if (!$instructionRequest) {
+                return response()->json(['error' => 'Associated instruction request not found'], 404);
+            }
+
+            // Log the deletion
+            Log::info('Deleting file by authenticated user', [
+                'media_id' => $media->id,
+                'file_name' => $media->file_name,
+                'user_id' => auth()->id(),
+                'request_id' => $instructionRequest->id
+            ]);
+
+            // Delete the media
+            $media->delete();
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting file: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'An error occurred while deleting the file.'], 500);
+        }
+    }
+
+    /**
+     * Get Font Awesome icon class based on file extension
+     *
+     * @param string $extension
+     * @return string
+     */
+    private function getFileIconClass(string $extension): string
+    {
+        $iconMap = [
+            'pdf' => 'fa-file-pdf-o',
+            'doc' => 'fa-file-word-o',
+            'docx' => 'fa-file-word-o',
+            'ppt' => 'fa-file-powerpoint-o',
+            'pptx' => 'fa-file-powerpoint-o',
+            'txt' => 'fa-file-text-o',
+            'rtf' => 'fa-file-text-o'
+        ];
+
+        return $iconMap[strtolower($extension)] ?? 'fa-file-o';
+    }
+
+    /**
+     * Clean path to ensure it's relative to the storage disk, not absolute
+     *
+     * @param string $path The path to clean
+     * @return string The cleaned path
+     */
+    private function cleanPath(string $path): string
+    {
+        // Storage path to detect and remove
+        $storagePath = storage_path('app/public/');
+        
+        // Log the paths for debugging 
+        Log::debug('Cleaning path', [
+            'original_path' => $path,
+            'storage_path' => $storagePath
+        ]);
+        
+        // Check if the path starts with the storage path
+        if (strpos($path, $storagePath) === 0) {
+            $cleaned = substr($path, strlen($storagePath));
+            Log::debug('Removed storage path prefix', ['result' => $cleaned]);
+            return $cleaned;
+        }
+        
+        // Check for common path patterns that indicate an absolute path
+        $commonPrefixes = [
+            '/var/www/html/',
+            'var/www/html/',
+            '/storage/app/public/',
+            'storage/app/public/',
+            storage_path()
+        ];
+        
+        foreach ($commonPrefixes as $prefix) {
+            if (strpos($path, $prefix) !== false) {
+                // Find the position of the pattern
+                $pos = strpos($path, $prefix);
+                // Find the position of 'uploads/' after the pattern
+                $uploadsPos = strpos($path, 'uploads/', $pos);
+                
+                if ($uploadsPos !== false) {
+                    $cleaned = substr($path, $uploadsPos);
+                    Log::debug('Extracted uploads path', [
+                        'prefix_found' => $prefix,
+                        'uploads_pos' => $uploadsPos,
+                        'result' => $cleaned
+                    ]);
+                    return $cleaned;
+                }
+            }
+        }
+        
+        // If path already starts with 'uploads/', it's probably correct
+        if (strpos($path, 'uploads/') === 0) {
+            Log::debug('Path already starts with uploads/', ['path' => $path]);
+            return $path;
+        }
+        
+        // Final check for duplicated paths
+        $parts = explode('uploads/', $path);
+        if (count($parts) > 2) {
+            // Keep only the last 'uploads/' and what follows
+            $cleaned = 'uploads/' . end($parts);
+            Log::debug('Fixed duplicated upload paths', ['result' => $cleaned]);
+            return $cleaned;
+        }
+        
+        Log::debug('Path unchanged', ['path' => $path]);
+        return $path;
+    }
+}

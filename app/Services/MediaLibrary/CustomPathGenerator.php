@@ -33,7 +33,7 @@ class CustomPathGenerator implements PathGenerator
 
         // For temporary uploads (no model_id or id=0)
         if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', false)) {
-            $path = 'uploads/temp';
+            $path = 'uploads/temp/';
             $this->ensureDirectoryExists($path);
             
             // Log the final path
@@ -47,7 +47,7 @@ class CustomPathGenerator implements PathGenerator
 
         // Use year/month structure for new files (created after March 2025)
         if ($media->created_at >= '2025-03-01') {
-            $path = 'uploads/' . $media->created_at->format('Y/m');
+            $path = 'uploads/' . $media->created_at->format('Y/m') . '/';
             $this->ensureDirectoryExists($path);
             
             // Log the final path
@@ -60,7 +60,7 @@ class CustomPathGenerator implements PathGenerator
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model_id;
+        $path = 'uploads/' . $media->model_id . '/';
         $this->ensureDirectoryExists($path);
         
         // Log the final path
@@ -85,7 +85,7 @@ class CustomPathGenerator implements PathGenerator
         
         // For temporary uploads
         if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', false)) {
-            $path = 'uploads/temp/' . $media->collection_name;
+            $path = 'uploads/temp/' . $media->collection_name . '/';
             $this->ensureDirectoryExists($path);
             
             // Log the final path
@@ -99,7 +99,7 @@ class CustomPathGenerator implements PathGenerator
 
         // Use year/month structure for new files
         if ($media->created_at >= '2025-03-01') {
-            $path = 'uploads/' . $media->created_at->format('Y/m') . '/' . $media->collection_name;
+            $path = 'uploads/' . $media->created_at->format('Y/m') . '/' . $media->collection_name . '/';
             $this->ensureDirectoryExists($path);
             
             // Log the final path
@@ -112,7 +112,7 @@ class CustomPathGenerator implements PathGenerator
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model_id . '/' . $media->collection_name;
+        $path = 'uploads/' . $media->model_id . '/' . $media->collection_name . '/';
         $this->ensureDirectoryExists($path);
         
         // Log the final path
@@ -157,7 +157,8 @@ class CustomPathGenerator implements PathGenerator
     {
         $disk = config('media-library.disk_name');
         
-        // Clean up the path - remove any leading/trailing slashes
+        // Clean up the path - remove any leading slashes, but preserve trailing slash for consistency
+        $hasTrailingSlash = str_ends_with($path, '/');
         $path = trim($path, '/');
         
         try {

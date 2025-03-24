@@ -162,7 +162,7 @@ class MediaController extends Controller
 
             // Ensure upload directories exist
             $disk = config('media-library.disk_name');
-            $tempPath = 'uploads/temp';
+            $tempPath = 'uploads/temp/';
 
             if (!Storage::disk($disk)->exists($tempPath)) {
                 Storage::disk($disk)->makeDirectory($tempPath);
@@ -183,7 +183,7 @@ class MediaController extends Controller
                 // Get file directly from request and save to new path in storage
                 $file = $request->file('file');
                 $fileName = $file->getClientOriginalName();
-                $uploadPath = 'uploads/temp';
+                $uploadPath = 'uploads/temp/';
 
                 // Save file directly to disk without going through MediaLibrary
                 $directPath = $file->storeAs($uploadPath, $fileName, config('media-library.disk_name'));
@@ -221,7 +221,7 @@ class MediaController extends Controller
                     'disk_name' => config('media-library.disk_name'),
                     'path' => $media->getPath(),
                     'media_file_path' => $media->file_name,
-                    'file_exists_temp_direct' => Storage::disk($media->disk)->exists($tempPath . '/' . $media->file_name),
+                    'file_exists_temp_direct' => Storage::disk($media->disk)->exists($uploadPath . $media->file_name),
                 ]);
 
             } catch (\Exception $e) {
@@ -233,6 +233,10 @@ class MediaController extends Controller
                 throw $e; // Re-throw the exception to be caught by the outer try-catch
             }
 
+            // Get the full paths for logging
+            $mediaPath = $media->getPath();
+            $fullFilePath = $mediaPath . $media->file_name;
+            
             Log::debug('*** FILE UPLOAD COMPLETED SUCCESSFULLY ***', [
                 'media_id' => $media->id,
                 'collection' => $media->collection_name,
@@ -240,10 +244,11 @@ class MediaController extends Controller
                 'file_name' => $media->file_name,
                 'size' => $media->size,
                 'mime_type' => $media->mime_type,
-                'path' => $media->getPath(),
-                'file_exists' => Storage::disk($media->disk)->exists($tempPath . '/' . $media->file_name),
-                'file_size_on_disk' => Storage::disk($media->disk)->exists($tempPath . '/' . $media->file_name) ?
-                    Storage::disk($media->disk)->size($tempPath . '/' . $media->file_name) : 0,
+                'directory_path' => $mediaPath,
+                'full_file_path' => $fullFilePath,
+                'file_exists' => Storage::disk($media->disk)->exists($fullFilePath),
+                'file_size_on_disk' => Storage::disk($media->disk)->exists($fullFilePath) ?
+                    Storage::disk($media->disk)->size($fullFilePath) : 0,
                 'url' => $media->getUrl(),
                 'environment' => app()->environment(),
                 'upload_complete_time' => now()->toDateTimeString()
@@ -421,6 +426,7 @@ class MediaController extends Controller
                     
                     // Define source and target paths clearly
                     $sourcePath = 'uploads/temp/' . $media->file_name;
+                    $sourcePath = $this->cleanPath($sourcePath);
                     
                     // Update model properties
                     $media->model_id = $requestId;
@@ -433,13 +439,20 @@ class MediaController extends Controller
                     // Get the new path using the model's getPath method after updating model properties
                     // This ensures the correct path is used based on the CustomPathGenerator
                     $targetDir = $media->getPath();
-                    $targetPath = $targetDir . '/' . $media->file_name;
+                    
+                    // Clean the path to handle potential absolute paths
+                    $targetDir = $this->cleanPath($targetDir);
+                    
+                    // Path already has trailing slash from CustomPathGenerator
+                    $targetPath = $targetDir . $media->file_name;
                     
                     // Log model update info
                     Log::debug('*** MEDIA RECORD UPDATED ***', [
                         'file_id' => $media->id,
-                        'old_path' => 'uploads/temp',
+                        'old_path' => 'uploads/temp/',
                         'new_path' => $targetDir,
+                        'original_media_path' => $media->getPath(),
+                        'cleaned_media_path' => $this->cleanPath($media->getPath()),
                         'source_path' => $sourcePath,
                         'target_path' => $targetPath,
                         'old_model_id' => $temporaryUpload->id,
@@ -459,8 +472,11 @@ class MediaController extends Controller
                         
                         // If the source file doesn't exist where expected, try to find it
                         $altSourcePaths = [
-                            'uploads/temp/' . $media->file_name,
-                            $media->file_name
+                            'uploads/temp/' . $media->file_name,  // With trailing slash
+                            'uploads/temp' . $media->file_name,   // Without trailing slash 
+                            'uploadstemp/' . $media->file_name,   // No slash variation
+                            'uploadstemp' . $media->file_name,    // Even more wrong path but worth checking
+                            $media->file_name                     // Just the filename
                         ];
                         
                         $sourceExists = false;
@@ -521,18 +537,64 @@ class MediaController extends Controller
                         ]);
                     }
 
+                    // Get URL directly from media library
+                    $finalUrl = $media->getUrl();
+                    
+                    // Check for duplicate URL patterns or paths
+                    $appUrl = config('app.url');
+                    $storageBasePath = '/storage/';
+                    
+                    // Fix duplicate storage paths
+                    if (substr_count($finalUrl, $storageBasePath) > 1) {
+                        // Keep only the first occurrence and everything after
+                        $pos = strpos($finalUrl, $storageBasePath);
+                        $finalUrl = substr($finalUrl, 0, $pos) . substr($finalUrl, $pos);
+                        Log::debug('Fixed duplicate storage paths', [
+                            'original_url' => $media->getUrl(),
+                            'fixed_url' => $finalUrl
+                        ]);
+                    }
+                    
+                    // Fix any duplicated app URLs
+                    if (substr_count($finalUrl, $appUrl) > 1) {
+                        $finalUrl = $appUrl . parse_url($finalUrl, PHP_URL_PATH);
+                        Log::debug('Fixed URL with duplicate app base', [
+                            'original_url' => $media->getUrl(),
+                            'fixed_url' => $finalUrl
+                        ]);
+                    }
+                    
+                    // Fix absolute paths in URL paths
+                    $absolutePathPattern = '/\/var\/www\/html\/.*\/storage\//';
+                    if (preg_match($absolutePathPattern, $finalUrl)) {
+                        $fixedUrl = preg_replace($absolutePathPattern, $storageBasePath, $finalUrl);
+                        Log::debug('Fixed absolute paths in URL', [
+                            'original_url' => $finalUrl,
+                            'fixed_url' => $fixedUrl
+                        ]);
+                        $finalUrl = $fixedUrl;
+                    }
+                    
+                    // Update additional logging info
                     Log::debug('*** FILE ASSOCIATION COMPLETED ***', [
                         'file_id' => $media->id,
                         'request_id' => $requestId,
                         'filename' => $media->file_name,
                         'path' => $targetDir,
+                        'final_path' => $targetDir . $media->file_name,
+                        'media_path' => $media->getPath(),
+                        'storage_path' => storage_path('app/public'),
+                        'app_url' => config('app.url'),
+                        'base_path' => base_path(),
+                        'public_path' => public_path(),
                         'new_model_id' => $media->model_id,
                         'new_model_type' => $media->model_type,
                         'saved_successfully' => true,
                         'file_exists_at_final_location' => Storage::disk($disk)->exists($targetPath),
                         'final_file_size' => Storage::disk($disk)->exists($targetPath) ? 
                             Storage::disk($disk)->size($targetPath) : 0,
-                        'final_url' => $media->getUrl(),
+                        'original_url' => $media->getUrl(),
+                        'fixed_url' => $finalUrl,
                         'completion_time' => now()->toDateTimeString()
                     ]);
 
@@ -733,5 +795,35 @@ class MediaController extends Controller
         ];
 
         return $iconMap[strtolower($extension)] ?? 'fa-file-o';
+    }
+
+    /**
+     * Clean path to ensure it's relative to the storage disk, not absolute
+     * 
+     * @param string $path The path to clean
+     * @return string The cleaned path
+     */
+    private function cleanPath(string $path): string
+    {
+        // Storage path to detect and remove
+        $storagePath = storage_path('app/public/'); 
+        
+        // Replace storage path with empty string if found
+        if (strpos($path, $storagePath) === 0) {
+            return substr($path, strlen($storagePath));
+        }
+        
+        // Alternative: just check for any duplicate directory structures
+        $secondaryCheck = 'var/www/html/';
+        if (substr_count($path, $secondaryCheck) > 1) {
+            // Find the position of the second occurrence
+            $firstPos = strpos($path, $secondaryCheck);
+            $secondPos = strpos($path, $secondaryCheck, $firstPos + 1);
+            
+            // Keep only from the second occurrence onward
+            return substr($path, $secondPos);
+        }
+        
+        return $path;
     }
 }
