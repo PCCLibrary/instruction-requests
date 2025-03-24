@@ -60,7 +60,7 @@ class CustomPathGenerator implements PathGenerator
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model->id;
+        $path = 'uploads/' . $media->model_id;
         $this->ensureDirectoryExists($path);
         
         // Log the final path
@@ -112,7 +112,7 @@ class CustomPathGenerator implements PathGenerator
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model->id . '/' . $media->collection_name;
+        $path = 'uploads/' . $media->model_id . '/' . $media->collection_name;
         $this->ensureDirectoryExists($path);
         
         // Log the final path
