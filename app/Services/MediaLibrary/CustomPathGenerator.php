@@ -33,21 +33,42 @@ class CustomPathGenerator implements PathGenerator
 
         // For temporary uploads (no model_id or id=0)
         if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', false)) {
-            $path = 'uploads/temp/';
+            $path = 'uploads/temp';
             $this->ensureDirectoryExists($path);
+            
+            // Log the final path
+            Log::log($logLevel, 'Generated temporary path', [
+                'media_id' => $media->id,
+                'path' => $path
+            ]);
+            
             return $path;
         }
 
         // Use year/month structure for new files (created after March 2025)
         if ($media->created_at >= '2025-03-01') {
-            $path = 'uploads/' . $media->created_at->format('Y/m') . '/';
+            $path = 'uploads/' . $media->created_at->format('Y/m');
             $this->ensureDirectoryExists($path);
+            
+            // Log the final path
+            Log::log($logLevel, 'Generated date-based path', [
+                'media_id' => $media->id,
+                'path' => $path
+            ]);
+            
             return $path;
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model->id . '/';
+        $path = 'uploads/' . $media->model->id;
         $this->ensureDirectoryExists($path);
+        
+        // Log the final path
+        Log::log($logLevel, 'Generated ID-based path', [
+            'media_id' => $media->id,
+            'path' => $path
+        ]);
+        
         return $path;
     }
 
@@ -59,23 +80,47 @@ class CustomPathGenerator implements PathGenerator
      */
     public function getPathForConversions(Media $media): string
     {
+        // Set log level based on environment
+        $logLevel = app()->environment('production') ? 'info' : 'debug';
+        
         // For temporary uploads
         if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', false)) {
-            $path = 'uploads/temp/' . $media->collection_name . '/';
+            $path = 'uploads/temp/' . $media->collection_name;
             $this->ensureDirectoryExists($path);
+            
+            // Log the final path
+            Log::log($logLevel, 'Generated temporary conversion path', [
+                'media_id' => $media->id,
+                'path' => $path
+            ]);
+            
             return $path;
         }
 
         // Use year/month structure for new files
         if ($media->created_at >= '2025-03-01') {
-            $path = 'uploads/' . $media->created_at->format('Y/m') . '/' . $media->collection_name . '/';
+            $path = 'uploads/' . $media->created_at->format('Y/m') . '/' . $media->collection_name;
             $this->ensureDirectoryExists($path);
+            
+            // Log the final path
+            Log::log($logLevel, 'Generated date-based conversion path', [
+                'media_id' => $media->id,
+                'path' => $path
+            ]);
+            
             return $path;
         }
 
         // For existing files, maintain the old structure
-        $path = 'uploads/' . $media->model->id . '/' . $media->collection_name . '/';
+        $path = 'uploads/' . $media->model->id . '/' . $media->collection_name;
         $this->ensureDirectoryExists($path);
+        
+        // Log the final path
+        Log::log($logLevel, 'Generated ID-based conversion path', [
+            'media_id' => $media->id,
+            'path' => $path
+        ]);
+        
         return $path;
     }
 
@@ -88,7 +133,18 @@ class CustomPathGenerator implements PathGenerator
     public function getPathForResponsiveImages(Media $media): string
     {
         // Return the same path as conversions
-        return $this->getPathForConversions($media);
+        $path = $this->getPathForConversions($media);
+        
+        // Set log level based on environment
+        $logLevel = app()->environment('production') ? 'info' : 'debug';
+        
+        // Log the responsive images path
+        Log::log($logLevel, 'Generated responsive images path', [
+            'media_id' => $media->id,
+            'path' => $path
+        ]);
+        
+        return $path;
     }
     
     /**
@@ -100,6 +156,9 @@ class CustomPathGenerator implements PathGenerator
     protected function ensureDirectoryExists(string $path): void
     {
         $disk = config('media-library.disk_name');
+        
+        // Clean up the path - remove any leading/trailing slashes
+        $path = trim($path, '/');
         
         try {
             if (!Storage::disk($disk)->exists($path)) {

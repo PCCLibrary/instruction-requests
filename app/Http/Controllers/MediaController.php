@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InstructionRequests;
 use App\Models\TemporaryUpload;
+use App\Services\MediaLibrary\PathNormalizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -441,8 +442,7 @@ class MediaController extends Controller
                     ]);
                     
                     // Get the current physical file path before changing model properties
-                    $oldFilePath = $media->getPath();
-                    $oldFullPath = $oldFilePath . '/' . $media->file_name;
+                    $oldFilePath = trim($media->getPath(), '/');
                     $oldDisk = $media->disk;
                     
                     // Check if the source file exists in expected location
@@ -452,7 +452,7 @@ class MediaController extends Controller
                     $oldStandardPath = $oldFilePath . '/' . $media->file_name;
                     $alternativePath = 'uploads/temp/' . $media->file_name;
                     
-                    $fileExistsDirectPath = file_exists($oldDirectPath);
+                    $fileExistsDirectPath = file_exists($oldDirectPath . '/' . $media->file_name);
                     $fileExistsFullPath = Storage::disk($oldDisk)->exists($oldFullPath);
                     $fileExistsStandardPath = Storage::disk($oldDisk)->exists($oldStandardPath);
                     $fileExistsAlternativePath = Storage::disk($oldDisk)->exists($alternativePath);
@@ -462,7 +462,7 @@ class MediaController extends Controller
                     $sourceFileExists = false;
                     
                     if ($fileExistsDirectPath) {
-                        $effectiveSourcePath = $oldDirectPath;
+                        $effectiveSourcePath = $oldDirectPath . '/' . $media->file_name;
                         $sourceFileExists = true;
                         $effectiveSourceType = 'direct';
                     } else if ($fileExistsFullPath) {
@@ -587,7 +587,7 @@ class MediaController extends Controller
                         $disk = Storage::disk($oldDisk);
                         
                         // Ensure the target directory exists
-                        $newDirectory = $newFilePath;
+                        $newDirectory = trim($newFilePath, '/');
                         if (!$disk->exists($newDirectory)) {
                             $disk->makeDirectory($newDirectory, 0755, true);
                             Log::debug('Created target directory for file move', [
@@ -611,6 +611,8 @@ class MediaController extends Controller
                             } else {
                                 $fileContent = $disk->get($effectiveSourcePath);
                             }
+                            
+                            $newFullPath = trim($newDirectory, '/') . '/' . $media->file_name;
                             
                             Log::debug('Writing file content to destination...', [
                                 'destination' => $newFullPath,
@@ -915,5 +917,45 @@ class MediaController extends Controller
         ];
 
         return $iconMap[strtolower($extension)] ?? 'fa-file-o';
+    }
+    
+    /**
+     * Find a file in multiple potential locations
+     * Uses the PathNormalizer to check various path formats
+     *
+     * @param string $filename Filename to look for
+     * @param string $primaryPath Primary path to check
+     * @param string $disk Storage disk name
+     * @return array File location information
+     */
+    private function findFileInPotentialLocations(string $filename, string $primaryPath, string $disk = 'public'): array
+    {
+        // Normalize the primary path
+        $primaryPath = PathNormalizer::normalize($primaryPath);
+        
+        // Define potential locations to check
+        $potentialLocations = [
+            'standard' => rtrim($primaryPath, '/') . '/' . $filename,
+            'temp' => 'uploads/temp/' . $filename,
+            'year_month' => 'uploads/' . date('Y/m') . '/' . $filename,
+            'root' => $filename
+        ];
+        
+        // Use the PathNormalizer to find the file
+        $fileInfo = PathNormalizer::findFile($filename, $potentialLocations, $disk);
+        
+        if ($fileInfo) {
+            Log::debug('File found using PathNormalizer', $fileInfo);
+            return $fileInfo;
+        }
+        
+        // If file not found, return default structure
+        return [
+            'path' => null,
+            'directory' => null,
+            'type' => 'not_found',
+            'exists' => false,
+            'size' => 0
+        ];
     }
 }
