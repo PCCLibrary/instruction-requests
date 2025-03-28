@@ -11,6 +11,8 @@ This document summarizes the changes made to fix and enhance the file upload sys
 - Enhanced error handling and logging
 - Added missing controller methods for authenticated uploads
 - Created deployment tooling for environment management
+- Fixed file association issues in MediaController's `associateFiles` method
+- Updated MediaController to use consistent configuration keys and column names
 
 ## File Upload Architecture
 
@@ -82,9 +84,10 @@ When encountering file upload issues, check these common problems first:
    - The CustomPathGenerator creates paths like `uploads/temp/` for temporary files
    - Manually create these directories if they don't exist: `mkdir -p storage/app/public/uploads/temp`
 
-4. **Token Management**: Uploads rely on tokens stored in the cache system.
-   - If cache is cleared or not working, file uploads will fail
-   - Check if cache is functioning: `php artisan cache:clear` then try again
+4. **Token Management**: Uploads now rely on tokens stored in the database via TemporaryUpload model.
+   - Check if the TemporaryUpload records exist in the database
+   - Verify column name is 'upload_token' (not 'token') in queries
+   - Ensure tokens haven't expired (check 'expires_at' field)
 
 5. **Headers Issues**: Dropzone needs to properly send the X-Upload-Token header.
    - Check browser console logs to ensure headers are being sent correctly
@@ -133,6 +136,14 @@ Extended `App\Services\MediaLibrary\CustomPathGenerator` to:
 - Implemented missing `upload()` method for authenticated users
 - Implemented missing `delete()` method for authenticated users
 - Added security checking and error handling
+
+#### File Association Method
+- Updated `associateFiles` method signature to match how it's called
+- Fixed column name from 'token' to 'upload_token' in TemporaryUpload queries
+- Standardized configuration key usage from 'media.disk' to 'media-library.disk_name'
+- Added proper error handling and return values
+- Improved path handling for file movements
+- Added check to prevent re-association of already-associated files
 
 ### 4. Dashboard File Browser Requirements
 
@@ -243,7 +254,64 @@ Created environment-specific configuration files:
 - `.env.testing` - Test server environment
 - `.env.production` - Production environment template
 
-### 5. Deployment Script
+### 5. MediaController associateFiles Improvements
+
+The `associateFiles` method in MediaController has been significantly improved:
+
+1. **Method Signature**: Updated to match how it's actually called:
+   ```php
+   // Old signature (didn't match caller)
+   public function associateFiles(string $token, $request, $relatedModel, string $collectionName)
+   
+   // New signature (matches caller)
+   public function associateFiles(string $token, $instructionRequestOrId)
+   ```
+
+2. **ID to Model Conversion**: Added logic to handle either an ID or a model instance:
+   ```php
+   // Convert ID to model instance if needed
+   if (is_numeric($instructionRequestOrId)) {
+       $instructionRequest = InstructionRequests::find($instructionRequestOrId);
+       // Error handling if not found
+   }
+   ```
+
+3. **Database Column Fix**: Using the correct column name in TemporaryUpload model:
+   ```php
+   // Old (incorrect column name)
+   $temporaryUpload = TemporaryUpload::where('token', $token)->first();
+   
+   // New (correct column name)
+   $temporaryUpload = TemporaryUpload::where('upload_token', $token)->first();
+   ```
+
+4. **Configuration Consistency**: Using consistent configuration keys:
+   ```php
+   // Old (inconsistent key)
+   Storage::disk(config('media.disk'))->makeDirectory(dirname($newPath));
+   
+   // New (consistent key)
+   $disk = config('media-library.disk_name');
+   Storage::disk($disk)->makeDirectory(dirname($newPath));
+   ```
+
+5. **Return Values**: Added proper return values for error handling:
+   ```php
+   return true; // Success
+   return false; // Error case
+   ```
+
+6. **Re-association Prevention**: Added check to prevent duplicate associations:
+   ```php
+   if ($file->model_id) {
+       Log::warning("File already associated, skipping...");
+       continue;
+   }
+   ```
+
+These improvements ensure more reliable file uploads and associations between temporary files and instruction requests.
+
+### 6. Deployment Script
 
 Added `deploy.sh` for environment switching:
 ```bash

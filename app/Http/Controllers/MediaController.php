@@ -180,24 +180,13 @@ class MediaController extends Controller
             ]);
 
             try {
-                // Get file directly from request and save to new path in storage
+                // Get file directly from request
                 $file = $request->file('file');
                 $fileName = $file->getClientOriginalName();
-                $uploadPath = 'uploads/temp/';
-
-                // Save file directly to disk without going through MediaLibrary
-                $directPath = $file->storeAs($uploadPath, $fileName, config('media-library.disk_name'));
-                Log::debug('Directly stored file in temp directory', [
-                    'request_file_name' => $fileName,
-                    'request_file_size' => $file->getSize(),
-                    'direct_path' => $directPath,
-                    'direct_exists' => Storage::disk(config('media-library.disk_name'))->exists($directPath),
-                    'upload_path' => $uploadPath
-                ]);
 
                 // Add the file to the materials collection of the TemporaryUpload model
                 $media = $temporaryUpload->addMediaFromRequest('file')
-                    ->usingName($request->file('file')->getClientOriginalName())
+                    ->usingName($fileName) // Use original file name
                     ->withCustomProperties([
                         'upload_token' => $token,
                         'upload_date' => now()->toDateTimeString(),
@@ -207,52 +196,25 @@ class MediaController extends Controller
                     ])
                     ->toMediaCollection('materials');
 
-                // Log VERY detailed information about the media record and file
-                Log::debug('*** INITIAL MEDIA RECORD CREATED ***', [
+                // Log file upload details
+                Log::debug('File uploaded and media record created', [
                     'media_id' => $media->id,
-                    'media_exists' => $media->exists,
-                    'media_saved' => !is_null($media->id),
-                    'media_model_id' => $media->model_id,
-                    'media_model_type' => $media->model_type,
-                    'media_collection' => $media->collection_name,
                     'file_name' => $media->file_name,
-                    'file_name_original' => $request->file('file')->getClientOriginalName(),
+                    'file_original_name' => $fileName,
                     'disk' => $media->disk,
-                    'disk_name' => config('media-library.disk_name'),
                     'path' => $media->getPath(),
-                    'media_file_path' => $media->file_name,
-                    'file_exists_temp_direct' => Storage::disk($media->disk)->exists($uploadPath . $media->file_name),
+                    'url' => $media->getUrl(),
                 ]);
 
+
             } catch (\Exception $e) {
-                Log::error('Failed to create media record', [
+                Log::error('Failed to upload file and create media record', [
                     'temp_upload_id' => $temporaryUpload->id,
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
                 throw $e; // Re-throw the exception to be caught by the outer try-catch
             }
-
-            // Get the full paths for logging
-            $mediaPath = $media->getPath();
-            $fullFilePath = $mediaPath . $media->file_name;
-            
-            Log::debug('*** FILE UPLOAD COMPLETED SUCCESSFULLY ***', [
-                'media_id' => $media->id,
-                'collection' => $media->collection_name,
-                'disk' => $media->disk,
-                'file_name' => $media->file_name,
-                'size' => $media->size,
-                'mime_type' => $media->mime_type,
-                'directory_path' => $mediaPath,
-                'full_file_path' => $fullFilePath,
-                'file_exists' => Storage::disk($media->disk)->exists($fullFilePath),
-                'file_size_on_disk' => Storage::disk($media->disk)->exists($fullFilePath) ?
-                    Storage::disk($media->disk)->size($fullFilePath) : 0,
-                'url' => $media->getUrl(),
-                'environment' => app()->environment(),
-                'upload_complete_time' => now()->toDateTimeString()
-            ]);
 
             // Refresh the expiration time on the temporary upload
             $temporaryUpload->expires_at = now()->addHours(2);
@@ -272,7 +234,6 @@ class MediaController extends Controller
                     'icon' => $iconClass,
                 ]
             ]);
-
         } catch (FileDoesNotExist $e) {
             Log::error('File does not exist: ' . $e->getMessage(), [
                 'exception' => get_class($e),
@@ -359,286 +320,167 @@ class MediaController extends Controller
     }
 
     /**
-     * Associate files with a new instruction request
+     * Associates uploaded files with an instruction request.
      *
-     * @param string $token
-     * @param int $requestId
-     * @return bool
+     * @param string $token The upload token.
+     * @param int|InstructionRequests $instructionRequestOrId The instruction request ID or model.
+     * @return bool Whether the association was successful.
      */
-    public function associateFiles(string $token, int $requestId): bool
+    public function associateFiles(string $token, $instructionRequestOrId)
     {
+        // Load the instruction request model if only an ID was provided
+        $instructionRequest = $instructionRequestOrId;
+        if (is_numeric($instructionRequestOrId)) {
+            $instructionRequest = InstructionRequests::find($instructionRequestOrId);
+            if (!$instructionRequest) {
+                Log::error('Failed to find instruction request', [
+                    'token' => $token,
+                    'request_id' => $instructionRequestOrId
+                ]);
+                return false;
+            }
+        }
+
+        Log::info('Calling associateFiles with token', [
+            'token' => $token,
+            'request_id' => $instructionRequest->id,
+        ]);
+
         Log::info('Associating files with instruction request', [
             'token' => $token,
-            'request_id' => $requestId
+            'request_id' => $instructionRequest->id,
         ]);
-
-        $temporaryUpload = $this->validateToken($token);
+        
+        // Use the correct column name 'upload_token' instead of 'token'
+        $temporaryUpload = TemporaryUpload::where('upload_token', $token)->first();
 
         if (!$temporaryUpload) {
-            Log::error('Invalid token when associating files', ['token' => $token]);
-            return false;
+            // This is not an error, just means no files were uploaded with this token
+            Log::info('No temporary upload found for token', ['token' => $token]);
+            return true;
         }
 
-        // Get all media associated with this temporary upload
-        $mediaItems = $temporaryUpload->getMedia('materials');
+        $files = $temporaryUpload->media; // Get the associated Media objects.
 
-        if ($mediaItems->isEmpty()) {
-            Log::warning('No files to associate', ['token' => $token]);
-            return true; // Nothing to do, but not an error
-        }
-
-        Log::info('Found files to associate', [
+        Log::debug('Token validated successfully', [
             'token' => $token,
-            'file_count' => $mediaItems->count(),
-            'temp_upload_id' => $temporaryUpload->id
+            'temporary_upload_id' => $temporaryUpload->id,
+            'files_count' => $files->count(),
+            'files' => $files->pluck('id')->toArray(),
         ]);
 
-        try {
-            // Get the instruction request
-            $request = InstructionRequests::findOrFail($requestId);
-            Log::info('Found instruction request', [
-                'request_id' => $requestId,
-                'model_type' => get_class($request),
-                'request_status' => $request->status
+        if ($files->isEmpty()) {
+            Log::info('No files found to associate', ['token' => $token, 'temp_upload_id' => $temporaryUpload->id]);
+            return true;
+        }
+        
+        Log::info('Found files to associate', [
+            'token' => $token,
+            'file_count' => $files->count(),
+            'temp_upload_id' => $temporaryUpload->id,
+        ]);
+
+        Log::info('Found instruction request', [
+            'request_id' => $instructionRequest->id,
+            'model_type' => get_class($instructionRequest),
+            'request_status' => $instructionRequest->status,
+        ]);
+
+        foreach ($files as $file) {
+            Log::info('Processing file association', [
+                'file_id' => $file->id,
+                'file_name' => $file->name,
+                'request_id' => $instructionRequest->id,
+            ]);
+            Log::debug('*** FILE ASSOCIATION BEGIN ***', [
+                'file_id' => $file->id,
+                'file_name' => $file->name,
+                'temp_upload_id' => $temporaryUpload->id,
+                'request_id' => $instructionRequest->id,
+                'operation_time' => now()->format('Y-m-d H:i:s'),
             ]);
 
-            // Associate all files with the request
-            $associatedCount = 0;
-            $errorCount = 0;
-            $disk = config('media-library.disk_name');
-
-            foreach ($mediaItems as $media) {
-                Log::info('Processing file association', [
-                    'file_id' => $media->id,
-                    'file_name' => $media->file_name,
-                    'request_id' => $requestId
+            // IMPORTANT:  Check if the file already has a model_id.  If it does,
+            // it means it has *already* been associated, and we should *not*
+            // try to associate it again.  This prevents duplicates and errors.
+            if ($file->model_id) {
+                Log::warning("File {$file->id} ({$file->name}) is already associated with model ID {$file->model_id}. Skipping association.", [
+                    'file_id' => $file->id,
+                    'file_name' => $file->name,
+                    'existing_model_id' => $file->model_id,
+                    'request_id' => $instructionRequest->id,
                 ]);
-
-                try {
-                    // Log state before starting operation
-                    Log::debug('*** FILE ASSOCIATION BEGIN ***', [
-                        'file_id' => $media->id,
-                        'file_name' => $media->file_name,
-                        'temp_upload_id' => $temporaryUpload->id,
-                        'request_id' => $requestId,
-                        'operation_time' => now()->toDateTimeString()
-                    ]);
-                    
-                    // Define source and target paths clearly
-                    $sourcePath = 'uploads/temp/' . $media->file_name;
-                    $sourcePath = $this->cleanPath($sourcePath);
-                    
-                    // Update model properties
-                    $media->model_id = $requestId;
-                    $media->model_type = InstructionRequests::class;
-                    $media->setCustomProperty('temporary', false);
-                    $media->setCustomProperty('associated', true);
-                    $media->setCustomProperty('associated_date', now()->toDateTimeString());
-                    $media->save();
-
-                    // Get the new path using the model's getPath method after updating model properties
-                    // This ensures the correct path is used based on the CustomPathGenerator
-                    $targetDir = $media->getPath();
-                    
-                    // Clean the path to handle potential absolute paths
-                    $targetDir = $this->cleanPath($targetDir);
-                    
-                    // Path already has trailing slash from CustomPathGenerator
-                    $targetPath = $targetDir . $media->file_name;
-                    
-                    // Log model update info
-                    Log::debug('*** MEDIA RECORD UPDATED ***', [
-                        'file_id' => $media->id,
-                        'old_path' => 'uploads/temp/',
-                        'new_path' => $targetDir,
-                        'original_media_path' => $media->getPath(),
-                        'cleaned_media_path' => $this->cleanPath($media->getPath()),
-                        'source_path' => $sourcePath,
-                        'target_path' => $targetPath,
-                        'old_model_id' => $temporaryUpload->id,
-                        'new_model_id' => $requestId,
-                        'old_model_type' => get_class($temporaryUpload),
-                        'new_model_type' => InstructionRequests::class,
-                        'custom_properties' => $media->custom_properties
-                    ]);
-                    
-                    // Check if the source file exists
-                    if (!Storage::disk($disk)->exists($sourcePath)) {
-                        Log::warning('Source file not found for move operation', [
-                            'file_id' => $media->id,
-                            'file_name' => $media->file_name,
-                            'source_path' => $sourcePath
-                        ]);
-                        
-                        // If the source file doesn't exist where expected, try to find it
-                        $altSourcePaths = [
-                            'uploads/temp/' . $media->file_name,  // With trailing slash
-                            'uploads/temp' . $media->file_name,   // Without trailing slash 
-                            'uploadstemp/' . $media->file_name,   // No slash variation
-                            'uploadstemp' . $media->file_name,    // Even more wrong path but worth checking
-                            $media->file_name                     // Just the filename
-                        ];
-                        
-                        $sourceExists = false;
-                        foreach ($altSourcePaths as $altPath) {
-                            if (Storage::disk($disk)->exists($altPath)) {
-                                $sourcePath = $altPath;
-                                $sourceExists = true;
-                                Log::debug('Found source file in alternative location', [
-                                    'file_path' => $altPath
-                                ]);
-                                break;
-                            }
-                        }
-                        
-                        if (!$sourceExists) {
-                            Log::error('Source file not found after searching alternatives', [
-                                'file_id' => $media->id,
-                                'file_name' => $media->file_name
-                            ]);
-                            continue; // Skip this file
-                        }
-                    }
-                    
-                    // Ensure the target directory exists
-                    if (!Storage::disk($disk)->exists($targetDir)) {
-                        Storage::disk($disk)->makeDirectory($targetDir);
-                        Log::debug('Created target directory', [
-                            'directory' => $targetDir,
-                            'created' => Storage::disk($disk)->exists($targetDir)
-                        ]);
-                    }
-                    
-                    // Move the file using Laravel's Storage facade
-                    Log::debug('Moving file', [
-                        'from' => $sourcePath,
-                        'to' => $targetPath,
-                        'disk' => $disk
-                    ]);
-                    
-                    // Use copy then delete pattern to avoid path issues
-                    if (Storage::disk($disk)->copy($sourcePath, $targetPath)) {
-                        // Delete the source file after successful copy
-                        Storage::disk($disk)->delete($sourcePath);
-                        
-                        Log::debug('*** FILE PHYSICALLY MOVED ***', [
-                            'from' => $sourcePath,
-                            'to' => $targetPath,
-                            'file_id' => $media->id,
-                            'original_deleted' => !Storage::disk($disk)->exists($sourcePath),
-                            'destination_exists' => Storage::disk($disk)->exists($targetPath),
-                            'destination_size' => Storage::disk($disk)->exists($targetPath) ? 
-                                Storage::disk($disk)->size($targetPath) : 0
-                        ]);
-                    } else {
-                        Log::error('Failed to move file', [
-                            'from' => $sourcePath,
-                            'to' => $targetPath
-                        ]);
-                    }
-
-                    // Get URL directly from media library
-                    $finalUrl = $media->getUrl();
-                    
-                    // Check for duplicate URL patterns or paths
-                    $appUrl = config('app.url');
-                    $storageBasePath = '/storage/';
-                    
-                    // Fix duplicate storage paths
-                    if (substr_count($finalUrl, $storageBasePath) > 1) {
-                        // Keep only the first occurrence and everything after
-                        $pos = strpos($finalUrl, $storageBasePath);
-                        $finalUrl = substr($finalUrl, 0, $pos) . substr($finalUrl, $pos);
-                        Log::debug('Fixed duplicate storage paths', [
-                            'original_url' => $media->getUrl(),
-                            'fixed_url' => $finalUrl
-                        ]);
-                    }
-                    
-                    // Fix any duplicated app URLs
-                    if (substr_count($finalUrl, $appUrl) > 1) {
-                        $finalUrl = $appUrl . parse_url($finalUrl, PHP_URL_PATH);
-                        Log::debug('Fixed URL with duplicate app base', [
-                            'original_url' => $media->getUrl(),
-                            'fixed_url' => $finalUrl
-                        ]);
-                    }
-                    
-                    // Fix absolute paths in URL paths
-                    $absolutePathPattern = '/\/var\/www\/html\/.*\/storage\//';
-                    if (preg_match($absolutePathPattern, $finalUrl)) {
-                        $fixedUrl = preg_replace($absolutePathPattern, $storageBasePath, $finalUrl);
-                        Log::debug('Fixed absolute paths in URL', [
-                            'original_url' => $finalUrl,
-                            'fixed_url' => $fixedUrl
-                        ]);
-                        $finalUrl = $fixedUrl;
-                    }
-                    
-                    // Update additional logging info
-                    Log::debug('*** FILE ASSOCIATION COMPLETED ***', [
-                        'file_id' => $media->id,
-                        'request_id' => $requestId,
-                        'filename' => $media->file_name,
-                        'path' => $targetDir,
-                        'final_path' => $targetDir . $media->file_name,
-                        'media_path' => $media->getPath(),
-                        'storage_path' => storage_path('app/public'),
-                        'app_url' => config('app.url'),
-                        'base_path' => base_path(),
-                        'public_path' => public_path(),
-                        'new_model_id' => $media->model_id,
-                        'new_model_type' => $media->model_type,
-                        'saved_successfully' => true,
-                        'file_exists_at_final_location' => Storage::disk($disk)->exists($targetPath),
-                        'final_file_size' => Storage::disk($disk)->exists($targetPath) ? 
-                            Storage::disk($disk)->size($targetPath) : 0,
-                        'original_url' => $media->getUrl(),
-                        'fixed_url' => $finalUrl,
-                        'completion_time' => now()->toDateTimeString()
-                    ]);
-
-                    $associatedCount++;
-                } catch (\Exception $e) {
-                    Log::error('Error updating media record', [
-                        'file_id' => $media->id,
-                        'request_id' => $requestId,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
-                    $errorCount++;
-                }
+                continue; // Skip to the next file.
             }
 
-            // Delete the temporary upload (soft delete)
-            $temporaryUpload->delete();
-            Log::info('Deleted temporary upload record', [
-                'temp_upload_id' => $temporaryUpload->id,
-                'token' => $token
+            // Calculate the new path.
+            $newPath = str_replace('uploads/temp/', 'uploads/' . date('Y') . '/' . date('m') . '/', $file->path);
+            Log::debug('Generated date-based path', [
+                'media_id' => $file->id,
+                'path' => $newPath,
+            ]);
+            Log::debug('Generated date-based path', [
+                'media_id' => $file->id,
+                'path' => $newPath,
+            ]);
+            Log::debug('Generated date-based path', [
+                'media_id' => $file->id,
+                'path' => $newPath,
             ]);
 
-            Log::info('File association completed', [
-                'token' => $token,
-                'request_id' => $requestId,
-                'total_files' => $mediaItems->count(),
-                'associated_count' => $associatedCount,
-                'error_count' => $errorCount
-            ]);
+            try {
+                // Ensure the directory exists.
+                $disk = config('media-library.disk_name');
+                Storage::disk($disk)->makeDirectory(dirname($newPath));
 
-            return true;
+                // Move the file.
+                if (Storage::disk($disk)->exists($file->path)) {
+                    Storage::disk($disk)->move($file->path, $newPath);
+                    $file->path = $newPath; // Update the path in the database
+                } else {
+                    Log::error("Source file not found: {$file->path}", [
+                        'file_id' => $file->id,
+                        'file_name' => $file->name,
+                        'expected_path' => Storage::disk($disk)->path($file->path),
+                    ]);
+                    throw new \Exception("Source file not found: {$file->path}"); // Stop processing this file
+                }
 
-        } catch (\Exception $e) {
-            Log::error('Error associating files: ' . $e->getMessage(), [
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'token' => $token,
-                'request_id' => $requestId
-            ]);
-            return false;
+                // Update the media record with the new path and model ID.
+                $file->update([
+                    'path' => $newPath,
+                    'model_type' => get_class($instructionRequest),
+                    'model_id' => $instructionRequest->id,
+                    'temporary' => false, // Mark as permanent
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error updating media record', [
+                    'file_id' => $file->id,
+                    'request_id' => $instructionRequest->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                // Consider if you want to continue processing other files or stop.
+                continue; // Continue to the next file.  You might want to throw an exception.
+            }
         }
+
+        // Delete the temporary upload record.
+        $temporaryUpload->delete();
+        Log::info('Deleted temporary upload record', [
+            'temporary_upload_id' => $temporaryUpload->id,
+            'token' => $token,
+        ]);
+
+        Log::info('File association completed', [
+            'success' => true,
+            'token' => $token,
+            'request_id' => $instructionRequest->id,
+        ]);
+        
+        return true;
     }
+
 
     /**
      * Handle file upload for authenticated users
@@ -799,31 +641,31 @@ class MediaController extends Controller
 
     /**
      * Clean path to ensure it's relative to the storage disk, not absolute
-     * 
+     *
      * @param string $path The path to clean
      * @return string The cleaned path
      */
     private function cleanPath(string $path): string
     {
         // Storage path to detect and remove
-        $storagePath = storage_path('app/public/'); 
-        
+        $storagePath = storage_path('app/public/');
+
         // Replace storage path with empty string if found
         if (strpos($path, $storagePath) === 0) {
             return substr($path, strlen($storagePath));
         }
-        
+
         // Alternative: just check for any duplicate directory structures
         $secondaryCheck = 'var/www/html/';
         if (substr_count($path, $secondaryCheck) > 1) {
             // Find the position of the second occurrence
             $firstPos = strpos($path, $secondaryCheck);
             $secondPos = strpos($path, $secondaryCheck, $firstPos + 1);
-            
+
             // Keep only from the second occurrence onward
             return substr($path, $secondPos);
         }
-        
+
         return $path;
     }
 }

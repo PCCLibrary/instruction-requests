@@ -74,8 +74,11 @@ This document explains the implementation of drag-and-drop file uploads in the L
 
 1. User submits the form with the token
 2. The server creates a new instruction request
-3. The system associates temporary files with the new request
-4. The token is invalidated to prevent reuse
+3. The system calls `associateFiles` with the token and instruction request ID
+4. The method verifies the token, retrieves the temporary files, and moves them to permanent storage
+5. Each file is updated with the correct model type and ID
+6. The temporary upload record is deleted to prevent reuse
+7. The method returns boolean value indicating success or failure
 
 ## Technical Details
 
@@ -86,13 +89,21 @@ This document explains the implementation of drag-and-drop file uploads in the L
 - Regular files are stored by date: `uploads/YYYY/MM/`
 - All files are in the "materials" collection
 
-### Token Structure (Cache)
+### Token and TemporaryUpload Structure
+
+The system now uses a database-based approach with the TemporaryUpload model:
 
 ```php
-'upload_token_' . $token => [
+// TemporaryUpload model
+[
+    'id' => Primary key,
+    'upload_token' => String (unique token used for authentication),
+    'expires_at' => DateTime (when the upload session expires),
     'created_at' => Carbon instance,
-    'files' => [1, 2, 3] // Array of media IDs
+    'updated_at' => Carbon instance
 ]
+
+// Associated media files are linked through Spatie's MediaLibrary
 ```
 
 ### File Type Mapping
@@ -194,26 +205,36 @@ Monitor the following for potential issues:
 
 3. **Files Not Associated with Request**:
    - Check that the token is being properly passed in the form
-   - Verify the associateFiles method is being called
+   - Verify the associateFiles method is being called with the correct parameters
+   - Ensure the TemporaryUpload record exists with the correct upload_token value
+   - Check that config('media-library.disk_name') is used consistently
    - Look for errors in the logs during file association
 
 ### Debugging
 
 For detailed debugging:
 
-1. Review logs:
+1. Review logs for the detailed error information and file association tracking:
    ```bash
    tail -f storage/logs/laravel.log
    ```
 
-2. Check the database for uploaded files:
+2. Check the database for uploaded files and temporary uploads:
    ```sql
    SELECT * FROM media WHERE model_id = 0;
+   SELECT * FROM temporary_uploads WHERE deleted_at IS NULL;
    ```
 
 3. Inspect the storage directory for temporary files:
    ```bash
    ls -la storage/app/public/uploads/temp/
+   ```
+
+4. Check the associateFiles method return value:
+   ```php
+   // The method now returns a boolean value
+   $result = app(\App\Http\Controllers\MediaController::class)->associateFiles($token, $requestId);
+   Log::info('Association result', ['success' => $result]);
    ```
 
 ## Future Enhancements
