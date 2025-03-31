@@ -116,12 +116,17 @@ When encountering file upload issues, check these common problems first:
 ### 2. Custom Path Generator Enhancement
 
 Extended `App\Services\MediaLibrary\CustomPathGenerator` to:
-- Ensure directories exist before file saves
+- Ensure directories exist before file saves with robust directory validation
+- Return boolean status for directory creation operations
+- Handle path verification and provide detailed error reporting
+- Verify paths are actually directories and not files with the same name
 - Include environment awareness in logging
 - Handle temporary uploads more gracefully
-- Direct files to correct paths based on source (public form vs dashboard)
-- Maintain path structure for existing files
-- Structure new files by year/month for better organization
+- Direct all new files to date-based path structure (year/month)
+- Maintain path structure for existing legacy files (before March 2025)
+- Provide consistent API and behavior with MediaController
+- Use the same robust directory creation logic as MediaController
+- Harmonize error handling and logging patterns with MediaController
 
 ### 3. MediaController Improvements
 
@@ -254,7 +259,29 @@ Created environment-specific configuration files:
 - `.env.testing` - Test server environment
 - `.env.production` - Production environment template
 
-### 5. MediaController associateFiles Improvements
+### 5. System-Wide Harmonization 
+
+To improve reliability and maintainability, the file handling has been harmonized across all components:
+
+1. **Unified Directory Creation**: 
+   - Both `CustomPathGenerator` and `MediaController` now use the same robust directory creation logic
+   - Both implementations verify if a path is actually a directory rather than a file
+   - Both classes handle edge cases consistently, such as empty paths or special characters
+   - Both return boolean results with proper error reporting
+
+2. **Consistent Path Generation**:
+   - All new files use date-based folders (YYYY/MM) by default
+   - Temporary uploads consistently use `uploads/temp/`
+   - Only legacy files (before March 2025) maintain their original structure
+   - Standardized handling of missing created_at timestamps
+
+3. **Unified Error Handling**:
+   - Consistent error logging format and detail level across all components
+   - Environment-aware logging levels (production vs. development/testing)
+   - Full exception details in non-production environments
+   - Both components preserve path operation even when directory creation fails
+
+### 6. MediaController associateFiles Improvements
 
 The `associateFiles` method in MediaController has been significantly improved:
 
@@ -327,7 +354,7 @@ Script capabilities:
 - Flushes and restarts queues
 - Optimizes for production (when applicable)
 
-### 6. Diagnostic Tools
+### 7. Diagnostic Tools
 
 Created an environment test route `/env-test` to verify configuration:
 ```php
@@ -351,13 +378,21 @@ Route::get('/env-test', function () {
 
 ### Path Generation Strategy
 - Temporary uploads go to `uploads/temp/`
-- New files use a date-based structure `uploads/YYYY/MM/`
-- Legacy files maintain original path structure `uploads/{request_id}/`
+- All new files use the date-based structure `uploads/YYYY/MM/` by default
+- Only legacy files (created before March 2025) maintain the original path structure `uploads/{request_id}/`
+- Both `CustomPathGenerator` and `MediaController` now use this consistent path strategy
 
 ### Error Handling Approach
 - Enhanced logging with environment-specific detail levels
-- Explicit directory creation checks
+- Explicit directory creation checks with verification of directory vs. file
+- Consistent return values across all directory and file operations
+- Detailed error reporting with specific failure reasons
+- Fallback mechanisms for handling path-related issues
 - Proper exception handling with detailed error messages
+- Harmonized error handling patterns between `CustomPathGenerator` and `MediaController`
+- Identical directory creation logic in both classes to ensure consistent behavior
+- Standardized path validation across the entire system
+- Return boolean values from all operations that could potentially fail
 
 ### Deployment Strategy
 - Environment-specific configuration files

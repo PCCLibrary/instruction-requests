@@ -60,6 +60,16 @@ This document explains the implementation of drag-and-drop file uploads in the L
 4. Upon form submission, the token is included and files are associated with the new request
 5. The token expires after 120 minutes, and temporary files are cleaned up after 24 hours
 
+### System Harmonization
+
+The file handling system has been harmonized to ensure consistent behavior:
+
+1. Both `CustomPathGenerator` and `MediaController` use identical directory creation logic
+2. All components share standardized path generation strategies
+3. Error handling and reporting is consistent across all system elements
+4. Return values and error states are handled uniformly
+5. Directory verification ensures all paths are actual directories, not files
+
 ### File Upload Flow
 
 1. User drags files onto the dropzone or clicks to browse
@@ -75,10 +85,12 @@ This document explains the implementation of drag-and-drop file uploads in the L
 1. User submits the form with the token
 2. The server creates a new instruction request
 3. The system calls `associateFiles` with the token and instruction request ID
-4. The method verifies the token, retrieves the temporary files, and moves them to permanent storage
-5. Each file is updated with the correct model type and ID
-6. The temporary upload record is deleted to prevent reuse
-7. The method returns boolean value indicating success or failure
+4. The method verifies the token and retrieves the temporary files
+5. Files are moved from temporary storage (`uploads/temp/`) to date-based structure (`uploads/YYYY/MM/`)
+6. Multiple attempts and fallbacks are used to ensure file movement succeeds
+7. Each file is updated with the correct model type and ID
+8. The temporary upload record is deleted to prevent reuse
+9. The method returns boolean value indicating overall success or failure
 
 ## Technical Details
 
@@ -86,8 +98,12 @@ This document explains the implementation of drag-and-drop file uploads in the L
 
 - Files are stored using Spatie Media Library
 - Temporary files are stored in `uploads/temp/` directory
-- Regular files are stored by date: `uploads/YYYY/MM/`
+- All new files are stored by date in the `uploads/YYYY/MM/` directory structure
+- Only legacy files (created before March 2025) use the `uploads/{request_id}/` structure
 - All files are in the "materials" collection
+- Both `CustomPathGenerator` and `MediaController` share this consistent path strategy
+- Advanced directory verification ensures all paths are valid directories
+- Consistent error handling and reporting between both classes
 
 ### Token and TemporaryUpload Structure
 
@@ -207,8 +223,10 @@ Monitor the following for potential issues:
    - Check that the token is being properly passed in the form
    - Verify the associateFiles method is being called with the correct parameters
    - Ensure the TemporaryUpload record exists with the correct upload_token value
-   - Check that config('media-library.disk_name') is used consistently
-   - Look for errors in the logs during file association
+   - Confirm config('media-library.disk_name') is used consistently across all classes
+   - Examine the ensureDirectoryExists return value in the logs
+   - Look for errors in the logs related to directory verification
+   - Check the result boolean from associateFiles method
 
 ### Debugging
 
