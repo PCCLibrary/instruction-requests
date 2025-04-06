@@ -30,7 +30,7 @@ class CustomPathGenerator implements PathGenerator
         ]);
 
         // For temporary uploads (no model_id or temporary flag set)
-        if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', true)) {
+        if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', false)) {
             $path = 'uploads/temp/';
 
             Log::log($logLevel, 'Using temporary path', [

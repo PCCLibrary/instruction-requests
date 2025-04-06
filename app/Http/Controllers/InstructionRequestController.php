@@ -118,17 +118,19 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
+        // Ensure we have the most recent media associations
+        $instructionRequest->refresh();
+
+        // Get the materials media collection
+        $materials = $instructionRequest->getMedia('materials');
+
         return view('instruction-requests.edit')->with([
             'instructionRequest' => $instructionRequest,
-//            'librarians' => User::where('is_admin', false)->get(),
             'librarians' => User::orderedLibrariansScope()->get(),
             'campuses' => Campus::all(),
             'instructors' => Instructor::all(),
             'departments' => $this->departmentService->getAllDepartments(),
-            'syllabus' => $instructionRequest->getMedia('syllabus'),
-            'instructorAttachments' => $instructionRequest->getMedia('instructor_attachments'),
-            'assessments' => $instructionRequest->getMedia('assessments'),
-            'materials' => $instructionRequest->getMedia('materials')
+            'materials' => $materials
         ]);
     }
 

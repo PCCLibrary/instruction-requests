@@ -376,42 +376,72 @@ class MediaController extends Controller
             foreach ($files as $file) {
                 $fileName = $file->file_name ?? $file->name ?? 'unknown';
 
-                // Use Spatie's move method to transfer the file to the instruction request
-                try {
-                    // Copy custom properties before moving
-                    $customProperties = $file->custom_properties;
-                    $customProperties['temporary'] = false;
+                // Get the path to the original file
+                $originalFilePath = $file->getPath();
 
-                    // Move the file to the instruction request and the materials collection
-                    $newMedia = $file->move($instructionRequest, 'materials');
+                // Log the file details before processing
+                Log::debug('Processing file for association', [
+                    'file_id' => $file->id,
+                    'file_name' => $fileName,
+                    'file_path' => $originalFilePath,
+                    'exists' => file_exists($originalFilePath)
+                ]);
 
-                    // Update custom properties on the moved file
-                    foreach ($customProperties as $key => $value) {
-                        $newMedia->setCustomProperty($key, $value);
-                    }
-                    $newMedia->save();
-
-                    $filesProcessed++;
-
-                    Log::info('File successfully associated', [
+                if (!file_exists($originalFilePath)) {
+                    Log::error('Original file does not exist', [
                         'file_id' => $file->id,
-                        'new_media_id' => $newMedia->id,
-                        'file_name' => $fileName,
-                        'request_id' => $requestId
+                        'file_path' => $originalFilePath
                     ]);
-                } catch (\Exception $e) {
-                    Log::error('Error moving file', [
-                        'file_id' => $file->id,
-                        'file_name' => $fileName,
-                        'request_id' => $requestId,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
-                    throw $e; // Re-throw to trigger transaction rollback
+                    continue; // Skip this file
                 }
+
+                // Store custom properties except 'temporary'
+                $customProperties = collect($file->custom_properties)
+                    ->filter(function ($value, $key) {
+                        return $key !== 'temporary';
+                    })
+                    ->toArray();
+
+                // Add the file to the instruction request using the addMedia method
+                // This will properly trigger the path generator to create the file in the correct location
+                $newMedia = $instructionRequest->addMedia($originalFilePath)
+                    ->usingName($file->name)
+                    ->usingFileName($file->file_name)
+                    ->withCustomProperties(array_merge($customProperties, ['temporary' => false]))
+                    ->toMediaCollection('materials');
+
+                // Log successful file association
+                Log::info('File successfully associated', [
+                    'original_file_id' => $file->id,
+                    'new_media_id' => $newMedia->id,
+                    'file_name' => $fileName,
+                    'new_file_path' => $newMedia->getPath(),
+                    'request_id' => $requestId
+                ]);
+
+                $filesProcessed++;
             }
 
+            // Delete the media attached to the temporary upload
+            // This will also delete the physical files in the temp directory
+            foreach ($files as $file) {
+                $file->delete();
+            }
+
+            // Delete the temporary upload record
+            $temporaryUpload->delete();
+
             DB::commit();
+
+            Log::info('File association completed', [
+                'success' => $filesProcessed > 0 ? 'true' : 'false',
+                'token' => $token,
+                'request_id' => $requestId,
+                'files_processed' => $filesProcessed
+            ]);
+
+            return $filesProcessed > 0;
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('File association failed, transaction rolled back', [
@@ -422,11 +452,6 @@ class MediaController extends Controller
             ]);
             return false;
         }
-
-        // Delete the temporary upload record.
-        $temporaryUpload->delete();
-
-        return $filesProcessed > 0;
     }
 
     /**

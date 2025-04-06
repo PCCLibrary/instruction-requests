@@ -137,6 +137,17 @@
       0 => 'SocialiteProviders\\Manager\\ServiceProvider',
     ),
   ),
+  'spatie/laravel-google-calendar' => 
+  array (
+    'aliases' => 
+    array (
+      'GoogleCalendar' => 'Spatie\\GoogleCalendar\\GoogleCalendarFacade',
+    ),
+    'providers' => 
+    array (
+      0 => 'Spatie\\GoogleCalendar\\GoogleCalendarServiceProvider',
+    ),
+  ),
   'spatie/laravel-honeypot' => 
   array (
     'providers' => 
