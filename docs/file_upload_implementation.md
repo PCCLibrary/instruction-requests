@@ -14,6 +14,7 @@ This document outlines the changes made to enhance the file upload system for th
 - Refactored file association to use Spatie's native `move()` method
 - Implemented database transactions for file associations
 - Updated MediaController to use consistent configuration keys and column names
+- Fixed URL generation issue for associated files by explicitly setting the `temporary` property to `false`
 
 ## File Upload Architecture
 
@@ -82,32 +83,47 @@ The new file association process uses Spatie Media Library's native methods for 
 
 ### Key Changes in the `associateFiles()` Method:
 
+When creating new media records during file association, we now explicitly set the `temporary` property to `false`:
+
 ```php
-// Use Spatie's move method to transfer the file to the instruction request
-try {
-    // Copy custom properties before moving
-    $customProperties = $file->custom_properties;
-    $customProperties['temporary'] = false;
-
-    // Move the file to the instruction request and the materials collection
-    $newMedia = $file->move($instructionRequest, 'materials');
-
-    // Update custom properties on the moved file
-    foreach ($customProperties as $key => $value) {
-        $newMedia->setCustomProperty($key, $value);
-    }
-    $newMedia->save();
-} catch (\Exception $e) {
-    Log::error('Error moving file', [
-        'file_id' => $file->id,
-        'file_name' => $fileName,
-        'request_id' => $requestId,
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
-    throw $e; // Re-throw to trigger transaction rollback
-}
+// Add the file to the instruction request using the addMedia method
+$newMedia = $instructionRequest->addMedia($originalFilePath)
+    ->usingName($file->name)
+    ->usingFileName($file->file_name)
+    ->withCustomProperties(array_merge($customProperties, ['temporary' => false]))
+    ->toMediaCollection('materials');
 ```
+
+This ensures that the URL generation in `CustomPathGenerator` correctly uses the permanent path instead of the temporary one.
+
+#### URL Generation Fix
+
+We identified a critical issue where files were successfully moved to the correct physical folders (uploads/YYYY/MM/), but their URLs in the Blade templates were still pointing to the temporary location (uploads/temp/). This was caused by:
+
+1. The `CustomPathGenerator` checking for the `temporary` property with a default value:
+   ```php
+   // In CustomPathGenerator.php
+   if (empty($media->model_id) || $media->model_id === 0 || $media->getCustomProperty('temporary', true)) {
+       $path = 'uploads/temp/';
+       // ...
+   }
+   ```
+
+2. When the property wasn't explicitly set, it defaulted to `true`, causing all URLs to point to the temporary directory.
+
+The fix involves:
+
+1. Explicitly setting `'temporary' => false` when creating media records
+2. Updating the `CustomPathGenerator` to default to `false` instead of `true`:
+   ```php
+   // Changed from
+   $media->getCustomProperty('temporary', true)
+   
+   // To
+   $media->getCustomProperty('temporary', false)
+   ```
+
+This ensures correct URL generation for all files, making them accessible from their permanent locations.
 
 ## Common Issues and Debugging
 
@@ -136,6 +152,12 @@ When encountering file upload issues, check these common problems first:
 6. **Media Library Configuration**: Verify the media-library configuration is correct.
    - Should use 'public' disk: `'disk_name' => env('MEDIA_DISK', 'public')`
    - Max file size setting: `max_file_size' => 1024 * 1024 * 20 // 20MB`
+
+7. **URL Generation Issues**: If files physically exist in the permanent folder but URLs still point to temporary location:
+   - Check that associated files have `temporary` property explicitly set to `false`
+   - Verify that `CustomPathGenerator` has the correct default value (`false`) for the `temporary` property
+   - Clear the media cache using `php artisan cache:clear`
+   - Check permissions on both the temporary and permanent directories
 
 ## Detailed Implementation Improvements
 
@@ -250,6 +272,7 @@ When files are uploaded via Dropzone but not saved to the server, check:
    - Clear Laravel cache: `php artisan cache:clear`
    - Verify `uploads/temp` directory exists in storage
    - Check error logs for specific failures
+   - For URL mismatches between physical location and Blade templates, check the `temporary` property settings in both `MediaController::associateFiles()` and `CustomPathGenerator::getPath()`
 
 ## Design Decisions
 
