@@ -26,7 +26,7 @@ class UpdateInstructionRequestRequest extends FormRequest
             'alternate_datetime' => 'sometimes|nullable|date',
             'duration' => 'sometimes|nullable|string',
             'asynchronous_instruction_ready_date' => 'sometimes|nullable|date',
-            'status' => 'sometimes|required|string|in:received,assigned,accepted,rejected,completed',
+            'status' => 'sometimes|required|string|in:received,assigned,accepted,rejected,scheduled,completed',
             'class_description' => 'sometimes|nullable|string',
             'assignment_description' => 'sometimes|nullable|string',
             'ada_provisions_needed' => 'sometimes|boolean',

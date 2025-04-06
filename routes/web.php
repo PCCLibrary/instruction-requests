@@ -151,6 +151,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         ->name('instructionRequests.accept');
     Route::post('instructionRequests/{id}/reject', [InstructionRequestController::class, 'reject'])
         ->name('instructionRequests.reject');
+    Route::delete('instructionRequests/{id}/calendar-event', [InstructionRequestController::class, 'deleteCalendarEvent'])
+        ->name('instructionRequests.deleteCalendarEvent');
 
     /*
     |--------------------------------------------------------------------------

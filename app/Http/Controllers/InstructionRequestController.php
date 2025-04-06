@@ -20,6 +20,7 @@ class InstructionRequestController extends AppBaseController
     public function __construct(
         private readonly InstructionRequestService $instructionRequestService,
         private readonly DepartmentService $departmentService,
+        private readonly \App\Services\CalendarService $calendarService,
     ) {}
 
     /**
@@ -279,6 +280,43 @@ class InstructionRequestController extends AppBaseController
         return redirect(route('instructionRequests.edit', $id));
     }
 
+    /**
+     * Delete a Google Calendar event for an instruction request.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function deleteCalendarEvent(int $id): RedirectResponse
+    {
+        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+        
+        if (empty($instructionRequest)) {
+            session()->flash('error', 'Instruction Request not found.');
+            return redirect(route('instructionRequests.index'));
+        }
+        
+        // Load the calendar event if not already loaded
+        if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
+            $instructionRequest->load('googleCalendarEvent');
+        }
+        
+        if (!$instructionRequest->googleCalendarEvent) {
+            session()->flash('error', 'No calendar event found for this request.');
+            return redirect(route('instructionRequests.edit', $id));
+        }
+        
+        // Use calendar service to delete the event
+        $result = $this->calendarService->deleteEvent($instructionRequest->googleCalendarEvent);
+        
+        if ($result) {
+            session()->flash('success', 'Calendar event deleted successfully.');
+        } else {
+            session()->flash('error', 'Failed to delete calendar event.');
+        }
+        
+        return redirect(route('instructionRequests.edit', $id));
+    }
+    
     /**
      * Fetch related data for the instruction request and append to the object.
      *

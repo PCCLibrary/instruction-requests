@@ -156,6 +156,16 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
+    
+    /**
+     * Get the Google Calendar event associated with this instruction request.
+     * 
+     * @return HasOne
+     */
+    public function googleCalendarEvent(): HasOne
+    {
+        return $this->hasOne(GoogleCalendarEvent::class, 'instruction_request_id');
+    }
 
     /**
      * Validation rules for instruction requests.
