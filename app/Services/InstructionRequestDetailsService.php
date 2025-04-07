@@ -67,6 +67,18 @@ class InstructionRequestDetailsService implements InstructionRequestDetailsServi
             DB::enableQueryLog();
 
             try {
+                // Clone to keep original state for logging
+                $originalDetails = clone $details;
+                
+                // Debug the assigned_librarian_id specifically
+                if (isset($data['assigned_librarian_id'])) {
+                    Log::info('Updating assigned_librarian_id', [
+                        'from' => $details->assigned_librarian_id,
+                        'to' => $data['assigned_librarian_id'],
+                        'data_type' => gettype($data['assigned_librarian_id'])
+                    ]);
+                }
+                
                 // Update using the repository
                 $updatedDetails = $this->repository->update($data, $details->id);
 
@@ -74,11 +86,15 @@ class InstructionRequestDetailsService implements InstructionRequestDetailsServi
                 $queries = DB::getQueryLog();
                 Log::debug('SQL Query:', end($queries));
 
+                // Check if the assigned_librarian_id actually changed
+                $changed = $originalDetails->assigned_librarian_id != $updatedDetails->assigned_librarian_id;
+                
                 // Verify the update
                 Log::info('Update verification', [
                     'details_id' => $updatedDetails->id,
+                    'original_assigned_librarian' => $originalDetails->assigned_librarian_id,
                     'new_assigned_librarian' => $updatedDetails->assigned_librarian_id,
-                    'values_updated' => true
+                    'assigned_librarian_changed' => $changed ? 'yes' : 'no'
                 ]);
 
                 return $updatedDetails;

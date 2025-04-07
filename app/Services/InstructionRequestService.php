@@ -269,6 +269,17 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             $updatedRequest = $instructionRequest->fresh(['detail', 'instructor', 'classes', 'campus']);
 
+            // Add enhanced logging for debugging the assigned librarian issue
+            Log::info('Final state after update', [
+                'request_id' => $id,
+                'old_status' => $oldStatus,
+                'new_status' => $updatedRequest->status,
+                'old_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id ?? 'not set',
+                'new_assigned_librarian' => $updatedRequest->detail->assigned_librarian_id ?? 'not set',
+                'details_data_had_librarian' => isset($detailsData['assigned_librarian_id']) ? 'yes' : 'no',
+                'details_librarian_value' => $detailsData['assigned_librarian_id'] ?? 'not present'
+            ]);
+
             if ($updatedRequest->status !== $oldStatus) {
                 $this->handleStatusChange($updatedRequest, $oldStatus, $updatedRequest->status);
             }

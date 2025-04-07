@@ -11,9 +11,36 @@
 @endsection
 
 @section('content')
-    @if($instructionRequest->status === 'assigned' && $instructionRequest->detail->assigned_librarian_id === auth()->id())
+    @if($instructionRequest->status === 'assigned' && $instructionRequest->detail && $instructionRequest->detail->assigned_librarian_id === auth()->id())
         @include('instruction-requests.partials.edit.accept')
     @endif
+    
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            // Listen for the calendar event created event and reload the page
+            Livewire.on('googleCalendarEventCreated', (requestId) => {
+                // Wait a moment to allow the server to process the status change
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            });
+            
+            // Listen for the beforeCreateEvent event and update the Livewire component with current form values
+            Livewire.on('beforeCreateEvent', () => {
+                // Get current form values
+                const instructionDateTime = document.getElementById('instruction_datetime').value;
+                const instructionDuration = document.getElementById('instruction_duration').value;
+                
+                console.log('Current form values for calendar event:', {
+                    instructionDateTime,
+                    instructionDuration
+                });
+                
+                // TODO: Add code to update the Livewire component with these values
+                // This would require a method in the Livewire component to receive these values
+            });
+        });
+    </script>
 
     <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}"
           id="updateInstructionRequestForm"

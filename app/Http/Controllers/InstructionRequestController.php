@@ -119,8 +119,13 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
-        // Ensure we have the most recent media associations
+        // Ensure we have the most recent data
         $instructionRequest->refresh();
+        
+        // Ensure calendar event relationship is loaded
+        if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
+            $instructionRequest->load('googleCalendarEvent');
+        }
 
         // Get the materials media collection
         $materials = $instructionRequest->getMedia('materials');
@@ -144,10 +149,12 @@ class InstructionRequestController extends AppBaseController
      */
     public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
+        // Enhanced logging for debugging
         Log::info('Controller received update request', [
             'id' => $id,
             'raw_input' => $request->all(),
-            'validated_data' => $request->validated()
+            'validated_data' => $request->validated(),
+            'assigned_librarian_id' => $request->input('assigned_librarian_id')
         ]);
 
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);

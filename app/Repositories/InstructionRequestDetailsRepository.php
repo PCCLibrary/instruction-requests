@@ -56,7 +56,8 @@ class InstructionRequestDetailsRepository extends BaseRepository
     {
         Log::info('Repository performing update', [
             'id' => $id,
-            'update_data' => $data
+            'update_data' => $data,
+            'has_assigned_librarian' => isset($data['assigned_librarian_id']) ? 'yes' : 'no'
         ]);
 
         DB::enableQueryLog();
@@ -68,6 +69,21 @@ class InstructionRequestDetailsRepository extends BaseRepository
             Log::info('Before update state', [
                 'assigned_librarian_id' => $model->assigned_librarian_id
             ]);
+            
+            // Force type conversion for assigned_librarian_id if it exists
+            if (isset($data['assigned_librarian_id'])) {
+                // Convert to integer or null
+                $data['assigned_librarian_id'] = 
+                    (is_null($data['assigned_librarian_id']) || $data['assigned_librarian_id'] === '')
+                    ? null
+                    : (int)$data['assigned_librarian_id'];
+                
+                Log::info('Converted assigned_librarian_id', [
+                    'original' => $model->assigned_librarian_id,
+                    'new_value' => $data['assigned_librarian_id'], 
+                    'type' => gettype($data['assigned_librarian_id'])
+                ]);
+            }
 
             // Perform update using query builder to force it
             DB::table('instruction_request_details')
@@ -83,7 +99,9 @@ class InstructionRequestDetailsRepository extends BaseRepository
             // Get fresh model and log after state
             $refreshed = $model->fresh();
             Log::info('After update state', [
-                'assigned_librarian_id' => $refreshed->assigned_librarian_id
+                'assigned_librarian_id' => $refreshed->assigned_librarian_id,
+                'instruction_datetime' => $refreshed->instruction_datetime,
+                'instruction_duration' => $refreshed->instruction_duration
             ]);
 
             return $refreshed;
