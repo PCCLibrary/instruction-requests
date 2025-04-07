@@ -667,16 +667,18 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 ## 11. Progress Update
 
 ### Completed Items
+- ✅ Created database migration for google_calendar_events table
 - ✅ Created GoogleCalendarEvent model with relationships
 - ✅ Added relationship to InstructionRequests model
 - ✅ Implemented CalendarService with core methods
-- ✅ Updated status validation to include 'scheduled' status
-- ✅ Added deleteCalendarEvent method to InstructionRequestController
-- ✅ Added route for calendar event deletion
+- ✅ Modified InstructionRequestController to handle event deletion
+- ✅ Added new status options (`scheduled`, `rejected`)
+- ✅ Added routes for calendar event functionality
+- ✅ Implemented calendar ID extraction from campus URLs
 
 ### Remaining Tasks
-- ❌ Create the migration for google_calendar_events table
-- ❌ Implement Livewire component for event creation
-- ❌ Create the component's Blade template
-- ❌ Add UI elements to instruction request edit view
-- ❌ Test the complete implementation
+- ❌ Complete the Livewire component for event creation
+- ❌ Finalize the Blade template for the component
+- ❌ Fully integrate UI elements in the instruction request edit view
+- ❌ Implement comprehensive testing
+- ❌ Add event update functionality for when request details change

@@ -1,123 +1,165 @@
-# Library Instruction System Reference Document
+# Library Instruction System Reference Guide
 
 ## System Overview
 
-The Library Instruction System is a Laravel 11 web application designed to streamline the process of scheduling and managing library instruction sessions between faculty and librarians at Portland Community College.
+The Library Instruction System is a Laravel 11 web application designed to streamline scheduling and management of library instruction sessions between faculty and librarians at Portland Community College.
 
-## Technical Stack
-- Framework: Laravel 11
-- Frontend: Livewire 3, Alpine.js, Tailwind CSS, Livewire PowerGrid 6.1
-- File Management: Spatie Media Library
-- UI Components: Custom Blade components
-- File Upload: Dropzone.js
-- Authentication: Standard Laravel authentication
+## Core Components
 
-## Core Features
+### Request Lifecycle
 
-### Request Workflow
-1. Faculty submits instruction request via public form
+1. Faculty submits instruction request through public form
 2. System creates/links instructor record
 3. Request enters `received` status
-4. Request can be assigned to a librarian (status → `assigned`)
-5. Librarian can accept or reject (status → `accepted` or back to `received`)
-6. Request can be marked as scheduled with Google Calendar (status → `scheduled`)
-7. Request can be marked completed (status → `completed`)
+4. Librarians can view, assign, accept, and manage requests
+5. Calendar events can be scheduled for sessions
 
 ### Request Statuses
+
 - `received`: Initial state when faculty submits request
-- `assigned`: Request assigned to a librarian
-- `accepted`: Librarian confirmed they'll teach the session
-- `scheduled`: Calendar event has been created (new)
-- `rejected`: Librarian rejected the assignment (new/planned)
+- `assigned`: Librarian has been assigned to the request
+- `accepted`: Librarian has confirmed they'll handle the session
+- `scheduled`: Session has been added to Google Calendar
 - `completed`: Session has been completed
+- `rejected`: Request returned to received state and reassignable
 - `copied`: Duplicate of existing request (for repeat sessions)
 
-### File Management
-- Token-based secure file uploads with Dropzone.js
-- Temporary file storage & automatic cleanup (24-hour expiration)
-- Progressive file path structure:
-  - `uploads/temp/`: Temporary uploads
-  - `uploads/YYYY/MM/`: New date-based organization (since March 2025)
-  - `uploads/{request_id}/`: Legacy structure (pre-March 2025)
-- Support for PDF, Word, PowerPoint, and text documents
-
-## Components & Models
-
 ### Key Models
-- `InstructionRequests`: Main request with basic info
-- `InstructionRequestDetails`: Extended request information
-- `Instructor`: Faculty member information
-- `Classes`: Course information
-- `Campus`: Location information
-- `User`: Librarian accounts
-- `GoogleCalendarEvent`: Calendar event mapping (new)
-- `TemporaryUpload`: Token-based file upload management
 
-### Implemented Services
-- `InstructionRequestService`: Manages request lifecycle
-- `InstructionRequestDetailsService`: Handles extended request info
-- `CalendarService`: Google Calendar integration (new)
-- `DepartmentService`: Department data management
-- `MediaController`: File upload handling
+- `InstructionRequests`: Central model
+- `InstructionRequestDetails`: Additional fields for requests
+- `Instructor`: Faculty member requesting instruction
+- `Campus`: Campus information with Google Calendar links
+- `User`: Librarians who manage the requests
+- `GoogleCalendarEvent`: Tracking calendar integration
 
-## Feature Status
+## Completed Features
 
-### Completed Features
-- ✅ Request creation and management
-- ✅ Status update workflow
-- ✅ File attachments with token-based security
-- ✅ Dashboard views for librarians
-- ✅ Instructor management
-- ✅ Custom Path Generator for file organization
-- ✅ File cleanup and management
+1. **Core Request Management**
+   - Request creation and editing
+   - Status management workflow (receive → assign → accept → complete)
+   - Request copying for repeat sessions
+   - Dashboard views for librarians
 
-### In Progress Features
-- 🔄 Google Calendar integration
-  - Data model and service layer implemented
-  - UI components partially implemented
-  - Event creation/deletion routes added
-- 🔄 Refactoring notification system
-  - Moving from controllers to service layer
-  - Adding support for new status transitions
+2. **File Handling**
+   - Spatie Media Library integration
+   - Dropzone.js for drag-and-drop uploads
+   - Token-based security for unauthenticated uploads
+   - Modern file structure (year/month directories)
+   - Automatic temporary file cleanup
 
-### Planned Features
-- 📝 Full Google Calendar synchronization
-- 📝 Enhanced notification system for all status changes
-- 📝 Role-based access control
-- 📝 Analytics dashboard
-- 📝 Admin dashboard for drag-and-drop file management
-- 📝 File browser for selecting and reusing existing uploads
-- 📝 File versioning for document revisions
+3. **UI Improvements**
+   - Tailwind CSS styling
+   - Alpine.js for interactive components
+   - Livewire 3 integration
+   - Responsive design
+   - Blade components for UI consistency
 
-## Deployment & Environment
+4. **Notification System**
+   - Status-based notifications
+   - Service-based notification handling
+   - Consistent notification triggers
 
-### Environment Requirements
+## Features In Progress
+
+1. **Google Calendar Integration**
+   - Backend infrastructure is largely complete:
+     - Database migration for `google_calendar_events` table
+     - `GoogleCalendarEvent` model with relationships
+     - `CalendarService` with methods for creating and deleting events
+     - Calendar ID extraction from campus URLs
+     - `InstructionRequestController` updated to handle event deletion
+     - Routes added for calendar event functionality
+   - Frontend components still needed:
+     - Complete the Livewire component for event creation
+     - Finalize Blade template for the component
+     - Fully integrate UI elements in the instruction request edit view
+
+2. **File Management Improvements**
+   - Consolidated "materials" collection
+   - Enhanced file association process
+   - More robust error handling
+   - Better logging for troubleshooting
+   - Custom path generation with separate temp storage
+
+## Features Planned
+
+1. **Standalone Public Form**
+   - Vite + Svelte implementation
+   - WordPress site embedding
+   - Same web root but not integrated with Laravel app
+   - Client-side validation
+   - Drag & drop file uploads
+   - Status updates for successful/failed submissions
+   - Future: View request summary with ID parameter
+
+2. **File Browser**
+   - Centralized file management
+   - Associate existing files with requests
+   - Streamlined UI for librarians
+
+## Technical Details
+
+### Environment
+- Laravel 11
 - PHP 8.2+
-- Composer dependencies
-- Node.js for frontend compilation
-- Storage directory permissions
-- America/Los_Angeles timezone
-- YYYY-MM-DD H:i:s date format
+- Timezone: America/Los_Angeles
+- Livewire 3
+- Tailwind CSS
+- Alpine.js
+- Spatie Media Library
 
-### Deployment Scripts
-- `deploy.sh`: Environment-specific deployment automation
-- Environment files: .env.local, .env.testing, .env.production
-- Automatic SELinux context configuration for RHEL/CentOS/Fedora
+### File Upload Architecture
 
-## Common Issues & Troubleshooting
+1. **Temporary Uploads (Public Form)**
+   - Path: `uploads/temp/`
+   - Files initially stored here
+   - Associated with a request upon submission
+   - Have a `temporary` custom property set to `true`
 
-### File Upload Issues
-- Storage symlink broken or missing (fix: `php artisan storage:link`)
-- Directory permissions incorrect (fix: check web server write access)
-- Token management issues (check TemporaryUpload records)
-- URL generation issues with temporary property
+2. **Date-Based Organization (Dashboard)**
+   - Path: `uploads/YYYY/MM/`
+   - Organized by upload date
+   - Only a single "materials" collection
+   - No `temporary` property
+   - For files uploaded after March 1, 2025
 
-### Configuration Issues
-- Media Library disk configuration (check `media-library.php`)
-- Filesystem configuration (check `filesystems.php`) 
-- Cache conflicts (run `php artisan cache:clear`)
+3. **Legacy Structure**
+   - Path: `uploads/{request_id}/`
+   - Files uploaded before March 2025
+   - Maintained for compatibility
 
-## Maintenance Tasks
-- File cleanup: `php artisan media:cleanup-temp`
-- Cache clearing: `php artisan cache:clear`
-- Storage link verification: `php artisan storage:link`
+### Deployment Considerations
+
+1. **File Permissions**
+   - Storage directory must be writable
+   - Symbolic link from `public/storage` to `storage/app/public`
+   - Required directories created automatically
+
+2. **Deployment Script**
+   - Environment-specific configuration
+   - Cache clearing
+   - Permission setting
+   - SELinux context configuration
+
+### Common Issues & Troubleshooting
+
+1. **File Uploads**
+   - Storage symlink issues
+   - Directory permissions
+   - Token management
+   - MediaLibrary configuration
+   - URL generation for temporary files
+
+2. **Performance**
+   - Check for cached views or routes
+   - Verify configuration cache status
+   - Monitor log for slow queries
+
+## Development Notes
+
+- No plans for comprehensive role or permissions enhancements
+- Focus on workflow improvements, not feature expansion
+- Maintain proof-of-concept/prototype scope
+- Always use "materials" collection for file uploads
+- Temporary files cleaned up automatically after 24 hours
