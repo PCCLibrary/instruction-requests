@@ -14,7 +14,7 @@
     @if($instructionRequest->status === 'assigned' && $instructionRequest->detail && ($instructionRequest->detail->assigned_librarian_id == auth()->id()))
         @include('instruction-requests.partials.edit.accept')
     @endif
-    
+
     <script>
         document.addEventListener('livewire:initialized', () => {
             // Listen for the calendar event created event and reload the page
@@ -24,18 +24,18 @@
                     window.location.reload();
                 }, 1000);
             });
-            
+
             // Listen for the beforeCreateEvent event and update the Livewire component with current form values
             Livewire.on('beforeCreateEvent', () => {
                 // Get current form values
                 const instructionDateTime = document.getElementById('instruction_datetime').value;
                 const instructionDuration = document.getElementById('instruction_duration').value;
-                
+
                 console.log('Current form values for calendar event:', {
                     instructionDateTime,
                     instructionDuration
                 });
-                
+
                 // TODO: Add code to update the Livewire component with these values
                 // This would require a method in the Livewire component to receive these values
             });
@@ -53,6 +53,13 @@
             console.log('Form initialized, edit state:', this.isEditing);
             Alpine.store('formState', {
                 isEditing: this.isEditing
+            });
+        },
+        const form = document.getElementById('updateInstructionRequestForm');
+            form.addEventListener('submit', (event) => {
+            console.log('Form submit event triggered, edit state:', this.isEditing);
+            // Allow form submission regardless of edit state
+            return true;
             });
         },
         toggleEdit() {

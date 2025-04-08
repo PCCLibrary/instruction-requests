@@ -55,6 +55,8 @@
                         'received' => 'bg-yellow-100 text-yellow-800',
                         'assigned' => 'bg-blue-100 text-blue-800',
                         'accepted' => 'bg-green-100 text-green-800',
+                        'scheduled' => 'bg-gold-100 text-gold-800',
+                        'rejected' => 'bg-red-100 text-red-800',
                         'completed' => 'bg-gray-100 text-gray-800',
                         default => 'bg-gray-100 text-gray-800'
                     } }}">
