@@ -12,11 +12,11 @@
         if (statusSelect.value === 'received') {
             statusSelect.value = 'assigned';
         }
-        
+
         // Enhanced console logging for debugging
         const librarianSelect = document.getElementById('assigned_librarian_id');
         const selectedLibrarian = librarianSelect.options[librarianSelect.selectedIndex];
-        
+
         console.log('LIBRARIAN SELECTION CHANGED', {
             librarian_id: librarianSelect.value,
             librarian_name: selectedLibrarian ? selectedLibrarian.text : 'Unknown',
@@ -94,21 +94,10 @@
         </div>
     @endif
 
-    @if($instructionRequest->status == 'scheduled' && $instructionRequest->relationLoaded('googleCalendarEvent') && $instructionRequest->googleCalendarEvent)
+    @if($instructionRequest->status == 'scheduled')
         <hr class="mb-6" />
         <div class="my-4">
-            <form method="POST" action="{{ route('instructionRequests.deleteCalendarEvent', $instructionRequest->id) }}"
-                  onsubmit="return confirm('Are you sure you want to delete this calendar event? This will set the request status back to accepted.');">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete Calendar Event
-                </button>
-            </form>
+                @livewire('delete-google-calendar-event', ['requestId' => $instructionRequest->id])
         </div>
     @endif
 </div>

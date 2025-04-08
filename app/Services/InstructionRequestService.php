@@ -143,7 +143,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             'raw_data' => $data,
             'assigned_librarian_id' => $data['assigned_librarian_id'] ?? 'not set'
         ]);
-        
+
         // Debug dump of all data for comprehensive logging
         Log::debug('COMPLETE DATA DUMP FOR UPDATE', $data);
 
@@ -207,7 +207,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'assigned_librarian_id',
                 'room'
             ]));
-            
+
             // Detailed logging of details data extraction
             Log::info('DETAILS DATA EXTRACTION', [
                 'extracted_details_data' => $detailsData,
@@ -266,18 +266,18 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                     'new_assigned_librarian' => $detailsData['assigned_librarian_id'] ?? null,
                     'details_data_keys' => array_keys($detailsData)
                 ]);
-                
+
                 // Dump complete details for debugging
                 Log::debug('COMPLETE DETAILS DATA', $detailsData);
 
                 $detailsData['last_updated_by'] = auth()->user()?->display_name ?? 'System';
-                
+
                 // Log the exact parameters being passed to the details service
                 Log::info('CALLING detailsService->updateInstructionRequestDetails', [
                     'instruction_request_id' => $id,
                     'assigned_librarian_id' => $detailsData['assigned_librarian_id'] ?? 'NOT SET'
                 ]);
-                
+
                 $updatedDetails = $this->detailsService->updateInstructionRequestDetails($detailsData, $id);
 
                 Log::info('AFTER DETAILS UPDATE', [
@@ -422,15 +422,22 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     protected function handleStatusChange(InstructionRequests $request, string $oldStatus, string $newStatus): void
     {
-        Log::info('Handling status change', [
+        // Comprehensive logging for all status changes
+        $logContext = [
             'request_id' => $request->id,
             'old_status' => $oldStatus,
-            'new_status' => $newStatus
-        ]);
+            'new_status' => $newStatus,
+            'changed_by' => auth()->check() ? auth()->user()->id : 'system',
+            'changed_at' => now()->toDateTimeString(),
+            'instructor_id' => $request->instructor_id,
+            'librarian_id' => $request->detail?->assigned_librarian_id,
+            'campus_id' => $request->campus_id
+        ];
 
         try {
             // Initial request received
             if ($newStatus === 'received' && $oldStatus === '') {
+                Log::info('New instruction request received', $logContext);
                 // Notify instructor
                 if ($request->instructor) {
                     $request->instructor->notify(new RequestReceivedNotification(
@@ -455,6 +462,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             // Request assigned to librarian
             if ($newStatus === 'assigned' && $request->detail?->assigned_librarian_id) {
+                Log::info('Instruction request assigned to librarian', $logContext);
                 $librarian = User::find($request->detail->assigned_librarian_id);
                 if ($librarian) {
                     $librarian->notify(new RequestAssignedNotification(
@@ -467,6 +475,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             // Request accepted by librarian
             if ($newStatus === 'accepted' && $request->instructor) {
+                Log::info('Instruction request accepted by librarian', $logContext);
                 $request->instructor->notify(new RequestAcceptedNotification(
                     $request->id,
                     $oldStatus,
@@ -475,7 +484,9 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             }
 
             // Request rejected (status changed back to received)
-            if ($oldStatus === 'assigned' && $newStatus === 'received' && $request->campus) {
+            if ($oldStatus === 'assigned' && $newStatus === 'rejected' && $request->campus) {
+                Log::info('Instruction request rejected', $logContext);
+
                 // Notify campus librarians
                 if (!empty($request->campus->librarian_ids)) {
                     User::whereIn('id', $request->campus->librarian_ids)
@@ -489,14 +500,17 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 }
             }
 
-            // TODO: Implement calendar integration when status changes to 'scheduled'
-            /**
+            // Request scheduled
             if ($newStatus === 'scheduled') {
-            // Create calendar event
-            // Send calendar notification to instructor
-            // $request->instructor->notify(new RequestScheduledNotification($request));
+                Log::info('Instruction request scheduled', $logContext);
+                //  No notifications at this time.
             }
-             **/
+
+            // Request rejected (status changed back to received)
+            if ($oldStatus === 'assigned' && $newStatus === 'received' && $request->campus) {
+                Log::info('Instruction request rejected and returned to received status', $logContext);
+                // No notifications at this time.
+            }
 
         } catch (\Exception $e) {
             Log::error('Failed to send status change notifications', [
