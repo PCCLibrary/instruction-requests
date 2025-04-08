@@ -7,6 +7,8 @@
 <input type="hidden" name="last_updated_by" value="{{ $lastUpdatedBy }}">
 
 <div x-data="{
+    // Admin fields are always editable
+    isAlwaysEditable: true,
     handleLibrarianChange() {
         const statusSelect = document.getElementById('status');
         if (statusSelect.value === 'received') {

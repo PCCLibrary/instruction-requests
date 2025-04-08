@@ -31,7 +31,7 @@
     <x-input-label :value="$label" :for="$name" :required="$required" />
     <input
         {{ $attributes }}
-        x-bind:disabled="$store.editFormState?.isEditing === false"
+        x-bind:disabled="$store.formState?.isEditing === false"
     />
     @if($helptext)
         <x-helptext :name="$name" :helptext="$helptext" />

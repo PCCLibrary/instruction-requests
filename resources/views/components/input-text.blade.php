@@ -37,7 +37,7 @@
     @endif
     <input
         {{ $attributes }}
-        x-bind:disabled="$store.editFormState?.isEditing === false"
+        x-bind:disabled="$store.formState?.isEditing === false"
     />
     @if($helptext)
         <x-helptext :name="$name" :helptext="$helptext" />

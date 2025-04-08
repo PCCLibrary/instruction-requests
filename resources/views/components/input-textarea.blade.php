@@ -30,7 +30,7 @@
     <x-input-label :value="$label" :for="$name" :required="$required" />
     <textarea
         {{ $attributes }}
-        x-bind:disabled="$store.editFormState?.isEditing === false"
+        x-bind:disabled="$store.formState?.isEditing === false"
     >{{ old($name, $value) }}</textarea>
     @if($helptext)
         <x-helptext :name="$name" :helptext="$helptext" />
