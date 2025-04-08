@@ -54,15 +54,19 @@ class InstructionRequestDetailsRepository extends BaseRepository
     // In InstructionRequestDetailsRepository.php
     public function update(array $data, int $id): Model
     {
-        Log::info('Repository performing update', [
+        Log::info('REPOSITORY ENTRY: update method called', [
             'id' => $id,
-            'update_data' => $data,
-            'has_assigned_librarian' => isset($data['assigned_librarian_id']) ? 'yes' : 'no'
+            'has_assigned_librarian' => isset($data['assigned_librarian_id']) ? 'YES' : 'NO',
+            'assigned_librarian_id' => $data['assigned_librarian_id'] ?? 'NOT PROVIDED'
         ]);
+        
+        // Complete data dump for debugging
+        Log::debug('REPOSITORY UPDATE COMPLETE DATA DUMP', $data);
 
         DB::enableQueryLog();
 
         try {
+            // Using the correct ID - this is the primary key of the details record
             $model = $this->model->newQuery()->findOrFail($id);
 
             // Log before state
@@ -87,7 +91,7 @@ class InstructionRequestDetailsRepository extends BaseRepository
 
             // Perform update using query builder to force it
             DB::table('instruction_request_details')
-                ->where('id', $id)
+                ->where('id', $model->id)  // Use the model's ID to ensure we update the correct record
                 ->update($data);
 
             // Get and log queries
@@ -96,10 +100,17 @@ class InstructionRequestDetailsRepository extends BaseRepository
                 'queries' => $queries
             ]);
 
-            // Get fresh model and log after state
+            // Get fresh model and log after state - query the database directly to verify the actual value
             $refreshed = $model->fresh();
-            Log::info('After update state', [
-                'assigned_librarian_id' => $refreshed->assigned_librarian_id,
+            
+            // Do a direct DB query to verify the actual value in the database
+            $dbRecord = DB::table('instruction_request_details')
+                ->where('id', $model->id)
+                ->first();
+                
+            Log::info('AFTER UPDATE STATE - DIRECT DATABASE CHECK', [
+                'model_assigned_librarian_id' => $refreshed->assigned_librarian_id,
+                'db_query_assigned_librarian_id' => $dbRecord ? $dbRecord->assigned_librarian_id : 'DB RECORD NOT FOUND',
                 'instruction_datetime' => $refreshed->instruction_datetime,
                 'instruction_duration' => $refreshed->instruction_duration
             ]);

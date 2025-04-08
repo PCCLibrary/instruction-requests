@@ -43,17 +43,36 @@ class InstructionRequestDetailsService implements InstructionRequestDetailsServi
      */
     public function updateInstructionRequestDetails(array $data, int $instructionRequestId): ?InstructionRequestDetails
     {
-        Log::info('Starting details update', ['instruction_request_id' => $instructionRequestId]);
-        Log::debug('Details update data:', $data);
+        Log::info('DETAILS SERVICE ENTRY: updateInstructionRequestDetails', [
+            'instruction_request_id' => $instructionRequestId,
+            'has_assigned_librarian' => isset($data['assigned_librarian_id']) ? 'YES' : 'NO',
+            'assigned_librarian_value' => $data['assigned_librarian_id'] ?? 'NOT PRESENT'
+        ]);
+        
+        // Detailed dump of all incoming data
+        Log::debug('COMPLETE DETAILS SERVICE DATA DUMP:', $data);
 
         return DB::transaction(function () use ($data, $instructionRequestId) {
             // First, get the details record
+            Log::info('RETRIEVING DETAILS RECORD BY INSTRUCTION REQUEST ID', [
+                'instruction_request_id' => $instructionRequestId
+            ]);
+            
             $details = $this->getDetailsByInstructionRequestId($instructionRequestId);
 
             if (!$details) {
-                Log::warning('Details not found for update', ['instruction_request_id' => $instructionRequestId]);
+                Log::warning('DETAILS NOT FOUND FOR UPDATE - THIS IS A CRITICAL ERROR', [
+                    'instruction_request_id' => $instructionRequestId
+                ]);
                 return null;
             }
+            
+            Log::info('FOUND DETAILS RECORD', [
+                'details_id' => $details->id,
+                'instruction_request_id' => $instructionRequestId,
+                'current_assigned_librarian_id' => $details->assigned_librarian_id,
+                'current_assigned_librarian_type' => gettype($details->assigned_librarian_id)
+            ]);
 
             // Log the current state
             Log::info('Found details for update', [

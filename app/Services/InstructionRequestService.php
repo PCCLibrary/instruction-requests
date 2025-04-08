@@ -138,11 +138,14 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     public function updateInstructionRequest(array $data, int $id): InstructionRequests
     {
-        Log::info('Service received update data', [
+        Log::info('SERVICE ENTRY: updateInstructionRequest', [
             'id' => $id,
             'raw_data' => $data,
             'assigned_librarian_id' => $data['assigned_librarian_id'] ?? 'not set'
         ]);
+        
+        // Debug dump of all data for comprehensive logging
+        Log::debug('COMPLETE DATA DUMP FOR UPDATE', $data);
 
         return DB::transaction(function () use ($data, $id) {
             $instructionRequest = $this->findInstructionRequestById($id);
@@ -204,6 +207,14 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'assigned_librarian_id',
                 'room'
             ]));
+            
+            // Detailed logging of details data extraction
+            Log::info('DETAILS DATA EXTRACTION', [
+                'extracted_details_data' => $detailsData,
+                'has_assigned_librarian_id' => isset($detailsData['assigned_librarian_id']) ? 'YES' : 'NO',
+                'assigned_librarian_id_value' => $detailsData['assigned_librarian_id'] ?? 'NOT PRESENT',
+                'assigned_librarian_id_type' => isset($detailsData['assigned_librarian_id']) ? gettype($detailsData['assigned_librarian_id']) : 'N/A'
+            ]);
 
             // Extract instructor data
             $instructorData = array_intersect_key($data, array_flip([
@@ -248,18 +259,31 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             }
 
             if ($instructionRequest->detail && (!empty($detailsData))) {
-                Log::info('Before details update', [
+                Log::info('DETAIL UPDATE PREPARATION', [
+                    'instruction_request_id' => $id,
+                    'detail_id' => $instructionRequest->detail->id,
                     'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id,
                     'new_assigned_librarian' => $detailsData['assigned_librarian_id'] ?? null,
-                    'details_data' => $detailsData
+                    'details_data_keys' => array_keys($detailsData)
                 ]);
+                
+                // Dump complete details for debugging
+                Log::debug('COMPLETE DETAILS DATA', $detailsData);
 
                 $detailsData['last_updated_by'] = auth()->user()?->display_name ?? 'System';
+                
+                // Log the exact parameters being passed to the details service
+                Log::info('CALLING detailsService->updateInstructionRequestDetails', [
+                    'instruction_request_id' => $id,
+                    'assigned_librarian_id' => $detailsData['assigned_librarian_id'] ?? 'NOT SET'
+                ]);
+                
                 $updatedDetails = $this->detailsService->updateInstructionRequestDetails($detailsData, $id);
 
-                Log::info('After details update', [
+                Log::info('AFTER DETAILS UPDATE', [
                     'success' => $updatedDetails ? 'yes' : 'no',
-                    'final_assigned_librarian' => $updatedDetails?->assigned_librarian_id
+                    'final_assigned_librarian' => $updatedDetails?->assigned_librarian_id ?? 'NULL AFTER UPDATE',
+                    'detail_id' => $updatedDetails?->id ?? 'NO ID RETURNED'
                 ]);
             }
 

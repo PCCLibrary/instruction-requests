@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-    @if($instructionRequest->status === 'assigned' && $instructionRequest->detail && $instructionRequest->detail->assigned_librarian_id === auth()->id())
+    @if($instructionRequest->status === 'assigned' && $instructionRequest->detail && ($instructionRequest->detail->assigned_librarian_id == auth()->id()))
         @include('instruction-requests.partials.edit.accept')
     @endif
     

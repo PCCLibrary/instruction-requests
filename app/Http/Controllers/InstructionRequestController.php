@@ -173,14 +173,29 @@ class InstructionRequestController extends AppBaseController
 
         try {
             $validatedData = $request->validated();
-            Log::debug('Validated data before service call:', $validatedData);
+            // Comprehensive detailed logging of all request data
+            Log::debug('FULL REQUEST DATA', $request->all());
+            Log::debug('VALIDATED REQUEST DATA', $validatedData);
+            
+            // Specially log the assigned_librarian_id
+            if (isset($validatedData['assigned_librarian_id'])) {
+                Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
+                    'value' => $validatedData['assigned_librarian_id'],
+                    'type' => gettype($validatedData['assigned_librarian_id']),
+                    'raw_request_value' => $request->input('assigned_librarian_id')
+                ]);
+            } else {
+                Log::warning('assigned_librarian_id NOT FOUND in validated data');
+            }
 
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
 
             Log::info('Update completed', [
                 'id' => $id,
                 'updated_status' => $updated->status,
-                'has_details' => $updated->detail ? 'yes' : 'no'
+                'has_details' => $updated->detail ? 'yes' : 'no',
+                'detail_id' => $updated->detail ? $updated->detail->id : 'none',
+                'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
             ]);
 
             session()->flash('success', 'Instruction Request updated successfully.');

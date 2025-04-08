@@ -13,9 +13,14 @@
             statusSelect.value = 'assigned';
         }
         
-        // Add console logging for debugging
-        console.log('Librarian changed!', {
-            librarian: document.getElementById('assigned_librarian_id').value,
+        // Enhanced console logging for debugging
+        const librarianSelect = document.getElementById('assigned_librarian_id');
+        const selectedLibrarian = librarianSelect.options[librarianSelect.selectedIndex];
+        
+        console.log('LIBRARIAN SELECTION CHANGED', {
+            librarian_id: librarianSelect.value,
+            librarian_name: selectedLibrarian ? selectedLibrarian.text : 'Unknown',
+            librarian_element_type: typeof librarianSelect,
             status: statusSelect.value
         });
     }
