@@ -675,10 +675,40 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 - ✅ Added new status options (`scheduled`, `rejected`)
 - ✅ Added routes for calendar event functionality
 - ✅ Implemented calendar ID extraction from campus URLs
+- ✅ Completed the Livewire component for event creation
+- ✅ Finalized the Blade template for the component
+- ✅ Fully integrated UI elements in the instruction request edit view
+- ✅ Implemented form change detection for scheduling
+- ✅ Added reset functionality after successful form submission
+- ✅ Enhanced error handling and user feedback
+
+### Recent Enhancements
+
+#### Form Change Detection
+- Added Alpine.js store to track changes to critical scheduling fields (instruction_datetime and instruction_duration)
+- Implemented methods to check if duration is valid (must be present and > 0)
+- Added reset functionality after successful form submission
+- Maintained compatibility with the existing toggle edit functionality
+
+#### Schedule Button Enhancements
+- Added disabled state logic based on form changes and duration validity
+- Implemented visual feedback with warning messages
+- Used conditional Alpine.js classes for styling
+
+#### Livewire Component Improvements
+- Modified the CreateGoogleCalendarEventForm component to always fetch fresh data from the database
+- Added better logic for selecting start time and duration
+- Improved logging for debugging
+- Enhanced handling of edge cases with fallback values
+
+#### UI Integration
+- Ensured "Create Google Calendar Event" button is only clickable when there are no unsaved changes and valid duration is specified
+- Created workflow where calendar event form always uses the latest saved values from the database
+- Updated status handling for scheduled and deleted events
+- Improved user feedback for button states and errors
 
 ### Remaining Tasks
-- ❌ Complete the Livewire component for event creation
-- ❌ Finalize the Blade template for the component
-- ❌ Fully integrate UI elements in the instruction request edit view
-- ❌ Implement comprehensive testing
+- ❌ Implement automated testing for calendar integration
 - ❌ Add event update functionality for when request details change
+- ❌ Explore additional UI refinements for calendar integration
+- ❌ Consider future enhancements like calendar view and bulk operations
