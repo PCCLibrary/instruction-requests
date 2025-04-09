@@ -123,12 +123,41 @@
                 });
             }
             
-            // Handle form submission - CRITICAL - retains existing submission behavior
+            // Handle form submission regardless of edit state
             const form = document.getElementById('updateInstructionRequestForm');
+            
+            // Add hidden inputs for any disabled fields when the form is submitted
             form.addEventListener('submit', (event) => {
                 console.log('Form submit event triggered, edit state:', this.isEditing);
-                // Allow form submission regardless of edit state or unsaved changes
-                return true;
+                
+                // Process fields that might be disabled but need to be included in the form submission
+                form.querySelectorAll('input, select, textarea').forEach(element => {
+                    // Skip elements that are already enabled or don't have a name
+                    if (!element.disabled || !element.name) return;
+                    
+                    // Create a hidden input with the same name and value
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = element.name;
+                    
+                    // Get appropriate value based on input type
+                    if (element.type === 'checkbox' || element.type === 'radio') {
+                        hiddenInput.value = element.checked ? element.value : '';
+                    } else if (element.tagName === 'SELECT' && element.options.length) {
+                        hiddenInput.value = element.options[element.selectedIndex].value;
+                    } else {
+                        hiddenInput.value = element.value;
+                    }
+                    
+                    // Add temporary class for cleanup after submission
+                    hiddenInput.classList.add('temp-hidden-input');
+                    
+                    // Add to form
+                    form.appendChild(hiddenInput);
+                    console.log(`Added hidden input for disabled field: ${element.name}=${hiddenInput.value}`);
+                });
+                
+                // Form will continue submission normally
             });
         },
         toggleEdit() {
@@ -247,16 +276,22 @@
         </x-card>
     </div>
 
-    {{-- Reset change tracking when form submission is successful --}}
+    {{-- Reset change tracking and clean up temporary elements when form submission is successful --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if there's a success message (form was successfully saved)
             if (document.querySelector('.alert-success')) {
                 console.log('Form submission was successful, resetting change tracking');
+                
                 // Reset change tracking
                 if (typeof Alpine !== 'undefined' && Alpine.store('formState')) {
                     Alpine.store('formState').resetChangeTracking();
                 }
+                
+                // Clean up any temporary hidden input elements
+                document.querySelectorAll('.temp-hidden-input').forEach(el => {
+                    el.remove();
+                });
             }
         });
     </script>
