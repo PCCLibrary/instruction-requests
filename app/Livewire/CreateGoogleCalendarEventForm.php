@@ -40,50 +40,71 @@ class CreateGoogleCalendarEventForm extends Component
     public function showEventForm($requestId)
     {
         $this->requestId = $requestId;
-        
-        // Get current form values from the parent form
-        $this->updateFormValuesFromParent();
-        
-        // Find the instruction request with its related models
+
+        // Always load a fresh copy of the instruction request from the database
         $request = InstructionRequests::with(['instructor', 'detail', 'campus', 'librarian', 'classes'])
             ->findOrFail($requestId);
-        
+
+        // Log database values for debugging
+        Log::info('Database values for calendar event', [
+            'request_id' => $requestId,
+            'has_detail' => $request->detail ? 'yes' : 'no',
+            'instruction_datetime' => $request->detail->instruction_datetime ?? 'not set',
+            'instruction_duration' => $request->detail->instruction_duration ?? 'not set'
+        ]);
+
+        // Start with datetime from detail record
+        $startTime = null;
+        $duration = 60; // Default duration in minutes if none is specified
+
+        // Use instruction_datetime from detail if available
+        if ($request->detail && $request->detail->instruction_datetime) {
+            $startTime = Carbon::parse($request->detail->instruction_datetime);
+            // Also use duration from detail if available
+            if ($request->detail->instruction_duration) {
+                $duration = intval($request->detail->instruction_duration);
+            }
+        } else {
+            // Fall back to preferred_datetime if instruction_datetime is not set
+            if ($request->preferred_datetime) {
+                $startTime = Carbon::parse($request->preferred_datetime);
+                if ($request->duration) {
+                    $duration = intval($request->duration);
+                }
+            } else {
+                // Default to tomorrow at 9 AM if no times are set
+                $startTime = Carbon::now()->addDays(1)->setTime(9, 0);
+            }
+        }
+
         // Get pre-populated event data from the CalendarService
+        // This will handle formatting event title, description, etc.
         $calendarService = app(CalendarService::class);
         $eventData = $calendarService->getEventFormData($request);
-        
+
         // Pre-populate form fields from the event data
         $this->eventName = $eventData['event_title'];
-        
-        // Format the start and end times for datetime-local inputs
-        $this->startTime = Carbon::parse($eventData['start_time'])
-            ->format('Y-m-d\TH:i');
-        
-        $this->endTime = Carbon::parse($eventData['end_time'])
-            ->format('Y-m-d\TH:i');
-        
         $this->location = $eventData['location'];
         $this->description = $eventData['description'];
+
+        // Override the start and end times with our directly chosen values
+        // Format the start time for datetime-local input
+        $this->startTime = $startTime->format('Y-m-d\TH:i');
         
+        // Calculate end time based on the duration
+        $this->endTime = (clone $startTime)->addMinutes($duration)->format('Y-m-d\TH:i');
+
         // Store emails for attendees
         $this->instructorEmail = $request->instructor->email ?? '';
         $this->librarianEmail = $request->librarian->email ?? '';
-        
+
         Log::info('Loaded form values for calendar event', [
             'request_id' => $requestId,
             'event_name' => $this->eventName,
             'start_time' => $this->startTime,
-            'end_time' => $this->endTime
+            'end_time' => $this->endTime,
+            'duration_used' => $duration
         ]);
-    }
-    
-    /**
-     * Update form values from parent form if values have changed
-     */
-    private function updateFormValuesFromParent()
-    {
-        // We would implement this if needed later
-        // This would get the current instruction datetime and duration from the parent form
     }
     
     public function createEvent()
@@ -91,8 +112,9 @@ class CreateGoogleCalendarEventForm extends Component
         // Validate form data
         $this->validate();
         
-        // Get the request with campus
-        $request = InstructionRequests::with('campus')->findOrFail($this->requestId);
+        // Get the request with campus - load a fresh copy
+        $request = InstructionRequests::with(['campus', 'instructor', 'librarian', 'detail'])
+            ->findOrFail($this->requestId);
         
         // Get the calendar ID from the campus
         $calendarId = null;

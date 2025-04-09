@@ -49,17 +49,86 @@
           x-data="{
         isEditing: false,
         instructionType: '{{ $instructionRequest->instruction_type }}',
+        initialInstructionDatetime: '{{ $instructionRequest->detail->instruction_datetime }}',
+        initialDuration: '{{ $instructionRequest->detail->instruction_duration }}',
         initializeForm() {
             console.log('Form initialized, edit state:', this.isEditing);
+            
+            // Initialize the Alpine.js store with form state and change tracking
             Alpine.store('formState', {
-                isEditing: this.isEditing
+                isEditing: this.isEditing,
+                hasUnsavedChanges: false,
+                
+                // Store initial values for critical fields
+                initialValues: {
+                    instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
+                    instructionDuration: document.getElementById('instruction_duration')?.value || null
+                },
+                
+                // Check if critical scheduling fields have changed
+                checkForChanges() {
+                    const currentDatetime = document.getElementById('instruction_datetime')?.value || null;
+                    const currentDuration = document.getElementById('instruction_duration')?.value || null;
+                    
+                    this.hasUnsavedChanges = 
+                        (currentDatetime !== this.initialValues.instructionDatetime) || 
+                        (currentDuration !== this.initialValues.instructionDuration);
+                    
+                    console.log('Form changes detected:', {
+                        hasChanges: this.hasUnsavedChanges,
+                        original: this.initialValues,
+                        current: { 
+                            instructionDatetime: currentDatetime, 
+                            instructionDuration: currentDuration 
+                        }
+                    });
+                    
+                    return this.hasUnsavedChanges;
+                },
+                
+                // Reset change tracking (to be called after successful form submission)
+                resetChangeTracking() {
+                    this.hasUnsavedChanges = false;
+                    
+                    // Update stored initial values to match current values
+                    this.initialValues = {
+                        instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
+                        instructionDuration: document.getElementById('instruction_duration')?.value || null
+                    };
+                    
+                    console.log('Change tracking reset, new initial values:', this.initialValues);
+                },
+                
+                // Check if duration is valid for scheduling
+                hasDuration() {
+                    const durationInput = document.getElementById('instruction_duration');
+                    const duration = durationInput?.value || null;
+                    return duration && parseInt(duration) > 0;
+                }
             });
-        },
-        const form = document.getElementById('updateInstructionRequestForm');
+            
+            // Add event listeners for change detection
+            const datetimeInput = document.getElementById('instruction_datetime');
+            const durationInput = document.getElementById('instruction_duration');
+            
+            if (datetimeInput) {
+                datetimeInput.addEventListener('input', () => {
+                    Alpine.store('formState').checkForChanges();
+                });
+            }
+            
+            if (durationInput) {
+                durationInput.addEventListener('input', () => {
+                    Alpine.store('formState').checkForChanges();
+                });
+            }
+            
+            // Handle form submission - CRITICAL - retains existing submission behavior
+            const form = document.getElementById('updateInstructionRequestForm');
             form.addEventListener('submit', (event) => {
-            console.log('Form submit event triggered, edit state:', this.isEditing);
-            // Allow form submission regardless of edit state
-            return true;
+                console.log('Form submit event triggered, edit state:', this.isEditing);
+                // Allow form submission regardless of edit state or unsaved changes
+                return true;
             });
         },
         toggleEdit() {
@@ -110,7 +179,7 @@
         {{-- Essential Hidden Fields --}}
         <input type="hidden" name="instruction_requests_id"
                value="{{ $instructionRequest->detail->instruction_requests_id }}">
-{{--        <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">--}}
+        {{--        <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">--}}
         {{--        <input type="hidden" name="librarian_id" value="{{ $instructionRequest->librarian_id ?? auth()->id() }}">--}}
         {{--        <input type="hidden" name="campus_id" value="{{ $instructionRequest->campus_id }}">--}}
         <input type="hidden" name="class_id" value="{{ $instructionRequest->class_id }}">
@@ -177,5 +246,19 @@
             <x-comments:: :model="$instructionRequest"/>
         </x-card>
     </div>
+
+    {{-- Reset change tracking when form submission is successful --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if there's a success message (form was successfully saved)
+            if (document.querySelector('.alert-success')) {
+                console.log('Form submission was successful, resetting change tracking');
+                // Reset change tracking
+                if (typeof Alpine !== 'undefined' && Alpine.store('formState')) {
+                    Alpine.store('formState').resetChangeTracking();
+                }
+            }
+        });
+    </script>
 
 @endsection

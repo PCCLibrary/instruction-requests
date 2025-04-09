@@ -83,12 +83,42 @@
 
     @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
         <hr class="mb-6" />
-        <div class="my-4" x-data="{ isOpen: false }">
-            <button type="button" @click="isOpen = true"
-                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <div class="my-4" x-data="{ 
+            isOpen: false,
+            
+            // Method to check if button should be disabled
+            checkDisabled() {
+                // Check for unsaved changes
+                const hasChanges = Alpine.store('formState')?.hasUnsavedChanges || false;
+                
+                // Check for valid duration
+                const hasDuration = Alpine.store('formState')?.hasDuration() || false;
+                
+                return hasChanges || !hasDuration;
+            }
+        }">
+            <button 
+                type="button" 
+                @click="!checkDisabled() && (isOpen = true)"
+                :class="{
+                    'opacity-50 cursor-not-allowed': checkDisabled(),
+                    'hover:bg-indigo-700': !checkDisabled()
+                }"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
                 <x-heroicon-o-calendar-date-range class="h-4 w-4 text-white mr-2" />
                 Create Google Calendar Event
             </button>
+            
+            <!-- Warning messages for disabled state -->
+            <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600" x-cloak>
+                <div x-show="Alpine.store('formState')?.hasUnsavedChanges">
+                    Please save changes before scheduling.
+                </div>
+                <div x-show="!Alpine.store('formState')?.hasDuration()">
+                    Please enter a valid duration before scheduling.
+                </div>
+            </div>
 
             @include('instruction-requests.partials.edit.gcal')
         </div>
