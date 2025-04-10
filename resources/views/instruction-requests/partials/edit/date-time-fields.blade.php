@@ -38,8 +38,8 @@
                             class="edit-field"
                             type="number"
                             x-bind:required="instructionType !== 'asynchronous'"
-                            :readonly="isDisabled"
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
 
                         <x-input-textarea
@@ -47,8 +47,8 @@
                             label="Do you need time to discuss non-library matters with your class?"
                             :value="$instructionRequest->extra_time_with_class"
                             class="edit-field"
-                            :readonly="isDisabled"
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
                 </div>
@@ -62,8 +62,8 @@
                         class="edit-field"
                         helptext="Examples of asynchronous instruction: tutorials, videos, research guides, or a librarian embedded in Brightspace."
                         x-bind:required="instructionType === 'asynchronous'"
-                        :readonly="isDisabled"
-                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                        x-bind:readonly="isDisabled"
+                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                     />
                 </div>
             </div>

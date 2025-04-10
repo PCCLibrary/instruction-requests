@@ -24,7 +24,8 @@
                         ]"
                         :selected="$instructionRequest->instruction_type"
                         helptext="Please select what you need help with."
-                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                        class="edit-field"
+                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                     />
                 </div>
 
@@ -36,7 +37,8 @@
                             :options="$departments"
                             :selected="$instructionRequest->department"
                             helptext="Choose the subject of your course."
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            class="edit-field"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
 
@@ -46,8 +48,9 @@
                             label="Course Number"
                             :value="$instructionRequest->course_number"
                             helptext='Enter the course number (e.g., "122" for course BI 122). Enter "0000" if the course has no number.'
-                            :readonly="isDisabled"
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            class="edit-field"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
                 </div>
@@ -59,8 +62,9 @@
                             label="Course CRN"
                             :value="$instructionRequest->course_crn"
                             helptext="Enter the 5-digit CRN for your course. Enter 99999 if the course has no CRN."
-                            :readonly="isDisabled"
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            class="edit-field"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
 
@@ -71,8 +75,9 @@
                             type="number"
                             :value="$instructionRequest->number_of_students"
                             helptext="Enter the number of students in the class."
-                            :readonly="isDisabled"
-                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                            class="edit-field"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
                 </div>
@@ -82,8 +87,8 @@
                     label="Campus"
                     :options="$campuses->pluck('name', 'id')->toArray()"
                     :selected="$instructionRequest->campus_id"
-                    class="col-lg-6"
-                    :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                    class="col-lg-6 edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
 
                 <x-input-select
@@ -91,8 +96,8 @@
                     label="Librarian Preference"
                     :options="$librarians->pluck('display_name', 'id')->toArray()"
                     :selected="$instructionRequest->librarian_id"
-                    class="col-lg-6"
-                    :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                    class="col-lg-6 edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
 
                 <div class="">
@@ -102,8 +107,8 @@
                         :value="$instructionRequest->assignment_description"
                         class="edit-field"
                         helptext="Assignment description."
-                        :readonly="isDisabled"
-                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
+                        x-bind:readonly="isDisabled"
+                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                     />
 
 

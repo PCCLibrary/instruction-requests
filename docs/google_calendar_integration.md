@@ -319,9 +319,21 @@ The edit.blade.php template has been enhanced with Alpine.js to detect form chan
 ```js
 // Alpine.js store enhancement
 Alpine.store('formState', {
+    // Core state tracking
     isEditing: this.isEditing,
     hasUnsavedChanges: false,
-    
+
+    // Define which sections should be affected by edit toggle
+    // Left column sections (status, file uploads, etc.) are deliberately excluded
+    editableSections: [
+        'instructorInfo',
+        'requestInfo',
+        'dateTime',
+        'adaProvisions',
+        'learningOutcomes',
+        'instructionGoals'
+    ],
+
     // Store initial values for critical fields
     initialValues: {
         instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
@@ -337,17 +349,41 @@ Alpine.store('formState', {
             (currentDatetime !== this.initialValues.instructionDatetime) || 
             (currentDuration !== this.initialValues.instructionDuration);
         
-        // Implementation details...
+        console.log('Form changes detected:', {
+            hasChanges: this.hasUnsavedChanges,
+            original: this.initialValues,
+            current: {
+                instructionDatetime: currentDatetime,
+                instructionDuration: currentDuration
+            }
+        });
+        
+        return this.hasUnsavedChanges;
     },
     
     // Reset change tracking after successful form submission
     resetChangeTracking() {
-        // Implementation details...
+        this.hasUnsavedChanges = false;
+        
+        // Update stored initial values to match current values
+        this.initialValues = {
+            instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
+            instructionDuration: document.getElementById('instruction_duration')?.value || null
+        };
+        
+        console.log('Change tracking reset, new initial values:', this.initialValues);
     },
     
     // Check if duration is valid for scheduling
     hasDuration() {
-        // Implementation details...
+        const durationInput = document.getElementById('instruction_duration');
+        const duration = durationInput?.value || null;
+        return duration && parseInt(duration) > 0;
+    },
+    
+    // Determine if a specific section should be editable
+    isSectionEditable(sectionName) {
+        return this.isEditing && this.editableSections.includes(sectionName);
     }
 });
 ```
@@ -360,36 +396,40 @@ The Schedule button has been enhanced with conditional disabling logic:
 <div class="my-4" x-data="{ 
     isOpen: false,
     
-    checkFormState() {
-        // Get current form values
-        const datetimeInput = document.getElementById('instruction_datetime');
-        const durationInput = document.getElementById('instruction_duration');
+    // Method to check if button should be disabled
+    checkDisabled() {
+        // Check for unsaved changes
+        const hasChanges = Alpine.store('formState')?.hasUnsavedChanges || false;
         
-        // Check if duration is valid
-        this.hasDuration = durationInput && durationInput.value && parseInt(durationInput.value) > 0;
+        // Check for valid duration
+        const hasDuration = Alpine.store('formState')?.hasDuration() || false;
         
-        // Check if form has unsaved changes
-        this.hasChanges = Alpine.store('formState').hasUnsavedChanges;
-        
-        // Return if button should be disabled
-        return this.hasChanges || !this.hasDuration;
+        return hasChanges || !hasDuration;
     }
 }">
-    <button
-        type="button"
-        @click="!checkFormState() && (isOpen = true)"
-        :class="{'opacity-50 cursor-not-allowed': checkFormState(), 'hover:bg-indigo-700': !checkFormState()}"
+    <button 
+        type="button" 
+        @click="!checkDisabled() && (isOpen = true)"
+        x-bind:class="{
+            'opacity-50 cursor-not-allowed': checkDisabled(),
+            'hover:bg-indigo-700': !checkDisabled()
+        }"
         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
     >
         <x-heroicon-o-calendar-date-range class="h-4 w-4 text-white mr-2" />
         Create Google Calendar Event
     </button>
     
-    <div x-show="checkFormState()" class="mt-2 text-sm text-amber-600">
-        <span x-show="hasChanges">Please save changes before scheduling.</span>
-        <span x-show="!hasDuration">Please enter a valid duration.</span>
+    <!-- Warning messages for disabled state -->
+    <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600" x-cloak>
+        <div x-show="Alpine.store('formState')?.hasUnsavedChanges">
+            Please save changes before scheduling.
+        </div>
+        <div x-show="!Alpine.store('formState')?.hasDuration()">
+            Please enter a valid duration before scheduling.
+        </div>
     </div>
-    
+
     <!-- Modal implementation -->
 </div>
 ```
@@ -448,16 +488,24 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
 ### Recent Enhancements
 
+#### Section-Based Edit Toggle System
+- ✅ Implemented granular section-specific editing for right column components
+- ✅ Created centralized editableSections array to manage toggleable sections
+- ✅ Added isSectionEditable() method for easy section-based state checking
+- ✅ Made left column components consistently editable regardless of toggle state
+
 #### Form Change Detection
 - ✅ Added Alpine.js store to track changes to critical scheduling fields
 - ✅ Implemented methods to check if duration is valid (must be present and > 0)
 - ✅ Added reset functionality after successful form submission
 - ✅ Maintained compatibility with the existing toggle edit functionality
+- ✅ Fixed all Alpine.js binding syntax to use proper x-bind:class and x-bind:readonly
 
 #### Schedule Button Improvements
 - ✅ Added disabled state logic based on form changes and duration validity
 - ✅ Implemented visual feedback with warning messages
-- ✅ Used conditional Alpine.js classes for styling
+- ✅ Used correct Alpine.js binding syntax for consistent browser support
+- ✅ Enhanced feedback with specific error messages by condition
 
 #### Livewire Component Updates
 - ✅ Modified the CreateGoogleCalendarEventForm component to always fetch fresh data
@@ -465,7 +513,9 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 - ✅ Improved logging for debugging
 - ✅ Enhanced handling of edge cases with fallback values
 
-#### Reset Functionality
+#### Form Submission Improvements
+- ✅ Ensured form fields are always submittable regardless of visual state
+- ✅ Added code to temporarily enable disabled fields during submission
 - ✅ Added script to detect successful form submissions and reset change tracking
 
 ### Remaining Tasks
@@ -476,7 +526,92 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 - ❌ Add calendar filtering capabilities
 - ❌ Enhance error handling and recovery
 
-## 11. Future Enhancements
+## 11. Alpine.js Implementation Details
+
+### 11.1 Binding Syntax
+
+For proper browser compatibility and consistent behavior, these specific Alpine.js syntax patterns are used:
+
+#### Using x-bind: Instead of Shorthand
+
+```html
+<!-- INCORRECT: Using Vue-style shorthand syntax -->
+:class="{'bg-gray-100': isDisabled}"
+:readonly="isDisabled"
+
+<!-- CORRECT: Using full Alpine.js x-bind: prefix -->
+x-bind:class="isDisabled ? 'bg-gray-100' : ''"
+x-bind:readonly="isDisabled"
+```
+
+#### Ternary Expressions for Class Binding
+
+```html
+<!-- Recommended Pattern -->
+x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+```
+
+### 11.2 Section-Based Editability
+
+The system uses a centralized method to manage which sections should be editable:
+
+```js
+// Define all editable sections in one place
+editableSections: [
+    'instructorInfo',
+    'requestInfo',
+    'dateTime',
+    'adaProvisions',
+    'learningOutcomes',
+    'instructionGoals'
+],
+
+// Method to check if a specific section should be editable
+isSectionEditable(sectionName) {
+    return this.isEditing && this.editableSections.includes(sectionName);
+}
+```
+
+Each section then uses this pattern to determine its edit state:
+
+```html
+<div x-data="{
+    get isDisabled() {
+        return !$store.formState.isSectionEditable('sectionName');
+    }
+}">
+    <!-- Section-specific form fields -->
+</div>
+```
+
+### 11.3 Form Submission Handling
+
+A key improvement ensures that all form fields are submitted regardless of their visual state:
+
+```js
+// Handle form submission - CRITICAL
+const form = document.getElementById('updateInstructionRequestForm');
+form.addEventListener('submit', (event) => {
+    console.log('Form submit event triggered, edit state:', this.isEditing);
+    
+    // Temporarily enable all form fields to ensure they can be submitted
+    const formFields = form.querySelectorAll('input, select, textarea');
+    formFields.forEach(field => {
+        if (field.disabled) {
+            // Mark fields that were disabled so we can restore them later if needed
+            field.setAttribute('data-was-disabled', 'true');
+            field.disabled = false;
+        }
+    });
+    
+    // Allow form submission regardless of edit state or unsaved changes
+    return true;
+});
+```
+
+This approach maintains the visual restrictions of the edit toggle while ensuring all field data is properly included in form submissions.
+
+## 12. Future Enhancements
 
 - **Calendar View**: Add a calendar view in the dashboard to display all scheduled instruction sessions
 - **Bulk Operations**: Allow scheduling multiple sessions at once
