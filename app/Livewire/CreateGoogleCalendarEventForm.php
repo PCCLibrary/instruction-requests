@@ -2,15 +2,33 @@
 
 namespace App\Livewire;
 
+use App\Exceptions\InvalidCalendarConfigurationException;
 use App\Models\InstructionRequests;
 use App\Services\CalendarService;
 use Carbon\Carbon;
+use Illuminate\View\View;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Livewire Component for Creating Google Calendar Events
+ *
+ * Handles the creation of Google Calendar events directly from an instruction request.
+ */
 class CreateGoogleCalendarEventForm extends Component
 {
-    public $requestId;
+    /**
+     * The instruction request model instance
+     *
+     * @var InstructionRequests
+     */
+    public $instructionRequest;
+
+    /**
+     * Event creation form fields
+     *
+     * @var string
+     */
     public $eventName;
     public $startTime;
     public $endTime;
@@ -18,9 +36,12 @@ class CreateGoogleCalendarEventForm extends Component
     public $location;
     public $instructorEmail;
     public $librarianEmail;
-    
-    protected $listeners = ['showEventForm'];
-    
+
+    /**
+     * Rules for event creation validation
+     *
+     * @var array
+     */
     protected $rules = [
         'eventName' => 'required|string|max:255',
         'startTime' => 'required|date',
@@ -28,150 +49,149 @@ class CreateGoogleCalendarEventForm extends Component
         'description' => 'nullable|string',
         'location' => 'nullable|string|max:255',
     ];
-    
-    public function mount($requestId = null)
+
+    /**
+     * Mount the component with a specific instruction request
+     *
+     * @param int $requestId The ID of the instruction request
+     */
+    public function mount(int $requestId)
     {
-        // If request ID is provided during mount, load the data immediately
-        if ($requestId) {
-            $this->showEventForm($requestId);
-        }
+        // Fetch the instruction request with all necessary relationships
+        $this->instructionRequest = InstructionRequests::with([
+            'instructor',
+            'detail',
+            'campus',
+            'librarian',
+            'classes'
+        ])->findOrFail($requestId);
+
+        // Populate form with pre-filled data
+        $this->populateFormData();
     }
-    
-    public function showEventForm($requestId)
+
+    /**
+     * Populate form fields with pre-existing instruction request data
+     */
+    protected function populateFormData()
     {
-        $this->requestId = $requestId;
-
-        // Always load a fresh copy of the instruction request from the database
-        $request = InstructionRequests::with(['instructor', 'detail', 'campus', 'librarian', 'classes'])
-            ->findOrFail($requestId);
-
-        // Log database values for debugging
-        Log::info('Database values for calendar event', [
-            'request_id' => $requestId,
-            'has_detail' => $request->detail ? 'yes' : 'no',
-            'instruction_datetime' => $request->detail->instruction_datetime ?? 'not set',
-            'instruction_duration' => $request->detail->instruction_duration ?? 'not set'
-        ]);
-
-        // Start with datetime from detail record
-        $startTime = null;
-        $duration = 60; // Default duration in minutes if none is specified
-
-        // Use instruction_datetime from detail if available
-        if ($request->detail && $request->detail->instruction_datetime) {
-            $startTime = Carbon::parse($request->detail->instruction_datetime);
-            // Also use duration from detail if available
-            if ($request->detail->instruction_duration) {
-                $duration = intval($request->detail->instruction_duration);
-            }
-        } else {
-            // Fall back to preferred_datetime if instruction_datetime is not set
-            if ($request->preferred_datetime) {
-                $startTime = Carbon::parse($request->preferred_datetime);
-                if ($request->duration) {
-                    $duration = intval($request->duration);
-                }
-            } else {
-                // Default to tomorrow at 9 AM if no times are set
-                $startTime = Carbon::now()->addDays(1)->setTime(9, 0);
-            }
-        }
-
-        // Get pre-populated event data from the CalendarService
-        // This will handle formatting event title, description, etc.
+        // Use CalendarService to get pre-formatted event data
         $calendarService = app(CalendarService::class);
-        $eventData = $calendarService->getEventFormData($request);
+        $eventData = $calendarService->getEventFormData($this->instructionRequest);
 
-        // Pre-populate form fields from the event data
         $this->eventName = $eventData['event_title'];
-        $this->location = $eventData['location'];
-        $this->description = $eventData['description'];
+        $this->startTime = $eventData['start_time'];
+        $this->endTime = $eventData['end_time'];
+        $this->description = $eventData['description'] ?? '';
+        $this->location = $eventData['location'] ?? '';
 
-        // Override the start and end times with our directly chosen values
-        // Format the start time for datetime-local input
-        $this->startTime = $startTime->format('Y-m-d\TH:i');
-        
-        // Calculate end time based on the duration
-        $this->endTime = (clone $startTime)->addMinutes($duration)->format('Y-m-d\TH:i');
-
-        // Store emails for attendees
-        $this->instructorEmail = $request->instructor->email ?? '';
-        $this->librarianEmail = $request->librarian->email ?? '';
-
-        Log::info('Loaded form values for calendar event', [
-            'request_id' => $requestId,
-            'event_name' => $this->eventName,
-            'start_time' => $this->startTime,
-            'end_time' => $this->endTime,
-            'duration_used' => $duration
-        ]);
+        // Set attendee emails
+        $this->instructorEmail = $this->instructionRequest->instructor?->email;
+        $this->librarianEmail = $this->instructionRequest->librarian?->email;
     }
-    
-    public function createEvent()
+
+    /**
+     * Create the Google Calendar event
+     *
+     * Validates form data, creates the event, and handles potential errors
+     */
+    public function createEvent(CalendarService $calendarService)
     {
-        // Validate form data
+        // Validate form inputs
         $this->validate();
-        
-        // Get the request with campus - load a fresh copy
-        $request = InstructionRequests::with(['campus', 'instructor', 'librarian', 'detail'])
-            ->findOrFail($this->requestId);
-        
-        // Get the calendar ID from the campus
-        $calendarId = null;
-        if ($request->campus && $request->campus->gcal) {
-            $calendarService = app(CalendarService::class);
-            $calendarId = $calendarService->extractCalendarId($request->campus->gcal);
-        }
-        
-        // Check if we have a calendar ID
-        if (!$calendarId) {
-            session()->flash('error', 'Unable to determine Google Calendar ID for this campus.');
-            Log::error('Google Calendar ID not found for campus', [
-                'campus_id' => $request->campus_id,
-                'gcal_url' => $request->campus->gcal ?? 'not set'
-            ]);
-            return;
-        }
-        
-        // Create form data array
-        $formData = [
-            'event_title' => $this->eventName,
-            'start_time' => Carbon::parse($this->startTime)->format('Y-m-d H:i:s'),
-            'end_time' => Carbon::parse($this->endTime)->format('Y-m-d H:i:s'),
-            'description' => $this->description,
-            'location' => $this->location,
-        ];
-        
-        Log::info('Creating calendar event', [
-            'request_id' => $this->requestId,
-            'calendar_id' => $calendarId,
-            'form_data' => $formData
-        ]);
-        
-        // Use the calendar service to create the event
-        $calendarService = app(CalendarService::class);
-        $googleEventRecord = $calendarService->createEvent($request, $formData, $calendarId);
-        
-        if ($googleEventRecord) {
-            // Show success message
-            session()->flash('success', 'Calendar event created successfully.');
-            Log::info('Calendar event created successfully', [
-                'request_id' => $this->requestId,
-                'event_id' => $googleEventRecord->google_event_id
-            ]);
+
+        try {
+            // Prepare custom event data from form
+            // Format date strings from the form (already in Y-m-d\TH:i format from the input)
+            $startTime = $this->startTime; 
+            $endTime = $this->endTime;
             
-            // Emit event to close modal and refresh the page
-            $this->dispatch('googleCalendarEventCreated', $this->requestId);
-            $this->dispatch('closeModal');
-        } else {
-            // Show error message
-            session()->flash('error', 'Failed to create calendar event. Please try again or contact support.');
-            Log::error('Failed to create calendar event', [
-                'request_id' => $this->requestId
+            // Parse them to Carbon objects for Google Calendar API
+            try {
+                $startTimeObj = Carbon::parse($startTime);
+                $endTimeObj = Carbon::parse($endTime);
+                
+                // Log the values for debugging
+                Log::info('Form data before API call', [
+                    'event_title' => $this->eventName,
+                    'start_time' => $startTime,
+                    'start_time_parsed' => $startTimeObj->toIso8601String(),
+                    'end_time' => $endTime,
+                    'end_time_parsed' => $endTimeObj->toIso8601String(),
+                    'description' => $this->description,
+                    'location' => $this->location,
+                ]);
+                
+                $customData = [
+                    'event_title' => $this->eventName,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'start_time_obj' => $startTimeObj,
+                    'end_time_obj' => $endTimeObj,
+                    'description' => $this->description,
+                    'location' => $this->location,
+                ];
+            } catch (\Exception $e) {
+                Log::error('Error parsing form dates', [
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'error' => $e->getMessage()
+                ]);
+                
+                $this->addError('datetime', 'Invalid date format. Please check the date fields.');
+                throw $e;
+            }
+
+            // Attempt to create the event
+            $googleCalendarEvent = $calendarService->createEvent(
+                $this->instructionRequest,
+                $customData
+            );
+
+            // Log successful event creation
+            Log::info('Google Calendar event created via Livewire', [
+                'request_id' => $this->instructionRequest->id,
+                'event_id' => $googleCalendarEvent->id
             ]);
+
+            // Dispatch event to close modal and potentially refresh page
+            $this->dispatch('googleCalendarEventCreated');
+
+            // Optional: Add a success flash message
+            session()->flash('success', 'Google Calendar event created successfully.');
+
+        } catch (InvalidCalendarConfigurationException $e) {
+            // Log the configuration error
+            Log::warning('Invalid calendar configuration', [
+                'request_id' => $this->instructionRequest->id,
+                'context' => $e->getContext()
+            ]);
+
+            // Add error with link to edit campus
+            $campusId = $e->getContextValue('campus_id');
+            $campusName = $e->getContextValue('campus_name', 'this campus');
+
+            $this->addError('calendar',
+                "Invalid calendar configuration for {$campusName}. Please " .
+                "<a href='" . route('campuses.edit', $campusId) . "' class='underline'>update the calendar</a>."
+            );
+        } catch (\Exception $e) {
+            // Log any unexpected errors
+            Log::error('Unexpected error creating Google Calendar event', [
+                'request_id' => $this->instructionRequest->id,
+                'error' => $e->getMessage()
+            ]);
+
+            // Add a generic error message
+            $this->addError('calendar', 'An unexpected error occurred. Please try again.');
         }
     }
-    
+
+    /**
+     * Render the Livewire component
+     *
+     * @return View
+     */
     public function render()
     {
         return view('livewire.create-google-calendar-event-form');

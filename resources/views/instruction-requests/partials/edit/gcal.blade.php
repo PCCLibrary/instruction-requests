@@ -14,8 +14,9 @@
 </div>
 
 <script>
-    // Listen for the closeModal event from the Livewire component
+    // Listen for events from the Livewire component
     document.addEventListener('livewire:initialized', () => {
+        // Handle closeModal event
         Livewire.on('closeModal', () => {
             // Close the modal using Alpine.js
             console.log('Close modal event received');
@@ -26,6 +27,22 @@
                 // Set isOpen to false using Alpine.js
                 Alpine.evaluate(container, 'isOpen = false');
             }
+        });
+        
+        // Handle googleCalendarEventCreated event
+        Livewire.on('googleCalendarEventCreated', () => {
+            console.log('Google Calendar event created, refreshing page');
+            
+            // Close the modal first
+            const container = document.querySelector('[x-data*="isOpen"]');
+            if (container) {
+                Alpine.evaluate(container, 'isOpen = false');
+            }
+            
+            // Add a short delay before refreshing to allow the database transaction to complete
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         });
     });
 </script>

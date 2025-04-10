@@ -110,8 +110,45 @@ class CalendarService
 
             // Set the event properties
             $event->name = $eventData['event_title'];
-            $event->startDateTime = Carbon::parse($eventData['start_time'], 'America/Los_Angeles');
-            $event->endDateTime = Carbon::parse($eventData['end_time'], 'America/Los_Angeles');
+            
+            // Handle date parsing with better error handling
+            try {
+                // Check if we have Carbon objects directly (from formatEventData)
+                if (isset($eventData['start_time_obj']) && $eventData['start_time_obj'] instanceof Carbon &&
+                    isset($eventData['end_time_obj']) && $eventData['end_time_obj'] instanceof Carbon) {
+                    
+                    $startDateTime = $eventData['start_time_obj'];
+                    $endDateTime = $eventData['end_time_obj'];
+                    
+                    Log::info('Using pre-parsed Carbon objects for event dates');
+                } else {
+                    // Parse from string format - formatted as "Y-m-d\TH:i" for HTML inputs
+                    $startDateTime = Carbon::parse($eventData['start_time']);
+                    $endDateTime = Carbon::parse($eventData['end_time']);
+                    
+                    // Log successful parsing
+                    Log::info('Parsed event dates from strings', [
+                        'original_start' => $eventData['start_time'],
+                        'original_end' => $eventData['end_time']
+                    ]);
+                }
+                
+                // Log the final parsed dates
+                Log::info('Final event dates', [
+                    'start' => $startDateTime->toIso8601String(),
+                    'end' => $endDateTime->toIso8601String()
+                ]);
+                
+                $event->startDateTime = $startDateTime;
+                $event->endDateTime = $endDateTime;
+            } catch (\Exception $e) {
+                Log::error('Failed to parse event dates', [
+                    'start_time' => $eventData['start_time'] ?? 'not set',
+                    'end_time' => $eventData['end_time'] ?? 'not set',
+                    'error' => $e->getMessage()
+                ]);
+                throw new \Exception('Invalid date format for event: ' . $e->getMessage());
+            }
 
             if (isset($eventData['description'])) {
                 $event->description = $eventData['description'];
@@ -126,9 +163,15 @@ class CalendarService
                 $event->addAttendee(['email' => $request->instructor->email]);
             }
 
-            // Add librarian as attendee if available
-            if ($request->librarian && $request->librarian->email) {
-                $event->addAttendee(['email' => $request->librarian->email]);
+            // Add assigned librarian as attendee if available
+            // Get the assigned librarian from the detail, not the original librarian
+            $assignedLibrarian = null;
+            if ($request->detail && $request->detail->assigned_librarian_id) {
+                $assignedLibrarian = User::find($request->detail->assigned_librarian_id);
+            }
+            
+            if ($assignedLibrarian && $assignedLibrarian->email) {
+                $event->addAttendee(['email' => $assignedLibrarian->email]);
             }
 
             // Save the event to Google Calendar with the specified calendar ID
@@ -142,7 +185,7 @@ class CalendarService
                     'instruction_request_id' => $request->id,
                     'google_event_id' => $createdEvent->id,
                     'google_calendar_id' => $calendarId,
-                    'librarian_id' => $request->librarian_id,
+                    'librarian_id' => $request->detail->assigned_librarian_id, // Use assigned librarian from detail
                     'campus_id' => $request->campus_id,
                     'event_title' => $eventData['event_title'],
                     'start_time' => $eventData['start_time'],
@@ -154,8 +197,17 @@ class CalendarService
                 ]);
 
                 // Update request status to 'scheduled'
-                $request->status = 'scheduled';
-                $request->save();
+                // Create a fresh instance to avoid potential stale model issues
+                $freshRequest = InstructionRequests::find($request->id);
+                $freshRequest->status = 'scheduled';
+                $saved = $freshRequest->save();
+                
+                // Log status update result
+                Log::info('Updated instruction request status', [
+                    'request_id' => $freshRequest->id,
+                    'new_status' => 'scheduled',
+                    'save_result' => $saved ? 'success' : 'failed'
+                ]);
 
                 DB::commit();
 
@@ -274,8 +326,15 @@ class CalendarService
         // Get instructor name
         $instructorName = $request->instructor ? $request->instructor->name : 'Unknown Instructor';
 
-        // Get librarian name
-        $librarianName = $request->librarian ? ($request->librarian->display_name ?? $request->librarian->name) : 'Unknown Librarian';
+        // Get librarian name - use assigned librarian from detail, not the originally requested librarian
+        $assignedLibrarian = null;
+        if ($request->detail && $request->detail->assigned_librarian_id) {
+            // Load the assigned librarian from the detail relationship
+            $assignedLibrarian = User::find($request->detail->assigned_librarian_id);
+        }
+        $librarianName = $assignedLibrarian 
+            ? ($assignedLibrarian->display_name ?? $assignedLibrarian->name) 
+            : 'Unknown Librarian';
 
         // Format title as requested: [class name] [instructor name] - [librarian name]
         $title = "{$className} {$instructorName} - {$librarianName}";
@@ -310,10 +369,25 @@ class CalendarService
             $description .= " Topic: {$instructionDescription}";
         }
 
+        // Store both the date string (for HTML input) and Carbon object (for API)
+        // Format for HTML datetime-local input must be: YYYY-MM-DDTHH:MM
+        $startTimeFormatted = $startTime->format('Y-m-d\TH:i');
+        $endTimeFormatted = $endTime->format('Y-m-d\TH:i');
+        
+        // Log the date/time values for debugging
+        Log::info('Formatted event data', [
+            'title' => $title,
+            'start_time_html' => $startTimeFormatted,
+            'end_time_html' => $endTimeFormatted,
+            'location' => $location
+        ]);
+
         return [
             'event_title' => $title,
-            'start_time' => $startTime->format('Y-m-d H:i:s'),
-            'end_time' => $endTime->format('Y-m-d H:i:s'),
+            'start_time' => $startTimeFormatted,
+            'end_time' => $endTimeFormatted,
+            'start_time_obj' => $startTime,
+            'end_time_obj' => $endTime,
             'location' => $location,
             'description' => $description
         ];
