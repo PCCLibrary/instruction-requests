@@ -6,7 +6,7 @@
     <div x-data="{
         openModal: false,
         get isDisabled() {
-            return !$store.formState.isEditing;
+            return !$store.formState.isSectionEditable('instructorInfo');
         }
     }">
         {{-- Select Instructor Button (only shown in edit mode) --}}
@@ -30,7 +30,9 @@
                     label="Instructor Name"
                     :value="$instructionRequest->instructor->name"
                     required
-                    x-bind:disabled="isDisabled"
+                    x-bind:readonly="isDisabled"
+                    class="edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -40,7 +42,9 @@
                     label="Preferred Name"
                     :value="$instructionRequest->instructor->display_name"
                     required
-                    x-bind:disabled="isDisabled"
+                    x-bind:readonly="isDisabled"
+                    class="edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
             </div>
         </div>
@@ -52,7 +56,9 @@
                     id="pronouns"
                     label="Pronouns"
                     :value="$instructionRequest->instructor->pronouns"
-                    x-bind:disabled="isDisabled"
+                    x-bind:readonly="isDisabled"
+                    class="edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -63,7 +69,9 @@
                     type="email"
                     :value="$instructionRequest->instructor->email"
                     required
-                    x-bind:disabled="isDisabled"
+                    x-bind:readonly="isDisabled"
+                    class="edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -73,7 +81,9 @@
                     label="Phone"
                     type="tel"
                     :value="$instructionRequest->instructor->phone"
-                    x-bind:disabled="isDisabled"
+                    x-bind:readonly="isDisabled"
+                    class="edit-field"
+                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                 />
             </div>
         </div>

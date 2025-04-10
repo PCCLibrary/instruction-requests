@@ -53,117 +53,127 @@
         initialDuration: '{{ $instructionRequest->detail->instruction_duration }}',
         initializeForm() {
             console.log('Form initialized, edit state:', this.isEditing);
-            
-            // Initialize the Alpine.js store with form state and change tracking
+
+            // Initialize the Alpine.js store with improved form state and change tracking
             Alpine.store('formState', {
+                // Core state tracking
                 isEditing: this.isEditing,
                 hasUnsavedChanges: false,
                 
+                // Define which sections should be affected by edit toggle
+                // Left column sections (status, file uploads, etc.) are deliberately excluded
+                editableSections: [
+                    'instructorInfo',
+                    'requestInfo', 
+                    'dateTime', 
+                    'adaProvisions', 
+                    'learningOutcomes',
+                    'instructionGoals'
+                ],
+
                 // Store initial values for critical fields
                 initialValues: {
                     instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
                     instructionDuration: document.getElementById('instruction_duration')?.value || null
                 },
-                
+
                 // Check if critical scheduling fields have changed
                 checkForChanges() {
                     const currentDatetime = document.getElementById('instruction_datetime')?.value || null;
                     const currentDuration = document.getElementById('instruction_duration')?.value || null;
-                    
-                    this.hasUnsavedChanges = 
-                        (currentDatetime !== this.initialValues.instructionDatetime) || 
+
+                    this.hasUnsavedChanges =
+                        (currentDatetime !== this.initialValues.instructionDatetime) ||
                         (currentDuration !== this.initialValues.instructionDuration);
-                    
+
                     console.log('Form changes detected:', {
                         hasChanges: this.hasUnsavedChanges,
                         original: this.initialValues,
-                        current: { 
-                            instructionDatetime: currentDatetime, 
-                            instructionDuration: currentDuration 
+                        current: {
+                            instructionDatetime: currentDatetime,
+                            instructionDuration: currentDuration
                         }
                     });
-                    
+
                     return this.hasUnsavedChanges;
                 },
-                
+
                 // Reset change tracking (to be called after successful form submission)
                 resetChangeTracking() {
                     this.hasUnsavedChanges = false;
-                    
+
                     // Update stored initial values to match current values
                     this.initialValues = {
                         instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
                         instructionDuration: document.getElementById('instruction_duration')?.value || null
                     };
-                    
+
                     console.log('Change tracking reset, new initial values:', this.initialValues);
                 },
-                
+
                 // Check if duration is valid for scheduling
                 hasDuration() {
                     const durationInput = document.getElementById('instruction_duration');
                     const duration = durationInput?.value || null;
                     return duration && parseInt(duration) > 0;
+                },
+                
+                // Determine if a specific section should be editable
+                isSectionEditable(sectionName) {
+                    return this.isEditing && this.editableSections.includes(sectionName);
                 }
             });
-            
+
             // Add event listeners for change detection
             const datetimeInput = document.getElementById('instruction_datetime');
             const durationInput = document.getElementById('instruction_duration');
-            
+
             if (datetimeInput) {
                 datetimeInput.addEventListener('input', () => {
                     Alpine.store('formState').checkForChanges();
                 });
             }
-            
+
             if (durationInput) {
                 durationInput.addEventListener('input', () => {
                     Alpine.store('formState').checkForChanges();
                 });
             }
-            
-            // Handle form submission regardless of edit state
+
+            // Handle form submission - CRITICAL - retains existing submission behavior
             const form = document.getElementById('updateInstructionRequestForm');
-            
-            // Add hidden inputs for any disabled fields when the form is submitted
             form.addEventListener('submit', (event) => {
                 console.log('Form submit event triggered, edit state:', this.isEditing);
                 
-                // Process fields that might be disabled but need to be included in the form submission
-                form.querySelectorAll('input, select, textarea').forEach(element => {
-                    // Skip elements that are already enabled or don't have a name
-                    if (!element.disabled || !element.name) return;
-                    
-                    // Create a hidden input with the same name and value
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = element.name;
-                    
-                    // Get appropriate value based on input type
-                    if (element.type === 'checkbox' || element.type === 'radio') {
-                        hiddenInput.value = element.checked ? element.value : '';
-                    } else if (element.tagName === 'SELECT' && element.options.length) {
-                        hiddenInput.value = element.options[element.selectedIndex].value;
-                    } else {
-                        hiddenInput.value = element.value;
+                // Temporarily enable all form fields to ensure they can be submitted
+                const formFields = form.querySelectorAll('input, select, textarea');
+                formFields.forEach(field => {
+                    if (field.disabled) {
+                        // Mark fields that were disabled so we can restore them later if needed
+                        field.setAttribute('data-was-disabled', 'true');
+                        field.disabled = false;
                     }
-                    
-                    // Add temporary class for cleanup after submission
-                    hiddenInput.classList.add('temp-hidden-input');
-                    
-                    // Add to form
-                    form.appendChild(hiddenInput);
-                    console.log(`Added hidden input for disabled field: ${element.name}=${hiddenInput.value}`);
                 });
                 
-                // Form will continue submission normally
+                // Allow form submission regardless of edit state or unsaved changes
+                return true;
             });
         },
         toggleEdit() {
             this.isEditing = !this.isEditing;
             Alpine.store('formState').isEditing = this.isEditing;
             console.log('Edit state toggled to:', this.isEditing);
+
+            // Apply visual indication of edit state but don't disable form submission
+            const editableFields = document.querySelectorAll('.edit-field');
+            editableFields.forEach(field => {
+                // Use readonly instead of disabled to allow form submission
+                if (field.hasAttribute('readonly')) {
+                    field.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                } else if (!this.isEditing) {
+                    field.classList.add('bg-gray-100', 'cursor-not-allowed');
+                }
+            });
 
             if (this.isEditing) {
                 this.validateForm();
@@ -276,22 +286,16 @@
         </x-card>
     </div>
 
-    {{-- Reset change tracking and clean up temporary elements when form submission is successful --}}
+    {{-- Reset change tracking when form submission is successful --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if there's a success message (form was successfully saved)
             if (document.querySelector('.alert-success')) {
                 console.log('Form submission was successful, resetting change tracking');
-                
                 // Reset change tracking
                 if (typeof Alpine !== 'undefined' && Alpine.store('formState')) {
                     Alpine.store('formState').resetChangeTracking();
                 }
-                
-                // Clean up any temporary hidden input elements
-                document.querySelectorAll('.temp-hidden-input').forEach(el => {
-                    el.remove();
-                });
             }
         });
     </script>

@@ -10,7 +10,7 @@
         <div class="p-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {
-                    return !$store.formState.isEditing;
+                    return !$store.formState.isSectionEditable('requestInfo');
                 }
             }">
                 <div>
@@ -24,7 +24,7 @@
                         ]"
                         :selected="$instructionRequest->instruction_type"
                         helptext="Please select what you need help with."
-                        x-bind:disabled="isDisabled"
+                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                     />
                 </div>
 
@@ -36,7 +36,7 @@
                             :options="$departments"
                             :selected="$instructionRequest->department"
                             helptext="Choose the subject of your course."
-                            x-bind:disabled="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
                     </div>
 
@@ -46,7 +46,8 @@
                             label="Course Number"
                             :value="$instructionRequest->course_number"
                             helptext='Enter the course number (e.g., "122" for course BI 122). Enter "0000" if the course has no number.'
-                            x-bind:disabled="isDisabled"
+                            :readonly="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
                     </div>
                 </div>
@@ -58,7 +59,8 @@
                             label="Course CRN"
                             :value="$instructionRequest->course_crn"
                             helptext="Enter the 5-digit CRN for your course. Enter 99999 if the course has no CRN."
-                            x-bind:disabled="isDisabled"
+                            :readonly="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
                     </div>
 
@@ -69,7 +71,8 @@
                             type="number"
                             :value="$instructionRequest->number_of_students"
                             helptext="Enter the number of students in the class."
-                            x-bind:disabled="isDisabled"
+                            :readonly="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
                     </div>
                 </div>
@@ -80,7 +83,7 @@
                     :options="$campuses->pluck('name', 'id')->toArray()"
                     :selected="$instructionRequest->campus_id"
                     class="col-lg-6"
-                    x-bind:disabled="isDisabled"
+                    :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                 />
 
                 <x-input-select
@@ -89,7 +92,7 @@
                     :options="$librarians->pluck('display_name', 'id')->toArray()"
                     :selected="$instructionRequest->librarian_id"
                     class="col-lg-6"
-                    x-bind:disabled="isDisabled"
+                    :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                 />
 
                 <div class="">
@@ -99,7 +102,8 @@
                         :value="$instructionRequest->assignment_description"
                         class="edit-field"
                         helptext="Assignment description."
-                        x-bind:disabled="isDisabled"
+                        :readonly="isDisabled"
+                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                     />
 
 

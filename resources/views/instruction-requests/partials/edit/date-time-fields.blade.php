@@ -2,7 +2,7 @@
 <x-card title="Date, Time and Duration" class="bg-gray-50 mb-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {
-                    return !$store.formState.isEditing;
+                    return !$store.formState.isSectionEditable('dateTime');
                 }
             }">
                 {{-- Synchronous Instruction Fields --}}
@@ -15,7 +15,8 @@
                             class="edit-field"
                             helptext="Enter the date/time you prefer to have your instruction session."
                             x-bind:required="instructionType !== 'asynchronous'"
-                            x-bind:disabled="isDisabled"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
 
                         <x-input-datetime
@@ -24,7 +25,8 @@
                             :value="$instructionRequest->alternate_datetime ? $instructionRequest->alternate_datetime->format('Y/m/d h:i A') : null"
                             class="edit-field"
                             helptext="Enter an alternate date/time for your instruction session."
-                            x-bind:disabled="isDisabled"
+                            x-bind:readonly="isDisabled"
+                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
                         />
                     </div>
 
@@ -36,7 +38,8 @@
                             class="edit-field"
                             type="number"
                             x-bind:required="instructionType !== 'asynchronous'"
-                            x-bind:disabled="isDisabled"
+                            :readonly="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
 
                         <x-input-textarea
@@ -44,7 +47,8 @@
                             label="Do you need time to discuss non-library matters with your class?"
                             :value="$instructionRequest->extra_time_with_class"
                             class="edit-field"
-                            x-bind:disabled="isDisabled"
+                            :readonly="isDisabled"
+                            :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                         />
                     </div>
                 </div>
@@ -58,7 +62,8 @@
                         class="edit-field"
                         helptext="Examples of asynchronous instruction: tutorials, videos, research guides, or a librarian embedded in Brightspace."
                         x-bind:required="instructionType === 'asynchronous'"
-                        x-bind:disabled="isDisabled"
+                        :readonly="isDisabled"
+                        :class="{'bg-gray-100 cursor-not-allowed': isDisabled}"
                     />
                 </div>
             </div>
