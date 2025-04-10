@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidCalendarConfigurationException;
 use App\Models\GoogleCalendarEvent;
 use App\Models\InstructionRequests;
 use App\Models\User;
@@ -10,25 +11,59 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\GoogleCalendar\Event;
 
-
 /**
  * Service for handling Google Calendar integration
- *
- * This service handles all interactions with the Google Calendar API
- * including creation and deletion of events, and extracting calendar IDs
- * from Google Calendar URLs.
  */
 class CalendarService
 {
     /**
-     * Create a Google Calendar event for an instruction request.
-     *
-     * @param InstructionRequests $request The instruction request
-     * @param array $customData Optional override data for the event
-     * @param string|null $calendarId Google Calendar ID, if null tries to extract from campus
-     * @return GoogleCalendarEvent|null The created event or null on failure
+     * Extract Google Calendar ID from a share URL
      */
-    public function createEvent(InstructionRequests $request, array $customData = [], ?string $calendarId = null): ?GoogleCalendarEvent
+    public function extractCalendarId(string $url): ?string
+    {
+        // First, check if the input is already a valid calendar ID
+        if (preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $url) ||
+            preg_match('/^c_[a-zA-Z0-9]+(@group\.calendar\.google\.com)?$/', $url)) {
+            return $url;
+        }
+
+        // Try to extract from standard URL patterns
+        $patterns = [
+            '/[?&](?:src|cid)=([^&]+)/',
+            '/calendar\/u\/\d+\/r\/[^\/]+\/\d+\/\d+\/\d+\?cid=([^&]+)/',
+            '/calendar\/embed\?src=([^&]+)/',
+            '/[?&]cid=c_([a-zA-Z0-9]+)/'
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                $extracted = urldecode(end($matches));
+
+                // Validate the extracted ID
+                if (preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $extracted) ||
+                    preg_match('/^c_[a-zA-Z0-9]+(@group\.calendar\.google\.com)?$/', $extracted)) {
+                    return $extracted;
+                }
+            }
+        }
+
+        // Log failure and return null
+        Log::warning('Failed to extract valid calendar ID from URL', ['url' => $url]);
+        return null;
+    }
+
+    /**
+     * Get pre-populated event form data for an instruction request
+     */
+    public function getEventFormData(InstructionRequests $request): array
+    {
+        return $this->formatEventData($request);
+    }
+
+    /**
+     * Create a Google Calendar event for an instruction request
+     */
+    public function createEvent(InstructionRequests $request, array $customData = [], ?string $calendarId = null): GoogleCalendarEvent
     {
         // Load relationships if not already loaded
         if (!$request->relationLoaded('instructor') || !$request->relationLoaded('detail') ||
@@ -37,19 +72,21 @@ class CalendarService
             $request->load(['instructor', 'detail', 'campus', 'librarian', 'classes']);
         }
 
-        // Check if calendar ID is provided, otherwise try to extract from campus
-        if (!$calendarId && $request->campus && $request->campus->gcal) {
-            $calendarId = $this->extractCalendarId($request->campus->gcal);
+        // Retrieve calendar ID from campus if not provided
+        if (!$calendarId && $request->campus) {
+            $calendarId = $request->campus->getCalendarId();
         }
 
-        // If no calendar ID could be determined, log error and return null
+        // Strict validation - throw exception if no valid calendar ID
         if (!$calendarId) {
-            Log::error('No calendar ID provided or could be extracted from campus', [
-                'request_id' => $request->id,
-                'campus_id' => $request->campus_id,
-                'campus_url' => $request->campus->gcal ?? 'not set'
-            ]);
-            return null;
+            throw new InvalidCalendarConfigurationException(
+                "No valid Google Calendar ID found for campus",
+                [
+                    'campus_id' => $request->campus_id,
+                    'campus_name' => $request->campus->name,
+                    'gcal_field' => $request->campus->gcal
+                ]
+            );
         }
 
         // Check if event already exists for this request
@@ -140,203 +177,87 @@ class CalendarService
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return null;
+            throw $e; // Propagate the exception
         }
     }
 
-
-
     /**
-     * Delete a Google Calendar event.
-     *
-     * @param GoogleCalendarEvent $calendarEvent The event to delete
-     * @return array Deletion result with success status and message
+     * Delete a Google Calendar event
      */
     public function deleteEvent(GoogleCalendarEvent $calendarEvent): array
     {
-        // Validate event has necessary identifiers
-        if (!$calendarEvent->google_event_id || !$calendarEvent->google_calendar_id) {
-            Log::warning('Incomplete Google Calendar event data for deletion', [
-                'id' => $calendarEvent->id,
-                'google_event_id' => $calendarEvent->google_event_id,
-                'google_calendar_id' => $calendarEvent->google_calendar_id,
-                'instruction_request_id' => $calendarEvent->instruction_request_id
-            ]);
-
-            return [
-                'success' => false,
-                'message' => 'Incomplete event information',
-                'code' => 'INCOMPLETE_EVENT_DATA',
-                'instruction_request_id' => $calendarEvent->instruction_request_id
-            ];
-        }
+        $result = [
+            'success' => false,
+            'messages' => [],
+            'instruction_request_id' => $calendarEvent->instruction_request_id
+        ];
 
         try {
             DB::beginTransaction();
 
             // Eager load the instruction request to ensure it exists
-            $request = $calendarEvent->instructionRequest()->first();
+            $request = $calendarEvent->instructionRequest;
 
             if (!$request) {
-                Log::warning('No associated instruction request found for calendar event', [
-                    'calendar_event_id' => $calendarEvent->id,
-                    'google_event_id' => $calendarEvent->google_event_id
-                ]);
-
-                // Delete orphaned calendar event record
-                $calendarEvent->delete();
-
-                DB::commit();
-
-                return [
-                    'success' => true,
-                    'message' => 'Removed orphaned calendar event',
-                    'code' => 'ORPHANED_EVENT_REMOVED',
-                    'instruction_request_id' => $calendarEvent->instruction_request_id
-                ];
+                throw new \Exception('No associated instruction request found');
             }
 
-            // Find the event in Google Calendar
+            // Try to delete from Google Calendar
             try {
-                $event = Event::find($calendarEvent->google_event_id, $calendarEvent->google_calendar_id);
+                $googleEvent = Event::find($calendarEvent->google_event_id, $calendarEvent->google_calendar_id);
 
-                // Delete from Google Calendar if found
-                if ($event) {
-                    $event->delete();
-                    Log::info('Deleted event from Google Calendar', [
-                        'google_event_id' => $calendarEvent->google_event_id,
-                        'calendar_id' => $calendarEvent->google_calendar_id,
-                        'instruction_request_id' => $request->id
-                    ]);
+                if ($googleEvent) {
+                    $googleEvent->delete();
+                    $result['messages'][] = 'Google Calendar event deleted successfully.';
                 } else {
-                    Log::warning('Event not found in Google Calendar, continuing with local deletion', [
-                        'google_event_id' => $calendarEvent->google_event_id,
-                        'calendar_id' => $calendarEvent->google_calendar_id,
-                        'instruction_request_id' => $request->id
-                    ]);
+                    $result['messages'][] = 'Google Calendar event not found in calendar.';
                 }
             } catch (\Exception $apiException) {
-                Log::error('Error interacting with Google Calendar API', [
-                    'google_event_id' => $calendarEvent->google_event_id,
-                    'instruction_request_id' => $request->id,
-                    'error' => $apiException->getMessage(),
-                    'trace' => $apiException->getTraceAsString()
+                Log::warning('Error deleting event from Google Calendar', [
+                    'event_id' => $calendarEvent->google_event_id,
+                    'error' => $apiException->getMessage()
                 ]);
-
-                // Continue with local deletion even if API interaction fails
+                $result['messages'][] = 'Unable to delete event from Google Calendar.';
             }
 
-            // Delete the local record
-            $calendarEvent->delete();
-
-            // Update request status to 'accepted' if it was 'scheduled'
-            if ($request->status === 'scheduled') {
-                $request->status = 'accepted';
-                $request->save();
+            // Delete local event record
+            try {
+                $calendarEvent->delete();
+                $result['messages'][] = 'Local calendar event record deleted.';
+            } catch (\Exception $localDeletionException) {
+                Log::warning('Error deleting local calendar event', [
+                    'event_id' => $calendarEvent->id,
+                    'error' => $localDeletionException->getMessage()
+                ]);
+                $result['messages'][] = 'Unable to delete local calendar event record.';
             }
+
+            // Update request status to 'accepted' using service
+            $instructionRequestService = app(InstructionRequestService::class);
+            $instructionRequestService->updateInstructionRequest([
+                'status' => 'accepted'
+            ], $request->id);
 
             DB::commit();
 
-            Log::info('Google Calendar event deleted successfully', [
-                'calendar_event_id' => $calendarEvent->id,
-                'instruction_request_id' => $request->id
-            ]);
+            $result['success'] = true;
+            return $result;
 
-            return [
-                'success' => true,
-                'message' => 'Calendar event deleted successfully',
-                'code' => 'EVENT_DELETED',
-                'instruction_request_id' => $request->id
-            ];
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Failed to delete Google Calendar event', [
+            Log::error('Comprehensive calendar event deletion failed', [
                 'calendar_event_id' => $calendarEvent->id,
-                'google_event_id' => $calendarEvent->google_event_id,
-                'google_calendar_id' => $calendarEvent->google_calendar_id,
-                'instruction_request_id' => $calendarEvent->instruction_request_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
 
-            return [
-                'success' => false,
-                'message' => 'Failed to delete calendar event',
-                'code' => 'DELETION_FAILED',
-                'instruction_request_id' => $calendarEvent->instruction_request_id,
-                'error' => $e->getMessage()
-            ];
+            $result['messages'][] = 'Failed to complete calendar event deletion.';
+            return $result;
         }
     }
 
     /**
-     * Extract Google Calendar ID from a Google Calendar share URL.
-     *
-     * @param string $url The Google Calendar share URL
-     * @return string|null The extracted calendar ID or null if extraction fails
-     */
-    public function extractCalendarId(string $url): ?string
-    {
-        try {
-            // Pattern for standard calendar URLs
-            // Examples:
-            // - https://calendar.google.com/calendar/u/0/embed?src=example@gmail.com
-            // - https://calendar.google.com/calendar/u/0/r?cid=example@group.calendar.google.com
-            if (preg_match('/[?&](?:src|cid)=([^&]+)/', $url, $matches)) {
-                return urldecode($matches[1]);
-            }
-
-            // Pattern for newer calendar URLs
-            // Example: https://calendar.google.com/calendar/u/0/r/week/2023/1/1?cid=example@group.calendar.google.com
-            if (preg_match('/calendar\/u\/\d+\/r\/[^\/]+\/\d+\/\d+\/\d+\?cid=([^&]+)/', $url, $matches)) {
-                return urldecode($matches[1]);
-            }
-
-            // Pattern for calendar IDs in path
-            // Example: https://calendar.google.com/calendar/embed?src=example@group.calendar.google.com
-            if (preg_match('/calendar\/embed\?src=([^&]+)/', $url, $matches)) {
-                return urldecode($matches[1]);
-            }
-
-            // Direct calendar ID format (for cases where ID is pasted directly)
-            if (preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $url)) {
-                return $url;
-            }
-
-            // Calendar ID in alphanumeric format
-            // Example: https://calendar.google.com/calendar/u/0/r?cid=c_1a2b3c4d5e6f7g8h
-            if (preg_match('/[?&]cid=c_([a-zA-Z0-9]+)/', $url, $matches)) {
-                return 'c_' . $matches[1];
-            }
-
-            Log::warning('Failed to extract calendar ID from URL', ['url' => $url]);
-            return null;
-        } catch (\Exception $e) {
-            Log::error('Error extracting calendar ID', [
-                'url' => $url,
-                'error' => $e->getMessage()
-            ]);
-            return null;
-        }
-    }
-
-    /**
-     * Get event data from an instruction request that can be used to pre-populate a form.
-     *
-     * @param InstructionRequests $request The instruction request
-     * @return array The formatted event data
-     */
-    public function getEventFormData(InstructionRequests $request): array
-    {
-        return $this->formatEventData($request);
-    }
-
-    /**
-     * Format event data from an instruction request.
-     *
-     * @param InstructionRequests $request The instruction request
-     * @return array The formatted event data
+     * Format event data from an instruction request
      */
     protected function formatEventData(InstructionRequests $request): array
     {
@@ -359,13 +280,13 @@ class CalendarService
         // Format title as requested: [class name] [instructor name] - [librarian name]
         $title = "{$className} {$instructorName} - {$librarianName}";
 
-        // Get start time from preferred_datetime
-        $startTime = $request->preferred_datetime ?
-            Carbon::parse($request->preferred_datetime, 'America/Los_Angeles') :
+        // Get start time from instruction_datetime in the details
+        $startTime = $request->detail->instruction_datetime ?
+            Carbon::parse($request->detail->instruction_datetime, 'America/Los_Angeles') :
             Carbon::now('America/Los_Angeles')->addDays(1)->setTime(9, 0);
 
-        // Calculate end time based on duration
-        $duration = $request->duration ?? 60; // Default to 60 minutes if not set
+        // Calculate end time based on instruction_duration from details
+        $duration = $request->detail->instruction_duration ?? $request->duration ?? 60; // Default to 60 minutes if not set
         $endTime = (clone $startTime)->addMinutes(intval($duration));
 
         // Format location: [campus] - [room]
