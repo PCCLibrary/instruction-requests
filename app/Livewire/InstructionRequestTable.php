@@ -108,7 +108,7 @@ final class InstructionRequestTable extends PowerGridComponent
             ->add('status', fn (InstructionRequests $model) => ucfirst($model->status))
             ->add('instruction_datetime')
             ->add('instruction_datetime_formatted', fn (InstructionRequests $model) =>
-            $model->preferred_datetime ? Carbon::parse($model->preferred_datetime)->format('m/d/Y g:i a') : '')
+            $model->instruction_datetime ? Carbon::parse($model->instruction_datetime)->format('m/d/Y g:i a') : '')
             ->add('last_updated_by');
     }
 

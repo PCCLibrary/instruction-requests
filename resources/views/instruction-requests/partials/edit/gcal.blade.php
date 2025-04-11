@@ -22,10 +22,18 @@
         Livewire.on('googleCalendarEventCreated', (data) => {
             console.log('Google Calendar event created, refreshing page', data);
 
-            // Find parent container with isOpen and close it
-            const parent = document.querySelector('[x-data*="isOpen"]');
-            if (parent) {
-                Alpine.evaluate(parent, 'isOpen = false');
+            // First dispatch the close-modal event
+            document.dispatchEvent(new CustomEvent('close-modal'));
+            
+            // Also try to directly close the modal using Alpine
+            try {
+                // Find parent container with isOpen and close it
+                const parent = document.querySelector('[x-data*="isOpen"]');
+                if (parent && Alpine.evaluate) {
+                    Alpine.evaluate(parent, 'isOpen = false');
+                }
+            } catch (err) {
+                console.error('Error closing modal via Alpine:', err);
             }
 
             // Delay the page reload to allow Livewire to finish

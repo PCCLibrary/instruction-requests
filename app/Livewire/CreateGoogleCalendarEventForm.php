@@ -279,11 +279,23 @@ class CreateGoogleCalendarEventForm extends Component
                 'event_id' => $googleCalendarEvent->id
             ]);
             
-            // Dispatch event to close modal and refresh page
-            $this->dispatch('googleCalendarEventCreated', ['requestId' => $this->instructionRequest->id]);
+            // Log the successful event creation
+            Log::info('CreateGoogleCalendarEventForm: Successfully created event, dispatching refresh event', [
+                'request_id' => $this->instructionRequest->id,
+                'event_id' => $googleCalendarEvent->id,
+                'google_event_id' => $googleCalendarEvent->google_event_id
+            ]);
             
-            // Flash message for page refresh
+            // Flash message for the next page load
             session()->flash('success', 'Google Calendar event created successfully.');
+            
+            // Dispatch event to close modal and refresh page
+            // This must be the last operation as it triggers the page reload
+            $this->dispatch('googleCalendarEventCreated', [
+                'requestId' => $this->instructionRequest->id,
+                'status' => 'scheduled',
+                'timestamp' => now()->toDateTimeString()
+            ]);
 
         } catch (InvalidCalendarConfigurationException $e) {
             // Log the configuration error

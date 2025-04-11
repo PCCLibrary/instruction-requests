@@ -188,16 +188,49 @@ class CalendarService
                 
                 // Save the event to Google Calendar
                 try {
+                    // Check that the calendar ID is valid before trying to save
+                    if (empty($calendarId)) {
+                        throw new InvalidCalendarConfigurationException(
+                            "Empty calendar ID when trying to create event",
+                            [
+                                'calendar_id' => $calendarId,
+                                'request_id' => $request->id,
+                                'campus_id' => $request->campus_id,
+                                'campus_name' => $request->campus?->name
+                            ]
+                        );
+                    }
+                    
+                    // Log the attempt with detailed parameters
+                    Log::info('CalendarService: About to call Google Calendar API', [
+                        'calendar_id' => $calendarId,
+                        'event_title' => $event->name,
+                        'start_time' => $event->startDateTime->format('Y-m-d H:i:s'),
+                        'end_time' => $event->endDateTime->format('Y-m-d H:i:s'),
+                        'attendee_count' => count($event->attendees ?? [])
+                    ]);
+                    
+                    // Save the event to Google Calendar
                     $createdEvent = $event->save(null, $calendarId);
                     
                     Log::debug('CalendarService: Successfully created event in Google Calendar', [
-                        'google_event_id' => $createdEvent->id
+                        'google_event_id' => $createdEvent->id,
+                        'event_url' => $createdEvent->htmlLink ?? 'Not available'
                     ]);
+                } catch (InvalidCalendarConfigurationException $configException) {
+                    // Re-throw configuration exceptions to be handled specifically
+                    Log::error('CalendarService: Invalid calendar configuration', [
+                        'error' => $configException->getMessage(),
+                        'context' => $configException->getContext()
+                    ]);
+                    throw $configException;
                 } catch (\Exception $apiException) {
                     Log::error('CalendarService: Failed to create event in Google Calendar', [
                         'error' => $apiException->getMessage(),
                         'code' => $apiException->getCode(),
-                        'calendar_id' => $calendarId
+                        'calendar_id' => $calendarId,
+                        'class' => get_class($apiException),
+                        'trace' => $apiException->getTraceAsString()
                     ]);
                     throw $apiException;
                 }

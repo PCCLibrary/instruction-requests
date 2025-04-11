@@ -218,7 +218,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
     {
 
         $dashboardUrl = sprintf(
-            '%spublic/dashboard/instructionRequests/%d/edit',
+            '%s/dashboard/instructionRequests/%d/edit',
             config('app.url'),
             $this->requestId
         );

@@ -13,9 +13,7 @@ return [
             /*
              * Path to the json file containing the credentials.
              */
-//            'credentials_json' => storage_path('app/google-calendar/service-account-credentials.json'),
-            'credentials_json' => storage_path('app/google-calendar/pcc-library-website-baf73fcc9190.json'),
-
+            'credentials_json' => base_path(env('GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON_LOCATION')),
         ],
 
         /*
@@ -25,7 +23,7 @@ return [
             /*
              * Path to the json file containing the oauth2 credentials.
              */
-            'credentials_json' => storage_path('app/google-calendar/oauth-credentials.json'),
+            'credentials_json' => base_path('app/google-calendar/pcc-library-website-baf73fcc9190.json'),
 
             /*
              * Path to the json file containing the oauth2 token.
@@ -35,12 +33,12 @@ return [
     ],
 
     /*
-     *  The id of the Google Calendar that will be used by default.
+     * The id of the Google Calendar that will be used by default.
      */
-    'calendar_id' => env('GOOGLE_CALENDAR_ID'),
+    'calendar_id' => env('GOOGLE_CALENDAR_ID', 'c_91e4e2a58503a3f41186894f62e70d8f904be3e72af56f6059fb4f0220b7dbc4@group.calendar.google.com'),
 
-     /*
-     *  The email address of the user account to impersonate.
-     */
+    /*
+    * The email address of the user account to impersonate.
+    */
     'user_to_impersonate' => env('GOOGLE_CALENDAR_IMPERSONATE'),
 ];

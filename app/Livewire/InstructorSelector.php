@@ -14,8 +14,8 @@ class InstructorSelector extends Component
 
     public function mount(?int $instructorId = null)
     {
-        Log::info('InstructorSelector mounted', ['instructorId' => $instructorId]);
-        $this->instructorId = $instructorId;
+//        Log::info('InstructorSelector mounted', ['instructorId' => $instructorId]);
+//        $this->instructorId = $instructorId;
 
         // If an instructor ID is provided, preselect that instructor
         if ($this->instructorId) {

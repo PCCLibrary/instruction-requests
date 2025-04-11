@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ submitted: false }">
     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
         <div class="sm:flex sm:items-start">
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
@@ -6,7 +6,7 @@
                     Schedule Library Instruction
                 </h3>
 
-                <form wire:submit="createEvent" wire:submit.prevent="createEvent" class="mt-4" id="createGoogleCalendarEventForm" x-data="{ submitted: false }" x-on:submit="console.log('Form submitted'); submitted = true;">
+                <form wire:submit="createEvent" class="mt-4" id="createGoogleCalendarEventForm">
                     @if (session()->has('success'))
                         <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
                             <strong>Success!</strong> {{ session('success') }}
@@ -101,30 +101,28 @@
                         </div>
                     </div>
 
-                        <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit"
-                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                    wire:loading.attr="disabled"
-                                    id="submit-calendar-event"
-                                    x-bind:disabled="submitted"
-                                    x-on:click="console.log('Submit button clicked directly'); if (!submitted) { $wire.createEvent(); submitted = true; }">
-                                <span wire:loading.remove x-show="!submitted">Create Calendar Event</span>
-                                <span wire:loading x-show="submitted">
-                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Creating...
-                            </span>
-                            </button>
-                            <button type="button"
-                                    @click="$dispatch('close-modal'); document.querySelector('[x-data*=\'isOpen\']').__x.$data.isOpen = false;"
-                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
-                                Cancel
-                            </button>
-                        </div>
-
-
+                    <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                        <button type="button"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                wire:loading.attr="disabled"
+                                id="submit-calendar-event"
+                                x-bind:disabled="submitted"
+                                @click="if (!submitted) { $wire.createEvent(); submitted = true; }">
+                            <span wire:loading.remove x-show="!submitted">Create Calendar Event</span>
+                            <span wire:loading x-show="submitted">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating...
+                        </span>
+                        </button>
+                        <button type="button"
+                                @click="$dispatch('close-modal'); document.querySelector('[x-data*=\'isOpen\']').__x.$data.isOpen = false;"
+                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -132,162 +130,33 @@
 </div>
 
 <script>
-    // Add event listeners when the page loads
+    // Add basic form monitoring
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, setting up calendar form listeners');
+        console.log('DOM loaded, setting up basic calendar form monitoring');
         
+        // Listen for form submission events for debugging
         const form = document.getElementById('createGoogleCalendarEventForm');
-        const submitButton = document.getElementById('submit-calendar-event');
-        
         if (form) {
-            console.log('Found calendar event form, adding listeners');
-            
-            // Listen for form submission
             form.addEventListener('submit', function(e) {
-                console.log('Form submit event triggered via DOM', e);
-                
-                // Prevent default and handle manually to ensure it works
+                console.log('Form submit event detected:', e.type);
+                // Let Livewire handle the actual submission
                 e.preventDefault();
-                
-                // Get Livewire component and call directly
-                const componentEl = form.closest('[wire\\:id]');
-                if (componentEl) {
-                    const componentId = componentEl.getAttribute('wire:id');
-                    console.log('Found Livewire component:', componentId);
-                    
-                    // Try both direct call methods
-                    tryCallLivewireComponent(componentId);
-                }
             });
-        }
-        
-        if (submitButton) {
-            console.log('Found submit button, adding direct click listener');
-            submitButton.addEventListener('click', function(e) {
-                console.log('Submit button clicked directly', e);
-                
-                // Get the Livewire component ID
-                const componentId = form.closest('[wire\\:id]')?.getAttribute('wire:id');
-                console.log('Livewire component ID:', componentId);
-                
-                // Try to call the Livewire component directly - if this fails, the button's x-on:click will handle it
-                if (componentId) {
-                    setTimeout(() => {
-                        tryCallLivewireComponent(componentId);
-                    }, 100);
-                }
-            });
-        }
-        
-        // Helper function to try multiple ways of calling the Livewire component
-        function tryCallLivewireComponent(componentId) {
-            if (!componentId || !window.Livewire) {
-                console.error('Cannot call Livewire component - missing ID or Livewire not initialized');
-                return;
-            }
-            
-            console.log('Attempting multiple methods to call Livewire component:', componentId);
-            
-            // Methods to try (in order of preference)
-            const methods = [
-                // Method 1: Livewire 3 style component call
-                () => {
-                    console.log('Trying Livewire.call method...');
-                    if (typeof window.Livewire.call === 'function') {
-                        window.Livewire.call(componentId, 'createEvent');
-                        return true;
-                    }
-                    return false;
-                },
-                
-                // Method 2: Direct component method call
-                () => {
-                    console.log('Trying component.call method...');
-                    const component = window.Livewire.find(componentId);
-                    if (component && typeof component.call === 'function') {
-                        component.call('createEvent');
-                        return true;
-                    }
-                    return false;
-                },
-                
-                // Method 3: Livewire 3 dispatch
-                () => {
-                    console.log('Trying Livewire.dispatch method...');
-                    if (typeof window.Livewire.dispatch === 'function') {
-                        window.Livewire.dispatch('createEvent', {id: componentId});
-                        return true;
-                    }
-                    return false;
-                },
-                
-                // Method 4: Alternate direct method
-                () => {
-                    console.log('Trying direct Livewire component access...');
-                    try {
-                        const component = window.Livewire.find(componentId);
-                        if (component) {
-                            // Try accessing the createCalendarEventDirectly method
-                            if (typeof component.createCalendarEventDirectly === 'function') {
-                                component.createCalendarEventDirectly();
-                                return true;
-                            }
-                            // Try the emit method
-                            if (typeof component.emit === 'function') {
-                                component.emit('createEvent');
-                                return true;
-                            }
-                        }
-                    } catch (err) {
-                        console.error('Error accessing component directly:', err);
-                    }
-                    return false;
-                }
-            ];
-            
-            // Try each method until one succeeds
-            for (const method of methods) {
-                try {
-                    if (method()) {
-                        console.log('Successfully called Livewire component!');
-                        return;
-                    }
-                } catch (err) {
-                    console.error('Error calling Livewire method:', err);
-                }
-            }
-            
-            console.error('All methods to call Livewire component failed');
         }
     });
     
-    // Listen for Livewire events
+    // Listen for Livewire initialization and critical events
     document.addEventListener('livewire:initialized', function() {
-        console.log('Livewire initialized, adding event listeners');
+        console.log('Livewire initialized, monitoring calendar form component');
         
-        // Listen for Livewire events
+        // Only monitor essential events for debugging
         try {
-            Livewire.hook('component.initialized', (component) => {
-                console.log('Livewire component initialized:', component.id);
-            });
-            
-            Livewire.hook('message.sent', (message, component) => {
-                console.log('Livewire message sent:', message, 'Component:', component.id);
-            });
-            
+            // Log failures which are most important for debugging
             Livewire.hook('message.failed', (message, component) => {
                 console.error('Livewire message failed:', message, 'Component:', component.id);
             });
-            
-            Livewire.hook('message.received', (message, component) => {
-                console.log('Livewire message received:', message, 'Component:', component.id);
-            });
-            
-            Livewire.hook('element.initialized', (el, component) => {
-                console.log('Livewire element initialized:', el, 'Component:', component.id);
-            });
         } catch (err) {
-            console.error('Error setting up Livewire hooks:', err);
+            console.error('Error setting up Livewire monitoring:', err);
         }
     });
 </script>
