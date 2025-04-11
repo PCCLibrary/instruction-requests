@@ -18,27 +18,11 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             // Listen for the calendar event created event and reload the page
-            Livewire.on('googleCalendarEventCreated', (data) => {
-                console.log('Google Calendar event created, preparing page reload', data);
-                
+            Livewire.on('googleCalendarEventCreated', (requestId) => {
                 // Wait a moment to allow the server to process the status change
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
-            });
-
-            // Listen for close-modal event that gets dispatched by the cancel button
-            document.addEventListener('close-modal', () => {
-                console.log('Close modal event received');
-                
-                // Find and close all modal containers
-                const containers = document.querySelectorAll('[x-data*="isOpen"]');
-                containers.forEach(container => {
-                    console.log('Closing modal container:', container);
-                    if (container) {
-                        Alpine.evaluate(container, 'isOpen = false');
-                    }
-                });
             });
 
             // Listen for the beforeCreateEvent event and update the Livewire component with current form values
@@ -89,8 +73,8 @@
 
                 // Store initial values for critical fields
                 initialValues: {
-                    instructionDatetime: '{{ $instructionRequest->detail->instruction_datetime }}',
-                    instructionDuration: '{{ $instructionRequest->detail->instruction_duration }}'
+                    instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
+                    instructionDuration: document.getElementById('instruction_duration')?.value || null
                 },
 
                 // Check if critical scheduling fields have changed
@@ -211,7 +195,7 @@
             console.log('Updating required fields for type:', this.instructionType);
 
             const asyncField = document.getElementById('asynchronous_instruction_ready_date');
-            const preferredField = document.getElementById('instruction_datetime');
+            const preferredField = document.getElementById('preferred_datetime');
             const durationField = document.getElementById('duration');
 
             if (this.instructionType === 'asynchronous') {
