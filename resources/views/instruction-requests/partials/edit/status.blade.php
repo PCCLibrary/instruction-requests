@@ -83,23 +83,26 @@
 
     @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
         <hr class="mb-6" />
-        <div class="my-4" x-data="{ 
-            isOpen: false,
-            
-            // Method to check if button should be disabled
-            checkDisabled() {
-                // Check for unsaved changes
-                const hasChanges = Alpine.store('formState')?.hasUnsavedChanges || false;
-                
-                // Check for valid duration
-                const hasDuration = Alpine.store('formState')?.hasDuration() || false;
-                
-                return hasChanges || !hasDuration;
-            }
-        }">
-            <button 
-                type="button" 
-                @click="!checkDisabled() && (isOpen = true)"
+        <div class="my-4" 
+            x-data="{
+                isOpen: false,
+
+                // Method to check if button should be disabled
+                checkDisabled() {
+                    // Check for unsaved changes
+                    const hasChanges = Alpine.store('formState')?.hasUnsavedChanges || false;
+
+                    // Check for valid duration
+                    const hasDuration = Alpine.store('formState')?.hasDuration() || false;
+
+                    return hasChanges || !hasDuration;
+                }
+            }"
+            x-init="$watch('isOpen', value => console.log('Calendar modal isOpen changed to:', value))"
+            @close-modal.window="isOpen = false; console.log('Received close-modal event')">
+            <button
+                type="button"
+                @click="if(!checkDisabled()) { console.log('Opening modal'); isOpen = true; }"
                 :class="{
                     'opacity-50 cursor-not-allowed': checkDisabled(),
                     'hover:bg-indigo-700': !checkDisabled()
@@ -109,7 +112,7 @@
                 <x-heroicon-o-calendar-date-range class="h-4 w-4 text-white mr-2" />
                 Create Google Calendar Event
             </button>
-            
+
             <!-- Warning messages for disabled state -->
             <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600" x-cloak>
                 <div x-show="Alpine.store('formState')?.hasUnsavedChanges">

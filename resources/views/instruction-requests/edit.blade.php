@@ -18,11 +18,27 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             // Listen for the calendar event created event and reload the page
-            Livewire.on('googleCalendarEventCreated', (requestId) => {
+            Livewire.on('googleCalendarEventCreated', (data) => {
+                console.log('Google Calendar event created, preparing page reload', data);
+                
                 // Wait a moment to allow the server to process the status change
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
+            });
+
+            // Listen for close-modal event that gets dispatched by the cancel button
+            document.addEventListener('close-modal', () => {
+                console.log('Close modal event received');
+                
+                // Find and close all modal containers
+                const containers = document.querySelectorAll('[x-data*="isOpen"]');
+                containers.forEach(container => {
+                    console.log('Closing modal container:', container);
+                    if (container) {
+                        Alpine.evaluate(container, 'isOpen = false');
+                    }
+                });
             });
 
             // Listen for the beforeCreateEvent event and update the Livewire component with current form values
@@ -59,22 +75,22 @@
                 // Core state tracking
                 isEditing: this.isEditing,
                 hasUnsavedChanges: false,
-                
+
                 // Define which sections should be affected by edit toggle
                 // Left column sections (status, file uploads, etc.) are deliberately excluded
                 editableSections: [
                     'instructorInfo',
-                    'requestInfo', 
-                    'dateTime', 
-                    'adaProvisions', 
+                    'requestInfo',
+                    'dateTime',
+                    'adaProvisions',
                     'learningOutcomes',
                     'instructionGoals'
                 ],
 
                 // Store initial values for critical fields
                 initialValues: {
-                    instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
-                    instructionDuration: document.getElementById('instruction_duration')?.value || null
+                    instructionDatetime: '{{ $instructionRequest->detail->instruction_datetime }}',
+                    instructionDuration: '{{ $instructionRequest->detail->instruction_duration }}'
                 },
 
                 // Check if critical scheduling fields have changed
@@ -117,7 +133,7 @@
                     const duration = durationInput?.value || null;
                     return duration && parseInt(duration) > 0;
                 },
-                
+
                 // Determine if a specific section should be editable
                 isSectionEditable(sectionName) {
                     return this.isEditing && this.editableSections.includes(sectionName);
@@ -144,7 +160,7 @@
             const form = document.getElementById('updateInstructionRequestForm');
             form.addEventListener('submit', (event) => {
                 console.log('Form submit event triggered, edit state:', this.isEditing);
-                
+
                 // Temporarily enable all form fields to ensure they can be submitted
                 const formFields = form.querySelectorAll('input, select, textarea');
                 formFields.forEach(field => {
@@ -154,7 +170,7 @@
                         field.disabled = false;
                     }
                 });
-                
+
                 // Allow form submission regardless of edit state or unsaved changes
                 return true;
             });
@@ -195,7 +211,7 @@
             console.log('Updating required fields for type:', this.instructionType);
 
             const asyncField = document.getElementById('asynchronous_instruction_ready_date');
-            const preferredField = document.getElementById('preferred_datetime');
+            const preferredField = document.getElementById('instruction_datetime');
             const durationField = document.getElementById('duration');
 
             if (this.instructionType === 'asynchronous') {
