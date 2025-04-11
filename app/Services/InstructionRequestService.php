@@ -278,13 +278,13 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 //                    'assigned_librarian_id' => $detailsData['assigned_librarian_id'] ?? 'NOT SET'
 //                ]);
 
-//                $updatedDetails = $this->detailsService->updateInstructionRequestDetails($detailsData, $id);
+                $updatedDetails = $this->detailsService->updateInstructionRequestDetails($detailsData, $id);
 
-//                Log::info('AFTER DETAILS UPDATE', [
-//                    'success' => $updatedDetails ? 'yes' : 'no',
-//                    'final_assigned_librarian' => $updatedDetails?->assigned_librarian_id ?? 'NULL AFTER UPDATE',
-//                    'detail_id' => $updatedDetails?->id ?? 'NO ID RETURNED'
-//                ]);
+                Log::info('AFTER DETAILS UPDATE', [
+                    'success' => $updatedDetails ? 'yes' : 'no',
+                    'final_assigned_librarian' => $updatedDetails?->assigned_librarian_id ?? 'NULL AFTER UPDATE',
+                    'detail_id' => $updatedDetails?->id ?? 'NO ID RETURNED'
+                ]);
             }
 
             if (request()->hasFile('materials') || request()->hasFile('assessments')) {
