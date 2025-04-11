@@ -109,6 +109,16 @@ class CalendarService
         // Retrieve calendar ID from campus if not provided
         if (!$calendarId && $request->campus) {
             $calendarId = $request->campus->getCalendarId();
+            
+            // Log detailed debug information about the calendar ID
+            Log::debug('CalendarService: Retrieved calendar ID from campus', [
+                'calendar_id' => $calendarId,
+                'calendar_id_length' => strlen($calendarId),
+                'campus_id' => $request->campus_id,
+                'campus_name' => $request->campus->name,
+                'original_gcal_field' => $request->campus->gcal,
+                'original_gcal_length' => strlen($request->campus->gcal)
+            ]);
         }
 
         // Strict validation - throw exception if no valid calendar ID
@@ -122,6 +132,9 @@ class CalendarService
                 ]
             );
         }
+        
+        // Additional check - make sure calendar ID is clean here as well
+        $calendarId = trim($calendarId);
 
         // Check if event already exists for this request
         if ($request->googleCalendarEvent) {
@@ -201,6 +214,9 @@ class CalendarService
                         );
                     }
                     
+                    // Make sure the calendar ID is clean (no whitespace or newlines)
+                    $calendarId = trim($calendarId);
+                    
                     // Log the attempt with detailed parameters
                     Log::info('CalendarService: About to call Google Calendar API', [
                         'calendar_id' => $calendarId,
@@ -210,8 +226,35 @@ class CalendarService
                         'attendee_count' => count($event->attendees ?? [])
                     ]);
                     
-                    // Save the event to Google Calendar
-                    $createdEvent = $event->save(null, $calendarId);
+                    // Create a new instance of the Event class
+                    // This approach avoids the issue with calendar ID in save method
+                    $newEvent = new Event;
+                    
+                    // Copy properties from our existing event object
+                    $newEvent->name = $event->name;
+                    $newEvent->startDateTime = $event->startDateTime;
+                    $newEvent->endDateTime = $event->endDateTime;
+                    
+                    if (isset($event->description)) {
+                        $newEvent->description = $event->description;
+                    }
+                    
+                    if (isset($event->location)) {
+                        $newEvent->location = $event->location;
+                    }
+                    
+                    // Copy attendees if they exist
+                    if (!empty($event->attendees)) {
+                        foreach ($event->attendees as $attendee) {
+                            if (is_object($attendee) && method_exists($attendee, 'getEmail')) {
+                                $newEvent->addAttendee(['email' => $attendee->getEmail()]);
+                            }
+                        }
+                    }
+                    
+                    // Use the save method with an empty options array
+                    // We're passing an empty array first, then the calendar ID
+                    $createdEvent = $newEvent->save(null, $calendarId);
                     
                     Log::debug('CalendarService: Successfully created event in Google Calendar', [
                         'google_event_id' => $createdEvent->id,
