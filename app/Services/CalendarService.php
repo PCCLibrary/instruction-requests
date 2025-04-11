@@ -7,9 +7,11 @@ use App\Models\GoogleCalendarEvent;
 use App\Models\InstructionRequests;
 use App\Models\User;
 use Carbon\Carbon;
+use Google_Service_Calendar;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\GoogleCalendar\Event;
+use Spatie\GoogleCalendar\GoogleCalendar;
 
 /**
  * Service for handling Google Calendar integration
@@ -218,7 +220,7 @@ class CalendarService
                     $calendarId = trim($calendarId);
                     
                     // Log the attempt with detailed parameters
-                    Log::info('CalendarService: About to call Google Calendar API', [
+                    Log::info('CalendarService: About to call Google Calendar API directly', [
                         'calendar_id' => $calendarId,
                         'event_title' => $event->name,
                         'start_time' => $event->startDateTime->format('Y-m-d H:i:s'),
@@ -226,35 +228,21 @@ class CalendarService
                         'attendee_count' => count($event->attendees ?? [])
                     ]);
                     
-                    // Create a new instance of the Event class
-                    // This approach avoids the issue with calendar ID in save method
-                    $newEvent = new Event;
+                    // Get a GoogleCalendar instance directly instead of using Event's save method
+                    $googleCalendar = app(Spatie\GoogleCalendar\GoogleCalendar::class, [
+                        'calendarService' => app(Google_Service_Calendar::class),
+                        'calendarId' => $calendarId
+                    ]);
                     
-                    // Copy properties from our existing event object
-                    $newEvent->name = $event->name;
-                    $newEvent->startDateTime = $event->startDateTime;
-                    $newEvent->endDateTime = $event->endDateTime;
+                    // Log additional information about the instance
+                    Log::debug('CalendarService: Created GoogleCalendar instance', [
+                        'calendar_id' => $googleCalendar->getCalendarId(),
+                        'class' => get_class($googleCalendar)
+                    ]);
                     
-                    if (isset($event->description)) {
-                        $newEvent->description = $event->description;
-                    }
-                    
-                    if (isset($event->location)) {
-                        $newEvent->location = $event->location;
-                    }
-                    
-                    // Copy attendees if they exist
-                    if (!empty($event->attendees)) {
-                        foreach ($event->attendees as $attendee) {
-                            if (is_object($attendee) && method_exists($attendee, 'getEmail')) {
-                                $newEvent->addAttendee(['email' => $attendee->getEmail()]);
-                            }
-                        }
-                    }
-                    
-                    // Use the save method with an empty options array
-                    // We're passing an empty array first, then the calendar ID
-                    $createdEvent = $newEvent->save(null, $calendarId);
+                    // Insert the event directly using the Google Calendar API
+                    // This bypasses the problematic save() method with its parameter issues
+                    $createdEvent = $googleCalendar->insertEvent($event, []);
                     
                     Log::debug('CalendarService: Successfully created event in Google Calendar', [
                         'google_event_id' => $createdEvent->id,
