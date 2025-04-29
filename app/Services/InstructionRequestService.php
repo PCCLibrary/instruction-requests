@@ -97,14 +97,31 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
                 // Create associated details
                 $detailsData = [
-                    'instruction_datetime' => $data['preferred_datetime'],
                     'assigned_librarian_id' => $data['librarian_id'],
                     'instruction_requests_id' => $instructionRequest->id,
-                    'instruction_duration' => $data['duration'],
                     'created_by' => $data['created_by'],
                     'last_updated_by' => $data['created_by'],
                     'room' => $data['room'] ?? '',
                 ];
+
+                // Select the appropriate datetime field based on instruction type
+                if ($data['instruction_type'] === 'asynchronous') {
+                    $detailsData['instruction_datetime'] = $data['asynchronous_instruction_ready_date'];
+
+                    Log::debug('Using asynchronous_instruction_ready_date for instruction_datetime', [
+                        'instruction_type' => $data['instruction_type'],
+                        'asynchronous_date' => $data['asynchronous_instruction_ready_date']
+                    ]);
+                } else {
+                    $detailsData['instruction_datetime'] = $data['preferred_datetime'];
+                    $detailsData['instruction_duration'] = $data['duration'] ?? null;
+
+                    Log::debug('Using preferred_datetime for instruction_datetime', [
+                        'instruction_type' => $data['instruction_type'],
+                        'preferred_date' => $data['preferred_datetime'],
+                        'duration' => $data['duration'] ?? null
+                    ]);
+                }
 
                 $instructionRequest->detail()->create($detailsData);
 
@@ -271,6 +288,30 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 //                Log::debug('COMPLETE DETAILS DATA', $detailsData);
 
                 $detailsData['last_updated_by'] = auth()->user()?->display_name ?? 'System';
+
+                // For update operations, ensure instruction_datetime is set appropriately for the instruction type
+                if (isset($mainRequestData['instruction_type']) &&
+                    $mainRequestData['instruction_type'] === 'asynchronous' &&
+                    isset($mainRequestData['asynchronous_instruction_ready_date'])) {
+
+                    // For asynchronous requests, use asynchronous_instruction_ready_date for instruction_datetime
+                    $detailsData['instruction_datetime'] = $mainRequestData['asynchronous_instruction_ready_date'];
+
+                    Log::debug('Update: Using asynchronous_instruction_ready_date for instruction_datetime', [
+                        'instruction_type' => $mainRequestData['instruction_type'],
+                        'asynchronous_date' => $mainRequestData['asynchronous_instruction_ready_date']
+                    ]);
+                } elseif (isset($mainRequestData['instruction_type']) &&
+                         isset($mainRequestData['preferred_datetime'])) {
+
+                    // For on-campus and remote requests, use preferred_datetime
+                    $detailsData['instruction_datetime'] = $mainRequestData['preferred_datetime'];
+
+                    Log::debug('Update: Using preferred_datetime for instruction_datetime', [
+                        'instruction_type' => $mainRequestData['instruction_type'],
+                        'preferred_date' => $mainRequestData['preferred_datetime']
+                    ]);
+                }
 
                 // Log the exact parameters being passed to the details service
 //                Log::info('CALLING detailsService->updateInstructionRequestDetails', [
@@ -626,4 +667,3 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         );
     }
 }
-
