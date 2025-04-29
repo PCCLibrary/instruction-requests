@@ -87,6 +87,19 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $data['status'] = 'received';
                 $data['created_by'] = $this->getCreatedBy($data);
 
+                // Handle preferred_datetime for asynchronous requests
+                if ($data['instruction_type'] === 'asynchronous' && !isset($data['preferred_datetime'])) {
+                    // For asynchronous requests, set preferred_datetime to the same date as asynchronous_instruction_ready_date
+                    // but with a default time, since it's required by the database but not meaningful for this type
+                    $data['preferred_datetime'] = $data['asynchronous_instruction_ready_date'] . ' 00:00:00';
+
+                    Log::debug('Setting default preferred_datetime for asynchronous request', [
+                        'instruction_type' => $data['instruction_type'],
+                        'preferred_datetime' => $data['preferred_datetime'],
+                        'asynchronous_date' => $data['asynchronous_instruction_ready_date']
+                    ]);
+                }
+
                 // Create main instruction request
                 $instructionRequest = $this->repository->create($data);
 
