@@ -6,6 +6,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
+/**
+ * Controller for generating CSRF tokens for form submissions.
+ */
 class CsrfTokenController extends Controller
 {
     /**
