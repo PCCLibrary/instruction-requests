@@ -14,6 +14,8 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api/token/generate',
         'api/media/upload',
-        'api/media/delete/*'
+        'api/media/delete/*',
+        'api/new-request'
+
     ];
 }

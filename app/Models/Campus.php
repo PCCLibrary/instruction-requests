@@ -66,41 +66,36 @@ class Campus extends Model
     /**
      * Get the Google Calendar ID for this campus.
      *
-     * Returns the calendar ID stored in the gcal field if it follows the correct format.
-     * This method trims the value and validates it before returning.
+     * Returns the calendar ID stored in the gcal field, validated for the correct format.
      *
-     * @param bool $validateFormat Whether to validate the format of the calendar ID
      * @return string|null The calendar ID or null if not set or invalid
      */
-    public function getCalendarId(bool $validateFormat = true): ?string
+    public function getCalendarId(): ?string
     {
-        // Check if value exists
+        // Check if the gcal field is empty
         if (empty($this->gcal)) {
+            Log::warning('Campus: gcal field is empty', [
+                'campus_id' => $this->id,
+                'campus_name' => $this->name,
+            ]);
             return null;
         }
 
-        // Always trim the value to remove whitespace and newlines
+        // Trim the gcal value to remove any leading/trailing spaces
         $calendarId = trim($this->gcal);
 
-        // If validation not required, return trimmed value
-        if (!$validateFormat) {
-            return $calendarId;
-        }
+        // Validate the format of the calendar ID
+        $isValidFormat = preg_match('/^c_[a-zA-Z0-9]+@group\.calendar\.google\.com$/', $calendarId);
 
-        // Validate the format
-        $isValidFormat = preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/', $calendarId) ||
-            preg_match('/^c_[a-zA-Z0-9]+(@group\.calendar\.google\.com)?$/', $calendarId);
-
-        // If format is invalid, log a warning
         if (!$isValidFormat) {
-            \Illuminate\Support\Facades\Log::warning('Invalid Google Calendar ID format in campus', [
+            Log::error('Campus: Invalid Google Calendar ID format', [
                 'campus_id' => $this->id,
                 'campus_name' => $this->name,
-                'gcal_value' => $calendarId
+                'gcal_value' => $this->gcal,
             ]);
+            return null;
         }
 
-        // Always return the trimmed value, even if format validation fails
         return $calendarId;
     }
 }

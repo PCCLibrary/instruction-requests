@@ -131,7 +131,11 @@ abstract class BaseInstructionRequestNotification extends Notification implement
         try {
             $request = $this->loadInstructionRequest();
 
-            // Get assigned librarian if exists
+            /**
+             * Get assigned librarian if exists
+             * @todo add requested librarian for instructor requests
+             * @var User|null $assignedLibrarian
+             */
             $assignedLibrarian = null;
             if ($request->detail?->assigned_librarian_id) {
                 $assignedLibrarian = User::find($request->detail->assigned_librarian_id);

@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Notifications\RequestReceivedNotification;
 use App\Services\DepartmentService;
 use App\Services\InstructionRequestService;
-use App\Services\TokenValidationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -29,24 +28,18 @@ class PublicInstructionRequestController extends Controller
     /** @var DepartmentService $departmentService */
     private DepartmentService $departmentService;
 
-    /** @var TokenValidationService $tokenValidationService */
-    private TokenValidationService $tokenValidationService;
-
     /**
      * Build the class and inject the services.
      *
      * @param InstructionRequestService $instructionRequestService
      * @param DepartmentService $departmentService
-     * @param TokenValidationService $tokenValidationService
      */
     public function __construct(
         InstructionRequestService $instructionRequestService,
         DepartmentService $departmentService,
-        TokenValidationService $tokenValidationService,
     ) {
         $this->instructionRequestService = $instructionRequestService;
         $this->departmentService = $departmentService;
-        $this->tokenValidationService = $tokenValidationService;
     }
 
     /**
@@ -74,43 +67,13 @@ class PublicInstructionRequestController extends Controller
     public function store(CreateInstructionRequestRequest $request): RedirectResponse
     {
         try {
-            // Check if request is coming from Svelte application
-            $isSvelteRequest = $request->header('X-Form-Source') === 'svelte';
-
-            // For Svelte requests, validate the stateless token
-            if ($isSvelteRequest) {
-                $token = $request->input('_token');
-
-                Log::info('Processing Svelte form submission', [
-                    'has_token' => !empty($token),
-                    'request_method' => $request->method(),
-                    'headers' => $request->headers->all()
-                ]);
-
-                // Validate token
-                if (!$this->tokenValidationService->validateToken($token)) {
-                    Log::warning('Invalid token in Svelte form submission', [
-                        'token_start' => !empty($token) ? substr($token, 0, 10) . '...' : 'none'
-                    ]);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid form token',
-                        'errors' => ['form' => ['The form session has expired or is invalid. Please refresh and try again.']]
-                    ], 419);
-                }
-
-                Log::info('Svelte form token validation successful');
-            }
-
             // Validate and prepare input data
             $input = $request->except(['class_syllabus', 'instructor_attachments']);
             $uploadToken = $request->input('upload_token');
 
             Log::info('Processing instruction request submission', [
-                'is_svelte' => $isSvelteRequest,
-                'has_upload_token' => !empty($uploadToken),
-                'upload_token' => $uploadToken,
+                'has_token' => !empty($uploadToken),
+                'token' => $uploadToken,
                 'form_data' => array_keys($input),
                 'request_method' => $request->method(),
                 'content_type' => $request->header('Content-Type')
@@ -146,7 +109,7 @@ class PublicInstructionRequestController extends Controller
                         'token' => $uploadToken,
                         'request_id' => $instructionRequest->id
                     ]);
-
+                    
                     // Check if any files exist after association
                     $mediaCount = $instructionRequest->getMedia('materials')->count();
                     Log::info('Media count after association', [
@@ -178,23 +141,12 @@ class PublicInstructionRequestController extends Controller
                 'has_details' => !is_null($instructionRequest->detail),
                 'instructor' => $instructionRequest->instructor_name ?? 'unknown',
                 'class' => $instructionRequest->course_name ?? 'unknown',
-                'had_token' => !empty($uploadToken),
-                'is_svelte' => $isSvelteRequest
+                'had_token' => !empty($uploadToken)
             ]);
 
-            // Return appropriate response based on request source
-            if ($isSvelteRequest) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Instruction request submitted successfully.',
-                    'request_id' => $instructionRequest->id
-                ]);
-            } else {
-                // For standard Laravel form submissions, use redirect response
-                return redirect('/')
-                    ->with('success', 'Instruction request submitted successfully.')
-                    ->withInput($input);
-            }
+            return redirect('/')
+                ->with('success', 'Instruction request submitted successfully.')
+                ->withInput($input);
 
         } catch (Throwable $e) {
             Log::error('Store operation failed', [
@@ -203,24 +155,13 @@ class PublicInstructionRequestController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
-                'input' => $input ?? null,
-                'is_svelte' => $isSvelteRequest ?? false
+                'input' => $input ?? null
             ]);
 
-            // Return appropriate error response based on request source
-            if (isset($isSvelteRequest) && $isSvelteRequest) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to submit the instruction request.',
-                    'errors' => ['error' => $e->getMessage()]
-                ], 422);
-            } else {
-                // For standard Laravel form submissions, use redirect response
-                return redirect('/')
-                    ->with('error', 'Failed to submit the instruction request.')
-                    ->withErrors(['error' => $e->getMessage()])
-                    ->withInput();
-            }
+            return redirect('/')
+                ->with('error', 'Failed to submit the instruction request.')
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 

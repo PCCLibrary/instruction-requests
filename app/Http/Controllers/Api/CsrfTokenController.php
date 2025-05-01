@@ -37,6 +37,7 @@ class CsrfTokenController extends Controller
                 'error' => $e->getMessage()
             ]);
 
+            // Return a 500 error if token generation fails
             return Response::json([
                 'message' => 'Failed to generate form token'
             ], 500);

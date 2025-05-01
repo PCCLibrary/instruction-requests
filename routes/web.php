@@ -15,6 +15,7 @@ use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\Auth\SamlAuthController;
 use App\Http\Controllers\MediaController;
+
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Log;
 
@@ -45,6 +46,7 @@ Route::get('/', [PublicInstructionRequestController::class, 'create'])
 // Store the submitted instruction request from the public form
 Route::post('/instruction-requests', [PublicInstructionRequestController::class, 'store'])
     ->name('public.instruction-request.store');
+
 
 /*
 |--------------------------------------------------------------------------

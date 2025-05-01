@@ -121,7 +121,7 @@ class InstructionRequestController extends AppBaseController
 
         // Ensure we have the most recent data
         $instructionRequest->refresh();
-
+        
         // Ensure calendar event relationship is loaded
         if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
             $instructionRequest->load('googleCalendarEvent');
@@ -150,12 +150,12 @@ class InstructionRequestController extends AppBaseController
     public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
         // Enhanced logging for debugging
-//        Log::info('Controller received update request', [
-//            'id' => $id,
-//            'raw_input' => $request->all(),
-//            'validated_data' => $request->validated(),
-//            'assigned_librarian_id' => $request->input('assigned_librarian_id')
-//        ]);
+        Log::info('Controller received update request', [
+            'id' => $id,
+            'raw_input' => $request->all(),
+            'validated_data' => $request->validated(),
+            'assigned_librarian_id' => $request->input('assigned_librarian_id')
+        ]);
 
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
@@ -165,38 +165,38 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
-//        Log::info('Found instruction request', [
-//            'id' => $id,
-//            'current_status' => $instructionRequest->status,
-//            'has_details' => $instructionRequest->detail ? 'yes' : 'no'
-//        ]);
+        Log::info('Found instruction request', [
+            'id' => $id,
+            'current_status' => $instructionRequest->status,
+            'has_details' => $instructionRequest->detail ? 'yes' : 'no'
+        ]);
 
         try {
             $validatedData = $request->validated();
             // Comprehensive detailed logging of all request data
-//            Log::debug('FULL REQUEST DATA', $request->all());
-//            Log::debug('VALIDATED REQUEST DATA', $validatedData);
-
+            Log::debug('FULL REQUEST DATA', $request->all());
+            Log::debug('VALIDATED REQUEST DATA', $validatedData);
+            
             // Specially log the assigned_librarian_id
-//            if (isset($validatedData['assigned_librarian_id'])) {
-//                Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
-//                    'value' => $validatedData['assigned_librarian_id'],
-//                    'type' => gettype($validatedData['assigned_librarian_id']),
-//                    'raw_request_value' => $request->input('assigned_librarian_id')
-//                ]);
-//            } else {
-//                Log::warning('assigned_librarian_id NOT FOUND in validated data');
-//            }
+            if (isset($validatedData['assigned_librarian_id'])) {
+                Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
+                    'value' => $validatedData['assigned_librarian_id'],
+                    'type' => gettype($validatedData['assigned_librarian_id']),
+                    'raw_request_value' => $request->input('assigned_librarian_id')
+                ]);
+            } else {
+                Log::warning('assigned_librarian_id NOT FOUND in validated data');
+            }
 
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
 
-//            Log::info('Update completed', [
-//                'id' => $id,
-//                'updated_status' => $updated->status,
-//                'has_details' => $updated->detail ? 'yes' : 'no',
-//                'detail_id' => $updated->detail ? $updated->detail->id : 'none',
-//                'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
-//            ]);
+            Log::info('Update completed', [
+                'id' => $id,
+                'updated_status' => $updated->status,
+                'has_details' => $updated->detail ? 'yes' : 'no',
+                'detail_id' => $updated->detail ? $updated->detail->id : 'none',
+                'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
+            ]);
 
             session()->flash('success', 'Instruction Request updated successfully.');
             return redirect(route('instructionRequests.edit', $id));
@@ -311,34 +311,34 @@ class InstructionRequestController extends AppBaseController
     public function deleteCalendarEvent(int $id): RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
-
+        
         if (empty($instructionRequest)) {
             session()->flash('error', 'Instruction Request not found.');
             return redirect(route('instructionRequests.index'));
         }
-
+        
         // Load the calendar event if not already loaded
         if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
             $instructionRequest->load('googleCalendarEvent');
         }
-
+        
         if (!$instructionRequest->googleCalendarEvent) {
             session()->flash('error', 'No calendar event found for this request.');
             return redirect(route('instructionRequests.edit', $id));
         }
-
+        
         // Use calendar service to delete the event
         $result = $this->calendarService->deleteEvent($instructionRequest->googleCalendarEvent);
-
+        
         if ($result) {
             session()->flash('success', 'Calendar event deleted successfully.');
         } else {
             session()->flash('error', 'Failed to delete calendar event.');
         }
-
+        
         return redirect(route('instructionRequests.edit', $id));
     }
-
+    
     /**
      * Fetch related data for the instruction request and append to the object.
      *
