@@ -1,20 +1,22 @@
 <!-- resources/views/campuses/partials/status.blade.php -->
 <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
     <div>
-        <x-input-text name="name" label="Name"
+        <x-input-text name="name" label="Campus Name"
                       value="{{ old('name', $campus?->name ?? '') }}"
                       required />
     </div>
 
     <div>
-        <x-input-text name="code" label="Code"
+        <x-input-text name="code" label="Campus Code"
                       value="{{ old('code', $campus?->code ?? '') }}"
                       required />
     </div>
 
     <div>
-        <x-input-text name="gcal" label="Google Calendar"
-                      value="{{ old('gcal', $campus?->gcal ?? '') }}" />
+        <x-input-text name="gcal" label="Google Calendar Key"
+                      value="{{ old('gcal', $campus?->gcal ?? '') }}"
+        />
+        <p class="mt-2 text-sm text-gray-500">Google Calendar key for this campus. This is used to sync with the library calendar.</p>
     </div>
 
     <div class="sm:col-span-2">

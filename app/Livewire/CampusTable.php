@@ -45,7 +45,11 @@ final class CampusTable extends PowerGridComponent
                 "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white\">$name</span>"
                 )->implode(' ');
             })
-            ->add('gcal');
+            // Use a traditional closure to call the helper function for the gcal status
+            ->add('gcal', function (Campus $model) { // Changed to use Campus model hint
+                return $this->renderGcalStatus($model); // Call the helper function
+            });
+
     }
 
     public function columns(): array
@@ -75,7 +79,7 @@ final class CampusTable extends PowerGridComponent
             'editRoute' => 'campuses.edit',
             'deleteEvent' => 'confirmDelete',
             'canEdit' => true,
-            'canDelete' => false,
+            'canDelete' => true,
             'size' => 'w-4 h-4',
             'routeKeyName' => 'campus'
         ]);
@@ -105,4 +109,22 @@ final class CampusTable extends PowerGridComponent
             ]
         );
     }
+
+    /**
+     * Helper function to render the status of the gcal field.
+     *
+     * @param Campus $model The model instance for the current row (type-hinted correctly as Campus).
+     * @return string The HTML for the checkmark or an empty string.
+     */
+    private function renderGcalStatus(Campus $model): string // CORRECTED TYPE HINT TO Campus
+    {
+        // Check if the gcal field is not empty or null for this table's model
+        if (!empty($model->gcal)) {
+            // Return an SVG checkmark icon if gcal is populated
+            return '<svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+        }
+        // Return an empty string if gcal is empty or null
+        return '';
+    }
+
 }

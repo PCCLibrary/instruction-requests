@@ -35,7 +35,9 @@ class CsrfTokenController extends Controller
             $token = $timestamp . '|' . $random . '|' . $signature;
 
             return Response::json(['csrf_token' => $token], 200)
-                ->header('Cache-Control', 'private, max-age=60'); // Cache for 1 minute in browser
+                ->header('Cache-Control', 'private, max-age=600'); // Cache for 10 minutes in browser
+
+
         } catch (\Exception $e) {
             Log::error('Error generating form token', [
                 'error' => $e->getMessage()

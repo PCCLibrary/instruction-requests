@@ -15,6 +15,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Components\SetUp\Responsive;
+use App\Models\Campus;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -180,6 +181,14 @@ final class InstructionRequestTable extends PowerGridComponent
      */
     public function filters(): array
     {
+
+        // Fetch campuses, selecting 'code' for the value and 'name' for the label,
+        // directly from the database and format as an array.
+        $campuses = Campus::select('code as value', 'name as label')
+            ->orderBy('name')
+            ->get()
+            ->toArray();
+
         return [
             Filter::inputText('instructor_name', 'instructors.display_name')
                 ->operators(['contains']),
@@ -191,16 +200,7 @@ final class InstructionRequestTable extends PowerGridComponent
 //                ->operators(['contains']),
 
             Filter::select('campus_name', 'campuses.code')
-                ->dataSource([
-                    ['value' => 'NCP', 'label' => 'No Campus Preference'],
-                    ['value' => 'CAS', 'label' => 'Cascade'],
-                    ['value' => 'RC', 'label' => 'Rock Creek'],
-                    ['value' => 'SE', 'label' => 'Southeast'],
-                    ['value' => 'SY', 'label' => 'Sylvania'],
-                    ['value' => 'OL', 'label' => 'Online'],
-                    ['value' => 'O', 'label' => 'Other'],
-
-                ])
+                ->dataSource($campuses)
                 ->optionValue('value')
                 ->optionLabel('label'),
 

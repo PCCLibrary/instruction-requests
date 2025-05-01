@@ -17,3 +17,5 @@ yarn-error.log
 /public/build/assets/
 /app/google-calendar/pcc-library-website-baf73fcc9190.json
 **/*repomix.txt
+/app/app-repomix.txt
+/resources/views/views-repomix.txt
