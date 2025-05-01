@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CampusController;
-use App\Http\Controllers\Api\LibrarianController;
+use App\Http\Controllers\API\CampusController;
+use App\Http\Controllers\API\LibrarianController;
 use App\Http\Controllers\API\CsrfTokenController;
 use Illuminate\Session\Middleware\StartSession;
 

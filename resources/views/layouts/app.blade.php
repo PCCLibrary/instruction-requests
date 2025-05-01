@@ -34,7 +34,7 @@
 <!-- Page Content -->
 <main class="py-0">
     <x-alerts/>
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-8 3xl:px-8">
         @yield('content')
     </div>
 </main>
