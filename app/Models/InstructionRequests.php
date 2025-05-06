@@ -25,12 +25,7 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
 {
     use SoftDeletes, InteractsWithMedia, Commentable, IsLockable;
 
-    /**
-     * Custom lock duration for this model (10 minutes)
-     *
-     * @var string
-     */
-    public $modelLockDuration = "600";
+    // Model will use the default lock duration from config/laravel-lockable.php
 
     /**
      * @var string Table name
