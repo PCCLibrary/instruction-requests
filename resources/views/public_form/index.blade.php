@@ -1,362 +1,68 @@
-@extends('layouts.public')
+@extends('layouts.public') {{-- Assuming your layout file is named public.blade.php --}}
 
 @section('content')
-    <div
-        x-data="instructionForm()"
-        x-init="init()"
-        class="card"
-    >
-        <form
-            method="POST"
-            action="{{ route('public.instruction-request.store') }}"
-            id="instructionRequestForm"
-            enctype="multipart/form-data"
-        >
-            @csrf
 
-            {{-- ************************
-                 Contact Information
-            ************************ --}}
-            <fieldset class="card-body">
-                <legend>Contact information</legend>
-                <div class="row">
-                    @include('public_form.partials.input-text', [
-                        'name' => 'name',
-                        'label' => 'Instructor name',
-                        'value' => old('name'),
-                        'classes' => 'col-lg-6',
-                        'required' => true
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'display_name',
-                        'label' => 'Students refer to me as',
-                        'value' => old('display_name'),
-                        'classes' => 'col-lg-6'
-                    ])
-                </div>
-                <div class="row">
-                    @include('public_form.partials.input-text', [
-                        'name' => 'pronouns',
-                        'label' => 'Pronouns',
-                        'value' => old('pronouns'),
-                        'classes' => 'col-lg-4'
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'email',
-                        'label' => 'Email',
-                        'value' => old('email'),
-                        'classes' => 'col-lg-4',
-                        'required' => true
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'phone',
-                        'label' => 'Phone',
-                        'value' => old('phone'),
-                        'classes' => 'col-lg-4'
-                    ])
-                </div>
-            </fieldset>
+    {{-- Container and row to center the card horizontally --}}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            {{-- Column to control the card width (6 columns on medium screens and up) --}}
+            <div class="col-md-6">
 
-            {{-- ************************
-                 Request Information
-            ************************ --}}
-            <fieldset class="card-body">
-                <legend>Request information</legend>
-                <div class="row">
-                    @include('public_form.partials.input-select', [
-                        'name' => 'instruction_type',
-                        'label' => 'Instruction Type',
-                        'options' => [
-                            'on-campus' => 'Librarian joins my class on campus',
-                            'remote' => 'Librarian joins my online (scheduled meeting) class',
-                            'asynchronous' => 'Librarian provides resources to be used asynchronously'
-                        ],
-                        'selected' => old('instruction_type'),
-                        'classes' => 'col-lg-6',
-                        'tophelptext' => 'Please select what you need help with.',
-                        'required' => true,
-                        'xModel' => 'instructionType',
-                        '@change' => 'applyFieldSettings'
-                    ])
-                </div>
-            </fieldset>
+                {{-- Bootstrap Card structure --}}
+                <div class="card no-border">
 
-            {{-- ************************
-                 Campus + Librarian
-            ************************ --}}
-            <div class="row">
-            <fieldset class="on-campus remote asynchronous card-body">
-{{--                <div class="row">--}}
-                    <input type="hidden" name="campus_id" value="1" />
-                    @include('public_form.partials.input-select', [
-                        'name' => 'campus_id',
-                        'label' => 'Campus Preference',
-                        'options' => $campuses,
-                        'selected' => old('campus_id'),
-                        'classes' => 'col-lg-12',
-                        'tophelptext' => 'Select the location where your class takes place or is assigned to.
-                        If the class is not assigned to a location, select the campus with which you are primarily associated.
-                        Select “No campus preference” if you’re not sure.',
-                        'required' => true
-                    ])
-{{--                </div>--}}
-            </fieldset>
-
-            <fieldset class="on-campus remote asynchronous card-body">
-{{--                <div class="row">--}}
-                    <input name="librarian_id" type="hidden" value="2" />
-                    @include('public_form.partials.input-select', [
-                        'name' => 'librarian_id',
-                        'label' => 'Librarian Preference',
-                        'options' => $librarians->pluck('display_name', 'id')->toArray(),
-                        'selected' => old('librarian_id'),
-                        'classes' => 'col-lg-12',
-                        'tophelptext' => 'Do you want to work with a librarian from a specific campus or a specific librarian?
-                        We will try to assign your preferred librarian, but we can’t guarantee their availability.',
-                        'required' => false
-                    ])
-{{--                </div>--}}
-            </fieldset>
-            </div>
-            {{-- ************************
-                 Class Information
-            ************************ --}}
-            <fieldset class="on-campus remote asynchronous card-body">
-                <legend>Class Information</legend>
-                <div class="row">
-                    @include('public_form.partials.input-select', [
-                        'name' => 'department',
-                        'label' => 'Subject',
-                        'options' => $departments,
-                        'selected' => old('department'),
-                        'classes' => 'col-lg-4',
-                        'helptext' => 'Choose the subject of your course.',
-                        'required' => true
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'course_number',
-                        'label' => 'Course Number',
-                        'value' => old('course_number'),
-                        'classes' => 'col-lg-3',
-                        'helptext' => 'Enter the course number (e.g., "122" for course BI 122). Enter "0000" if no course number.',
-                        'required' => true
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'course_crn',
-                        'label' => 'Course CRN',
-                        'value' => old('course_crn'),
-                        'classes' => 'col-lg-3',
-                        'helptext' => 'Enter the 5-digit CRN for your course. Enter 99999 if no CRN.',
-                        'required' => true
-                    ])
-                    @include('public_form.partials.input-text', [
-                        'name' => 'number_of_students',
-                        'label' => 'Number of Students',
-                        'type' => 'number',
-                        'value' => old('number_of_students'),
-                        'classes' => 'col-lg-2 on-campus remote asynchronous',
-                        'helptext' => 'Enter the number of students in the class.',
-                        'required' => true
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 ADA Fields
-            ************************ --}}
-            <fieldset class="on-campus remote card-body">
-                <div class="row">
-                    @include('public_form.partials.input-checkbox', [
-                        'name' => 'ada_provisions_needed',
-                        'label' => 'ADA Provisions Needed',
-                        'checked' => old('ada_provisions_needed'),
-                        'classes' => 'col-lg-3',
-                        'target' => 'ada_provisions_description',
-                    ])
-                    @include('public_form.partials.textarea', [
-                        'name' => 'ada_provisions_description',
-                        'label' => 'Describe the ADA accommodations needed for your class.',
-                        'value' => old('ada_provisions_description'),
-                        'classes' => 'col-lg-8 ' . (empty(old('ada_provisions_description')) ? 'invisible' : '')
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 Attachments
-            ************************ --}}
-            <fieldset class="on-campus remote asynchronous card-body">
-                <legend>Attachments</legend>
-                <div class="row mb-4">
-                    @include('public_form.partials.url-manager', [
-                        'name' => 'class_description',
-                        'label' => 'Links to Google docs',
-                        'value' => old('class_description'),
-                        'classes' => 'col-lg-8',
-                        'helptext' => 'If you have Google Drive links for materials, please provide them here.'
-                    ])
-                </div>
-                <div class="row mb-4">
-                    @include('public_form.partials.dropzone', [
-                        'name' => 'materials',
-                        'label' => 'Upload Files (doc, docx, pdf, ppt, pptx, txt, rtf)',
-                        'helptext' => 'Drop files here or click to browse. Maximum 4 files, 20MB each.',
-                        'classes' => 'col-lg-12',
-                        'errors' => $errors->get('materials.*')
-                    ])
-                </div>
-                <div class="row">
-                    @include('public_form.partials.textarea', [
-                        'name' => 'assignment_description',
-                        'label' => 'Assignment description, sample topics or additional notes',
-                        'value' => old('assignment_description'),
-                        'classes' => 'col-lg-8',
-                        'helptext' => 'Include any additional information that will help the librarian prepare for your class.'
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 Date/Time Fields
-            ************************ --}}
-            <fieldset class="on-campus remote card-body">
-                <legend>Date, time and duration</legend>
-                <div class="row">
-                    <input type="hidden" name="preferred_datetime" value="{{ now()->format('Y-m-d H:i:s') }}" />
-                    @include('public_form.partials.input-datetime', [
-                        'name' => 'preferred_datetime',
-                        'label' => 'Preferred Date & Time',
-                        'value' => old('preferred_datetime'),
-                        'helptext' => 'Enter the date/time you prefer to have your instruction session.',
-                        'classes' => 'col-lg-4'
-                    ])
-                    <input type="hidden" name="alternate_datetime" value="{{ now()->format('Y-m-d H:i:s') }}" />
-                    @include('public_form.partials.input-datetime', [
-                        'name' => 'alternate_datetime',
-                        'label' => 'Alternate Date & Time',
-                        'value' => old('alternate_datetime'),
-                        'helptext' => 'Enter an alternate date/time for your instruction session.',
-                        'classes' => 'col-lg-4'
-                    ])
-                    <input type="hidden" name="duration" value="0" />
-                    @include('public_form.partials.input-text', [
-                        'name' => 'duration',
-                        'label' => 'Duration',
-                        'selected' => old('instruction_duration'),
-                        'helptext' => 'Please enter the duration of your class in minutes only.',
-                        'classes' => 'col-lg-4'
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 Extra Time
-            ************************ --}}
-            <fieldset class="on-campus card-body">
-                <div class="row">
-                    @include('public_form.partials.textarea', [
-                        'name' => 'extra_time_with_class',
-                        'label' => 'Do you need time to discuss non-library matters with your class on the day of library instruction?',
-                        'value' => old('extra_time_with_class'),
-                        'classes' => 'col-lg-8'
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 Asynchronous Date
-            ************************ --}}
-            <fieldset class="asynchronous card-body">
-                <legend>Asynchronous Date</legend>
-                <div class="row">
-                    @include('public_form.partials.input-date', [
-                        'name' => 'asynchronous_instruction_ready_date',
-                        'label' => 'Asynchronous instruction ready by',
-                        'value' => old('asynchronous_instruction_ready_date'),
-                        'helptext' => 'Examples of asynchronous instruction: tutorials, videos, research guides, or a librarian embedded in Brightspace.',
-                        'classes' => 'col-lg-6'
-                    ])
-                </div>
-            </fieldset>
-
-            {{-- ************************
-                 Learning Outcomes
-            ************************ --}}
-            <fieldset class="on-campus remote card-body">
-                <legend>By the time students receive library instruction they will have:</legend>
-                <div class="row">
-                    <div class="col-lg-3">
-                        @include('public_form.partials.input-checkbox', [
-                            'name' => 'received_assignment',
-                            'label' => 'Received Assignment',
-                            'checked' => old('received_assignment')
-                        ])
-                        @include('public_form.partials.input-checkbox', [
-                            'name' => 'selected_topics',
-                            'label' => 'Selected Topics',
-                            'checked' => old('selected_topics')
-                        ])
-                        @include('public_form.partials.input-checkbox', [
-                            'name' => 'explored_background',
-                            'label' => 'Explored Background',
-                            'checked' => old('explored_background')
-                        ])
-
-                        @include('public_form.partials.input-checkbox', [
-                            'name' => 'written_draft',
-                            'label' => 'Written Draft',
-                            'checked' => old('written_draft')
-                        ])
-                        @include('public_form.partials.input-checkbox', [
-                            'name' => 'other_learning_outcome',
-                            'label' => 'Other work related to the assignment',
-                            'checked' => old('other_learning_outcome'),
-                            'target' => 'other_learning_outcome_description'
-                        ])
+                    {{-- Card Header with styling for title --}}
+                    {{-- Using p-4 for padding, bg-primary for background, text-white for text, and text-center for centering --}}
+                    <div class="card-header p-4 bg-primary text-white text-center">
+                        {{-- Use a heading tag for the title --}}
+                        <h1 class="h4 card-title mb-0">PCC Library Instruction Request Dashboard</h1>
                     </div>
-                    <div class="col-lg-6">
-                        @include('public_form.partials.textarea', [
-                            'name' => 'other_learning_outcome_description',
-                            'label' => 'Other Learning Outcome',
-                            'value' => old('other_learning_outcome_description'),
-                            'classes' => 'invisible'
-                        ])
+
+                    {{-- Card Body for main content --}}
+                    {{-- Using text-center to center content within the body --}}
+                    <div class="card-body text-center">
+                        {{-- Descriptive text --}}
+                        {{-- mb-4 adds margin below the paragraph --}}
+                        {{-- text-gray-600 class might come from a CSS file included in your layout, or you can use Bootstrap's text-secondary etc. --}}
+                        <p class="mb-4 text-gray-600">Welcome to the PCC Library Instruction Request System.<br/>Please log in with your PCC credentials to access the system.</p>
+
+                        {{-- Login Button --}}
+                        {{-- Using Bootstrap classes and the inline style for the specific blue color --}}
+                        <a href="{{ route('saml2.login') }}"
+                           class="btn btn-primary btn-lg"
+                           style="background-color: #008099; border-color: #008099; color: white;">
+                            Librarian Login
+                        </a>
+
+                        <hr class="h5 my-4 w-100"/>
+
+                        {{-- Logout Button --}}
+                        {{-- Using Bootstrap classes and the inline style for the specific blue color --}}
+
+                        {{-- New Link for Instruction Request Form wrapped in Bootstrap info alert with icon and dismiss --}}
+                        <div class="alert alert-info d-flex align-items-center text-left fade show mt-3" role="alert">
+                            {{-- Font Awesome 4 Info Icon --}}
+                            {{-- Ensure you have Font Awesome 4 CSS included in your layout --}}
+                            <i class="fa fa-2x fa-info-circle mr-4"></i> {{-- Added mr-2 for spacing between icon and text --}}
+                            {{-- Alert text and link --}}
+                            <a href="/library/instruction-request/" class="alert-link">If you want to create a new Instruction Request, click here to access the Instruction Request Form.</a>
+                        </div>
+
+
                     </div>
-                </div>
-            </fieldset>
 
-            <fieldset class="on-campus remote asynchronous card-body">
-                <div class="row">
-                    @include('public_form.partials.textarea', [
-                        'name' => 'library_instruction_description',
-                        'label' => 'What do you want your students to get out of library instruction?',
-                        'value' => old('library_instruction_description'),
-                        'classes' => 'col-lg-8',
-                        'helptext' => 'Examples: developing a topic, searching effectively, evaluating sources, etc.'
-                    ])
-                </div>
-            </fieldset>
+                    {{-- Card Footer for supplementary information --}}
+                    {{-- Using text-center for centering and text-muted for muted text color --}}
+                    {{-- small tag is used for smaller text size --}}
+                    <div class="card-footer text-center text-muted small">
+                        <p class="mb-1">Need help? <a href="library-dst-group@pcc.edu">Contact DST</a></p>
+                        <p class="mb-0">Version 1.0 &copy; 2025 Portland Community College</p>
+                    </div>
 
-            <fieldset class="on-campus remote asynchronous card-body">
-                <div class="row">
-                    @include('public_form.partials.textarea', [
-                        'name' => 'genai_discussion_interest',
-                        'label' => 'Generative AI',
-                        'value' => old('genai_discussion_interest'),
-                        'classes' => 'col-lg-8',
-                        'helptext' => 'If you have class guidelines about ChatGPT, Perplexity, etc., or want to coordinate with your librarian on AI usage, share details here.'
-                    ])
-                </div>
-            </fieldset>
+                </div> {{-- End Bootstrap Card --}}
 
-            {{-- ************************
-                 Form Footer
-            ************************ --}}
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <button class="btn btn-warning ml-2" id="clearForm" type="button">Clear Form</button>
-            </div>
-        </form>
-    </div>
+            </div> {{-- End column --}}
+        </div> {{-- End row --}}
+    </div> {{-- End container --}}
 
 @endsection
