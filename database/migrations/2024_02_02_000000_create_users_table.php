@@ -23,6 +23,8 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->boolean('is_admin')->default(false); // Adds an is_admin column, defaulting to false
+            $table->boolean('is_scheduler')->default(false); // Adds an is_scheduler column, defaulting to false
+
             $table->timestamps();
 
             // Foreign keys

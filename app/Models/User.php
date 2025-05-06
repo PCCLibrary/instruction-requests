@@ -41,6 +41,7 @@ class User extends Authenticatable implements CommenterContract
         'campus_id',
         'email',
         'password',
+        'is_scheduler'
     ];
 
     /**
@@ -61,6 +62,8 @@ class User extends Authenticatable implements CommenterContract
     protected $casts = [
         'email_verified_at' => 'datetime',
         'campus_id' => 'integer',
+        'is_scheduler' => 'boolean',
+        'is_admin' => 'boolean',
     ];
 
     /**

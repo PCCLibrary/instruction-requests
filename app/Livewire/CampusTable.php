@@ -65,7 +65,7 @@ final class CampusTable extends PowerGridComponent
 
             Column::make('Notifications to:', 'librarians'),
 
-            Column::make('GCal URL', 'gcal')
+            Column::make('GCal Key', 'gcal')
                 ->searchable(),
 
             Column::action('Action')

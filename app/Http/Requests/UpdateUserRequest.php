@@ -35,7 +35,8 @@ class UpdateUserRequest extends FormRequest
             'display_name' => 'required',
             'email'    => 'required|email|unique:users,email,'.$id,
             'campus_id' => 'required|exists:campuses,id',
-            'password' => 'confirmed'
+            'password' => 'confirmed',
+            'is_scheduler' => 'boolean',
         ];
 
         return $rules;
