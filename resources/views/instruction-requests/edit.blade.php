@@ -320,7 +320,7 @@
     {{-- Lock management script for normal (non-view-only) mode --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Refresh lock every 5 minutes (assuming 10-minute lock duration)
+            // Refresh lock every 5 minutes (assuming 15-minute stale lock duration)
             const refreshInterval = setInterval(function() {
                 fetch('{{ route("instructionRequests.refreshLock", $instructionRequest->id) }}', {
                     method: 'POST',
@@ -331,6 +331,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Lock refresh response:', data);
                     if (!data.success) {
                         // If we lost the lock, reload the page to show view-only mode
                         window.location.reload();
@@ -349,10 +350,15 @@
                 const formData = new FormData();
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-                navigator.sendBeacon(
-                    '{{ route("instructionRequests.releaseLock", $instructionRequest->id) }}',
-                    formData
-                );
+                try {
+                    navigator.sendBeacon(
+                        '{{ route("instructionRequests.releaseLock", $instructionRequest->id) }}',
+                        formData
+                    );
+                    console.log('Lock release request sent');
+                } catch (error) {
+                    console.error('Error sending lock release request:', error);
+                }
             });
         });
     </script>

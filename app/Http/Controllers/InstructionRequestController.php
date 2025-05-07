@@ -394,6 +394,67 @@ class InstructionRequestController extends AppBaseController
     }
 
     /**
+     * Refresh the lock on an instruction request.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refreshLock(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            // Attempt to refresh the lock by getting a new timestamp
+            $request = $this->instructionRequestService->lockRequest($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lock refreshed successfully',
+                'request_id' => $id
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to refresh lock', [
+                'request_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'request_id' => $id
+            ]);
+        }
+    }
+
+    /**
+     * Release the lock on an instruction request.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function releaseLock(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $this->instructionRequestService->unlockRequest($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lock released successfully',
+                'request_id' => $id
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to release lock', [
+                'request_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'request_id' => $id
+            ]);
+        }
+    }
+
+    /**
      * Fetch related data for the instruction request and append to the object.
      *
      * @param InstructionRequests $instructionRequest

@@ -15,7 +15,8 @@ class VerifyCsrfToken extends Middleware
         'api/token/generate',
         'api/media/upload',
         'api/media/delete/*',
-        'api/new-request'
-
+        'api/new-request',
+        'dashboard/instructionRequests/*/refresh-lock',
+        'dashboard/instructionRequests/*/release-lock'
     ];
 }
