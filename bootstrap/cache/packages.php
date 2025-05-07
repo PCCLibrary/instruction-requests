@@ -84,6 +84,17 @@
       0 => 'Livewire\\LivewireServiceProvider',
     ),
   ),
+  'lowerrocklabs/laravel-lockable' => 
+  array (
+    'aliases' => 
+    array (
+      'Lockable' => 'LowerRockLabs\\Lockable\\Facades\\Lockable',
+    ),
+    'providers' => 
+    array (
+      0 => 'LowerRockLabs\\Lockable\\LockableServiceProvider',
+    ),
+  ),
   'masmerise/livewire-toaster' => 
   array (
     'aliases' => 

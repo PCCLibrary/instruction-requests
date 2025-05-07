@@ -158,6 +158,16 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Lock Management Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::post('instructionRequests/{id}/release-lock', [InstructionRequestController::class, 'releaseLock'])
+        ->name('instructionRequests.releaseLock');
+    Route::post('instructionRequests/{id}/refresh-lock', [InstructionRequestController::class, 'refreshLock'])
+        ->name('instructionRequests.refreshLock');
+
+    /*
+    |--------------------------------------------------------------------------
     | Admin File Upload Routes
     |--------------------------------------------------------------------------
     */

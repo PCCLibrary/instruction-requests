@@ -119,9 +119,31 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
+        // Check if locked by someone else
+        if ($instructionRequest->isLocked() && !$instructionRequest->hasLock(auth()->id())) {
+            $lockOwnerId = $instructionRequest->getLockedBy();
+            $lockOwner = User::find($lockOwnerId);
+            $lockOwnerName = $lockOwner ? $lockOwner->display_name : 'another user';
+
+            session()->flash('warning', "This request is currently being edited by {$lockOwnerName}. View-only mode enabled.");
+
+            return view('instruction-requests.edit')->with([
+                'instructionRequest' => $instructionRequest,
+                'librarians' => User::orderedLibrariansScope()->get(),
+                'campuses' => Campus::all(),
+                'instructors' => Instructor::all(),
+                'departments' => $this->departmentService->getAllDepartments(),
+                'materials' => $instructionRequest->getMedia('materials'),
+                'isViewOnly' => true
+            ]);
+        }
+
+        // Acquire lock for current user
+        $instructionRequest->acquireLock(auth()->id());
+
         // Ensure we have the most recent data
         $instructionRequest->refresh();
-        
+
         // Ensure calendar event relationship is loaded
         if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
             $instructionRequest->load('googleCalendarEvent');
@@ -136,7 +158,8 @@ class InstructionRequestController extends AppBaseController
             'campuses' => Campus::all(),
             'instructors' => Instructor::all(),
             'departments' => $this->departmentService->getAllDepartments(),
-            'materials' => $materials
+            'materials' => $materials,
+            'isViewOnly' => false
         ]);
     }
 
@@ -165,6 +188,16 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
+        // Verify the lock is owned by the current user
+        if ($instructionRequest->isLocked() && !$instructionRequest->hasLock(auth()->id())) {
+            $lockOwnerId = $instructionRequest->getLockedBy();
+            $lockOwner = User::find($lockOwnerId);
+
+            $ownerName = $lockOwner ? $lockOwner->display_name : 'another user';
+            session()->flash('error', "Cannot save changes. This request is currently being edited by {$ownerName}.");
+            return redirect(route('instructionRequests.edit', $id));
+        }
+
         Log::info('Found instruction request', [
             'id' => $id,
             'current_status' => $instructionRequest->status,
@@ -176,7 +209,7 @@ class InstructionRequestController extends AppBaseController
             // Comprehensive detailed logging of all request data
             Log::debug('FULL REQUEST DATA', $request->all());
             Log::debug('VALIDATED REQUEST DATA', $validatedData);
-            
+
             // Specially log the assigned_librarian_id
             if (isset($validatedData['assigned_librarian_id'])) {
                 Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
@@ -197,6 +230,9 @@ class InstructionRequestController extends AppBaseController
                 'detail_id' => $updated->detail ? $updated->detail->id : 'none',
                 'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
             ]);
+
+            // Release the lock after successful update
+            $instructionRequest->releaseLock();
 
             session()->flash('success', 'Instruction Request updated successfully.');
             return redirect(route('instructionRequests.edit', $id));
@@ -311,34 +347,34 @@ class InstructionRequestController extends AppBaseController
     public function deleteCalendarEvent(int $id): RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
-        
+
         if (empty($instructionRequest)) {
             session()->flash('error', 'Instruction Request not found.');
             return redirect(route('instructionRequests.index'));
         }
-        
+
         // Load the calendar event if not already loaded
         if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
             $instructionRequest->load('googleCalendarEvent');
         }
-        
+
         if (!$instructionRequest->googleCalendarEvent) {
             session()->flash('error', 'No calendar event found for this request.');
             return redirect(route('instructionRequests.edit', $id));
         }
-        
+
         // Use calendar service to delete the event
         $result = $this->calendarService->deleteEvent($instructionRequest->googleCalendarEvent);
-        
+
         if ($result) {
             session()->flash('success', 'Calendar event deleted successfully.');
         } else {
             session()->flash('error', 'Failed to delete calendar event.');
         }
-        
+
         return redirect(route('instructionRequests.edit', $id));
     }
-    
+
     /**
      * Fetch related data for the instruction request and append to the object.
      *
@@ -358,5 +394,43 @@ class InstructionRequestController extends AppBaseController
         $instructionRequest->librarian_name = $librarian?->display_name;
 
         return $instructionRequest;
+    }
+
+    /**
+     * Release lock on instruction request.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function releaseLock(int $id): \Illuminate\Http\JsonResponse
+    {
+        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+        if (!$instructionRequest) {
+            return response()->json(['success' => false]);
+        }
+
+        $success = $instructionRequest->releaseLock();
+
+        return response()->json(['success' => $success]);
+    }
+
+    /**
+     * Refresh a lock on instruction request.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refreshLock(int $id): \Illuminate\Http\JsonResponse
+    {
+        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+        if (!$instructionRequest) {
+            return response()->json(['success' => false]);
+        }
+
+        $success = $instructionRequest->acquireLock(auth()->id());
+
+        return response()->json(['success' => $success]);
     }
 }
