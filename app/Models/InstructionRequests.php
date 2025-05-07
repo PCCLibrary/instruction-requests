@@ -13,7 +13,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
 use LakM\Comments\Concerns\Commentable;
 use LakM\Comments\Contracts\CommentableContract;
-use LowerRockLabs\Lockable\Traits\IsLockable;
 
 /**
  * Class InstructionRequests
@@ -23,7 +22,7 @@ use LowerRockLabs\Lockable\Traits\IsLockable;
  */
 class InstructionRequests extends Model implements HasMedia, CommentableContract
 {
-    use SoftDeletes, InteractsWithMedia, Commentable, IsLockable;
+    use SoftDeletes, InteractsWithMedia, Commentable;
 
     // Model will use the default lock duration from config/laravel-lockable.php
 

@@ -19,7 +19,6 @@ yarn-error.log
 **/*repomix.txt
 /app/app-repomix.txt
 /resources/views/views-repomix.txt
-/bootstrap/*
-/bootstrap/cache/
 /bootstrap/cache/services.php
 /bootstrap/cache/packages.php
+/bootstrap/cache/
