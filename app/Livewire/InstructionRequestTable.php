@@ -171,24 +171,6 @@ final class InstructionRequestTable extends PowerGridComponent
 
 //                ->searchable(),
 
-            // Add lock status column
-            Column::make('Editing', 'id')
-                ->asHtml()
-                ->sortable(false)
-                ->format(function (InstructionRequests $model) {
-                    if ($model->isLocked()) {
-                        $lockOwnerId = $model->getLockedBy();
-                        $lockOwner = \App\Models\User::find($lockOwnerId);
-                        $name = $lockOwner ? $lockOwner->display_name : 'Someone';
-
-                        return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Editing by ' . e($name) . '
-                        </span>';
-                    }
-
-                    return '';
-                }),
-
             Column::action('Action')
                 ->visibleInExport(false)
         ];
@@ -253,15 +235,12 @@ final class InstructionRequestTable extends PowerGridComponent
      */
     public function actionsFromView($row): View
     {
-        // Check if the model is locked and if current user has the lock
-        $canEdit = !$row->isLocked() || ($row->isLocked() && $row->hasLock(auth()->id()));
-
         return view('components.table-actions', [
             'id' => $row->id,
             'editRoute' => 'instructionRequests.edit',
             'deleteEvent' => 'confirmDelete',
-            'canEdit' => $canEdit,
-            'canDelete' => true, // Users can still delete even if locked
+            'canEdit' => true,
+            'canDelete' => true,
             'size' => 'w-4 h-4',
             'routeKeyName' => 'instructionRequest'
         ]);
