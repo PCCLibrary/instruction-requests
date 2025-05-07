@@ -13,12 +13,12 @@
         "laravel/tinker": "^2.10",
         "laravel/ui": "^4.6",
         "livewire/livewire": "^3.0",
-        "lowerrocklabs/laravel-lockable": "^1.4",
         "masmerise/livewire-toaster": "^2.6",
         "power-components/livewire-powergrid": "^6.1.11",
         "socialiteproviders/saml2": "^4.7",
         "spatie/laravel-google-calendar": "^3.8",
-        "spatie/laravel-medialibrary": "^11.0"
+        "spatie/laravel-medialibrary": "^11.0",
+        "testmonitor/eloquent-lockable": "dev-main"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

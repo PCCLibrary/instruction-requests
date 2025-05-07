@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5331fb20f4a3133b2c52dbbad9c28744",
+    "content-hash": "57a202914456eadf9ffb48142d255af1",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -3279,79 +3279,6 @@
                 }
             ],
             "time": "2025-02-13T21:05:24+00:00"
-        },
-        {
-            "name": "lowerrocklabs/laravel-lockable",
-            "version": "1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/LowerRockLabs/laravel-lockable.git",
-                "reference": "3e8acfec300ba2706ad2e3aa5e4e4442958820ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/LowerRockLabs/laravel-lockable/zipball/3e8acfec300ba2706ad2e3aa5e4e4442958820ec",
-                "reference": "3e8acfec300ba2706ad2e3aa5e4e4442958820ec",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0",
-                "laravel/framework": "^8.0|^9.19|^10.0|^11.0",
-                "php": "^7.3|^8.0"
-            },
-            "require-dev": {
-                "laravel/legacy-factories": "^1.0.4",
-                "nunomaduro/collision": "^5.0|^6.0|^7.0",
-                "nunomaduro/larastan": "^1.0|^2.0.1",
-                "orchestra/testbench": "^6.0|^7.9",
-                "pestphp/pest": "^1.21|^2.0",
-                "pestphp/pest-plugin-laravel": "^1.1|^2.0",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/php-code-coverage": "^9.2|^10.0",
-                "phpunit/phpunit": "^9.5|^10.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Lockable": "LowerRockLabs\\Lockable\\Facades\\Lockable"
-                    },
-                    "providers": [
-                        "LowerRockLabs\\Lockable\\LockableServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "LowerRockLabs\\Lockable\\": "src",
-                    "LowerRockLabs\\Lockable\\Database\\Factories\\": "database/factories"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Joe",
-                    "email": "joe@lowerrocklabs.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Laravel Lockable provides traits to allow for models to be locked",
-            "homepage": "https://github.com/lowerrocklabs/laravel-lockable",
-            "keywords": [
-                "LowerRockLabs",
-                "laravel",
-                "laravel-lockable"
-            ],
-            "support": {
-                "issues": "https://github.com/LowerRockLabs/laravel-lockable/issues",
-                "source": "https://github.com/LowerRockLabs/laravel-lockable/tree/1.4"
-            },
-            "time": "2024-06-01T02:54:43+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -8199,6 +8126,76 @@
             "time": "2025-01-17T11:39:41+00:00"
         },
         {
+            "name": "testmonitor/eloquent-lockable",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/testmonitor/eloquent-lockable.git",
+                "reference": "cb7e744258ab903a51b7a9654497a2dbdc369d6e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/testmonitor/eloquent-lockable/zipball/cb7e744258ab903a51b7a9654497a2dbdc369d6e",
+                "reference": "cb7e744258ab903a51b7a9654497a2dbdc369d6e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.7",
+                "orchestra/testbench": "^9.0|^10.0",
+                "phpunit/phpunit": "^11.0",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TestMonitor\\Lockable\\": "src",
+                    "TestMonitor\\Lockable\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Thijs Kok",
+                    "email": "tkok@testmonitor.com",
+                    "homepage": "https://www.testmonitor.com/",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Stephan Grootveld",
+                    "email": "sgrootveld@testmonitor.com",
+                    "homepage": "https://www.testmonitor.com/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Frank Keulen",
+                    "email": "fkeulen@testmonitor.com",
+                    "homepage": "https://www.testmonitor.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Make Eloquent models read-only after they're locked. Prevents updates and deletes based on a `locked` attribute.",
+            "keywords": [
+                "eloquent",
+                "laravel",
+                "lockable",
+                "model",
+                "testmonitor"
+            ],
+            "support": {
+                "issues": "https://github.com/testmonitor/eloquent-lockable/issues",
+                "source": "https://github.com/testmonitor/eloquent-lockable/tree/main"
+            },
+            "time": "2025-05-01T16:02:03+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.3.0",
             "source": {
@@ -12034,7 +12031,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "testmonitor/eloquent-lockable": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
