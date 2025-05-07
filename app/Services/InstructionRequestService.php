@@ -51,6 +51,77 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
+     * Lock an instruction request for a specific user.
+     *
+     * @param int $id
+     * @param int|null $userId
+     * @return InstructionRequests|null
+     * @throws \Exception
+     */
+    public function lockRequest(int $id, ?int $userId = null): ?InstructionRequests
+    {
+        $request = $this->findInstructionRequestById($id);
+
+        if (!$request) {
+            throw new \Exception('Instruction request not found');
+        }
+
+        // If already locked by someone else and lock is not stale
+        if ($request->isLocked() &&
+            $request->locked_by !== auth()->id() &&
+            !$request->hasStalelock()) {
+
+            $locker = $request->lockedBy;
+            throw new \Exception("This request is currently being edited by {$locker->display_name}");
+        }
+
+        // Override stale locks automatically
+        if ($request->hasStalelock()) {
+            Log::info('Overriding stale lock', [
+                'request_id' => $request->id,
+                'previous_lock_by' => $request->locked_by,
+                'locked_at' => $request->locked_at,
+                'new_user' => $userId ?? auth()->id()
+            ]);
+        }
+
+        // Lock the request
+        $request->markLockedBy($userId);
+
+        return $request->fresh();
+    }
+
+    /**
+     * Unlock an instruction request.
+     *
+     * @param int $id
+     * @param bool $force Whether to force unlock (admin only)
+     * @return InstructionRequests|null
+     * @throws \Exception
+     */
+    public function unlockRequest(int $id, bool $force = false): ?InstructionRequests
+    {
+        $request = $this->findInstructionRequestById($id);
+
+        if (!$request) {
+            throw new \Exception('Instruction request not found');
+        }
+
+        // Only the user who locked it or an admin using force can unlock it
+        if (!$force &&
+            $request->isLocked() &&
+            $request->locked_by !== auth()->id()) {
+
+            throw new \Exception('You cannot unlock a request locked by someone else');
+        }
+
+        // Unlock the request
+        $request->markUnlocked();
+
+        return $request->fresh();
+    }
+
+    /**
      * @param array $data
      * @param Request $request
      * @return InstructionRequests
@@ -183,6 +254,14 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             if (!$instructionRequest) {
                 Log::error('Instruction request not found in service', ['id' => $id]);
                 throw new \Exception('Instruction request not found');
+            }
+
+            // Check if locked by someone else before updating
+            if ($instructionRequest->isLocked() &&
+                $instructionRequest->locked_by !== auth()->id()) {
+
+                $locker = $instructionRequest->lockedBy;
+                throw new \Exception("This request is currently being edited by {$locker->display_name}");
             }
 
             $oldStatus = $instructionRequest->status;
@@ -382,6 +461,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     /**
      * @param int $id
      * @return bool
+     * @throws \Exception
      */
     public function deleteInstructionRequest(int $id): bool
     {
@@ -390,6 +470,14 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             if (!$request) {
                 return false;
+            }
+
+            // Check if locked by someone else before deleting
+            if ($request->isLocked() &&
+                $request->locked_by !== auth()->id()) {
+
+                $locker = $request->lockedBy;
+                throw new \Exception("Cannot delete: This request is currently being edited by {$locker->display_name}");
             }
 
             return $this->repository->delete($id);

@@ -18,6 +18,26 @@ interface InstructionRequestServiceInterface
     public function createNewInstructionRequest(array $data, Request $request): InstructionRequests;
 
     /**
+     * Lock an instruction request for a specific user.
+     *
+     * @param int $id
+     * @param int|null $userId
+     * @return InstructionRequests|null
+     * @throws \Exception
+     */
+    public function lockRequest(int $id, ?int $userId = null): ?InstructionRequests;
+
+    /**
+     * Unlock an instruction request.
+     *
+     * @param int $id
+     * @param bool $force Whether to force unlock (admin only)
+     * @return InstructionRequests|null
+     * @throws \Exception
+     */
+    public function unlockRequest(int $id, bool $force = false): ?InstructionRequests;
+
+    /**
      * Update an existing instruction request and its details.
      *
      * @param array $data

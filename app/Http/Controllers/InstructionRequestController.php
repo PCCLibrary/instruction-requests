@@ -112,32 +112,54 @@ class InstructionRequestController extends AppBaseController
      */
     public function edit(int $id): View|RedirectResponse
     {
-        $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+        try {
+            $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
-        if (empty($instructionRequest)) {
-            session()->flash('error', 'Instruction Request not found.');
+            if (empty($instructionRequest)) {
+                session()->flash('error', 'Instruction Request not found.');
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Check if locked by someone else
+            if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
+                $locker = $instructionRequest->lockedBy;
+                session()->flash('warning', "{$locker->display_name} is currently editing this request.");
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Try to lock the request for this user
+            try {
+                $this->instructionRequestService->lockRequest($id);
+            } catch (\Exception $e) {
+                // This should only happen if locked by someone else after our first check
+                session()->flash('warning', $e->getMessage());
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Ensure we have the most recent data
+            $instructionRequest->refresh();
+
+            // Ensure calendar event relationship is loaded
+            if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
+                $instructionRequest->load('googleCalendarEvent');
+            }
+
+            // Get the materials media collection
+            $materials = $instructionRequest->getMedia('materials');
+
+            return view('instruction-requests.edit')->with([
+                'instructionRequest' => $instructionRequest,
+                'librarians' => User::orderedLibrariansScope()->get(),
+                'campuses' => Campus::all(),
+                'instructors' => Instructor::all(),
+                'departments' => $this->departmentService->getAllDepartments(),
+                'materials' => $materials
+            ]);
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error opening request for editing: ' . $e->getMessage());
             return redirect(route('instructionRequests.index'));
         }
-
-        // Ensure we have the most recent data
-        $instructionRequest->refresh();
-        
-        // Ensure calendar event relationship is loaded
-        if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
-            $instructionRequest->load('googleCalendarEvent');
-        }
-
-        // Get the materials media collection
-        $materials = $instructionRequest->getMedia('materials');
-
-        return view('instruction-requests.edit')->with([
-            'instructionRequest' => $instructionRequest,
-            'librarians' => User::orderedLibrariansScope()->get(),
-            'campuses' => Campus::all(),
-            'instructors' => Instructor::all(),
-            'departments' => $this->departmentService->getAllDepartments(),
-            'materials' => $materials
-        ]);
     }
 
     /**
@@ -165,6 +187,13 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
+        // Check if this user has lock before proceeding
+        if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
+            $locker = $instructionRequest->lockedBy;
+            session()->flash('error', "Cannot save changes: This request is currently being edited by {$locker->display_name}");
+            return redirect(route('instructionRequests.index'));
+        }
+
         Log::info('Found instruction request', [
             'id' => $id,
             'current_status' => $instructionRequest->status,
@@ -176,7 +205,7 @@ class InstructionRequestController extends AppBaseController
             // Comprehensive detailed logging of all request data
             Log::debug('FULL REQUEST DATA', $request->all());
             Log::debug('VALIDATED REQUEST DATA', $validatedData);
-            
+
             // Specially log the assigned_librarian_id
             if (isset($validatedData['assigned_librarian_id'])) {
                 Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
@@ -197,6 +226,13 @@ class InstructionRequestController extends AppBaseController
                 'detail_id' => $updated->detail ? $updated->detail->id : 'none',
                 'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
             ]);
+
+            // After successful update, release the lock if saveAndClose was provided
+            if ($request->has('saveAndClose')) {
+                $this->instructionRequestService->unlockRequest($id);
+                session()->flash('success', 'Instruction Request updated and closed successfully.');
+                return redirect(route('instructionRequests.index'));
+            }
 
             session()->flash('success', 'Instruction Request updated successfully.');
             return redirect(route('instructionRequests.edit', $id));
@@ -311,34 +347,52 @@ class InstructionRequestController extends AppBaseController
     public function deleteCalendarEvent(int $id): RedirectResponse
     {
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
-        
+
         if (empty($instructionRequest)) {
             session()->flash('error', 'Instruction Request not found.');
             return redirect(route('instructionRequests.index'));
         }
-        
+
         // Load the calendar event if not already loaded
         if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
             $instructionRequest->load('googleCalendarEvent');
         }
-        
+
         if (!$instructionRequest->googleCalendarEvent) {
             session()->flash('error', 'No calendar event found for this request.');
             return redirect(route('instructionRequests.edit', $id));
         }
-        
+
         // Use calendar service to delete the event
         $result = $this->calendarService->deleteEvent($instructionRequest->googleCalendarEvent);
-        
+
         if ($result) {
             session()->flash('success', 'Calendar event deleted successfully.');
         } else {
             session()->flash('error', 'Failed to delete calendar event.');
         }
-        
+
         return redirect(route('instructionRequests.edit', $id));
     }
-    
+
+    /**
+     * Unlock an instruction request.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function unlock(int $id): RedirectResponse
+    {
+        try {
+            $this->instructionRequestService->unlockRequest($id);
+            session()->flash('success', 'Instruction Request unlocked successfully.');
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error unlocking request: ' . $e->getMessage());
+            return redirect(route('instructionRequests.index'));
+        }
+    }
+
     /**
      * Fetch related data for the instruction request and append to the object.
      *
