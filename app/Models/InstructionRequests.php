@@ -13,6 +13,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
 use LakM\Comments\Concerns\Commentable;
 use LakM\Comments\Contracts\CommentableContract;
+use TestMonitor\Lockable\Traits\Lockable;
+use TestMonitor\Lockable\Contracts\IsLockable;
 
 /**
  * Class InstructionRequests
@@ -20,9 +22,9 @@ use LakM\Comments\Contracts\CommentableContract;
  *
  * @package App\Models
  */
-class InstructionRequests extends Model implements HasMedia, CommentableContract
+class InstructionRequests extends Model implements HasMedia, CommentableContract, IsLockable
 {
-    use SoftDeletes, InteractsWithMedia, Commentable;
+    use SoftDeletes, InteractsWithMedia, Commentable, Lockable;
 
     /**
      * @var string Table name
@@ -68,6 +70,9 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
         'genai_discussion_interest',
         'other_notes',
         'status',
+        'locked',
+        'locked_by',
+        'locked_at',
     ];
 
     /**
@@ -103,6 +108,9 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
         'genai_discussion_interest' => 'string',
         'other_notes' => 'string',
         'status' => 'string',
+        'locked' => 'boolean',
+        'locked_by' => 'integer',
+        'locked_at' => 'datetime',
     ];
 
     // Define relationships
@@ -156,15 +164,70 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
-    
+
     /**
      * Get the Google Calendar event associated with this instruction request.
-     * 
+     *
      * @return HasOne
      */
     public function googleCalendarEvent(): HasOne
     {
         return $this->hasOne(GoogleCalendarEvent::class, 'instruction_request_id');
+    }
+
+    /**
+     * Get the user who locked this instruction request.
+     *
+     * @return BelongsTo
+     */
+    public function lockedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'locked_by');
+    }
+
+    /**
+     * Check if a lock is stale (older than 15 minutes).
+     *
+     * @return bool
+     */
+    public function hasStalelock(): bool
+    {
+        if (!$this->isLocked() || !$this->locked_at) {
+            return false;
+        }
+
+        return now()->diffInMinutes($this->locked_at) > 15;
+    }
+
+    /**
+     * Extended markLocked to also track user and timestamp.
+     *
+     * @param int|null $userId
+     * @return bool
+     */
+    public function markLockedBy(?int $userId = null): bool
+    {
+        $userId = $userId ?? auth()->id();
+
+        return $this->update([
+            'locked' => true,
+            'locked_by' => $userId,
+            'locked_at' => now(),
+        ]);
+    }
+
+    /**
+     * Extended markUnlocked to clear user and timestamp.
+     *
+     * @return bool
+     */
+    public function markUnlocked(): bool
+    {
+        return $this->update([
+            'locked' => false,
+            'locked_by' => null,
+            'locked_at' => null,
+        ]);
     }
 
     /**
