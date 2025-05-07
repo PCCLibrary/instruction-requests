@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
     {
         // Clean up temporary files daily
         $schedule->command('uploads:clean')->daily();
+
+        // Clear expired locks every 15 minutes
+        $schedule->command('locks:flushexpired')->everyFifteenMinutes();
     }
 
     /**

@@ -13,6 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
 use LakM\Comments\Concerns\Commentable;
 use LakM\Comments\Contracts\CommentableContract;
+use LowerRockLabs\Lockable\Traits\IsLockable;
 
 /**
  * Class InstructionRequests
@@ -22,7 +23,9 @@ use LakM\Comments\Contracts\CommentableContract;
  */
 class InstructionRequests extends Model implements HasMedia, CommentableContract
 {
-    use SoftDeletes, InteractsWithMedia, Commentable;
+    use SoftDeletes, InteractsWithMedia, Commentable, IsLockable;
+
+    // Model will use the default lock duration from config/laravel-lockable.php
 
     /**
      * @var string Table name
@@ -156,10 +159,10 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
-    
+
     /**
      * Get the Google Calendar event associated with this instruction request.
-     * 
+     *
      * @return HasOne
      */
     public function googleCalendarEvent(): HasOne
