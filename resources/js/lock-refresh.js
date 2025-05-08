@@ -27,7 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Function to refresh the lock
         const refreshLock = function() {
-            fetch(`/library/instruction-requests/public/instructionRequests/${requestId}/refresh-lock`, {
+            // Use the URL from the window.lockConfig object
+            const refreshUrl = window.lockConfig ? window.lockConfig.getRefreshLockUrl(requestId) :
+                `/library/instruction-requests/public/instructionRequests/${requestId}/refresh-lock`;
+
+            fetch(refreshUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -40,8 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!data.success) {
                     // If lock refresh failed, show toast and redirect
                     showToast('warning', data.message || 'Your editing session has expired');
-                    // Get the correct index route
-                    const indexRoute = '/library/instruction-requests/public/dashboard/instructionRequests';
+                    // Get the correct index route from the config
+                    const indexRoute = window.lockConfig ? window.lockConfig.indexUrl :
+                        '/library/instruction-requests/public/dashboard/instructionRequests';
                     setTimeout(() => window.location.href = indexRoute, 3000);
                 }
             })
@@ -80,8 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Redirect at 15 minutes
             if (inactiveTime >= 15) {
                 showToast('warning', 'Your editing session has expired due to inactivity');
+
+                // Get the release URL from the config
+                const releaseUrl = window.lockConfig ? window.lockConfig.getReleaseLockUrl(requestId) :
+                    `/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`;
+
                 // Release the lock
-                fetch(`/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`, {
+                fetch(releaseUrl, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -89,8 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                 }).catch(error => console.error('Error releasing lock:', error));
 
-                // Redirect after a short delay to allow the toast to be seen
-                const indexRoute = '/library/instruction-requests/public/dashboard/instructionRequests';
+                // Get the correct index route from the config
+                const indexRoute = window.lockConfig ? window.lockConfig.indexUrl :
+                    '/library/instruction-requests/public/dashboard/instructionRequests';
                 setTimeout(() => window.location.href = indexRoute, 3000);
                 clearInterval(inactivityTimeout);
             }
@@ -115,8 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Release lock when leaving page
         window.addEventListener('beforeunload', function() {
+            // Get the release URL from the config
+            const releaseUrl = window.lockConfig ? window.lockConfig.getReleaseLockUrl(requestId) :
+                `/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`;
+
             navigator.sendBeacon(
-                `/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`,
+                releaseUrl,
                 new FormData(document.createElement('form'))
             );
         });
