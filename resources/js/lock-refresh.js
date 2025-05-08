@@ -8,7 +8,9 @@
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on a page with the InstructionRequestTable
-    if (document.querySelector('.powergrid-table')) {
+    const powerGridTable = document.querySelector('#power-grid-table-container') || document.querySelector('table.power-grid-table');
+
+    if (powerGridTable) {
         console.log('PowerGrid table found, setting up 30-second refresh interval');
         // Refresh lock status every 30 seconds
         setInterval(function() {
@@ -22,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 30000); // 30 seconds
     } else {
         console.log('PowerGrid table not found, skipping table refresh setup');
+        console.log('Attempted to find table with selectors: #power-grid-table-container, table.power-grid-table');
     }
 
     // Check if we're on an edit form page with lock functionality

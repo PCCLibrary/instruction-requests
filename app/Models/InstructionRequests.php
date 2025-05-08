@@ -15,6 +15,7 @@ use LakM\Comments\Concerns\Commentable;
 use LakM\Comments\Contracts\CommentableContract;
 use TestMonitor\Lockable\Concerns\Lockable; // Corrected namespace
 use TestMonitor\Lockable\Contracts\IsLockable;
+use App\Exceptions\ModelLockedException;
 
 /**
  * Class InstructionRequests
@@ -25,6 +26,24 @@ use TestMonitor\Lockable\Contracts\IsLockable;
 class InstructionRequests extends Model implements HasMedia, CommentableContract, IsLockable
 {
     use SoftDeletes, InteractsWithMedia, Commentable, Lockable, HasFactory; // Added HasFactory as it was used but not listed in the use statement
+
+    /**
+     * Boot lockable trait with custom exception handling
+     */
+    public static function bootLockable()
+    {
+        static::saving(function (IsLockable $model) {
+            if ($model->exists && $model->isLocked() && ! ($model->isLocking() || $model->isUnlocking())) {
+                throw (new ModelLockedException)->setModel($model);
+            }
+        });
+
+        static::deleting(function (IsLockable $model) {
+            if ($model->isLocked() && ! $model->canDeleteWhenLocked()) {
+                throw (new ModelLockedException)->setModel($model);
+            }
+        });
+    }
 
     /**
      * @var string Table name
