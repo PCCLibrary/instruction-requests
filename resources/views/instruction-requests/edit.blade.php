@@ -320,52 +320,6 @@
         });
     </script>
 
-    @if(!isset($isViewOnly) || !$isViewOnly)
-    {{-- Lock management script for normal (non-view-only) mode --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Refresh lock every 5 minutes (assuming 15-minute stale lock duration)
-            const refreshInterval = setInterval(function() {
-                fetch('{{ route("instructionRequests.refreshLock", $instructionRequest->id) }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Lock refresh response:', data);
-                    if (!data.success) {
-                        // If we lost the lock, reload the page to show view-only mode
-                        window.location.reload();
-                    } else {
-                        console.log('Lock refreshed successfully');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error refreshing lock:', error);
-                });
-            }, 5 * 60 * 1000); // 5 minutes
-
-            // Release lock when leaving the page
-            window.addEventListener('beforeunload', function() {
-                // Use navigator.sendBeacon for reliable delivery during page unload
-                const formData = new FormData();
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-                try {
-                    navigator.sendBeacon(
-                        '{{ route("instructionRequests.releaseLock", $instructionRequest->id) }}',
-                        formData
-                    );
-                    console.log('Lock release request sent');
-                } catch (error) {
-                    console.error('Error sending lock release request:', error);
-                }
-            });
-        });
-    </script>
-    @endif
+    {{-- All model locking functionality moved to lock-refresh.js --}}
 
 @endsection

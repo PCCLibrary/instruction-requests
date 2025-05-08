@@ -9,12 +9,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on a page with the InstructionRequestTable
     if (document.querySelector('.powergrid-table')) {
+        console.log('PowerGrid table found, setting up 30-second refresh interval');
         // Refresh lock status every 30 seconds
         setInterval(function() {
+            console.log('30-second interval triggered, attempting to refresh PowerGrid table');
             if (window.Livewire) {
+                console.log('Livewire object found, dispatching refreshLockStatus event');
                 window.Livewire.dispatch('refreshLockStatus');
+            } else {
+                console.log('Livewire object not found, unable to dispatch event');
             }
         }, 30000); // 30 seconds
+    } else {
+        console.log('PowerGrid table not found, skipping table refresh setup');
     }
 
     // Check if we're on an edit form page with lock functionality
@@ -83,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Redirect at 15 minutes
-            if (inactiveTime >= 15) {
+            if (inactiveTime >= 1) {
                 showToast('warning', 'Your editing session has expired due to inactivity');
 
                 // Get the release URL from the config
