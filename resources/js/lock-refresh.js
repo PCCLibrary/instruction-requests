@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Redirect at 15 minutes
-            if (inactiveTime >= 15) {
+            if (inactiveTime >= 2) {
                 showToast('warning', 'Your editing session has expired due to inactivity');
                 // Release the lock
                 fetch(`/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`, {
