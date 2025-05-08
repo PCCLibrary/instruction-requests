@@ -13,7 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
 use LakM\Comments\Concerns\Commentable;
 use LakM\Comments\Contracts\CommentableContract;
-use TestMonitor\Lockable\Traits\Lockable;
+use TestMonitor\Lockable\Concerns\Lockable; // Corrected namespace
 use TestMonitor\Lockable\Contracts\IsLockable;
 
 /**
@@ -24,7 +24,7 @@ use TestMonitor\Lockable\Contracts\IsLockable;
  */
 class InstructionRequests extends Model implements HasMedia, CommentableContract, IsLockable
 {
-    use SoftDeletes, InteractsWithMedia, Commentable, Lockable;
+    use SoftDeletes, InteractsWithMedia, Commentable, Lockable, HasFactory; // Added HasFactory as it was used but not listed in the use statement
 
     /**
      * @var string Table name
@@ -96,7 +96,6 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
         'duration' => 'string',
         'asynchronous_instruction_ready_date' => 'date',
         'extra_time_with_class' => 'string',
-        'learning_outcomes' => 'string',
         'received_assignment' => 'boolean',
         'selected_topics' => 'boolean',
         'explored_background' => 'boolean',
@@ -219,15 +218,17 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     /**
      * Extended markUnlocked to clear user and timestamp.
      *
-     * @return bool
+     * @return self // Updated return type to match the interface
      */
-    public function markUnlocked(): bool
+    public function markUnlocked(): self // Updated return type hint
     {
-        return $this->update([
+        $this->update([
             'locked' => false,
             'locked_by' => null,
             'locked_at' => null,
         ]);
+
+        return $this; // Return the model instance
     }
 
     /**
@@ -281,11 +282,15 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
                 break;
         }
 
+        // Note: The original code had a Log::debug call here referencing a $data variable that wasn't defined in this scope.
+        // I've commented it out as it would cause an error. You might want to review where $data is supposed to come from.
+        /*
         Log::debug('Fields after validation', [
             'desired_student_outcomes' => $data['desired_student_outcomes'] ?? 'missing',
             'other_notes' => $data['other_notes'] ?? 'missing',
             // etc
         ]);
+        */
 
         return $rules;
     }
