@@ -111,6 +111,20 @@ class InstructionRequestForm extends Component
         }
     }
 
+    /**
+     * Handle session flash message events from JavaScript.
+     *
+     * @param array $data
+     * @return void
+     */
+    #[\Livewire\Attributes\On('flash-message')]
+    public function handleFlashMessage($data): void
+    {
+        if (isset($data['type']) && isset($data['message'])) {
+            session()->flash($data['type'], $data['message']);
+        }
+    }
+
     public function render()
     {
         return view('livewire.instruction-requests.form', [

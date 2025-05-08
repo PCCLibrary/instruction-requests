@@ -190,7 +190,7 @@ class InstructionRequestController extends AppBaseController
         // Check if this user has lock before proceeding
         if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
             $locker = $instructionRequest->lockedBy;
-            session()->flash('error', "Cannot save changes: This request is currently being edited by {$locker->display_name}");
+            session()->flash('error', "Cannot save changes: {$locker->display_name} is currently editing this request.");
             return redirect(route('instructionRequests.index'));
         }
 

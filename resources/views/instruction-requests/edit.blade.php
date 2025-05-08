@@ -60,6 +60,8 @@
 
     <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}"
           id="updateInstructionRequestForm"
+          class="edit-form"
+          data-request-id="{{ $instructionRequest->id }}"
           method="POST"
           enctype="multipart/form-data"
           x-data="{

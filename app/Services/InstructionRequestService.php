@@ -72,7 +72,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             !$request->hasStalelock()) {
 
             $locker = $request->lockedBy;
-            throw new \Exception("This request is currently being edited by {$locker->display_name}");
+            throw new \Exception("{$locker->display_name} is currently editing this request.");
         }
 
         // Override stale locks automatically
@@ -261,7 +261,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $instructionRequest->locked_by !== auth()->id()) {
 
                 $locker = $instructionRequest->lockedBy;
-                throw new \Exception("This request is currently being edited by {$locker->display_name}");
+                throw new \Exception("{$locker->display_name} is currently editing this request.");
             }
 
             $oldStatus = $instructionRequest->status;
@@ -477,7 +477,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $request->locked_by !== auth()->id()) {
 
                 $locker = $request->lockedBy;
-                throw new \Exception("Cannot delete: This request is currently being edited by {$locker->display_name}");
+                throw new \Exception("{$locker->display_name} is currently editing this request.");
             }
 
             return $this->repository->delete($id);

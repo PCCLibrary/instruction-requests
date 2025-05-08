@@ -1,5 +1,6 @@
 console.log('App.js loaded');
 import './bootstrap';
+import './lock-refresh';
 
 // PowerGrid assets
 import '../../vendor/power-components/livewire-powergrid/dist/tailwind.css'

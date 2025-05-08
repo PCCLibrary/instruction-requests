@@ -65,6 +65,7 @@ final class InstructionRequestTable extends PowerGridComponent
             ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_requests_id')
             ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
             ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id')
+            ->leftJoin('users as lockers', 'instruction_requests.locked_by', '=', 'lockers.id')
             ->select([
                 'instruction_requests.*',
                 'instructors.display_name as instructor_name',
@@ -75,7 +76,8 @@ final class InstructionRequestTable extends PowerGridComponent
                 'instruction_request_details.instruction_datetime',
                 'instruction_request_details.created_by',
                 'instruction_request_details.last_updated_by',
-                'campuses.name as campus_name'
+                'campuses.name as campus_name',
+                'lockers.display_name as locker_name'
             ]);
     }
 
@@ -235,14 +237,19 @@ final class InstructionRequestTable extends PowerGridComponent
      */
     public function actionsFromView($row): View
     {
+        $isLocked = (bool)$row->locked;
+        $lockerName = $row->locker_name;
+
         return view('components.table-actions', [
             'id' => $row->id,
             'editRoute' => 'instructionRequests.edit',
             'deleteEvent' => 'confirmDelete',
-            'canEdit' => true,
+            'canEdit' => !$isLocked,
             'canDelete' => true,
             'size' => 'w-4 h-4',
-            'routeKeyName' => 'instructionRequest'
+            'routeKeyName' => 'instructionRequest',
+            'isLocked' => $isLocked,
+            'lockerName' => $lockerName
         ]);
     }
 
@@ -295,6 +302,29 @@ final class InstructionRequestTable extends PowerGridComponent
     }
 
     /**
+     * Handle refreshing lock status (for polling updates)
+     */
+    #[\Livewire\Attributes\On('refreshLockStatus')]
+    public function refreshLockStatus(): void
+    {
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
+     * Handle session flash message events from JavaScript.
+     *
+     * @param array $data
+     * @return void
+     */
+    #[\Livewire\Attributes\On('flash-message')]
+    public function handleFlashMessage($data): void
+    {
+        if (isset($data['type']) && isset($data['message'])) {
+            session()->flash($data['type'], $data['message']);
+        }
+    }
+
+    /**
      * Define event listeners
      */
     protected function getListeners()
@@ -308,7 +338,8 @@ final class InstructionRequestTable extends PowerGridComponent
                 'filterByLibrarian',
                 'filterByCampus',
                 'filterByStatus',
-                'clearFilters'
+                'clearFilters',
+                'refreshLockStatus'
             ]
         );
     }
