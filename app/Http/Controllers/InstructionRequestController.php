@@ -229,7 +229,8 @@ class InstructionRequestController extends AppBaseController
 
             // After successful update, release the lock if saveAndClose was provided
             if ($request->has('saveAndClose')) {
-                $this->instructionRequestService->unlockRequest($id);
+                // For save and close actions, fully clear the lock info
+                $this->instructionRequestService->unlockRequest($id, false, false);
                 session()->flash('success', 'Instruction Request updated and closed successfully.');
                 return redirect(route('instructionRequests.index'));
             }
@@ -384,7 +385,8 @@ class InstructionRequestController extends AppBaseController
     public function unlock(int $id): RedirectResponse
     {
         try {
-            $this->instructionRequestService->unlockRequest($id);
+            // For explicit unlock actions, fully clear the lock info (don't preserve)
+            $this->instructionRequestService->unlockRequest($id, false, false);
             session()->flash('success', 'Instruction Request unlocked successfully.');
             return redirect(route('instructionRequests.index'));
         } catch (\Exception $e) {
@@ -433,7 +435,15 @@ class InstructionRequestController extends AppBaseController
     public function releaseLock(int $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $this->instructionRequestService->unlockRequest($id);
+            // For AJAX requests (like beforeunload), preserve lock info to help with reload detection
+            $preserveInfo = true;
+
+            // Check if the request includes a specific instruction to fully clear all lock info
+            if (request()->has('clear_all') && request()->input('clear_all') === true) {
+                $preserveInfo = false;
+            }
+
+            $this->instructionRequestService->unlockRequest($id, false, $preserveInfo);
 
             return response()->json([
                 'success' => true,

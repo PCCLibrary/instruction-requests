@@ -235,19 +235,36 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     }
 
     /**
-     * Extended markUnlocked to clear user and timestamp.
+     * Extended markUnlocked to clear lock status but preserve user info temporarily.
+     * This allows reload detection to work in the controller.
      *
-     * @return self // Updated return type to match the interface
+     * @param bool $preserveInfo Whether to preserve locked_by and locked_at (for reload detection)
+     * @return self
      */
-    public function markUnlocked(): self // Updated return type hint
+    public function markUnlocked(bool $preserveInfo = true): self
     {
-        $this->update([
-            'locked' => false,
-            'locked_by' => null,
-            'locked_at' => null,
+        $updates = ['locked' => false];
+
+        // Only clear locked_by and locked_at if not preserving info
+        // This allows the reload detection in lockRequest to work
+        if (!$preserveInfo) {
+            $updates['locked_by'] = null;
+            $updates['locked_at'] = null;
+        }
+
+        // Log unlock operation details
+        Log::debug('Model markUnlocked called', [
+            'id' => $this->id,
+            'preserving_info' => $preserveInfo,
+            'updates' => $updates,
+            'previous_locked_by' => $this->locked_by,
+            'previous_locked_at' => $this->locked_at,
+            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'unknown'
         ]);
 
-        return $this; // Return the model instance
+        $this->update($updates);
+
+        return $this;
     }
 
     /**

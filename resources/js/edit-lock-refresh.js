@@ -145,6 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const releaseUrl = window.lockConfig ? window.lockConfig.getReleaseLockUrl(requestId) :
                 `/library/instruction-requests/public/instructionRequests/${requestId}/release-lock`;
 
+            // Log that we're releasing the lock (for debugging)
+            console.log(`Releasing lock for request ${requestId} due to page navigation/reload`);
+
             navigator.sendBeacon(
                 releaseUrl,
                 new FormData(document.createElement('form'))

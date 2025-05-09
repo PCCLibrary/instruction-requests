@@ -69,6 +69,18 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         // Handle the case when the page is being reloaded
         // If locked_by == current user but locked=false, treat it as a reload
         $currentUserId = $userId ?? auth()->id();
+
+        // Enhanced logging for all lock attempts to aid debugging
+        Log::debug('Lock request analysis', [
+            'request_id' => $request->id,
+            'current_user' => $currentUserId,
+            'locked' => $request->isLocked(),
+            'locked_by' => $request->locked_by,
+            'locked_at' => $request->locked_at,
+            'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null,
+            'referer' => request()->header('referer'),
+            'user_agent' => request()->header('user-agent')
+        ]);
         $isReloadCase = !$request->isLocked() &&
                         $request->locked_by === $currentUserId &&
                         $request->locked_at &&
@@ -79,7 +91,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'request_id' => $request->id,
                 'user_id' => $currentUserId,
                 'locked_at' => $request->locked_at,
-                'time_diff_minutes' => $request->locked_at ? now()->diffInMinutes($request->locked_at) : null
+                'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null
             ]);
         }
 
@@ -113,10 +125,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      *
      * @param int $id
      * @param bool $force Whether to force unlock (admin only)
+     * @param bool $preserveInfo Whether to preserve lock ownership info for reload detection
      * @return InstructionRequests|null
      * @throws \Exception
      */
-    public function unlockRequest(int $id, bool $force = false): ?InstructionRequests
+    public function unlockRequest(int $id, bool $force = false, bool $preserveInfo = true): ?InstructionRequests
     {
         $request = $this->findInstructionRequestById($id);
 
@@ -132,8 +145,27 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             throw new \Exception('You cannot unlock a request locked by someone else');
         }
 
-        // Unlock the request
-        $request->markUnlocked();
+        // Enhanced logging for unlock operations
+        Log::debug('Unlock request operation', [
+            'request_id' => $request->id,
+            'current_user' => auth()->id(),
+            'locked_by' => $request->locked_by,
+            'preserve_info' => $preserveInfo,
+            'force' => $force,
+            'is_ajax' => request()->ajax(),
+            'referer' => request()->header('referer'),
+            'user_agent' => request()->header('user-agent')
+        ]);
+
+        // Unlock the request, preserving info by default to help with reload detection
+        $request->markUnlocked($preserveInfo);
+
+        // Log the result after unlocking
+        Log::debug('Unlock result', [
+            'request_id' => $request->id,
+            'still_locked' => $request->fresh()->isLocked(),
+            'locked_by_after' => $request->fresh()->locked_by
+        ]);
 
         return $request->fresh();
     }
