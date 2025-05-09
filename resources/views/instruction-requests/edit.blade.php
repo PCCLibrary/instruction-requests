@@ -13,6 +13,12 @@
 @section('content')
     {{-- Include the lock URL configuration --}}
     @include('instruction-requests.partials.lock-urls')
+
+    {{-- Import edit form-specific lock refresh script --}}
+    @push('scripts')
+        @vite(['resources/js/edit-lock-refresh.js'])
+    @endpush
+
     @if($instructionRequest->status === 'assigned' && $instructionRequest->detail && ($instructionRequest->detail->assigned_librarian_id == auth()->id()))
         @include('instruction-requests.partials.edit.accept')
     @endif

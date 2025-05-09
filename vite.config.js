@@ -7,7 +7,9 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/public.js'
+                'resources/js/public.js',
+                'resources/js/table-lock-refresh.js',
+                'resources/js/edit-lock-refresh.js'
             ],
             refresh: true,
         }),

@@ -1,6 +1,6 @@
 console.log('App.js loaded');
 import './bootstrap';
-import './lock-refresh';
+// Lock refresh modules are imported individually in their respective pages
 
 // PowerGrid assets
 import '../../vendor/power-components/livewire-powergrid/dist/tailwind.css'

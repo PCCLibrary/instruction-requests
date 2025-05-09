@@ -1,32 +1,16 @@
 /**
- * Lock Status Refresh
+ * Edit Form Lock Refresh
  *
- * Periodically refreshes the lock status in the InstructionRequestTable component
- * to ensure the table displays up-to-date lock information.
- *
- * Also handles form lock refresh and timeout notifications.
+ * Handles form lock refresh and timeout notifications for the edit form.
  */
+
+// Configuration - easily adjust intervals here
+const LOCK_REFRESH_INTERVAL = 300000;    // 5 minutes - how often to refresh the lock while active
+const INACTIVITY_CHECK_INTERVAL = 30000; // 30 seconds - how often to check for inactivity
+const WARNING_THRESHOLD = 1.5;           // 1.5 minutes - when to show inactivity warning
+const EXPIRY_THRESHOLD = 2;              // 2 minutes - when to expire session and release lock
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on a page with the InstructionRequestTable
-    const powerGridTable = document.querySelector('#power-grid-table-container') || document.querySelector('table.power-grid-table');
-
-    if (powerGridTable) {
-        console.log('PowerGrid table found, setting up 30-second refresh interval');
-        // Refresh lock status every 30 seconds
-        setInterval(function() {
-            console.log('30-second interval triggered, attempting to refresh PowerGrid table');
-            if (window.Livewire) {
-                console.log('Livewire object found, dispatching refreshLockStatus event');
-                window.Livewire.dispatch('refreshLockStatus');
-            } else {
-                console.log('Livewire object not found, unable to dispatch event');
-            }
-        }, 30000); // 30 seconds
-    } else {
-        console.log('PowerGrid table not found, skipping table refresh setup');
-        console.log('Attempted to find table with selectors: #power-grid-table-container, table.power-grid-table');
-    }
-
     // Check if we're on an edit form page with lock functionality
     const editForm = document.querySelector('form.edit-form[data-request-id]');
     if (editForm) {
@@ -86,14 +70,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkInactivity = function() {
             const inactiveTime = (Date.now() - lastActivity) / 1000 / 60; // minutes
 
-            // Show warning at 14 minutes
-            if (inactiveTime >= 14 && !warningShown) {
-                showToast('warning', 'Your editing session will expire in 1 minute due to inactivity');
+            // Show warning at 1.5 minutes (reduced for testing)
+            if (inactiveTime >= WARNING_THRESHOLD && !warningShown) {
+                showToast('warning', 'Your editing session will expire in 30 seconds due to inactivity');
                 warningShown = true;
             }
 
-            // Redirect at 15 minutes
-            if (inactiveTime >= 1) {
+            // Redirect at 2 minutes (reduced for testing)
+            if (inactiveTime >= EXPIRY_THRESHOLD) {
                 showToast('warning', 'Your editing session has expired due to inactivity');
 
                 // Get the release URL from the config
@@ -128,11 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.addEventListener(eventType, resetActivity);
         });
 
-        // Refresh lock every 5 minutes if there has been activity
-        setInterval(refreshLock, 300000); // 5 minutes
+        // Log that inactivity timer has started
+        console.log(`Edit page inactivity timer started - will expire after ${EXPIRY_THRESHOLD} minutes of inactivity`);
 
-        // Check for inactivity every minute
-        inactivityTimeout = setInterval(checkInactivity, 60000); // 1 minute
+        // Refresh lock every 5 minutes if there has been activity
+        setInterval(refreshLock, LOCK_REFRESH_INTERVAL);
+
+        // Check for inactivity every 30 seconds for more responsive testing
+        inactivityTimeout = setInterval(checkInactivity, INACTIVITY_CHECK_INTERVAL);
 
         // Release lock when leaving page
         window.addEventListener('beforeunload', function() {
