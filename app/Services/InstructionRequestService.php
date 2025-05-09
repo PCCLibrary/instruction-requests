@@ -66,9 +66,26 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             throw new \Exception('Instruction request not found');
         }
 
+        // Handle the case when the page is being reloaded
+        // If locked_by == current user but locked=false, treat it as a reload
+        $currentUserId = $userId ?? auth()->id();
+        $isReloadCase = !$request->isLocked() &&
+                        $request->locked_by === $currentUserId &&
+                        $request->locked_at &&
+                        now()->diffInMinutes($request->locked_at) < 1;
+
+        if ($isReloadCase) {
+            Log::info('Detected likely page reload - reacquiring lock', [
+                'request_id' => $request->id,
+                'user_id' => $currentUserId,
+                'locked_at' => $request->locked_at,
+                'time_diff_minutes' => $request->locked_at ? now()->diffInMinutes($request->locked_at) : null
+            ]);
+        }
+
         // If already locked by someone else and lock is not stale
         if ($request->isLocked() &&
-            $request->locked_by !== auth()->id() &&
+            $request->locked_by !== $currentUserId &&
             !$request->hasStalelock()) {
 
             $locker = $request->lockedBy;
@@ -81,7 +98,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'request_id' => $request->id,
                 'previous_lock_by' => $request->locked_by,
                 'locked_at' => $request->locked_at,
-                'new_user' => $userId ?? auth()->id()
+                'new_user' => $currentUserId
             ]);
         }
 
