@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on an edit form page with lock functionality
     const editForm = document.querySelector('form.edit-form[data-request-id]');
     if (editForm) {
+        // Check if Toaster is available to show notifications
+        if (!window.Toaster) {
+            console.error('Toaster is not initialized! Toast notifications may not work properly.');
+        }
+
         const requestId = editForm.getAttribute('data-request-id');
         let lastActivity = Date.now();
         let inactivityTimeout = null;
@@ -41,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Get the correct index route from the config
                     const indexRoute = window.lockConfig ? window.lockConfig.indexUrl :
                         '/library/instruction-requests/public/dashboard/instructionRequests';
-                    setTimeout(() => window.location.href = indexRoute, 3000);
+                    // Use slightly longer delay to ensure toast is visible
+                    setTimeout(() => window.location.href = indexRoute, 4000);
                 }
             })
             .catch(error => {
@@ -53,15 +59,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const showToast = function(type, message) {
             // Check if Toaster library is available
             if (window.Toaster) {
-                window.Toaster.toast(message, type);
-            } else if (window.Livewire) {
-                // Fallback to Livewire flash message
-                window.Livewire.dispatch('flash-message', {
-                    type: type,
-                    message: message
-                });
+                // Use the correct method based on the type
+                switch(type) {
+                    case 'success':
+                        window.Toaster.success(message);
+                        break;
+                    case 'warning':
+                        window.Toaster.warning(message);
+                        break;
+                    case 'error':
+                        window.Toaster.error(message);
+                        break;
+                    case 'info':
+                    default:
+                        window.Toaster.info(message);
+                        break;
+                }
+                console.log(`Toast dispatched: ${type} - ${message}`);
             } else {
-                // Fallback to alert if nothing else is available
+                // Log error and fallback to alert
+                console.error('Toaster not available - message was:', message);
                 alert(message);
             }
         };
@@ -96,7 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get the correct index route from the config
                 const indexRoute = window.lockConfig ? window.lockConfig.indexUrl :
                     '/library/instruction-requests/public/dashboard/instructionRequests';
-                setTimeout(() => window.location.href = indexRoute, 3000);
+                // Use slightly longer delay to ensure toast is visible
+                setTimeout(() => window.location.href = indexRoute, 4000);
                 clearInterval(inactivityTimeout);
             }
         };

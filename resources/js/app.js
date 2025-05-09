@@ -2,6 +2,9 @@ console.log('App.js loaded');
 import './bootstrap';
 // Lock refresh modules are imported individually in their respective pages
 
+// Import Toaster JavaScript
+import '../../vendor/masmerise/livewire-toaster/resources/js';
+
 // PowerGrid assets
 import '../../vendor/power-components/livewire-powergrid/dist/tailwind.css'
 import '../../vendor/power-components/livewire-powergrid/dist/powergrid'
