@@ -40,6 +40,8 @@
     </div>
 </main>
 <x-footer/>
+<x-toaster-hub />
+
 @commentsScripts
 @livewireScripts
 @stack('scripts')

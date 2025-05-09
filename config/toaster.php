@@ -14,7 +14,7 @@ return [
      *
      * Supported: "bottom", "middle" or "top"
      */
-    'alignment' => 'bottom',
+    'alignment' => 'top',
 
     /**
      * Allow users to close toast messages prematurely.
@@ -35,7 +35,7 @@ return [
      *
      * Supported: "center", "left" or "right"
      */
-    'position' => 'right',
+    'position' => 'left',
 
     /**
      * New toasts immediately replace similar ones, ensuring only one toast of a kind is visible at any time.
