@@ -120,6 +120,29 @@ class InstructionRequestController extends AppBaseController
                 return redirect(route('instructionRequests.index'));
             }
 
+            // Log the current lock state for debugging
+            Log::debug('Lock state in edit method', [
+                'request_id' => $id,
+                'locked' => $instructionRequest->isLocked(),
+                'locked_by' => $instructionRequest->locked_by,
+                'locked_at' => $instructionRequest->locked_at,
+                'current_user' => auth()->id(),
+            ]);
+
+            // Check for reload scenario (not locked, but locked_by is current user and locked_at is recent)
+            $isReloadScenario = !$instructionRequest->isLocked() &&
+                               $instructionRequest->locked_by === auth()->id() &&
+                               $instructionRequest->locked_at &&
+                               now()->diffInMinutes($instructionRequest->locked_at) < 5;
+
+            if ($isReloadScenario) {
+                Log::info('Controller detected reload scenario', [
+                    'request_id' => $id,
+                    'user_id' => auth()->id(),
+                    'time_since_locked' => $instructionRequest->locked_at ? now()->diffInSeconds($instructionRequest->locked_at) : null
+                ]);
+            }
+
             // Check if locked by someone else
             if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
                 $locker = $instructionRequest->lockedBy;
@@ -127,11 +150,24 @@ class InstructionRequestController extends AppBaseController
                 return redirect(route('instructionRequests.index'));
             }
 
-            // Try to lock the request for this user
+            // Try to lock or reacquire the lock for this user
             try {
                 $this->instructionRequestService->lockRequest($id);
+
+                // Log success after locking
+                Log::info('Lock acquired successfully in controller', [
+                    'request_id' => $id,
+                    'user_id' => auth()->id(),
+                    'was_reload_scenario' => $isReloadScenario
+                ]);
             } catch (\Exception $e) {
                 // This should only happen if locked by someone else after our first check
+                Log::error('Failed to acquire lock in controller', [
+                    'request_id' => $id,
+                    'error' => $e->getMessage(),
+                    'was_reload_scenario' => $isReloadScenario
+                ]);
+
                 session()->flash('warning', $e->getMessage());
                 return redirect(route('instructionRequests.index'));
             }
@@ -157,6 +193,12 @@ class InstructionRequestController extends AppBaseController
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Error in edit method', [
+                'request_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             session()->flash('error', 'Error opening request for editing: ' . $e->getMessage());
             return redirect(route('instructionRequests.index'));
         }
