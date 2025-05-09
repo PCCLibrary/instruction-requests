@@ -550,7 +550,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      * Sends notifications based on status transitions:
      * - New request ('' -> received): Notify instructor and campus librarians
      * - Assignment (-> assigned): Notify assigned librarian
-     * - Acceptance (-> accepted): Notify instructor
+     * - Acceptance (-> accepted): Notify campus librarians
      * - Rejection (assigned -> received): Notify campus librarians
      *
      * Future status transitions:
@@ -616,13 +616,20 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             }
 
             // Request accepted by librarian
-            if ($newStatus === 'accepted' && $request->instructor) {
+            if ($newStatus === 'accepted' && $request->campus) {
                 Log::info('Instruction request accepted by librarian', $logContext);
-                $request->instructor->notify(new RequestAcceptedNotification(
-                    $request->id,
-                    $oldStatus,
-                    $newStatus
-                ));
+
+                // Notify campus librarians
+                if (!empty($request->campus->librarian_ids)) {
+                    User::whereIn('id', $request->campus->librarian_ids)
+                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
+                            $librarian->notify(new RequestAcceptedNotification(
+                                $request->id,
+                                $oldStatus,
+                                $newStatus
+                            ));
+                        });
+                }
             }
 
             // Request rejected (status changed back to received)

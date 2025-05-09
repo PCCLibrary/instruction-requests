@@ -10,10 +10,9 @@ use Illuminate\Support\Facades\Log;
 /**
  * Notification sent when an instruction request is accepted by a librarian
  *
- * This notification informs the instructor and relevant librarians that
- * the request has been accepted. Uses request ID and status information
- * to ensure proper serialization when the notification is queued.
- * Data is loaded from the repository at notification time.
+ * This notification informs campus librarians that the request has been accepted.
+ * Uses request ID and status information to ensure proper serialization
+ * when the notification is queued. Data is loaded from the repository at notification time.
  *
  * Provides email notifications with request-specific details using
  * consistent template data loaded from the repository.
@@ -29,7 +28,7 @@ class RequestAcceptedNotification extends BaseInstructionRequestNotification
      * and generates a MailMessage with request-specific information. Uses
      * base class methods to load consistent template data.
      *
-     * @param object $notifiable The recipient of the notification (Instructor or User/Librarian)
+     * @param object $notifiable The recipient of the notification (User/Librarian)
      * @return \Illuminate\Notifications\Messages\MailMessage
      * @throws \InvalidArgumentException When notifiable type is not supported
      */
