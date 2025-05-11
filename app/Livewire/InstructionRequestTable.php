@@ -268,6 +268,20 @@ final class InstructionRequestTable extends PowerGridComponent
     #[\Livewire\Attributes\On('delete')]
     public function delete($id): void
     {
+        // Fetch the record to check lock status
+        $instructionRequest = InstructionRequests::find($id);
+
+        // If record is locked by someone else, show warning and don't delete
+        if ($instructionRequest && $instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
+            $locker = $instructionRequest->lockedBy;
+            $this->dispatch('flash-message', [
+                'type' => 'warning',
+                'message' => "Cannot delete: This request is currently being edited by {$locker->display_name}."
+            ]);
+            return;
+        }
+
+        // Otherwise proceed with deletion
         InstructionRequests::destroy($id);
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }

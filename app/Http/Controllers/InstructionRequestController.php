@@ -148,6 +148,13 @@ class InstructionRequestController extends AppBaseController
                 $locker = $instructionRequest->lockedBy;
                 session()->flash('warning', "{$locker->display_name} is currently editing this request.");
                 return redirect(route('instructionRequests.index'));
+            } elseif ($instructionRequest->isLocked() && $instructionRequest->locked_by === auth()->id()) {
+                // Record is locked by current user - allow them to continue editing
+                Log::info('User continuing their own locked edit session', [
+                    'request_id' => $id,
+                    'user_id' => auth()->id()
+                ]);
+                // No warning toast needed, proceed with edit
             }
 
             // Try to lock or reacquire the lock for this user
@@ -303,6 +310,21 @@ class InstructionRequestController extends AppBaseController
     public function destroy(int $id): RedirectResponse
     {
         try {
+            // Check if the record is locked before attempting to delete
+            $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+            if (!$instructionRequest) {
+                session()->flash('error', 'Instruction Request not found.');
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Prevent deletion of records locked by others
+            if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
+                $locker = $instructionRequest->lockedBy;
+                session()->flash('warning', "Cannot delete: This request is currently being edited by {$locker->display_name}.");
+                return redirect(route('instructionRequests.index'));
+            }
+
             $this->instructionRequestService->deleteInstructionRequest($id);
             session()->flash('success', 'Instruction Request deleted successfully.');
         } catch (\Exception $e) {
