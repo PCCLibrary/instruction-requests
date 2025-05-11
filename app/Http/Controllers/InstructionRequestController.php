@@ -438,6 +438,27 @@ class InstructionRequestController extends AppBaseController
     }
 
     /**
+     * Cancel editing and release the lock, then redirect to index.
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function cancelUnlock(int $id): RedirectResponse
+    {
+        try {
+            // Fully clear the lock (don't preserve info)
+            $this->instructionRequestService->unlockRequest($id, false, false);
+
+            // No need for a success message for cancel operations
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            // If there's an error releasing the lock, log it but still redirect
+            Log::error('Error canceling and unlocking request: ' . $e->getMessage());
+            return redirect(route('instructionRequests.index'));
+        }
+    }
+
+    /**
      * Refresh the lock on an instruction request.
      *
      * @param int $id

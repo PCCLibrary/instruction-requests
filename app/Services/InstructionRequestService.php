@@ -66,8 +66,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             throw new \Exception('Instruction request not found');
         }
 
-        // Handle the case when the page is being reloaded
-        // If locked_by == current user but locked=false, treat it as a reload
         $currentUserId = $userId ?? auth()->id();
 
         // Enhanced logging for all lock attempts to aid debugging
@@ -81,10 +79,28 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             'referer' => request()->header('referer'),
             'user_agent' => request()->header('user-agent')
         ]);
+
+        // PRIORITIZE: If this record was previously locked by the current user
+        // allow them to reacquire the lock regardless of other factors
+        if ($request->locked_by === $currentUserId) {
+            Log::info('User reacquiring their own lock', [
+                'request_id' => $request->id,
+                'user_id' => $currentUserId,
+                'is_locked' => $request->isLocked(),
+                'locked_at' => $request->locked_at,
+                'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null
+            ]);
+
+            // Always allow reacquisition by the same user
+            $request->markLockedBy($currentUserId);
+            return $request->fresh();
+        }
+
+        // Traditional reload case detection (kept for backward compatibility)
         $isReloadCase = !$request->isLocked() &&
                         $request->locked_by === $currentUserId &&
                         $request->locked_at &&
-                        now()->diffInMinutes($request->locked_at) < 1;
+                        now()->diffInMinutes($request->locked_at) < 5; // Extended window from 1 to 5 minutes
 
         if ($isReloadCase) {
             Log::info('Detected likely page reload - reacquiring lock', [
@@ -115,7 +131,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         }
 
         // Lock the request
-        $request->markLockedBy($userId);
+        $request->markLockedBy($currentUserId);
 
         return $request->fresh();
     }

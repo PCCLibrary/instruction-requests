@@ -163,6 +163,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     */
     Route::get('instructionRequests/{id}/unlock', [InstructionRequestController::class, 'unlock'])
         ->name('instructionRequests.unlock');
+    Route::get('instructionRequests/{id}/cancel-unlock', [InstructionRequestController::class, 'cancelUnlock'])
+        ->name('instructionRequests.cancelUnlock');
     Route::post('instructionRequests/{id}/refresh-lock', [InstructionRequestController::class, 'refreshLock'])
         ->name('instructionRequests.refreshLock');
     Route::post('instructionRequests/{id}/release-lock', [InstructionRequestController::class, 'releaseLock'])

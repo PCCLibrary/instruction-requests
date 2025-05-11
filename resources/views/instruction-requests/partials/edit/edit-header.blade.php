@@ -96,6 +96,7 @@
                 <x-editor-actions
                     route="{{ route('instructionRequests.index') }}"
                     :showBack="false"
+                    :unlockRequest="true"
                 />
             </div>
             <div class="col-span-4 flex justify-end">

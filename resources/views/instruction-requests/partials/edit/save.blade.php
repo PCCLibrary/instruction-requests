@@ -1,6 +1,7 @@
 <x-editor-actions
     route="{{ route('instructionRequests.index') }}"
     :showBack="(bool)$instructionRequest"
+    :unlockRequest="true"
 />
 
 @if($instructionRequest)
