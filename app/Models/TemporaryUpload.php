@@ -73,7 +73,41 @@ class TemporaryUpload extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('materials')
-            ->acceptsMimeTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'text/plain', 'application/rtf'])
+            ->acceptsMimeTypes([
+                // PDF
+                'application/pdf',
+
+                // Word Documents
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+
+                // PowerPoint
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+
+                // Text Files
+                'text/plain',
+                'text/rtf',
+                'application/rtf',
+
+                // Excel Files
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+
+                // OpenDocument Formats
+                'application/vnd.oasis.opendocument.text',
+                'application/vnd.oasis.opendocument.spreadsheet',
+                'application/vnd.oasis.opendocument.presentation',
+
+                // Rich Text Format variants
+                'application/x-rtf',
+
+                // HTML (for web-based materials)
+                'text/html',
+
+                // ePub (for digital books)
+                'application/epub+zip'
+            ])
             ->useDisk(config('media-library.disk_name'));
     }
 }
