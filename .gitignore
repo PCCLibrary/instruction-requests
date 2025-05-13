@@ -22,3 +22,6 @@ yarn-error.log
 /bootstrap/cache/services.php
 /bootstrap/cache/packages.php
 /bootstrap/cache/
+/.env.local
+/.env.production
+/.env.testing
