@@ -80,7 +80,7 @@
                             <td class="px-3 py-2 {{ $compact ? 'text-sm' : 'text-base' }} text-gray-500">
                                 {{ \Carbon\Carbon::parse($request->created_at)
                                     ->timezone('America/Los_Angeles')
-                                    ->format($compact ? 'M d' : 'M d - g:i A') }}
+                                    ->format($compact ? 'm/d/y' : 'm/d/y g:i A') }}
                             </td>
                         @endif
 

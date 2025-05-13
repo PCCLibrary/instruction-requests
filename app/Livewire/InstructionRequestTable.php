@@ -102,7 +102,7 @@ final class InstructionRequestTable extends PowerGridComponent
             ->add('id')
             ->add('created_at')
             ->add('created_at_formatted', fn (InstructionRequests $model) =>
-            Carbon::parse($model->created_at)->format('m/d/Y g:i a'))
+            Carbon::parse($model->created_at)->format('m/d/y g:i A'))
             ->add('instructor_name')
             ->add('instruction_type')
             ->add('librarian_name')
@@ -111,7 +111,7 @@ final class InstructionRequestTable extends PowerGridComponent
             ->add('status', fn (InstructionRequests $model) => ucfirst($model->status))
             ->add('instruction_datetime')
             ->add('instruction_datetime_formatted', fn (InstructionRequests $model) =>
-            $model->instruction_datetime ? Carbon::parse($model->instruction_datetime)->format('m/d/Y g:i a') : '')
+            $model->instruction_datetime ? Carbon::parse($model->instruction_datetime)->format('m/d/y g:i A') : '')
             ->add('last_updated_by');
     }
 

@@ -35,10 +35,10 @@
             <option value="assigned" {{ old('status', $instructionRequest->status) === 'assigned' ? 'selected' : '' }}>
                 Assigned
             </option>
-            <option value="accepted" {{ old('status', $instructionRequest->status) === 'accepted' ? 'selected' : '' }}>
+            <option value="accepted" {{ old('status', $instructionRequest->status) === 'accepted' ? 'selected' : '' }} disabled>
                 Accepted
             </option>
-            <option value="scheduled" {{ old('status', $instructionRequest->status) === 'scheduled' ? 'selected' : '' }}>
+            <option value="scheduled" {{ old('status', $instructionRequest->status) === 'scheduled' ? 'selected' : '' }} disabled>
                 Scheduled
             </option>
             <option value="completed" {{ old('status', $instructionRequest->status) === 'completed' ? 'selected' : '' }}>
@@ -83,7 +83,7 @@
 
     @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
         <hr class="mb-6" />
-        <div class="my-4" 
+        <div class="my-4"
             x-data="{
                 isOpen: false,
 

@@ -9,25 +9,25 @@
                     <div class="flex flex-wrap gap-2">
                         <button
                             wire:click="filterByLibrarian"
-                            class="px-4 py-2 text-sm font-medium text-white bg-teal-600 border border-gray-300 rounded-md hover:bg-teal-700"
+                            class="px-2 py-1 text-sm font-medium text-white bg-teal-600 border border-gray-300 rounded-md hover:bg-teal-700"
                         >
                             My Requests
                         </button>
                         <button
                             wire:click="filterExpiringReceived"
-                            class="px-4 py-2 text-sm font-medium text-white bg-amber-600 border border-gray-300 rounded-md hover:bg-amber-700"
+                            class="px-2 py-1 text-sm font-medium text-white bg-amber-600 border border-gray-300 rounded-md hover:bg-amber-700"
                         >
                             Expiring Received
                         </button>
                         <button
                             wire:click="filterRejected"
-                            class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-gray-300 rounded-md hover:bg-purple-700"
+                            class="px-2 py-1 text-sm font-medium text-white bg-purple-600 border border-gray-300 rounded-md hover:bg-purple-700"
                         >
                             Rejected Requests
                         </button>
                         <button
                             wire:click="clearFilters"
-                            class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50"
+                            class="px-2 py-1 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50"
                         >
                             Clear Filters
                         </button>
@@ -50,7 +50,7 @@
             </div>
 
 {{--            <a href="{{ route('instructionRequests.create') }}"--}}
-{{--               class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors">--}}
+{{--               class="w-full sm:w-auto inline-flex items-center justify-center px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold text-xs text-white uppercase tracking-widest transition-colors">--}}
 {{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
 {{--                     class="h-4 w-4 mr-2"--}}
 {{--                     fill="none"--}}
