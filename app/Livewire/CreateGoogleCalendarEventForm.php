@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Exceptions\InvalidCalendarConfigurationException;
 use App\Models\InstructionRequests;
+use App\Models\User;
 use App\Services\CalendarService;
 use Carbon\Carbon;
 use Illuminate\View\View;
@@ -61,7 +62,7 @@ class CreateGoogleCalendarEventForm extends Component
         Log::info('CreateGoogleCalendarEventForm: Component mounting', [
             'request_id' => $requestId
         ]);
-        
+
         // Fetch the instruction request with all necessary relationships
         $this->instructionRequest = InstructionRequests::with([
             'instructor',
@@ -87,7 +88,7 @@ class CreateGoogleCalendarEventForm extends Component
         Log::debug('CreateGoogleCalendarEventForm: Starting populateFormData', [
             'request_id' => $this->instructionRequest->id
         ]);
-        
+
         try {
             // Use CalendarService to get pre-formatted event data
             $calendarService = app(CalendarService::class);
@@ -118,8 +119,16 @@ class CreateGoogleCalendarEventForm extends Component
 
             // Set attendee emails
             $this->instructorEmail = $this->instructionRequest->instructor?->email;
-            $this->librarianEmail = $this->instructionRequest->librarian?->email;
-            
+
+            // Use assigned librarian from detail instead of originally requested librarian
+            $assignedLibrarian = null;
+            if ($this->instructionRequest->detail && $this->instructionRequest->detail->assigned_librarian_id) {
+                $assignedLibrarian = User::find($this->instructionRequest->detail->assigned_librarian_id);
+                $this->librarianEmail = $assignedLibrarian?->email;
+            } else {
+                $this->librarianEmail = $this->instructionRequest->librarian?->email;
+            }
+
             // Log successful form population
             Log::debug('CreateGoogleCalendarEventForm: Form data populated successfully', [
                 'eventName' => $this->eventName,
@@ -132,7 +141,7 @@ class CreateGoogleCalendarEventForm extends Component
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Re-throw the exception to be handled by the caller
             throw $e;
         }
@@ -157,7 +166,7 @@ class CreateGoogleCalendarEventForm extends Component
             'timestamp' => now()->toDateTimeString(),
             'component_id' => $this->getId()
         ]);
-        
+
         // Log the initial event creation attempt using database records
         Log::debug('CreateGoogleCalendarEventForm: createEvent() method called', [
             'component_id' => $this->getId(),
@@ -167,7 +176,7 @@ class CreateGoogleCalendarEventForm extends Component
                 'endTime' => $this->endTime
             ]
         ]);
-        
+
         Log::info('CreateGoogleCalendarEventForm: Preparing to create event', [
             'request_id' => $this->instructionRequest->id,
             'database_datetime' => $this->instructionRequest->detail->instruction_datetime,
@@ -208,7 +217,7 @@ class CreateGoogleCalendarEventForm extends Component
                 'request_id' => $this->instructionRequest->id,
                 'calendar_service_class' => get_class($calendarService)
             ]);
-            
+
             // Verify the service instance is valid
             if (!method_exists($calendarService, 'createEvent')) {
                 Log::critical('CreateGoogleCalendarEventForm: CalendarService missing createEvent method', [
@@ -217,12 +226,12 @@ class CreateGoogleCalendarEventForm extends Component
                 ]);
                 throw new \RuntimeException('Calendar service does not have createEvent method');
             }
-            
+
             // First do a test call to verify the CalendarService is working correctly
             Log::critical('CreateGoogleCalendarEventForm: Testing CalendarService with test method', [
                 'request_id' => $this->instructionRequest->id
             ]);
-            
+
             try {
                 $testResult = $calendarService->testCalendarService($this->instructionRequest);
                 Log::critical('CreateGoogleCalendarEventForm: CalendarService test succeeded', $testResult);
@@ -232,24 +241,24 @@ class CreateGoogleCalendarEventForm extends Component
                     'trace' => $testException->getTraceAsString()
                 ]);
             }
-            
+
             // Attempt to create the event using CalendarService
             try {
                 // Refresh the instruction request to ensure we have the latest data
                 $this->instructionRequest->refresh();
-                
+
                 // Log the data we're sending
                 Log::critical('CreateGoogleCalendarEventForm: Calling CalendarService->createEvent with data', [
                     'custom_data_keys' => array_keys($customData),
                     'start_time' => $customData['start_time'],
                     'end_time' => $customData['end_time']
                 ]);
-                
+
                 $googleCalendarEvent = $calendarService->createEvent(
                     $this->instructionRequest,
                     $customData
                 );
-                
+
                 // If we get here, the event was created successfully
                 Log::critical('CreateGoogleCalendarEventForm: CalendarService call succeeded', [
                     'event_id' => $googleCalendarEvent->id ?? 'unknown',
@@ -262,7 +271,7 @@ class CreateGoogleCalendarEventForm extends Component
                     'class' => get_class($serviceException),
                     'trace' => $serviceException->getTraceAsString()
                 ]);
-                
+
                 throw $serviceException;
             }
 
@@ -278,17 +287,17 @@ class CreateGoogleCalendarEventForm extends Component
                 'request_id' => $this->instructionRequest->id,
                 'event_id' => $googleCalendarEvent->id
             ]);
-            
+
             // Log the successful event creation
             Log::info('CreateGoogleCalendarEventForm: Successfully created event, dispatching refresh event', [
                 'request_id' => $this->instructionRequest->id,
                 'event_id' => $googleCalendarEvent->id,
                 'google_event_id' => $googleCalendarEvent->google_event_id
             ]);
-            
+
             // Flash message for the next page load
             session()->flash('success', 'Google Calendar event created successfully.');
-            
+
             // Dispatch event to close modal and refresh page
             // This must be the last operation as it triggers the page reload
             $this->dispatch('googleCalendarEventCreated', [
@@ -334,7 +343,7 @@ class CreateGoogleCalendarEventForm extends Component
     {
         return view('livewire.create-google-calendar-event-form');
     }
-    
+
     /**
      * Method that can be called directly via JavaScript as a backup
      * This provides an alternative way to trigger the event creation
@@ -345,7 +354,7 @@ class CreateGoogleCalendarEventForm extends Component
             'timestamp' => now()->toDateTimeString(),
             'component_id' => $this->getId()
         ]);
-        
+
         // Call the main createEvent method with the CalendarService injected
         $this->createEvent(app(CalendarService::class));
     }
