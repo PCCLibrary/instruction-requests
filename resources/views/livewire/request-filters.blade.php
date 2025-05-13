@@ -1,5 +1,5 @@
 <div>
-    <div class="mb-4 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+    <div class="mb-4 bg-sky-100 rounded-lg shadow-sm p-4 border border-sky-200">
         <div class="mb-2">
             <h2 class="text-lg font-semibold text-gray-700">Quick Filters</h2>
         </div>
@@ -39,7 +39,7 @@
                         </h3>
                     @elseif($showingExpiringReceived)
                         <h3 class="ml-4 font-bold text-gray-800">
-                            Showing "Expiring Received Requests"
+                            Showing "Received requests expiring in 14 days"
                         </h3>
                     @elseif($showingRejected)
                         <h3 class="ml-4 font-bold text-gray-800">

@@ -165,6 +165,9 @@ class MediaController extends Controller
                 return response()->json(['error' => 'Invalid or expired upload token'], 401);
             }
 
+            // try to get the mime type
+            Log::debug('Uploaded file mime type: ' . \Illuminate\Support\Facades\Request::file('file')->getMimeType());
+
             // Validate file
             if (!$request->hasFile('file')) {
                 Log::error('No file provided in request');

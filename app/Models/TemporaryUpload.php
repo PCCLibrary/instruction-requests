@@ -87,6 +87,9 @@ class TemporaryUpload extends Model implements HasMedia
 
                 // Text Files
                 'text/plain',
+
+                // Rich Text Format variants
+                'application/x-rtf',
                 'text/rtf',
                 'application/rtf',
 
@@ -98,9 +101,6 @@ class TemporaryUpload extends Model implements HasMedia
                 'application/vnd.oasis.opendocument.text',
                 'application/vnd.oasis.opendocument.spreadsheet',
                 'application/vnd.oasis.opendocument.presentation',
-
-                // Rich Text Format variants
-                'application/x-rtf',
 
                 // HTML (for web-based materials)
                 'text/html',
