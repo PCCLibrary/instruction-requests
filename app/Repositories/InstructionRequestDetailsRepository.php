@@ -59,7 +59,7 @@ class InstructionRequestDetailsRepository extends BaseRepository
             'has_assigned_librarian' => isset($data['assigned_librarian_id']) ? 'YES' : 'NO',
             'assigned_librarian_id' => $data['assigned_librarian_id'] ?? 'NOT PROVIDED'
         ]);
-        
+
         // Complete data dump for debugging
         Log::debug('REPOSITORY UPDATE COMPLETE DATA DUMP', $data);
 
@@ -73,23 +73,33 @@ class InstructionRequestDetailsRepository extends BaseRepository
             Log::info('Before update state', [
                 'assigned_librarian_id' => $model->assigned_librarian_id
             ]);
-            
+
             // Force type conversion for assigned_librarian_id if it exists
             if (isset($data['assigned_librarian_id'])) {
                 // Convert to integer or null
-                $data['assigned_librarian_id'] = 
+                $data['assigned_librarian_id'] =
                     (is_null($data['assigned_librarian_id']) || $data['assigned_librarian_id'] === '')
                     ? null
                     : (int)$data['assigned_librarian_id'];
-                
+
                 Log::info('Converted assigned_librarian_id', [
                     'original' => $model->assigned_librarian_id,
-                    'new_value' => $data['assigned_librarian_id'], 
+                    'new_value' => $data['assigned_librarian_id'],
                     'type' => gettype($data['assigned_librarian_id'])
                 ]);
             }
 
             // Perform update using query builder to force it
+
+            // Check if we're processing instruction_datetime
+            if (isset($data['instruction_datetime'])) {
+                Log::info('Processing instruction_datetime in repository', [
+                    'value' => $data['instruction_datetime'],
+                    'type' => gettype($data['instruction_datetime']),
+                    'has_time' => strpos($data['instruction_datetime'], 'T') !== false
+                ]);
+            }
+
             DB::table('instruction_request_details')
                 ->where('id', $model->id)  // Use the model's ID to ensure we update the correct record
                 ->update($data);
@@ -102,17 +112,21 @@ class InstructionRequestDetailsRepository extends BaseRepository
 
             // Get fresh model and log after state - query the database directly to verify the actual value
             $refreshed = $model->fresh();
-            
+
             // Do a direct DB query to verify the actual value in the database
             $dbRecord = DB::table('instruction_request_details')
                 ->where('id', $model->id)
                 ->first();
-                
+
             Log::info('AFTER UPDATE STATE - DIRECT DATABASE CHECK', [
                 'model_assigned_librarian_id' => $refreshed->assigned_librarian_id,
                 'db_query_assigned_librarian_id' => $dbRecord ? $dbRecord->assigned_librarian_id : 'DB RECORD NOT FOUND',
                 'instruction_datetime' => $refreshed->instruction_datetime,
-                'instruction_duration' => $refreshed->instruction_duration
+                'instruction_duration' => $refreshed->instruction_duration,
+                'datetime_has_time' => $refreshed->instruction_datetime ?
+                    !($refreshed->instruction_datetime->format('H:i:s') === '00:00:00') : false,
+                'datetime_formatted' => $refreshed->instruction_datetime ?
+                    $refreshed->instruction_datetime->format('Y-m-d H:i:s') : 'NULL'
             ]);
 
             return $refreshed;

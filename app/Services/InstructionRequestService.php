@@ -447,8 +447,17 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
                 $detailsData['last_updated_by'] = auth()->user()?->display_name ?? 'System';
 
-                // For update operations, ensure instruction_datetime is set appropriately for the instruction type
-                if (isset($mainRequestData['instruction_type']) &&
+                // For updates, if instruction_datetime is directly provided in the form, respect that value
+                if (isset($detailsData['instruction_datetime'])) {
+                    // Keep the value as-is since it was directly set in the form
+                    Log::info('Update: Using directly provided instruction_datetime value', [
+                        'instruction_datetime' => $detailsData['instruction_datetime'],
+                        'has_time' => strpos($detailsData['instruction_datetime'], 'T') !== false,
+                        'instruction_request_id' => $id
+                    ]);
+                }
+                // Otherwise, fall back to deriving from appropriate date fields based on instruction type
+                else if (isset($mainRequestData['instruction_type']) &&
                     $mainRequestData['instruction_type'] === 'asynchronous' &&
                     isset($mainRequestData['asynchronous_instruction_ready_date'])) {
 
