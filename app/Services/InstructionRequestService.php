@@ -360,6 +360,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'desired_student_outcomes',
                 'genai_discussion_interest',
                 'other_notes',
+                'librarian_id',
             ]));
 
             $detailsData = array_intersect_key($data, array_flip([
