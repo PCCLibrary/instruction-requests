@@ -33,13 +33,17 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     public static function bootLockable()
     {
         static::saving(function (IsLockable $model) {
-            if ($model->exists && $model->isLocked() && ! ($model->isLocking() || $model->isUnlocking())) {
+            if ($model->exists && $model->isLocked() &&
+                $model->locked_by !== auth()->id() &&
+                ! ($model->isLocking() || $model->isUnlocking())) {
                 throw (new ModelLockedException)->setModel($model);
             }
         });
 
         static::deleting(function (IsLockable $model) {
-            if ($model->isLocked() && ! $model->canDeleteWhenLocked()) {
+            if ($model->isLocked() &&
+                $model->locked_by !== auth()->id() &&
+                ! $model->canDeleteWhenLocked()) {
                 throw (new ModelLockedException)->setModel($model);
             }
         });
