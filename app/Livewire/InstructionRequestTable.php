@@ -294,6 +294,48 @@ final class InstructionRequestTable extends PowerGridComponent
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
+    /**
+     * Handle "Expiring Received" filter
+     */
+    #[\Livewire\Attributes\On('filterExpiringReceived')]
+    public function filterExpiringReceived(): void
+    {
+        // Clear any existing filters
+        $this->filters = [];
+
+        // Apply status filter for 'received'
+        $this->filters['select']['instruction_requests.status'] = 'received';
+
+        // Apply date range filter for next 14 days
+        $startDate = now()->startOfDay();
+        $endDate = now()->addDays(14)->endOfDay();
+
+        // Format dates for PowerGrid's datepicker filter
+        $this->filters['datepicker']['instruction_datetime'] = [
+            'start' => $startDate->format('Y-m-d'),
+            'end' => $endDate->format('Y-m-d')
+        ];
+
+        // Refresh the table
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
+     * Handle "Rejected" filter
+     */
+    #[\Livewire\Attributes\On('filterRejected')]
+    public function filterRejected(): void
+    {
+        // Clear any existing filters
+        $this->filters = [];
+
+        // Apply status filter for 'rejected'
+        $this->filters['select']['instruction_requests.status'] = 'rejected';
+
+        // Refresh the table
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
     #[\Livewire\Attributes\On('filterByCampus')]
     public function filterByCampus($code): void
     {
@@ -353,7 +395,9 @@ final class InstructionRequestTable extends PowerGridComponent
                 'filterByCampus',
                 'filterByStatus',
                 'clearFilters',
-                'refreshLockStatus'
+                'refreshLockStatus',
+                'filterExpiringReceived',  // Add new listener
+                'filterRejected'           // Add new listener
             ]
         );
     }

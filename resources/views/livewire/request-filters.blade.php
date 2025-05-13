@@ -1,14 +1,29 @@
 <div>
-    <div class="mb-4 space-y-4">
+    <div class="mb-4 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+        <div class="mb-2">
+            <h2 class="text-lg font-semibold text-gray-700">Quick Filters</h2>
+        </div>
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="w-full sm:w-auto">
                 <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2">
                         <button
                             wire:click="filterByLibrarian"
                             class="px-4 py-2 text-sm font-medium text-white bg-teal-600 border border-gray-300 rounded-md hover:bg-teal-700"
                         >
                             My Requests
+                        </button>
+                        <button
+                            wire:click="filterExpiringReceived"
+                            class="px-4 py-2 text-sm font-medium text-white bg-amber-600 border border-gray-300 rounded-md hover:bg-amber-700"
+                        >
+                            Expiring Received
+                        </button>
+                        <button
+                            wire:click="filterRejected"
+                            class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-gray-300 rounded-md hover:bg-purple-700"
+                        >
+                            Rejected Requests
                         </button>
                         <button
                             wire:click="clearFilters"
@@ -21,6 +36,14 @@
                     @if($showingMyRequests)
                         <h3 class="ml-4 font-bold text-gray-800">
                             Showing "My Requests"
+                        </h3>
+                    @elseif($showingExpiringReceived)
+                        <h3 class="ml-4 font-bold text-gray-800">
+                            Showing "Expiring Received Requests"
+                        </h3>
+                    @elseif($showingRejected)
+                        <h3 class="ml-4 font-bold text-gray-800">
+                            Showing "Rejected Requests"
                         </h3>
                     @endif
                 </div>
