@@ -44,6 +44,7 @@ class UpdateInstructionRequestRequest extends FormRequest
             'genai_discussion_interest' => 'sometimes|nullable|string',
             'other_notes' => 'sometimes|nullable|string',
             'instructor_id' => 'required|exists:instructors,id',
+            'librarian_id' => 'sometimes|nullable|exists:users,id',
             'name' => 'required|string|max:255',
             'display_name' => 'required|string|max:255',
             'email' => 'required|email',
