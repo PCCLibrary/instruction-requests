@@ -5,7 +5,7 @@
         ['label' => 'Instruction Requests', 'route' => 'instructionRequests.index'],
         ['label' => 'Manage Instruction Request']
     ]"/>
-    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
         Manage Instruction Request
     </h1>
 @endsection

@@ -6,8 +6,8 @@
         ]" />
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Manage Campuses</h1>
-            <p class="mt-1 text-gray-500">Manage campuses, add google calendar keys, and assign Librarians for notification.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">Manage Campuses</h1>
+            <p class="mt-1 text-gray-500 dark:text-gray-300">Manage campuses, add google calendar keys, and assign Librarians for notification.</p>
         </div>
 
         <a href="{{ route('campuses.create') }}"
