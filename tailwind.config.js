@@ -12,6 +12,7 @@ export default {
         './resources/js/**/*.js',
         './resources/js/**/*.vue',
     ],
+    darkMode: 'class', // Enable class-based dark mode
     theme: {
         extend: {
             fontFamily: {
