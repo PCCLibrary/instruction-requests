@@ -1,5 +1,5 @@
 {{-- Notes Section --}}
-<x-card title="Notes" class="bg-gray-50">
+<x-card title="Notes" class="bg-gray-50 dark:bg-gray-800">
             <div class="space-y-4">
                 <!-- Class Notes (Textarea) - Always editable regardless of form state -->
                 <x-input-textarea

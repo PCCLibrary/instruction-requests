@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/create/instructor-info.blade.php --}}
-<x-fieldset legend="Instructor Information" classes="bg-white">
+<x-fieldset legend="Instructor Information" classes="bg-white dark:bg-gray-800">
     <div x-data="{ openModal: false }" class="space-y-6">
         {{-- Add hidden field for instructor_id --}}
         <input type="hidden" name="instructor_id" id="instructor_id" value="{{ old('instructor_id') }}">
@@ -97,7 +97,7 @@
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                 <!-- Modal panel -->
-                <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                     <!-- Use standard Livewire directive for Livewire 3 compatibility -->
                     @livewire('instructor-selector', key('instructor-selector-new'))
                 </div>

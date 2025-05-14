@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/instructor-info.blade.php --}}
-<x-card title="Instructor Information" class="bg-white mb-4 instructor-info-container">
+<x-card title="Instructor Information" class="bg-white dark:bg-gray-800 mb-4 instructor-info-container">
     {{-- Hidden field for instructor_id --}}
     <input type="hidden" name="instructor_id" id="instructor_id" value="{{ $instructionRequest->instructor_id }}">
 
@@ -32,7 +32,7 @@
                     required
                     x-bind:readonly="isDisabled"
                     class="edit-field"
-                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                    x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -44,7 +44,7 @@
                     required
                     x-bind:readonly="isDisabled"
                     class="edit-field"
-                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                    x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                 />
             </div>
         </div>
@@ -58,7 +58,7 @@
                     :value="$instructionRequest->instructor->pronouns"
                     x-bind:readonly="isDisabled"
                     class="edit-field"
-                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                    x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -71,7 +71,7 @@
                     required
                     x-bind:readonly="isDisabled"
                     class="edit-field"
-                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                    x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                 />
             </div>
             <div>
@@ -83,7 +83,7 @@
                     :value="$instructionRequest->instructor->phone"
                     x-bind:readonly="isDisabled"
                     class="edit-field"
-                    x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                    x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                 />
             </div>
         </div>

@@ -1,5 +1,5 @@
 {{-- Instruction Goals Section --}}
-<x-card title="Instruction Goals and Discussion Topics" class="bg-gray-50 mb-4">
+<x-card title="Instruction Goals and Discussion Topics" class="bg-gray-50 dark:bg-gray-800 mb-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {
                     return !$store.formState.isSectionEditable('instructionGoals');
@@ -13,7 +13,7 @@
                         class="edit-field"
                         helptext="Examples: developing a topic, searching effectively, evaluating sources, etc."
                         x-bind:readonly="isDisabled"
-                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                        x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                     />
                 </div>
 
@@ -25,7 +25,7 @@
                         class="edit-field"
                         helptext="If you have class guidelines about ChatGPT, Perplexity, etc., or want to coordinate with your librarian on AI usage, share details here."
                         x-bind:readonly="isDisabled"
-                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                        x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                     />
                 </div>
             </div>

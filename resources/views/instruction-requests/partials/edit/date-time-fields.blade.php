@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/scheduling.blade.php --}}
-<x-card title="Date, Time and Duration" class="bg-gray-50 mb-4">
+<x-card title="Date, Time and Duration" class="bg-gray-50 dark:bg-gray-800 mb-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {
                     return !$store.formState.isSectionEditable('dateTime');
@@ -16,7 +16,7 @@
                             helptext="Enter the date/time you prefer to have your instruction session."
                             x-bind:required="instructionType !== 'asynchronous'"
                             x-bind:readonly="isDisabled"
-                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                            x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                         />
 
                         <x-input-datetime
@@ -26,7 +26,7 @@
                             class="edit-field"
                             helptext="Enter an alternate date/time for your instruction session."
                             x-bind:readonly="isDisabled"
-                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                            x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                         />
                     </div>
 
@@ -39,7 +39,7 @@
                             type="number"
                             x-bind:required="instructionType !== 'asynchronous'"
                             x-bind:readonly="isDisabled"
-                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                            x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                         />
 
                         <x-input-textarea
@@ -48,7 +48,7 @@
                             :value="$instructionRequest->extra_time_with_class"
                             class="edit-field"
                             x-bind:readonly="isDisabled"
-                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                            x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                         />
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                         helptext="Examples of asynchronous instruction: tutorials, videos, research guides, or a librarian embedded in Brightspace."
                         x-bind:required="instructionType === 'asynchronous'"
                         x-bind:readonly="isDisabled"
-                        x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                        x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                     />
                 </div>
             </div>

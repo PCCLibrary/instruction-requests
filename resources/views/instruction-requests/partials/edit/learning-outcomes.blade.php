@@ -1,5 +1,5 @@
 {{-- Learning Outcomes Section --}}
-<x-card title="By the time students receive library instruction they will have:" class="bg-gray-50 mb-4">
+<x-card title="By the time students receive library instruction they will have:" class="bg-gray-50 dark:bg-gray-800 mb-4">
     <div x-data="{
         get isDisabled() {
             return !$store.formState.isSectionEditable('learningOutcomes');
@@ -55,7 +55,7 @@
                 :value="$instructionRequest->other_learning_outcome_description"
                 x-bind:readonly="isDisabled"
                 class="edit-field"
-                x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
             />
         </div>
     </div>

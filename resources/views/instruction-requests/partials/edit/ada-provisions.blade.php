@@ -1,5 +1,5 @@
 {{-- ADA Provisions Section --}}
-<x-card title="ADA Provisions" class="bg-gray-50 mb-4">
+<x-card title="ADA Provisions" class="bg-gray-50 dark:bg-gray-800 mb-4">
             <div class="space-y-4" x-data="{
                 get isDisabled() {
                     return !$store.formState.isSectionEditable('adaProvisions');
@@ -22,7 +22,7 @@
                             :value="$instructionRequest->ada_provisions_description"
                             class="edit-field"
                             x-bind:readonly="isDisabled"
-                            x-bind:class="isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''"
+                            x-bind:class="isDisabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''"
                         />
                     </div>
                 </div>

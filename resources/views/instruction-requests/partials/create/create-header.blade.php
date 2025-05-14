@@ -1,7 +1,7 @@
-<x-card class="bg-teal-50 mb-4 shadow-sm" title="Create a New Instruction Request">
+<x-card class="bg-teal-50 dark:bg-teal-900 mb-4 shadow-sm" title="Create a New Instruction Request">
     <div class="p-2">
         <div class="flex items-center mb-4">
-            <p class="text-gray-600 sm:max-w-md">
+            <p class="text-gray-600 dark:text-gray-300 sm:max-w-md">
                 Creating a new request will notify the instructor and campus librarians. Cancel to return to the list of instruction requests.
             </p>
         </div>

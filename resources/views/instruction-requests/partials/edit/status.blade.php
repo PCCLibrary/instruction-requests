@@ -26,9 +26,9 @@
     }
 }">
     <div class="mb-4">
-        <label for="status" class="block text-sm font-medium text-gray-700">Request Status</label>
+        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Request Status</label>
         <select id="status" name="status"
-                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-white">
             <option value="received" {{ old('status', $instructionRequest->status) === 'received' ? 'selected' : '' }}>
                 Received
             </option>
@@ -48,11 +48,11 @@
     </div>
 
     <div class="mb-4">
-        <label for="assigned_librarian_id" class="block text-sm font-medium text-gray-700">Assigned Librarian</label>
+        <label for="assigned_librarian_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Assigned Librarian</label>
         <select id="assigned_librarian_id"
                 name="assigned_librarian_id"
                 @change="handleLibrarianChange()"
-                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-white">
             @foreach($librarians as $librarian)
                 <option value="{{ $librarian->id }}" {{ $instructionRequest->detail->assigned_librarian_id == $librarian->id ? 'selected' : '' }}>
                     {{ $librarian->display_name }}
@@ -62,19 +62,19 @@
     </div>
 
     <div class="mb-4">
-        <label for="instruction_datetime" class="block text-sm font-medium text-gray-700">Instruction Date & Time</label>
+        <label for="instruction_datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Instruction Date & Time</label>
         <input type="datetime-local" id="instruction_datetime" name="instruction_datetime"
                value="{{ old('instruction_datetime', ($instructionRequest->detail->instruction_datetime ?? $instructionRequest->preferred_datetime)?->format('Y-m-d\TH:i')) }}"
                required
-               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
     </div>
 
     <div class="mb-4">
-        <label for="instruction_duration" class="block text-sm font-medium text-gray-700">Instruction Duration</label>
+        <label for="instruction_duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Instruction Duration</label>
         <input type="text" id="instruction_duration" name="instruction_duration"
                value="{{ old('instruction_duration', $instructionRequest->detail->instruction_duration ?? $instructionRequest->duration) }}"
-               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-        <p class="mt-2 text-sm text-gray-500">Duration in minutes.</p>
+               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Duration in minutes.</p>
     </div>
 
     <div class="mb-4">
@@ -82,7 +82,7 @@
     </div>
 
     @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
-        <hr class="mb-6" />
+        <hr class="mb-6 dark:border-gray-700" />
         <div class="my-4"
             x-data="{
                 isOpen: false,
@@ -114,7 +114,7 @@
             </button>
 
             <!-- Warning messages for disabled state -->
-            <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600" x-cloak>
+            <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600 dark:text-amber-400" x-cloak>
                 <div x-show="Alpine.store('formState')?.hasUnsavedChanges">
                     Please save changes before scheduling.
                 </div>
@@ -128,7 +128,7 @@
     @endif
 
     @if($instructionRequest->status == 'scheduled')
-        <hr class="mb-6" />
+        <hr class="mb-6 dark:border-gray-700" />
         <div class="my-4">
                 @livewire('delete-google-calendar-event', ['requestId' => $instructionRequest->id])
         </div>
