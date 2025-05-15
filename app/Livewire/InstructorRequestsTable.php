@@ -39,8 +39,7 @@ final class InstructorRequestsTable extends PowerGridComponent
 
             PowerGrid::footer()
                 ->showPerPage()
-                ->showRecordCount()
-                ->pagination('components.powergrid-pagination'),
+                ->showRecordCount(),
 
             (new Exportable('instructor_requests_' . now()->format('Y-m-d')))
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
@@ -58,22 +57,32 @@ final class InstructorRequestsTable extends PowerGridComponent
         // Use service to get requests by instructor
         $instructionRequestService = app(InstructionRequestService::class);
         $requests = $instructionRequestService->getRequestsByInstructor($this->instructorId);
+        $requestIds = $requests->pluck('id')->toArray();
 
-        return InstructionRequests::query()
-            ->whereIn('instruction_requests.id', $requests->pluck('id'))
+        $query = InstructionRequests::query()
+            // Use whereIntegerInRaw instead of whereIn to ensure SQL safety with integers
+            ->whereIntegerInRaw('instruction_requests.id', $requestIds)
             ->leftJoin('instruction_request_details', 'instruction_requests.id', '=', 'instruction_request_details.instruction_requests_id')
             ->leftJoin('campuses', 'instruction_requests.campus_id', '=', 'campuses.id')
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
             ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
             ->leftJoin('users as lockers', 'instruction_requests.locked_by', '=', 'lockers.id')
             ->select([
-                'instruction_requests.*',
+                'instruction_requests.id',
+                'instruction_requests.created_at',
+                'instruction_requests.instruction_type',
+                'instruction_requests.status',
                 'instruction_request_details.instruction_datetime',
                 'campuses.name as campus_name',
                 'classes.course_name',
                 'librarians.display_name as librarian_name',
-                'lockers.display_name as locker_name'
+                'lockers.display_name as locker_name',
+                'instruction_requests.locked',
+                'instruction_requests.locked_by',
+                'instruction_requests.locked_at'
             ]);
+
+        return $query;
     }
 
     /**
@@ -114,31 +123,31 @@ final class InstructorRequestsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Received', 'created_at_formatted', 'created_at')
+            Column::make('Received', 'created_at_formatted', 'instruction_requests.created_at')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(false),
 
-            Column::make('Class', 'course_name')
+            Column::make('Class', 'course_name', 'classes.course_name')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(true),
 
-            Column::make('Campus', 'campus_name')
+            Column::make('Campus', 'campus_name', 'campuses.name')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(true),
 
-            Column::make('Librarian', 'librarian_name')
+            Column::make('Librarian', 'librarian_name', 'librarians.display_name')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(true),
 
-            Column::make('Type', 'instruction_type')
+            Column::make('Type', 'instruction_type', 'instruction_requests.instruction_type')
                 ->sortable()
                 ->visibleInExport(true),
 
-            Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_datetime')
+            Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_request_details.instruction_datetime')
                 ->sortable()
                 ->visibleInExport(false),
 
@@ -183,8 +192,10 @@ final class InstructorRequestsTable extends PowerGridComponent
     #[\Livewire\Attributes\On('delete')]
     public function delete($id): void
     {
-        // Fetch the record to check lock status
-        $instructionRequest = InstructionRequests::find($id);
+        // Fetch the record to check lock status - explicitly use the model to avoid ambiguity
+        $instructionRequest = InstructionRequests::query()
+            ->where('instruction_requests.id', $id)
+            ->first();
 
         // If record is locked by someone else, show warning and don't delete
         if ($instructionRequest && $instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
@@ -197,7 +208,10 @@ final class InstructorRequestsTable extends PowerGridComponent
         }
 
         // Otherwise proceed with deletion
-        InstructionRequests::destroy($id);
+        if ($instructionRequest) {
+            $instructionRequest->delete();
+        }
+
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
