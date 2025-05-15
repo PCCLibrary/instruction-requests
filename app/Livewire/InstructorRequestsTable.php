@@ -39,7 +39,8 @@ final class InstructorRequestsTable extends PowerGridComponent
 
             PowerGrid::footer()
                 ->showPerPage()
-                ->showRecordCount(),
+                ->showRecordCount()
+                ->pagination('components.powergrid-pagination'),
 
             (new Exportable('instructor_requests_' . now()->format('Y-m-d')))
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)

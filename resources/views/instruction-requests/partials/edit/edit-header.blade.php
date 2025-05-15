@@ -1,4 +1,6 @@
-<x-card class="bg-teal-50 dark:bg-teal-900 mb-4 shadow-sm" title="Request summary">
+<x-card class="bg-teal-50 dark:bg-teal-950 mb-4 shadow-sm dark:border-gray-700"
+        title="Request summary"
+        headerclass="dark:text-white">
     <div class="p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>

@@ -1,5 +1,8 @@
 {{-- Instruction Goals Section --}}
-<x-card title="Instruction Goals and Discussion Topics" class="bg-gray-50 dark:bg-gray-800 mb-4">
+<x-card title="Instruction Goals and Discussion Topics"
+        class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4"
+        headerclass="dark:text-white"
+>
             <div class="space-y-4" x-data="{
                 get isDisabled() {
                     return !$store.formState.isSectionEditable('instructionGoals');

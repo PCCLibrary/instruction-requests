@@ -1,15 +1,15 @@
 <div class="space-y-4">
     <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Tasks Completed</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-4">Tasks Completed</label>
         <div class="flex flex-wrap gap-2">
             @foreach($availableTasks as $value => $label)
                 <button
                     type="button"
                     wire:click="toggleTask('{{ $value }}')"
                     @class([
-                        'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
-                        'bg-sky-600 text-white hover:bg-sky-800' => in_array($value, $selectedTasks),
-                        'bg-white text-gray-800 hover:bg-sky-200' => !in_array($value, $selectedTasks),
+                        'px-3 py-1.5 rounded-full text-sm font-medium dark:border-gray-700 transition-colors',
+                        'bg-sky-600 text-white hover:bg-sky-800  dark:bg-sky-800 dark:hover:bg-sky-900' => in_array($value, $selectedTasks),
+                        'bg-white text-gray-800 hover:bg-sky-200 dark:bg-black dark:text-gray-300 dark:hover:bg-gray-700' => !in_array($value, $selectedTasks),
                     ])
                 >
                     {{ $label }}

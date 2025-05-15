@@ -16,7 +16,7 @@
 <div class="w-full rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
     {{-- Header --}}
     @if($title)
-        <div class="flex items-center justify-between {{ $headerBgColor }} dark:bg-gray-700 px-4 py-2">
+        <div class="flex items-center justify-between {{ $headerBgColor }} px-4 py-2">
             <h3 class="text-sm font-medium text-white">{{ $title }}</h3>
             @if($limit && $instructionRequests->count() >= $limit)
                 <a href="{{ route('instructionRequests.index') }}" class="text-xs text-white hover:text-blue-100">

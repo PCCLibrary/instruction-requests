@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/course-details.blade.php --}}
-<x-card class="bg-gray-50 dark:bg-gray-800 mb-4">
+<x-card class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4">
     <x-slot name="title">
         <div class="flex justify-between items-center">
             <h5 class="mb-0 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Request Information</h5>

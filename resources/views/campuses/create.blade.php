@@ -12,22 +12,18 @@
 @endsection
 
 @section('content')
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
-                <form action="{{ route('campuses.store') }}" method="POST" class="p-6">
-                    @csrf
 
-                    @include('campuses.partials.fields')
+    <form action="{{ route('campuses.store') }}" method="POST" class="p-6">
+        @csrf
 
-                    <div class="gap-4 mt-6">
-                        <x-editor-actions
-                            route="{{ route('campuses.index') }}"
-                            :showBack="false"
-                        />
-                    </div>
-                </form>
-            </div>
+        @include('campuses.partials.fields')
+
+        <div class="gap-4 mt-6">
+            <x-editor-actions
+                route="{{ route('campuses.index') }}"
+                :showBack="false"
+            />
         </div>
-    </div>
+    </form>
+
 @endsection

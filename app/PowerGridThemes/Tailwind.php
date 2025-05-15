@@ -29,7 +29,7 @@ class Tailwind extends Theme
             ],
 
             'header' => [
-                'thead'    => 'shadow-sm rounded-t-lg bg-cyan-600 dark:bg-cyan-800',
+                'thead'    => 'shadow-sm rounded-t-lg bg-cyan-600 dark:bg-cyan-900',
                 'tr'       => '',
                 'th'       => 'font-extrabold px-3 py-3 text-left text-xs text-white tracking-wider whitespace-nowrap dark:text-white',
                 'thAction' => '!font-bold',
@@ -50,6 +50,9 @@ class Tailwind extends Theme
         ];
     }
 
+    /**
+     * @return string[]
+     */
     /**
      * @return string[]
      */

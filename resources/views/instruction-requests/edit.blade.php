@@ -50,21 +50,21 @@
         });
     </script>
 
-    @if(isset($isViewOnly) && $isViewOnly)
-    <div class="bg-yellow-50 p-4 mb-4 rounded-md border border-yellow-200">
-        <div class="flex">
-            <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-yellow-800">View-Only Mode</h3>
-                <p class="text-sm text-yellow-700">This request is currently being edited by another user. You can view the details but cannot make changes.</p>
-            </div>
-        </div>
-    </div>
-    @endif
+{{--    @if(isset($isViewOnly) && $isViewOnly)--}}
+{{--    <div class="bg-yellow-50 p-4 mb-4 rounded-md border border-yellow-200">--}}
+{{--        <div class="flex">--}}
+{{--            <div class="flex-shrink-0">--}}
+{{--                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">--}}
+{{--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />--}}
+{{--                </svg>--}}
+{{--            </div>--}}
+{{--            <div class="ml-3">--}}
+{{--                <h3 class="text-sm font-medium text-yellow-800">View-Only Mode</h3>--}}
+{{--                <p class="text-sm text-yellow-700">This request is currently being edited by another user. You can view the details but cannot make changes.</p>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    @endif--}}
 
     <form action="{{ route('instructionRequests.update', $instructionRequest->id) }}"
           id="updateInstructionRequestForm"
@@ -244,9 +244,6 @@
         {{-- Essential Hidden Fields --}}
         <input type="hidden" name="instruction_requests_id"
                value="{{ $instructionRequest->detail->instruction_requests_id }}">
-        {{--        <input type="hidden" name="instructor_id" value="{{ $instructionRequest->instructor_id }}">--}}
-        {{--        <input type="hidden" name="librarian_id" value="{{ $instructionRequest->librarian_id ?? auth()->id() }}">--}}
-        {{--        <input type="hidden" name="campus_id" value="{{ $instructionRequest->campus_id }}">--}}
         <input type="hidden" name="class_id" value="{{ $instructionRequest->class_id }}">
         <input type="hidden" name="created_by" value="{{ $instructionRequest->detail->created_by }}">
         <input type="hidden" name="last_updated_by" value="{{ auth()->user()->display_name }}">
@@ -258,19 +255,26 @@
         <div class="grid grid-cols-12 gap-6 items-start">
             {{-- Left Column (4 columns) - Always Editable --}}
             <div class="col-span-12 md:col-span-4 items-start">
-                {{--                <x-card title="" class="bg-emerald-50 mb-4">--}}
-                {{--                    @include('instruction-requests.partials.edit.save')--}}
-                {{--                </x-card>--}}
 
-                <x-card title="Status" class="bg-blue-50 mb-4">
+
+                <x-card title="Status"
+                        class="bg-blue-50 dark:bg-blue-950 dark:border-gray-700 mb-4"
+                        headerclass="dark:text-white"
+                >
                     @include('instruction-requests.partials.edit.status')
                 </x-card>
 
-                <x-card title="File Attachments" class="bg-blue-50 mb-4">
+                <x-card title="File Attachments"
+                        class="bg-blue-50 dark:bg-blue-950 dark:border-gray-700 mb-4"
+                        headerclass="dark:text-white"
+                >
                     @include('instruction-requests.partials.edit.file-attachments')
                 </x-card>
 
-                <x-card title="Tasks" class="bg-blue-50 mb-4">
+                <x-card title="Tasks"
+                        class="bg-blue-50 dark:bg-blue-950 dark:border-gray-700 mb-4"
+                        headerclass="dark:text-white"
+                >
                     @include('instruction-requests.partials.edit.tasks')
                 </x-card>
 
@@ -307,7 +311,10 @@
 
     {{-- Comments Section --}}
     <div class="mt-6">
-        <x-card title="Comments" class="bg-blue-50">
+        <x-card title="Comments"
+                class="bg-blue-50 dark:bg-blue-950 dark:border-gray-700 mb-4"
+                headerclass="dark:text-white"
+        >
             <x-comments:: :model="$instructionRequest"/>
         </x-card>
     </div>

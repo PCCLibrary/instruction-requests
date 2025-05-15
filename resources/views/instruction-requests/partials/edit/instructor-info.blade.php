@@ -1,5 +1,8 @@
 {{-- resources/views/instruction-requests/partials/instructor-info.blade.php --}}
-<x-card title="Instructor Information" class="bg-white dark:bg-gray-800 mb-4 instructor-info-container">
+<x-card title="Instructor Information"
+        class="bg-white dark:bg-gray-800 dark:border-gray-700 mb-4 instructor-info-container"
+        headerclass="dark:text-white"
+>
     {{-- Hidden field for instructor_id --}}
     <input type="hidden" name="instructor_id" id="instructor_id" value="{{ $instructionRequest->instructor_id }}">
 

@@ -1,5 +1,8 @@
 {{-- resources/views/instruction-requests/partials/scheduling.blade.php --}}
-<x-card title="Date, Time and Duration" class="bg-gray-50 dark:bg-gray-800 mb-4">
+<x-card title="Date, Time and Duration"
+        class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4"
+        headerclass="dark:text-white"
+>
             <div class="space-y-4" x-data="{
                 get isDisabled() {
                     return !$store.formState.isSectionEditable('dateTime');
