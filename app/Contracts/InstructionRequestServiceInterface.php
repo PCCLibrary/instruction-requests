@@ -90,6 +90,15 @@ interface InstructionRequestServiceInterface
     public function getRequestsByStatus(string $status, ?int $quantity = null): Collection;
 
     /**
+     * Get requests by instructor.
+     *
+     * @param int $instructorId
+     * @param int|null $quantity
+     * @return Collection
+     */
+    public function getRequestsByInstructor(int $instructorId, ?int $quantity = null): Collection;
+
+    /**
      * Handle file uploads for an instruction request.
      *
      * @param Request $request

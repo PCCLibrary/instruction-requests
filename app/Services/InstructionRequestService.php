@@ -620,6 +620,24 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
+     * Get requests by instructor.
+     *
+     * @param int $instructorId
+     * @param int|null $quantity
+     * @return Collection
+     */
+    public function getRequestsByInstructor(int $instructorId, ?int $quantity = null): Collection
+    {
+        $modelClass = $this->repository->model();
+        $query = (new $modelClass)
+            ->with(['instructor', 'detail', 'classes', 'campus'])
+            ->where('instructor_id', $instructorId)
+            ->orderBy('created_at', 'desc');
+
+        return $quantity ? $query->take($quantity)->get() : $query->get();
+    }
+
+    /**
      * Handle status changes and send appropriate notifications
      *
      * Sends notifications based on status transitions:
