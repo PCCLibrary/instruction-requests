@@ -55,7 +55,7 @@
 
                     @if (!$paginator->onFirstPage())
                         <a
-                            class="cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-pg-primary-300 bg-white dark:bg-pg-primary-600 border border-pg-primary-300 dark:border-transparent rounded-l-md leading-5 hover:text-pg-primary-400 focus:z-10 focus:outline-none focus:shadow-outline-blue active:bg-pg-primary-100 active:text-pg-primary-500 transition ease-in-out duration-150"
+                            class="cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-white bg-white dark:bg-gray-900 border border-pg-primary-300 dark:border-gray-700 rounded-l-md leading-5 hover:text-pg-primary-400 dark:hover:text-white focus:z-10 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 dark:focus:border-blue-500 active:bg-pg-primary-100 dark:active:bg-gray-800 active:text-pg-primary-500 dark:active:text-white transition ease-in-out duration-150"
                             wire:click="gotoPage(1, '{{ $paginator->getPageName() }}')"
                         >
                             <svg
@@ -74,7 +74,7 @@
                         </a>
 
                         <a
-                            class="cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-pg-primary-300 bg-white dark:bg-pg-primary-600 border border-pg-primary-300 dark:border-transparent leading-5 hover:text-pg-primary-400 focus:z-10 focus:outline-none focus:shadow-outline-blue active:bg-pg-primary-100 active:text-pg-primary-500 transition ease-in-out duration-150"
+                            class="cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-white bg-white dark:bg-gray-900 border border-pg-primary-300 dark:border-gray-700 leading-5 hover:text-pg-primary-400 dark:hover:text-white focus:z-10 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 dark:focus:border-blue-500 active:bg-pg-primary-100 dark:active:bg-gray-800 active:text-pg-primary-500 dark:active:text-white transition ease-in-out duration-150"
                             wire:click="previousPage('{{ $paginator->getPageName() }}')"
                             rel="next"
                         >
@@ -100,7 +100,7 @@
                             @foreach ($element as $page => $url)
                                 @if ($page == $paginator->currentPage())
                                     <span
-                                        class="select-none relative z-10 inline-flex items-center px-3 py-2 -ml-px text-sm font-bold text-primary-700 dark:text-pg-primary-300 bg-primary-100 dark:bg-pg-primary-700 border border-primary-300 dark:border-transparent cursor-default select-none"
+                                        class="select-none relative z-10 inline-flex items-center px-3 py-2 -ml-px text-sm font-bold text-primary-700 dark:text-white bg-primary-100 dark:bg-gray-900 border border-primary-300 dark:border-gray-700 cursor-default select-none"
                                     >{{ $page }}</span>
                                 @elseif (
                                     $page === $paginator->currentPage() + 1 ||
@@ -108,7 +108,7 @@
                                         $page === $paginator->currentPage() - 1 ||
                                         $page === $paginator->currentPage() - 2)
                                     <a
-                                        class="select-none cursor-pointer relative inline-flex items-center px-3 py-2 -ml-px text-sm font-medium text-pg-primary-600 dark:text-pg-primary-400 bg-white dark:bg-pg-primary-600 border border-pg-primary-300 dark:border-transparent leading-5 hover:text-pg-primary-500 focus:z-10 focus:outline-none focus:shadow-outline-blue active:bg-pg-primary-100 active:text-pg-primary-700 transition ease-in-out duration-150"
+                                        class="select-none cursor-pointer relative inline-flex items-center px-3 py-2 -ml-px text-sm font-medium text-pg-primary-600 dark:text-white bg-white dark:bg-gray-900 border border-pg-primary-300 dark:border-gray-700 leading-5 hover:text-pg-primary-500 dark:hover:text-white focus:z-10 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 dark:focus:border-blue-500 active:bg-pg-primary-100 dark:active:bg-gray-800 active:text-pg-primary-700 dark:active:text-white transition ease-in-out duration-150"
                                         wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')"
                                     >{{ $page }}</a>
                                 @endif
@@ -121,7 +121,7 @@
                             @class([
                                 'block' => $paginator->lastPage() - $paginator->currentPage() >= 2,
                                 'hidden' => $paginator->lastPage() - $paginator->currentPage() < 2,
-                                'select-none cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-pg-primary-300 bg-white dark:bg-pg-primary-600 border border-pg-primary-300 dark:border-transparent leading-5 hover:text-pg-primary-400 focus:z-10 focus:outline-none focus:shadow-outline-blue active:bg-pg-primary-100 active:text-pg-primary-500 transition ease-in-out duration-150'
+                                'select-none cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-white bg-white dark:bg-gray-900 border border-pg-primary-300 dark:border-gray-700 leading-5 hover:text-pg-primary-400 dark:hover:text-white focus:z-10 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 dark:focus:border-blue-500 active:bg-pg-primary-100 dark:active:bg-gray-800 active:text-pg-primary-500 dark:active:text-white transition ease-in-out duration-150'
                             ])
                             wire:click="nextPage('{{ $paginator->getPageName() }}')"
                             rel="next"
@@ -141,7 +141,7 @@
                             </svg>
                         </a>
                         <a
-                            class="select-none cursor-pointer cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-pg-primary-300 bg-white dark:bg-pg-primary-600 border border-pg-primary-300 dark:border-transparent rounded-r-md leading-5 hover:text-pg-primary-400 focus:z-10 focus:outline-none focus:shadow-outline-blue active:bg-pg-primary-100 active:text-pg-primary-500 transition ease-in-out duration-150"
+                            class="select-none cursor-pointer cursor-pointer relative inline-flex items-center px-2 py-2 text-sm font-medium text-pg-primary-500 dark:text-white bg-white dark:bg-gray-900 border border-pg-primary-300 dark:border-gray-700 rounded-r-md leading-5 hover:text-pg-primary-400 dark:hover:text-white focus:z-10 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 dark:focus:border-blue-500 active:bg-pg-primary-100 dark:active:bg-gray-800 active:text-pg-primary-500 dark:active:text-white transition ease-in-out duration-150"
                             wire:click="gotoPage({{ $paginator->lastPage() }}, '{{ $paginator->getPageName() }}')"
                         >
                             <svg
@@ -185,7 +185,7 @@
                                     <button
                                         wire:click="setPage('{{ $paginator->previousCursor()->encode() }}','{{ $paginator->getCursorName() }}')"
                                         wire:loading.attr="disabled"
-                                        class="select-none p-2 m-1 text-center text-white bg-pg-primary-600 border-pg-primary-400 rounded cursor-pointer border-1 hover:bg-pg-primary-600 hover:border-pg-primary-800 dark:text-pg-primary-300"
+                                        class="select-none p-2 m-1 text-center text-white bg-pg-primary-600 border-pg-primary-400 rounded cursor-pointer border-1 hover:bg-pg-primary-700 hover:border-pg-primary-800 dark:text-white dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:border-gray-600"
                                     >
                                         <svg
                                             fill="none"
@@ -197,7 +197,7 @@
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
-                                                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+                                                d="M15.75 19.5 8.25 12l7.5-7.5"
                                             />
                                         </svg>
 
@@ -221,7 +221,7 @@
                                     <button
                                         wire:click="setPage('{{ $paginator->nextCursor()->encode() }}','{{ $paginator->getCursorName() }}')"
                                         wire:loading.attr="disabled"
-                                        class="select-none p-2 m-1 text-center text-white bg-pg-primary-600 border-pg-primary-400 rounded cursor-pointer border-1 hover:bg-pg-primary-600 hover:border-pg-primary-800 dark:text-pg-primary-300"
+                                        class="select-none p-2 m-1 text-center text-white bg-pg-primary-600 border-pg-primary-400 rounded cursor-pointer border-1 hover:bg-pg-primary-700 hover:border-pg-primary-800 dark:text-white dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:border-gray-600"
                                     >
                                         <svg
                                             fill="none"
@@ -233,7 +233,7 @@
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
-                                                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+                                                d="m8.25 4.5 7.5 7.5-7.5 7.5"
                                             />
                                         </svg>
 
