@@ -14,7 +14,7 @@
 
 @section('content')
 
-    <form action="{{ route('campuses.update', $campus) }}" method="POST" class="p-4 bg-white shadow-sm sm:rounded-lg">
+    <form action="{{ route('campuses.update', $campus) }}" method="POST" class="p-4 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
         @csrf
         @method('PUT')
 

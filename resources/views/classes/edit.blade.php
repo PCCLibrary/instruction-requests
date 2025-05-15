@@ -15,19 +15,19 @@
 
         @include('adminlte-templates::common.errors')
 
-        <div class="card">
+        <div class="card dark:bg-gray-800">
 
             {!! Form::model($classes, ['route' => ['classes.update', $classes->id], 'method' => 'patch']) !!}
 
-            <div class="card-body">
+            <div class="card-body dark:bg-gray-800">
                 <div class="row">
                     @include('classes.fields')
                 </div>
             </div>
 
-            <div class="card-footer">
+            <div class="card-footer dark:bg-gray-800 dark:border-gray-700">
                 {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('classes.index') }}" class="btn btn-default">Cancel</a>
+                <a href="{{ route('classes.index') }}" class="btn btn-default dark:text-gray-300">Cancel</a>
             </div>
 
             {!! Form::close() !!}
