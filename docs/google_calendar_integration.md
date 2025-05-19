@@ -58,17 +58,17 @@ public function extractCalendarId(): ?string
     if (empty($this->gcal)) {
         return null;
     }
-    
+
     try {
         // Extract calendar ID using regex patterns for different URL formats
         if (preg_match('/calendar\/([a-zA-Z0-9]+(@group\.calendar\.google\.com)?)/', $this->gcal, $matches)) {
             return $matches[1];
         }
-        
+
         if (preg_match('/calendars\/([^\/]+)/', $this->gcal, $matches)) {
             return urldecode($matches[1]);
         }
-        
+
         return null;
     } catch (\Exception $e) {
         Log::error('Failed to extract Calendar ID', [
@@ -95,7 +95,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class GoogleCalendarEvent extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -115,7 +115,7 @@ class GoogleCalendarEvent extends Model
         'attendees',
         'raw_event_data'
     ];
-    
+
     /**
      * Get the instruction request that owns this event.
      */
@@ -168,7 +168,7 @@ class CalendarService
     {
         // Implementation details...
     }
-    
+
     /**
      * Delete a Google Calendar event.
      *
@@ -179,7 +179,7 @@ class CalendarService
     {
         // Implementation details...
     }
-    
+
     /**
      * Extract Google Calendar ID from a Google Calendar share URL.
      *
@@ -190,7 +190,7 @@ class CalendarService
     {
         // Implementation details...
     }
-    
+
     /**
      * Get event data from an instruction request that can be used to pre-populate a form.
      *
@@ -201,7 +201,7 @@ class CalendarService
     {
         // Implementation details...
     }
-    
+
     /**
      * Format event data from an instruction request.
      *
@@ -238,9 +238,9 @@ class CreateGoogleCalendarEventForm extends Component
     public $location;
     public $instructorEmail;
     public $librarianEmail;
-    
+
     protected $listeners = ['showEventForm'];
-    
+
     protected $rules = [
         'eventName' => 'required|string|max:255',
         'startTime' => 'required|date',
@@ -248,7 +248,7 @@ class CreateGoogleCalendarEventForm extends Component
         'description' => 'nullable|string',
         'location' => 'nullable|string|max:255',
     ];
-    
+
     public function mount($requestId = null)
     {
         // If request ID is provided during mount, load the data immediately
@@ -256,21 +256,21 @@ class CreateGoogleCalendarEventForm extends Component
             $this->showEventForm($requestId);
         }
     }
-    
+
     public function showEventForm($requestId)
     {
         // Always load a fresh copy of the instruction request from the database
         $request = InstructionRequests::with(['instructor', 'detail', 'campus', 'librarian', 'classes'])
             ->findOrFail($requestId);
-            
+
         // Implementation details...
     }
-    
+
     public function createEvent()
     {
         // Implementation details...
     }
-    
+
     public function render()
     {
         return view('livewire.create-google-calendar-event-form');
@@ -339,16 +339,16 @@ Alpine.store('formState', {
         instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
         instructionDuration: document.getElementById('instruction_duration')?.value || null
     },
-    
+
     // Check if critical scheduling fields have changed
     checkForChanges() {
         const currentDatetime = document.getElementById('instruction_datetime')?.value || null;
         const currentDuration = document.getElementById('instruction_duration')?.value || null;
-        
-        this.hasUnsavedChanges = 
-            (currentDatetime !== this.initialValues.instructionDatetime) || 
+
+        this.hasUnsavedChanges =
+            (currentDatetime !== this.initialValues.instructionDatetime) ||
             (currentDuration !== this.initialValues.instructionDuration);
-        
+
         console.log('Form changes detected:', {
             hasChanges: this.hasUnsavedChanges,
             original: this.initialValues,
@@ -357,30 +357,30 @@ Alpine.store('formState', {
                 instructionDuration: currentDuration
             }
         });
-        
+
         return this.hasUnsavedChanges;
     },
-    
+
     // Reset change tracking after successful form submission
     resetChangeTracking() {
         this.hasUnsavedChanges = false;
-        
+
         // Update stored initial values to match current values
         this.initialValues = {
             instructionDatetime: document.getElementById('instruction_datetime')?.value || null,
             instructionDuration: document.getElementById('instruction_duration')?.value || null
         };
-        
+
         console.log('Change tracking reset, new initial values:', this.initialValues);
     },
-    
+
     // Check if duration is valid for scheduling
     hasDuration() {
         const durationInput = document.getElementById('instruction_duration');
         const duration = durationInput?.value || null;
         return duration && parseInt(duration) > 0;
     },
-    
+
     // Determine if a specific section should be editable
     isSectionEditable(sectionName) {
         return this.isEditing && this.editableSections.includes(sectionName);
@@ -393,22 +393,22 @@ Alpine.store('formState', {
 The Schedule button has been enhanced with conditional disabling logic:
 
 ```html
-<div class="my-4" x-data="{ 
+<div class="my-4" x-data="{
     isOpen: false,
-    
+
     // Method to check if button should be disabled
     checkDisabled() {
         // Check for unsaved changes
         const hasChanges = Alpine.store('formState')?.hasUnsavedChanges || false;
-        
+
         // Check for valid duration
         const hasDuration = Alpine.store('formState')?.hasDuration() || false;
-        
+
         return hasChanges || !hasDuration;
     }
 }">
-    <button 
-        type="button" 
+    <button
+        type="button"
         @click="!checkDisabled() && (isOpen = true)"
         x-bind:class="{
             'opacity-50 cursor-not-allowed': checkDisabled(),
@@ -419,7 +419,7 @@ The Schedule button has been enhanced with conditional disabling logic:
         <x-heroicon-o-calendar-date-range class="h-4 w-4 text-white mr-2" />
         Create Google Calendar Event
     </button>
-    
+
     <!-- Warning messages for disabled state -->
     <div x-show="checkDisabled()" class="mt-2 text-sm text-amber-600" x-cloak>
         <div x-show="Alpine.store('formState')?.hasUnsavedChanges">
@@ -448,12 +448,12 @@ Add the controller methods for handling calendar events:
 public function deleteCalendarEvent(int $id): RedirectResponse
 {
     $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
-    
+
     if (empty($instructionRequest)) {
         session()->flash('error', 'Instruction Request not found.');
         return redirect(route('instructionRequests.index'));
     }
-    
+
     // Implementation details...
 }
 ```
@@ -466,7 +466,7 @@ Routes have been added for calendar event functionality:
 // In routes/web.php, inside the authenticated group
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Existing routes...
-    
+
     // Calendar event routes
     Route::delete('instructionRequests/{id}/calendar-event', [InstructionRequestController::class, 'deleteCalendarEvent'])
         ->name('instructionRequests.deleteCalendarEvent');
@@ -485,6 +485,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 - ✅ Controller methods for event handling
 - ✅ Routes for calendar functionality
 - ✅ Form change detection with Alpine.js
+- ✅ Testing and diagnostic commands for development
 
 ### Recent Fixes & Enhancements
 
@@ -502,12 +503,16 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 - ✅ Added pre-validation of Calendar IDs before making API calls
 - ✅ Implemented more detailed error logging for Google API calls with stack traces
 - ✅ Added specific exception handling for InvalidCalendarConfigurationException
+- ✅ Added verification for impersonation configuration before adding attendees
+- ✅ Created diagnostic tools for testing and troubleshooting calendar integration
 
 #### Documentation Improvements
 - ✅ Created comprehensive documentation of the overall Google Calendar integration architecture
 - ✅ Documented data flow from request acceptance to event creation
 - ✅ Added details on current implementation status and next steps
 - ✅ Included information about component interactions and dependencies
+- ✅ Created troubleshooting guide for Google Calendar integration issues
+- ✅ Added test commands for verifying configuration and API functionality
 
 ### Remaining Tasks
 - ❌ Implement automated testing for calendar integration
@@ -584,7 +589,7 @@ A key improvement ensures that all form fields are submitted regardless of their
 const form = document.getElementById('updateInstructionRequestForm');
 form.addEventListener('submit', (event) => {
     console.log('Form submit event triggered, edit state:', this.isEditing);
-    
+
     // Temporarily enable all form fields to ensure they can be submitted
     const formFields = form.querySelectorAll('input, select, textarea');
     formFields.forEach(field => {
@@ -594,7 +599,7 @@ form.addEventListener('submit', (event) => {
             field.disabled = false;
         }
     });
-    
+
     // Allow form submission regardless of edit state or unsaved changes
     return true;
 });
@@ -609,3 +614,49 @@ This approach maintains the visual restrictions of the edit toggle while ensurin
 - **Calendar Filtering**: Enable filtering by librarian, campus, or date range
 - **Event Updates**: Add functionality to update existing calendar events if request details change
 - **Notifications**: Integrate with existing notification system for calendar events
+
+## 13. Testing and Diagnostics
+
+To facilitate testing and troubleshooting of the Google Calendar integration, two specialized Artisan commands have been implemented.
+
+### 13.1 Testing with Instruction Request
+
+The `test:google-calendar-attendees` command creates a complete test environment including instruction request and related models, then attempts to create a calendar event with attendees.
+
+```bash
+php artisan test:google-calendar-attendees
+```
+
+This command:
+1. Creates a test instructor and test class record if they don't exist
+2. Creates a test campus with the configured calendar ID
+3. Creates a test instruction request with status 'accepted'
+4. Creates instruction details with randomly generated future dates
+5. Uses the CalendarService to create a calendar event with attendees
+6. Provides detailed output for diagnosing issues
+7. Offers cleanup options to delete test data
+
+### 13.2 Direct API Testing
+
+For more direct testing of the Google Calendar API without the application service layer, the `diagnose:google-calendar-attendees` command is available:
+
+```bash
+php artisan diagnose:google-calendar-attendees
+```
+
+This command:
+1. Checks for the presence of impersonation configuration
+2. Shows detailed configuration information
+3. Attempts to directly create a Google Calendar event with attendees
+4. Provides specific error handling and diagnostics for common issues
+5. Offers detailed troubleshooting suggestions based on the error type
+
+### 13.3 Troubleshooting Guide
+
+For detailed troubleshooting steps, refer to the [Google Calendar Troubleshooting Guide](./google-calendar-troubleshooting.md) which includes:
+
+- Common error messages and solutions
+- Configuration verification steps
+- Google API permissions requirements
+- Diagnostic command usage examples
+- Log file location and analysis tips

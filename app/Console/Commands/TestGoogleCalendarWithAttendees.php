@@ -1,149 +1,274 @@
 <?php
 
-// app/Console/Commands/TestGoogleCalendarWithAttendees.php
 namespace App\Console\Commands;
 
+use App\Models\Campus;
+use App\Models\Classes;
+use App\Models\GoogleCalendarEvent;
+use App\Models\InstructionRequestDetails;
 use App\Models\InstructionRequests;
+use App\Models\Instructor;
+use App\Models\User;
 use App\Services\CalendarService;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class TestGoogleCalendarWithAttendees extends Command
 {
-    protected $signature = 'calendar:test-attendees {request_id? : ID of an instruction request to use for testing}';
-    protected $description = 'Test Google Calendar integration with attendees using impersonation';
-
     /**
-     * @var CalendarService
-     */
-    protected $calendarService;
-
-    /**
-     * Create a new command instance.
+     * The name and signature of the console command.
      *
-     * @param CalendarService $calendarService
+     * @var string
      */
-    public function __construct(CalendarService $calendarService)
+    protected $signature = 'test:google-calendar-attendees';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Test Google Calendar integration by creating an event with attendees';
+
+    /**
+     * Hardcoded test configuration
+     */
+    private array $config = [
+        // Calendar ID - directly used in the test
+        'calendar_id' => 'c_91e4e2a58503a3f41186894f62e70d8f904be3e72af56f6059fb4f0220b7dbc4@group.calendar.google.com',
+
+        // Attendee emails - update these as needed
+        'librarian_email' => 'gustavo.lanzas@pcc.edu',
+        'instructor_email' => 'lisa.morrow@pcc.edu',
+
+        // Event details - update these as needed
+        'event_title' => 'TEST - Library Instruction Session',
+        'description' => 'This is a test event created by the command line tool. Please ignore or delete.',
+        'location' => 'Sylvania Campus - Room 220',
+
+        // Event duration in minutes
+        'duration' => 30
+    ];
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(CalendarService $calendarService)
     {
-        parent::__construct();
-        $this->calendarService = $calendarService;
-    }
+        $this->info('Starting Google Calendar attendee test...');
 
-    public function handle()
-    {
-        $this->info('Testing Google Calendar integration with attendees...');
+        // Create a random future date (7-10 days from now) at 10:00 AM
+        $daysInFuture = rand(7, 10);
+        $startTime = Carbon::now()
+            ->addDays($daysInFuture)
+            ->setHour(10)
+            ->setMinute(0)
+            ->setSecond(0);
 
-        // Check if impersonation email is configured
-        $impersonationEmail = config('google-calendar.user_to_impersonate');
+        $endTime = (clone $startTime)->addMinutes($this->config['duration']);
 
-        if (empty($impersonationEmail)) {
-            $this->error('Error: Impersonation email is not configured.');
-            $this->line('Please set the GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable.');
-            return Command::FAILURE;
-        }
+        $this->info("Test will create an event on: " . $startTime->format('l, F j, Y \a\t g:i A'));
 
-        $this->info('Using impersonation email: ' . $impersonationEmail);
+        // Create a minimal instruction request and details
+        $this->info('Creating test instruction request...');
 
         try {
-            // Get instruction request ID from argument or use latest one
-            $requestId = $this->argument('request_id');
+            $instructor = $this->createOrFindInstructor();
+            $class = $this->createOrFindClass();
+            $campus = $this->createOrFindCampus();
 
-            if (!$requestId) {
-                $this->info('No request ID provided, using the latest instruction request...');
-                $latestRequest = InstructionRequests::with(['instructor', 'detail', 'campus', 'librarian'])
-                    ->whereHas('detail', function ($query) {
-                        $query->whereNotNull('instruction_datetime');
-                    })
-                    ->latest()
-                    ->first();
+            // Create the instruction request
+            $instructionRequest = $this->createTestInstructionRequest(
+                $instructor->id,
+                $class->id,
+                $campus->id,
+                $startTime
+            );
 
-                if (!$latestRequest) {
-                    $this->error('No suitable instruction requests found. Please create one first or specify an ID.');
-                    return Command::FAILURE;
-                }
+            // Enable detailed logging for debugging
+            Log::channel('daily')->info('TestGoogleCalendarWithAttendees: Starting test', [
+                'config' => $this->config,
+                'start_time' => $startTime->toDateTimeString(),
+                'end_time' => $endTime->toDateTimeString(),
+                'request_id' => $instructionRequest->id,
+                'environment' => app()->environment(),
+                'user_to_impersonate' => config('google-calendar.user_to_impersonate')
+            ]);
 
-                $requestId = $latestRequest->id;
-            }
-
-            $request = InstructionRequests::with(['instructor', 'detail', 'campus', 'librarian'])
-                ->findOrFail($requestId);
-
-            $this->info("Using instruction request #{$request->id} for testing.");
-
-            // Display request details for verification
-            $this->line("Instructor: {$request->instructor->display_name} ({$request->instructor->email})");
-            $this->line("Librarian: {$request->detail->assignedLibrarian->display_name ?? 'None'} " .
-                         "({$request->detail->assignedLibrarian->email ?? 'None'})");
-            $this->line("Campus: {$request->campus->name}");
-            $this->line("Calendar ID: {$request->campus->getCalendarId() ?? 'Not set'}");
-
-            if (!$request->campus->getCalendarId()) {
-                $this->error("Error: Calendar ID not configured for campus {$request->campus->name}");
-                return Command::FAILURE;
-            }
-
-            // Test 1: Test calendar service configuration
-            $this->info('Testing CalendarService configuration...');
-            $result = $this->calendarService->testCalendarService($request);
-
-            if ($result['success']) {
-                $this->info('✅ CalendarService test successful');
-                $this->line("Impersonation configured: " . ($result['impersonation_configured'] ? 'Yes' : 'No'));
-                $this->line("Impersonation user: " . ($result['impersonation_user'] ?? 'Not set'));
-            } else {
-                $this->error('❌ CalendarService test failed: ' . ($result['error'] ?? 'Unknown error'));
-                $this->table(['Key', 'Value'], collect($result)->map(function ($value, $key) {
-                    return [$key, is_scalar($value) ? $value : json_encode($value)];
-                })->toArray());
-                return Command::FAILURE;
-            }
-
-            // Only proceed with event creation if user confirms
-            if (!$this->confirm('Would you like to try creating a calendar event with attendees?', true)) {
-                $this->info('Cancelled event creation.');
-                return Command::SUCCESS;
-            }
-
-            // Test 2: Create an event with attendees using the CalendarService
-            $this->info('Attempting to create a calendar event with attendees...');
-
-            $customData = [
-                'event_title' => 'Test Event with Attendees - ' . now()->format('Y-m-d H:i:s')
+            // Prepare data for the event
+            $eventData = [
+                'event_title' => $this->config['event_title'],
+                'start_time' => $startTime->format('Y-m-d\TH:i'),
+                'end_time' => $endTime->format('Y-m-d\TH:i'),
+                'start_time_obj' => $startTime,
+                'end_time_obj' => $endTime,
+                'description' => $this->config['description'],
+                'location' => $this->config['location']
             ];
 
-            $googleCalendarEvent = $this->calendarService->createEvent($request, $customData);
+            $this->info('Creating Google Calendar event...');
+            $this->newLine();
 
-            $this->info('✅ Successfully created event with ID: ' . $googleCalendarEvent->google_event_id);
-            $this->line("Event title: {$googleCalendarEvent->event_title}");
-            $this->line("Start time: {$googleCalendarEvent->start_time->format('Y-m-d H:i:s')}");
-            $this->line("End time: {$googleCalendarEvent->end_time->format('Y-m-d H:i:s')}");
+            // Create the event
+            try {
+                $createdEvent = $calendarService->createEvent($instructionRequest, $eventData);
 
-            // Display attendees
-            $attendees = json_decode($googleCalendarEvent->attendees, true);
-            if (!empty($attendees)) {
-                $this->info('Attendees:');
-                foreach ($attendees as $attendee) {
-                    $this->line("- {$attendee['email']}");
+                $this->info('✅ Success! Google Calendar event created:');
+                $this->newLine();
+                $this->info("📅 Event Title: {$createdEvent->event_title}");
+                $this->info("🔗 Google Event ID: {$createdEvent->google_event_id}");
+                $this->info("🕒 Start Time: {$createdEvent->start_time}");
+                $this->info("🕓 End Time: {$createdEvent->end_time}");
+                $this->info("📍 Location: {$createdEvent->location}");
+                $this->info("👤 Attendees: {$this->config['librarian_email']}, {$this->config['instructor_email']}");
+
+                Log::channel('daily')->info('TestGoogleCalendarWithAttendees: Calendar event created successfully', [
+                    'google_event_id' => $createdEvent->google_event_id,
+                    'request_id' => $instructionRequest->id
+                ]);
+
+                // Check for cleaning up the test data
+                if ($this->confirm('Do you want to delete the test event and data?', true)) {
+                    $this->info('Deleting test data...');
+
+                    // Delete the Google Calendar event
+                    $calendarService->deleteEvent($createdEvent);
+
+                    // Delete the instruction request (will cascade to details)
+                    $instructionRequest->delete();
+
+                    $this->info('Test data deleted.');
+                } else {
+                    $this->warn('Test data was not deleted. Remember to clean up manually later.');
                 }
-            } else {
-                $this->warn('No attendees were added to the event.');
+
+                return Command::SUCCESS;
+
+            } catch (\Exception $e) {
+                $this->error('❌ Failed to create Google Calendar event:');
+                $this->error($e->getMessage());
+
+                Log::channel('daily')->error('TestGoogleCalendarWithAttendees: Failed to create calendar event', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                // Show detailed error information
+                $this->newLine();
+                $this->info('--- Detailed Error Information ---');
+                $this->info('Error Type: ' . get_class($e));
+                $this->info('Error Code: ' . $e->getCode());
+                $this->info('Error File: ' . $e->getFile() . ' (line ' . $e->getLine() . ')');
+                $this->info('Error Message: ' . $e->getMessage());
+
+                // Show configuration
+                $this->newLine();
+                $this->info('--- Configuration ---');
+                $this->info('Calendar ID: ' . $this->config['calendar_id']);
+                $this->info('User to Impersonate: ' . config('google-calendar.user_to_impersonate'));
+                $this->info('Application Environment: ' . app()->environment());
+
+                return Command::FAILURE;
             }
 
-            return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Error: ' . $e->getMessage());
-            Log::error('Google Calendar attendees test failed', [
+            $this->error('❌ Error during test setup:');
+            $this->error($e->getMessage());
+
+            Log::channel('daily')->error('TestGoogleCalendarWithAttendees: Error during test setup', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // For debugging purposes, show more details in verbose mode
-            if ($this->getOutput()->isVerbose()) {
-                $this->line('Stack trace:');
-                $this->line($e->getTraceAsString());
-            }
-
             return Command::FAILURE;
         }
+    }
+
+    /**
+     * Create or find a test instructor
+     */
+    private function createOrFindInstructor(): Instructor
+    {
+        return Instructor::firstOrCreate(
+            ['email' => $this->config['instructor_email']],
+            [
+                'name' => 'Test Instructor',
+                'display_name' => 'Test Instructor',
+                'pronouns' => 'they/them',
+                'phone' => '555-123-4567'
+            ]
+        );
+    }
+
+    /**
+     * Create or find a test class
+     */
+    private function createOrFindClass(): Classes
+    {
+        return Classes::firstOrCreate(
+            [
+                'department_code' => 'TEST',
+                'course_number' => '101',
+                'course_crn' => 'TEST-CRN'
+            ],
+            [
+                'course_name' => 'Test Course'
+            ]
+        );
+    }
+
+    /**
+     * Create or find a test campus
+     */
+    private function createOrFindCampus(): Campus
+    {
+        return Campus::firstOrCreate(
+            ['code' => 'TEST'],
+            [
+                'name' => 'Test Campus',
+                'gcal' => $this->config['calendar_id']
+            ]
+        );
+    }
+
+    /**
+     * Create a minimal test instruction request
+     */
+    private function createTestInstructionRequest(int $instructorId, int $classId, int $campusId, Carbon $startTime): InstructionRequests
+    {
+        // Create the instruction request
+        $instructionRequest = InstructionRequests::create([
+            'instruction_type' => 'on-campus',
+            'instructor_id' => $instructorId,
+            'class_id' => $classId,
+            'campus_id' => $campusId,
+            'department' => 'TEST',
+            'course_number' => '101',
+            'course_crn' => 'TEST-CRN',
+            'number_of_students' => 25,
+            'status' => 'accepted', // Required for calendar events
+            'duration' => $this->config['duration'],
+            'preferred_datetime' => $startTime
+        ]);
+
+        // Create instruction request details with assigned librarian
+        $librarian = User::where('email', $this->config['librarian_email'])->first();
+
+        if (!$librarian) {
+            $this->warn("Librarian with email {$this->config['librarian_email']} not found. Creating a detail record without assigned librarian.");
+        }
+
+        InstructionRequestDetails::create([
+            'instruction_requests_id' => $instructionRequest->id,
+            'assigned_librarian_id' => $librarian->id ?? null,
+            'instruction_datetime' => $startTime,
+            'instruction_duration' => $this->config['duration'],
+            'created_by' => 'Test Command',
+            'last_updated_by' => 'Test Command',
+            'room' => 'Room 220'
+        ]);
+
+        // Reload the model with relationships
+        return InstructionRequests::with(['detail', 'instructor', 'campus'])->find($instructionRequest->id);
     }
 }
