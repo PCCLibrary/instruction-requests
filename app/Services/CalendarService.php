@@ -155,6 +155,18 @@ class CalendarService
 
                     // Set the attendees array if we have any
                     if (!empty($attendees)) {
+                        // Check if impersonation is properly configured before adding attendees
+                        if (!$this->verifyCalendarConfiguration()) {
+                            throw new InvalidCalendarConfigurationException(
+                                "Cannot add attendees without proper impersonation configuration",
+                                [
+                                    'campus_id' => $request->campus_id,
+                                    'campus_name' => $request->campus->name ?? 'Unknown Campus',
+                                    'missing_config' => 'GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable'
+                                ]
+                            );
+                        }
+
                         $googleEvent->setAttendees($attendees);
                     }
 
@@ -349,6 +361,26 @@ class CalendarService
     }
 
     /**
+     * Verify that the service is properly configured for event creation with attendees
+     *
+     * @return bool Whether impersonation is properly configured
+     */
+    private function verifyCalendarConfiguration(): bool
+    {
+        // Check if impersonation user is configured
+        $impersonationUser = config('google-calendar.user_to_impersonate');
+
+        if (empty($impersonationUser)) {
+            Log::warning('Calendar Service: No impersonation user configured', [
+                'calendar_id' => config('google-calendar.calendar_id')
+            ]);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Test method to verify the service is working correctly
      *
      * @param InstructionRequests $request The instruction request to test with
@@ -385,6 +417,9 @@ class CalendarService
                 ];
             }
 
+            // Check if impersonation is properly configured
+            $impersonationConfigured = $this->verifyCalendarConfiguration();
+
             // Attempt to initialize Spatie Google Calendar client
             $googleCalendar = App::make(GoogleCalendar::class, [
                 'calendarId' => $calendarId
@@ -402,7 +437,9 @@ class CalendarService
                 'instructor_present' => $request->instructor ? true : false,
                 'campus_present' => $request->campus ? true : false,
                 'campus_name' => $request->campus?->name,
-                'googleCalendar_class' => get_class($googleCalendar)
+                'googleCalendar_class' => get_class($googleCalendar),
+                'impersonation_configured' => $impersonationConfigured,
+                'impersonation_user' => config('google-calendar.user_to_impersonate')
             ];
 
             // Log result

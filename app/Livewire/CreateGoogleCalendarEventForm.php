@@ -313,14 +313,26 @@ class CreateGoogleCalendarEventForm extends Component
                 'context' => $e->getContext()
             ]);
 
-            // Add error with link to edit campus
-            $campusId = $e->getContextValue('campus_id');
-            $campusName = $e->getContextValue('campus_name', 'this campus');
+            // Special handling for impersonation issues
+            if (strpos($e->getMessage(), 'impersonation') !== false) {
+                Log::warning('Calendar impersonation configuration issue', [
+                    'context' => $e->getContext()
+                ]);
 
-            $this->addError('calendar',
-                "Invalid calendar configuration for {$campusName}. Please " .
-                "<a href='" . route('campuses.edit', $campusId) . "' class='underline'>update the calendar</a>."
-            );
+                $this->addError('calendar',
+                    "Calendar configuration issue: Impersonation user not properly configured. " .
+                    "Please contact the system administrator to set the GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable."
+                );
+            } else {
+                // Add error with link to edit campus for other issues
+                $campusId = $e->getContextValue('campus_id');
+                $campusName = $e->getContextValue('campus_name', 'this campus');
+
+                $this->addError('calendar',
+                    "Invalid calendar configuration for {$campusName}. Please " .
+                    "<a href='" . route('campuses.edit', $campusId) . "' class='underline'>update the calendar</a>."
+                );
+            }
         } catch (\Exception $e) {
             // Log any unexpected errors
             Log::error('CreateGoogleCalendarEventForm: Unexpected error creating event', [

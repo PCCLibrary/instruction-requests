@@ -18,10 +18,20 @@
                             <strong>Error!</strong> {{ session('error') }}
                         </div>
                     @endif
-                    
+
                     @error('calendar')
                         <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                            <strong>Error!</strong> {!! $message !!}
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <span>{!! $message !!}</span>
+                            </div>
+                            @if(strpos($message, 'Impersonation') !== false)
+                                <div class="mt-1 pl-6 text-xs text-gray-500">
+                                    This is a configuration issue that requires administrator action.
+                                </div>
+                            @endif
                         </div>
                     @enderror
 
@@ -133,7 +143,7 @@
     // Add basic form monitoring
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, setting up basic calendar form monitoring');
-        
+
         // Listen for form submission events for debugging
         const form = document.getElementById('createGoogleCalendarEventForm');
         if (form) {
@@ -144,11 +154,11 @@
             });
         }
     });
-    
+
     // Listen for Livewire initialization and critical events
     document.addEventListener('livewire:initialized', function() {
         console.log('Livewire initialized, monitoring calendar form component');
-        
+
         // Only monitor essential events for debugging
         try {
             // Log failures which are most important for debugging
