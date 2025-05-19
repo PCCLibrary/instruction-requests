@@ -8,14 +8,13 @@ use App\Models\InstructionRequests;
 use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
+use Google_Client;
+use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_EventDateTime;
 use Google_Service_Calendar_EventAttendee;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\GoogleCalendar\Event;
-use Spatie\GoogleCalendar\GoogleCalendar;
 
 /**
  * Service for handling Google Calendar integration
@@ -170,10 +169,8 @@ class CalendarService
                         $googleEvent->setAttendees($attendees);
                     }
 
-                    // Get a GoogleCalendar instance with the correct calendar ID
-                    $googleCalendar = App::make(GoogleCalendar::class, [
-                        'calendarId' => $calendarId
-                    ]);
+                    // Initialize the Google Calendar Service with our custom implementation
+                    $calendarService = $this->initializeGoogleCalendarService();
 
                     // Log that we're about to call the Google Calendar API
                     Log::debug('CalendarService: Calling Google Calendar API to create event', [
@@ -184,18 +181,22 @@ class CalendarService
                         'attendees_count' => count($attendees)
                     ]);
 
-                    // Insert the event directly using the insertEvent method
-                    $createdEvent = $googleCalendar->insertEvent($googleEvent);
+                    // Insert the event directly using the Google API Client
+                    $createdEvent = $calendarService->events->insert(
+                        $calendarId,
+                        $googleEvent,
+                        ['sendUpdates' => 'all', 'conferenceDataVersion' => 0]
+                    );
 
                     Log::debug('CalendarService: Successfully created event in Google Calendar', [
-                        'google_event_id' => $createdEvent->id,
-                        'event_url' => $createdEvent->htmlLink ?? 'Not available'
+                        'google_event_id' => $createdEvent->getId(),
+                        'event_url' => $createdEvent->getHtmlLink() ?? 'Not available'
                     ]);
 
                     // Create a local record for the event
                     $googleCalendarEvent = GoogleCalendarEvent::create([
                         'instruction_request_id' => $request->id,
-                        'google_event_id' => $createdEvent->id,
+                        'google_event_id' => $createdEvent->getId(),
                         'google_calendar_id' => $calendarId,
                         'librarian_id' => $request->detail->assigned_librarian_id,
                         'campus_id' => $request->campus_id,
@@ -293,12 +294,17 @@ class CalendarService
 
             // Try to delete from Google Calendar
             try {
-                // Get a GoogleCalendar instance with the correct calendar ID
-                $googleCalendar = App::make(GoogleCalendar::class, [
-                    'calendarId' => $calendarId ?? $calendarEvent->google_calendar_id // Fallback to stored ID
-                ]);
+                // Initialize the Google Calendar service with direct API client
+                $calendarService = $this->initializeGoogleCalendarService();
 
-                $googleCalendar->deleteEvent($calendarEvent->google_event_id);
+                // Use the event ID and calendar ID to delete the event
+                $calendarId = $calendarId ?? $calendarEvent->google_calendar_id; // Fallback to stored ID
+
+                $calendarService->events->delete(
+                    $calendarId,
+                    $calendarEvent->google_event_id
+                );
+
                 $result['messages'][] = 'Google Calendar event deleted successfully.';
 
                 Log::info('CalendarService: Google Calendar event deleted successfully', [
@@ -361,6 +367,55 @@ class CalendarService
     }
 
     /**
+     * Initialize the Google API Client with correct scopes and authentication
+     *
+     * @return Google_Service_Calendar The initialized Google Calendar service
+     * @throws InvalidCalendarConfigurationException If configuration is invalid
+     */
+    private function initializeGoogleCalendarService(): Google_Service_Calendar
+    {
+        // Get credentials path from environment
+        $credentialsPath = base_path(env('GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON_LOCATION'));
+
+        // Ensure credentials file exists
+        if (!file_exists($credentialsPath)) {
+            throw new InvalidCalendarConfigurationException(
+                "Google Calendar service account credentials file not found",
+                [
+                    'credentials_path' => $credentialsPath,
+                    'environment' => app()->environment()
+                ]
+            );
+        }
+
+        // Initialize Google API Client
+        $client = new Google_Client();
+        $client->setAuthConfig($credentialsPath);
+
+        // Use the specific scope that is authorized in Google Workspace
+        $client->setScopes(['https://www.googleapis.com/auth/calendar.events']);
+
+        // Get impersonation email from config
+        $impersonationEmail = config('google-calendar.user_to_impersonate');
+
+        // Add impersonation if configured
+        if ($impersonationEmail) {
+            $client->setSubject($impersonationEmail);
+
+            Log::debug('CalendarService: Using impersonation for Google Calendar API', [
+                'impersonation_email' => $impersonationEmail
+            ]);
+        } else {
+            Log::warning('CalendarService: No impersonation email configured, attendees will not work', [
+                'service_account_json' => $credentialsPath
+            ]);
+        }
+
+        // Create and return the Google Calendar service
+        return new Google_Service_Calendar($client);
+    }
+
+    /**
      * Verify that the service is properly configured for event creation with attendees
      *
      * @return bool Whether impersonation is properly configured
@@ -420,10 +475,8 @@ class CalendarService
             // Check if impersonation is properly configured
             $impersonationConfigured = $this->verifyCalendarConfiguration();
 
-            // Attempt to initialize Spatie Google Calendar client
-            $googleCalendar = App::make(GoogleCalendar::class, [
-                'calendarId' => $calendarId
-            ]);
+            // Attempt to initialize Google Calendar API Client directly
+            $calendarService = $this->initializeGoogleCalendarService();
 
             $result = [
                 'success' => true,
@@ -437,7 +490,7 @@ class CalendarService
                 'instructor_present' => $request->instructor ? true : false,
                 'campus_present' => $request->campus ? true : false,
                 'campus_name' => $request->campus?->name,
-                'googleCalendar_class' => get_class($googleCalendar),
+                'googleCalendarService_class' => get_class($calendarService),
                 'impersonation_configured' => $impersonationConfigured,
                 'impersonation_user' => config('google-calendar.user_to_impersonate')
             ];
