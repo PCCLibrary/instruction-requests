@@ -40,5 +40,5 @@ return [
     /*
     * The email address of the user account to impersonate.
     */
-    'user_to_impersonate' => env('GOOGLE_CALENDAR_IMPERSONATE'),
+    'user_to_impersonate' => env('GOOGLE_CALENDAR_IMPERSONATE_EMAIL'),
 ];
