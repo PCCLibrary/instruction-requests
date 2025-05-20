@@ -1,4 +1,13 @@
-<div x-data="{ deleteModalOpen: false }">
+<div
+    x-data="{
+        deleteModalOpen: false,
+        handleDeleteSuccess() {
+            // Close the modal when a successful deletion event is received
+            this.deleteModalOpen = false;
+        }
+    }"
+    @deletion-completed.window="handleDeleteSuccess()"
+>
     {{-- Delete Button --}}
     <button
         type="button"
@@ -58,7 +67,6 @@
                 wire:click="deleteEvent"
                 wire:loading.attr="disabled"
                 wire:loading.class="opacity-75 cursor-not-allowed"
-                @click="$wire.isProcessing || (deleteModalOpen = false)"
                 :disabled="$wire.isProcessing"
             >
                 <span wire:loading.remove>Delete</span>

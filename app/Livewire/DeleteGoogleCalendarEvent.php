@@ -42,6 +42,9 @@ class DeleteGoogleCalendarEvent extends Component
                 return;
             }
 
+            // Store event ID for verification after deletion
+            $eventId = $instructionRequest->googleCalendarEvent->id;
+
             // Use the calendar service to delete the event
             $calendarService = app(CalendarService::class);
             $result = $calendarService->deleteEvent($instructionRequest->googleCalendarEvent);
@@ -50,6 +53,19 @@ class DeleteGoogleCalendarEvent extends Component
             if ($result['success']) {
                 $message = implode(' ', $result['messages']);
 
+                // Add a short delay to ensure DB changes are visible before redirect
+                sleep(1);
+
+                // Verify that record was actually deleted
+                $verifyDeleted = is_null(GoogleCalendarEvent::find($eventId));
+
+                // Log deletion status
+                Log::info('Calendar event deletion completed', [
+                    'request_id' => $this->requestId,
+                    'success' => $result['success'],
+                    'record_deleted' => $verifyDeleted ? 'Yes' : 'No'
+                ]);
+
                 // Use toast notification for success
                 $this->dispatch('toast', [
                     'type' => 'success',
@@ -57,11 +73,15 @@ class DeleteGoogleCalendarEvent extends Component
                     'duration' => 5000 // 5 seconds
                 ]);
 
-                // Make sure we're returning the redirect
+                // Dispatch event to close the modal
+                $this->dispatch('deletion-completed');
+
+                // Make sure we're returning the redirect with a hash parameter to force reload
                 return $this->redirect(
                     route('instructionRequests.edit', [
                         'id' => $result['instruction_request_id'],
-                        'calendar_deleted' => 'true'
+                        'calendar_deleted' => 'true',
+                        '_' => time() // Add timestamp to force cache reload
                     ])
                 );
             }
