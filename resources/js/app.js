@@ -50,11 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // This function is no longer needed as we're handling everything in Alpine.js now
-    // Left a comment here to acknowledge we've intentionally removed it
-
     // Log when Livewire is initialized
     document.addEventListener('livewire:initialized', () => {
         console.log('Livewire initialized');
     });
+
+    // Ensure page is fully initialized before Alpine.js takes over
+    // This helps prevent flash issues with x-cloak and conditional content
+    if (typeof Alpine !== 'undefined') {
+        document.querySelectorAll('[x-cloak]').forEach(el => {
+            // Ensure modals with x-cloak are properly hidden before Alpine initializes
+            if (el.hasAttribute('x-show') && el.classList.contains('fixed') && el.classList.contains('inset-0')) {
+                el.style.display = 'none';
+            }
+        });
+    }
 });

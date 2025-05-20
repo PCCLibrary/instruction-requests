@@ -12,17 +12,6 @@
         if (statusSelect.value === 'received') {
             statusSelect.value = 'assigned';
         }
-
-        // Enhanced console logging for debugging
-        const librarianSelect = document.getElementById('assigned_librarian_id');
-        const selectedLibrarian = librarianSelect.options[librarianSelect.selectedIndex];
-
-        console.log('LIBRARIAN SELECTION CHANGED', {
-            librarian_id: librarianSelect.value,
-            librarian_name: selectedLibrarian ? selectedLibrarian.text : 'Unknown',
-            librarian_element_type: typeof librarianSelect,
-            status: statusSelect.value
-        });
     }
 }">
     <div class="mb-4">
@@ -98,8 +87,7 @@
                     return hasChanges || !hasDuration;
                 }
             }"
-            x-init="$watch('isOpen', value => console.log('Calendar modal isOpen changed to:', value))"
-            @close-modal.window="isOpen = false; console.log('Received close-modal event')">
+            @close-modal.window="isOpen = false">
             <button
                 type="button"
                 @click="if(!checkDisabled()) {
@@ -107,7 +95,6 @@
                     const toasts = document.querySelectorAll('.toast-message');
                     toasts.forEach(toast => toast.remove());
 
-                    console.log('Opening modal');
                     isOpen = true;
                 }"
                 :class="{
@@ -141,7 +128,7 @@
                 <a href="{{ $instructionRequest->googleCalendarEvent->html_link }}"
                    target="_blank"
                    class="inline-flex items-center px-4 py-2 mb-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    <x-heroicon-o-external-link class="h-4 w-4 text-white mr-2" />
+                    <x-heroicon-o-link class="h-4 w-4 text-white mr-2" />
                     Open in Google Calendar
                 </a>
             @endif

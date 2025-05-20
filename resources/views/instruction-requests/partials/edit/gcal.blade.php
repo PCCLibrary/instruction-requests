@@ -1,6 +1,6 @@
-<div 
+<div
      x-show="isOpen"
-     x-effect="console.log('Modal visibility changed:', isOpen)"
+     x-cloak
      class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
      aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -20,17 +20,16 @@
     document.addEventListener('livewire:initialized', () => {
         // Listen for Livewire event to refresh and close
         Livewire.on('googleCalendarEventCreated', (data) => {
-            console.log('Google Calendar event created, refreshing page', data);
-
             // First dispatch the close-modal event
             document.dispatchEvent(new CustomEvent('close-modal'));
-            
+
             // Also try to directly close the modal using Alpine
             try {
-                // Find parent container with isOpen and close it
+                // Find parent container with isOpen
                 const parent = document.querySelector('[x-data*="isOpen"]');
-                if (parent && Alpine.evaluate) {
-                    Alpine.evaluate(parent, 'isOpen = false');
+                if (parent && parent.__x) {
+                    // Access the Alpine component and set isOpen to false
+                    parent.__x.$data.isOpen = false;
                 }
             } catch (err) {
                 console.error('Error closing modal via Alpine:', err);

@@ -78,8 +78,7 @@ class DeleteGoogleCalendarEvent extends Component
                 ]);
 
                 Log::warning('Failed to delete calendar event', [
-                    'request_id' => $this->requestId,
-                    'messages' => $result['messages']
+                    'request_id' => $this->requestId
                 ]);
 
                 $this->isProcessing = false;

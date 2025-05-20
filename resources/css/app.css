@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* resources/css/app.css */
+/* Alpine.js utility for x-cloak */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Library Instruction System custom styling */
 .choices__list--multiple .choices__item {
     @apply text-white rounded-full px-2 py-1 text-xs m-1 bg-sky-600 hover:bg-sky-800;
 }

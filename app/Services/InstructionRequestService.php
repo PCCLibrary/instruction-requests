@@ -363,6 +363,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'librarian_id',
             ]));
 
+            // If librarian_id is null, preserve the existing value since it should never be null
+            if (isset($mainRequestData['librarian_id']) && is_null($mainRequestData['librarian_id'])) {
+                $mainRequestData['librarian_id'] = $instructionRequest->librarian_id;
+            }
+
             $detailsData = array_intersect_key($data, array_flip([
                 'instruction_duration',
                 'instruction_datetime',
@@ -429,6 +434,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 //                ]);
 //            }
 
+            // If we have main request data, update the request
             if (!empty($mainRequestData)) {
                 $this->repository->update($mainRequestData, $id);
             }

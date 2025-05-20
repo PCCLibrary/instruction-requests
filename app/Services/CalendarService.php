@@ -43,17 +43,7 @@ class CalendarService
      */
     public function createEvent(InstructionRequests $request, array $customData = []): GoogleCalendarEvent
     {
-        // Critical logging to ensure we can see this method is being called
-        Log::critical('CalendarService: createEvent method CALLED', [
-            'timestamp' => now()->toDateTimeString(),
-            'request_id' => $request->id,
-            'user_id' => auth()->id() ?? 'not-authenticated'
-        ]);
-
-        Log::info('CalendarService: Starting createEvent method', [
-            'request_id' => $request->id,
-            'custom_data_keys' => array_keys($customData)
-        ]);
+        Log::info('CalendarService: Starting createEvent method');
 
         // Load relationships if not already loaded
         if (!$request->relationLoaded('instructor') || !$request->relationLoaded('detail') ||
@@ -97,10 +87,7 @@ class CalendarService
 
             return DB::transaction(function() use ($request, $eventData, $calendarId) {
                 // Log transaction start
-                Log::info('CalendarService: Starting transaction to create event', [
-                    'request_id' => $request->id,
-                    'transaction_level' => DB::transactionLevel()
-                ]);
+                Log::info('CalendarService: Starting transaction to create event');
 
                 try {
                     // Create a native Google Calendar Event object for more direct control
@@ -173,13 +160,7 @@ class CalendarService
                     $calendarService = $this->initializeGoogleCalendarService();
 
                     // Log that we're about to call the Google Calendar API
-                    Log::debug('CalendarService: Calling Google Calendar API to create event', [
-                        'calendar_id' => $calendarId,
-                        'event_name' => $eventData['event_title'],
-                        'start_time' => $eventData['start_time_obj']->format('Y-m-d H:i:s'),
-                        'end_time' => $eventData['end_time_obj']->format('Y-m-d H:i:s'),
-                        'attendees_count' => count($attendees)
-                    ]);
+                    Log::info('CalendarService: Calling Google Calendar API to create event');
 
                     // Insert the event directly using the Google API Client
                     $createdEvent = $calendarService->events->insert(
@@ -188,10 +169,7 @@ class CalendarService
                         ['sendUpdates' => 'all', 'conferenceDataVersion' => 0]
                     );
 
-                    Log::debug('CalendarService: Successfully created event in Google Calendar', [
-                        'google_event_id' => $createdEvent->getId(),
-                        'event_url' => $createdEvent->getHtmlLink() ?? 'Not available'
-                    ]);
+                    Log::info('CalendarService: Successfully created event in Google Calendar');
 
                     // Create a local record for the event using the relationship method
                     $googleCalendarEvent = $request->googleCalendarEvent()->create([
@@ -209,10 +187,7 @@ class CalendarService
                         'html_link' => $createdEvent->getHtmlLink()
                     ]);
 
-                    Log::info('CalendarService: Local GoogleCalendarEvent record created successfully', [
-                        'event_id' => $googleCalendarEvent->id,
-                        'google_event_id' => $googleCalendarEvent->google_event_id
-                    ]);
+                    Log::info('CalendarService: Local GoogleCalendarEvent record created');
 
                     // Use the injected InstructionRequestService to update the status
                     $instructionRequestService = app(InstructionRequestService::class);
@@ -220,28 +195,22 @@ class CalendarService
                         'status' => 'scheduled'
                     ], $request->id);
 
-                    Log::info('CalendarService: Instruction request status updated successfully', [
-                        'request_id' => $request->id,
-                        'status' => 'scheduled'
-                    ]);
+                    Log::info('CalendarService: Instruction request status updated to scheduled');
 
                     return $googleCalendarEvent;
 
                 } catch (\Exception $e) {
                     Log::error('CalendarService: Failed to create Google Calendar event', [
                         'request_id' => $request->id,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
+                        'error' => $e->getMessage()
                     ]);
                     throw $e;
                 }
             });
 
         } catch (\Exception $e) {
-            Log::error('CalendarService: Failed to create Google Calendar event (outer try/catch)', [
-                'request_id' => $request->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::error('CalendarService: Failed to create Google Calendar event', [
+                'error' => $e->getMessage()
             ]);
 
             throw $e;
@@ -281,9 +250,7 @@ class CalendarService
             }
 
             if (!$calendarId) {
-                Log::warning('CalendarService: No valid calendar ID found for campus', [
-                    'campus_id' => $request->campus_id
-                ]);
+                Log::warning('CalendarService: No valid calendar ID found');
                 // Continue anyway to delete local record
             }
 
@@ -342,8 +309,7 @@ class CalendarService
             DB::rollBack();
 
             Log::error('CalendarService: Calendar event deletion failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
 
             $result['messages'][] = 'Failed to complete calendar event deletion.';
@@ -386,14 +352,8 @@ class CalendarService
         // Add impersonation if configured
         if ($impersonationEmail) {
             $client->setSubject($impersonationEmail);
-
-            Log::debug('CalendarService: Using impersonation for Google Calendar API', [
-                'impersonation_email' => $impersonationEmail
-            ]);
         } else {
-            Log::warning('CalendarService: No impersonation email configured, attendees will not work', [
-                'service_account_json' => $credentialsPath
-            ]);
+            Log::warning('CalendarService: No impersonation email configured, attendees will not work');
         }
 
         // Create and return the Google Calendar service
@@ -411,9 +371,7 @@ class CalendarService
         $impersonationUser = config('google-calendar.user_to_impersonate');
 
         if (empty($impersonationUser)) {
-            Log::warning('Calendar Service: No impersonation user configured', [
-                'calendar_id' => config('google-calendar.calendar_id')
-            ]);
+            Log::warning('CalendarService: No impersonation user configured');
             return false;
         }
 
@@ -428,10 +386,7 @@ class CalendarService
      */
     public function testCalendarService(InstructionRequests $request): array
     {
-        Log::critical('CalendarService: testCalendarService called', [
-            'timestamp' => now()->toDateTimeString(),
-            'request_id' => $request->id
-        ]);
+        Log::info('CalendarService: testCalendarService called');
 
         // Load relationships if not already loaded
         if (!$request->relationLoaded('instructor') || !$request->relationLoaded('detail') ||
@@ -481,7 +436,7 @@ class CalendarService
             ];
 
             // Log result
-            Log::critical('CalendarService: testCalendarService succeeded', $result);
+            Log::info('CalendarService: testCalendarService succeeded');
 
             return $result;
 
@@ -491,12 +446,11 @@ class CalendarService
                 'timestamp' => now()->toDateTimeString(),
                 'request_id' => $request->id,
                 'error' => $e->getMessage(),
-                'error_class' => get_class($e),
-                'trace' => $e->getTraceAsString()
+                'error_class' => get_class($e)
             ];
 
             // Log error
-            Log::critical('CalendarService: testCalendarService failed', $error);
+            Log::error('CalendarService: testCalendarService failed', $error);
 
             return $error;
         }

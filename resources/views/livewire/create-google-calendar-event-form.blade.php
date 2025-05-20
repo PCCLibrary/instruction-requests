@@ -128,7 +128,16 @@
                         </span>
                         </button>
                         <button type="button"
-                                @click="$dispatch('close-modal'); document.querySelector('[x-data*=\'isOpen\']').__x.$data.isOpen = false; document.querySelectorAll('.toast-message').forEach(toast => toast.remove());"
+                                @click="
+                                  $dispatch('close-modal');
+                                  // Safely try to close the modal using parent element
+                                  const parentEl = document.querySelector('[x-data*=\'isOpen\']');
+                                  if (parentEl && parentEl.__x) {
+                                    parentEl.__x.$data.isOpen = false;
+                                  }
+                                  // Clean up toast messages
+                                  document.querySelectorAll('.toast-message').forEach(toast => toast.remove());
+                                "
                                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
                             Cancel
                         </button>
@@ -140,30 +149,11 @@
 </div>
 
 <script>
-    // Add basic form monitoring
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, setting up basic calendar form monitoring');
-
-        // Listen for form submission events for debugging
-        const form = document.getElementById('createGoogleCalendarEventForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                console.log('Form submit event detected:', e.type);
-                // Let Livewire handle the actual submission
-                e.preventDefault();
-            });
-        }
-    });
-
-    // Listen for Livewire initialization and critical events
     document.addEventListener('livewire:initialized', function() {
-        console.log('Livewire initialized, monitoring calendar form component');
-
-        // Only monitor essential events for debugging
+        // Only monitor critical errors for debugging
         try {
-            // Log failures which are most important for debugging
             Livewire.hook('message.failed', (message, component) => {
-                console.error('Livewire message failed:', message, 'Component:', component.id);
+                console.error('Livewire message failed:', message);
             });
         } catch (err) {
             console.error('Error setting up Livewire monitoring:', err);
