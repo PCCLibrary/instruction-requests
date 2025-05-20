@@ -57,9 +57,8 @@ class DeleteGoogleCalendarEvent extends Component
                     'duration' => 5000 // 5 seconds
                 ]);
 
-                // Redirect back to the instruction request edit page
-                // with a success parameter to highlight the change
-                $this->redirect(
+                // Make sure we're returning the redirect
+                return $this->redirect(
                     route('instructionRequests.edit', [
                         'id' => $result['instruction_request_id'],
                         'calendar_deleted' => 'true'

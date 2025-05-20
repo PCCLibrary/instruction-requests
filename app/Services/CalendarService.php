@@ -243,6 +243,12 @@ class CalendarService
                 throw new \Exception('No associated instruction request found');
             }
 
+            Log::info('CalendarService: Starting deletion process', [
+                'event_id' => $calendarEvent->id,
+                'google_event_id' => $calendarEvent->google_event_id,
+                'instruction_request_id' => $calendarEvent->instruction_request_id
+            ]);
+
             // Get the calendar ID from the campus
             $calendarId = null;
             if ($request->campus) {
@@ -278,12 +284,13 @@ class CalendarService
                 // Continue anyway to delete local record
             }
 
-            // Delete local event record
+            // Delete local event record using the relationship method
             try {
-                $calendarEvent->delete();
+                // Use the relationship for deletion instead of direct deletion
+                $request->googleCalendarEvent()->delete();
                 $result['messages'][] = 'Local calendar event record deleted.';
 
-                Log::info('CalendarService: Local calendar event record deleted');
+                Log::info('CalendarService: Local calendar event record deleted through relationship');
             } catch (\Exception $localDeletionException) {
                 Log::warning('CalendarService: Error deleting local calendar event', [
                     'error' => $localDeletionException->getMessage()
@@ -301,6 +308,11 @@ class CalendarService
             Log::info('CalendarService: Instruction request status updated to accepted');
 
             DB::commit();
+
+            Log::info('CalendarService: Deletion transaction committed successfully', [
+                'instruction_request_id' => $request->id,
+                'new_status' => 'accepted'
+            ]);
 
             $result['success'] = true;
             return $result;
