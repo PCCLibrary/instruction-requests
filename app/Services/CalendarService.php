@@ -205,7 +205,8 @@ class CalendarService
                         'description' => $eventData['description'] ?? null,
                         'location' => $eventData['location'] ?? null,
                         'attendees' => json_encode($attendees),
-                        'raw_event_data' => json_encode($createdEvent)
+                        'raw_event_data' => json_encode($createdEvent),
+                        'html_link' => $createdEvent->getHtmlLink()
                     ]);
 
                     Log::info('CalendarService: Local GoogleCalendarEvent record created successfully', [

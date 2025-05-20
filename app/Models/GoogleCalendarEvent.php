@@ -37,6 +37,7 @@ class GoogleCalendarEvent extends Model
         'location',
         'attendees',
         'raw_event_data',
+        'html_link',
     ];
 
     /**
