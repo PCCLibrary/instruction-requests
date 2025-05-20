@@ -22,6 +22,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
+        "google/apiclient": "^2.18",
         "laravel/breeze": "^2.3",
         "mockery/mockery": "^1.4.4",
         "pestphp/pest": "^3.7",
