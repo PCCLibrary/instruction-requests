@@ -8,19 +8,19 @@
 
                 <form wire:submit="createEvent" class="mt-4" id="createGoogleCalendarEventForm">
                     @if (session()->has('success'))
-                        <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                        <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded toast-message">
                             <strong>Success!</strong> {{ session('success') }}
                         </div>
                     @endif
 
                     @if (session()->has('error'))
-                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded toast-message">
                             <strong>Error!</strong> {{ session('error') }}
                         </div>
                     @endif
 
                     @error('calendar')
-                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded toast-message">
                             <div class="flex items-center">
                                 <svg class="h-5 w-5 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -42,7 +42,7 @@
                             <input type="text" id="eventName" wire:model="eventName"
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @error('eventName')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600 toast-message">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -52,7 +52,7 @@
                             <input type="datetime-local" id="startTime" wire:model="startTime"
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @error('startTime')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600 toast-message">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -62,7 +62,7 @@
                             <input type="datetime-local" id="endTime" wire:model="endTime"
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @error('endTime')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600 toast-message">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -72,7 +72,7 @@
                             <input type="text" id="location" wire:model="location"
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @error('location')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600 toast-message">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -82,7 +82,7 @@
                             <textarea id="description" wire:model="description" rows="3"
                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                             @error('description')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600 toast-message">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -128,7 +128,7 @@
                         </span>
                         </button>
                         <button type="button"
-                                @click="$dispatch('close-modal'); document.querySelector('[x-data*=\'isOpen\']').__x.$data.isOpen = false;"
+                                @click="$dispatch('close-modal'); document.querySelector('[x-data*=\'isOpen\']').__x.$data.isOpen = false; document.querySelectorAll('.toast-message').forEach(toast => toast.remove());"
                                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
                             Cancel
                         </button>

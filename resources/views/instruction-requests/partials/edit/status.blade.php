@@ -81,7 +81,7 @@
         @include('instruction-requests.partials.edit.room')
     </div>
 
-    @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id)
+    @if($instructionRequest->status == 'accepted' && $instructionRequest->detail->assigned_librarian_id == Auth::user()->id && $instructionRequest->instruction_type !== 'asynchronous')
         <hr class="mb-6 dark:border-gray-700" />
         <div class="my-4"
             x-data="{
@@ -102,7 +102,14 @@
             @close-modal.window="isOpen = false; console.log('Received close-modal event')">
             <button
                 type="button"
-                @click="if(!checkDisabled()) { console.log('Opening modal'); isOpen = true; }"
+                @click="if(!checkDisabled()) {
+                    // Clear any existing toast messages
+                    const toasts = document.querySelectorAll('.toast-message');
+                    toasts.forEach(toast => toast.remove());
+
+                    console.log('Opening modal');
+                    isOpen = true;
+                }"
                 :class="{
                     'opacity-50 cursor-not-allowed': checkDisabled(),
                     'hover:bg-indigo-700': !checkDisabled()
