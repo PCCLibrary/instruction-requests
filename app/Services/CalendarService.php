@@ -193,9 +193,8 @@ class CalendarService
                         'event_url' => $createdEvent->getHtmlLink() ?? 'Not available'
                     ]);
 
-                    // Create a local record for the event
-                    $googleCalendarEvent = GoogleCalendarEvent::create([
-                        'instruction_request_id' => $request->id,
+                    // Create a local record for the event using the relationship method
+                    $googleCalendarEvent = $request->googleCalendarEvent()->create([
                         'google_event_id' => $createdEvent->getId(),
                         'google_calendar_id' => $calendarId,
                         'librarian_id' => $request->detail->assigned_librarian_id,
