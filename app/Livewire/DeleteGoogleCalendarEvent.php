@@ -26,7 +26,7 @@ class DeleteGoogleCalendarEvent extends Component
     {
         $this->isProcessing = true;
         $this->errorMessage = null;
-        
+
         try {
             // Find the instruction request and ensure it has a calendar event
             $instructionRequest = InstructionRequests::with('googleCalendarEvent')
@@ -49,7 +49,7 @@ class DeleteGoogleCalendarEvent extends Component
             // Handle successful deletion
             if ($result['success']) {
                 $message = implode(' ', $result['messages']);
-                
+
                 // Use toast notification for success
                 $this->dispatch('toast', [
                     'type' => 'success',
@@ -57,14 +57,7 @@ class DeleteGoogleCalendarEvent extends Component
                     'duration' => 5000 // 5 seconds
                 ]);
 
-                // Log the successful deletion
-                Log::info('Calendar event deleted successfully', [
-                    'request_id' => $this->requestId,
-                    'event_id' => $instructionRequest->googleCalendarEvent->id ?? 'unknown',
-                    'messages' => $result['messages']
-                ]);
-
-                // Redirect back to the instruction request edit page 
+                // Redirect back to the instruction request edit page
                 // with a success parameter to highlight the change
                 $this->redirect(
                     route('instructionRequests.edit', [
@@ -76,7 +69,7 @@ class DeleteGoogleCalendarEvent extends Component
             // Handle failed deletion
             else {
                 $this->errorMessage = implode(' ', $result['messages']);
-                
+
                 // Use toast notification for error
                 $this->dispatch('toast', [
                     'type' => 'error',
@@ -84,27 +77,21 @@ class DeleteGoogleCalendarEvent extends Component
                     'duration' => 10000 // 10 seconds for errors
                 ]);
 
-                // Log the warning with detailed context
                 Log::warning('Failed to delete calendar event', [
                     'request_id' => $this->requestId,
-                    'event_id' => $instructionRequest->googleCalendarEvent->id ?? 'unknown',
-                    'calendar_id' => $instructionRequest->googleCalendarEvent->google_calendar_id ?? 'unknown',
                     'messages' => $result['messages']
                 ]);
-                
+
                 $this->isProcessing = false;
             }
         } catch (\Exception $e) {
             // Set error message for UI display
             $this->errorMessage = 'An unexpected error occurred while deleting the calendar event. Please try again.';
-            
-            // Log the error with comprehensive context for debugging
+
+            // Log the error with key context for debugging
             Log::error('Error in DeleteGoogleCalendarEvent component', [
                 'request_id' => $this->requestId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'error' => $e->getMessage()
             ]);
 
             // Dispatch a toast notification
@@ -113,7 +100,7 @@ class DeleteGoogleCalendarEvent extends Component
                 'message' => $this->errorMessage,
                 'duration' => 10000 // 10 seconds for errors
             ]);
-            
+
             $this->isProcessing = false;
         }
     }

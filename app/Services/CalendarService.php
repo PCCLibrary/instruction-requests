@@ -262,11 +262,7 @@ class CalendarService
             'instruction_request_id' => $calendarEvent->instruction_request_id
         ];
 
-        Log::info('CalendarService: Starting deleteEvent method', [
-            'event_id' => $calendarEvent->id,
-            'google_event_id' => $calendarEvent->google_event_id,
-            'instruction_request_id' => $calendarEvent->instruction_request_id
-        ]);
+        Log::info('CalendarService: Starting deleteEvent method');
 
         try {
             DB::beginTransaction();
@@ -286,8 +282,7 @@ class CalendarService
 
             if (!$calendarId) {
                 Log::warning('CalendarService: No valid calendar ID found for campus', [
-                    'campus_id' => $request->campus_id,
-                    'campus_name' => $request->campus->name ?? 'Unknown Campus'
+                    'campus_id' => $request->campus_id
                 ]);
                 // Continue anyway to delete local record
             }
@@ -307,13 +302,9 @@ class CalendarService
 
                 $result['messages'][] = 'Google Calendar event deleted successfully.';
 
-                Log::info('CalendarService: Google Calendar event deleted successfully', [
-                    'google_event_id' => $calendarEvent->google_event_id,
-                    'calendar_id' => $calendarId
-                ]);
+                Log::info('CalendarService: Google Calendar event deleted successfully');
             } catch (\Exception $apiException) {
                 Log::warning('CalendarService: Error deleting event from Google Calendar', [
-                    'event_id' => $calendarEvent->google_event_id,
                     'error' => $apiException->getMessage()
                 ]);
                 $result['messages'][] = 'Unable to delete event from Google Calendar.';
@@ -325,12 +316,9 @@ class CalendarService
                 $calendarEvent->delete();
                 $result['messages'][] = 'Local calendar event record deleted.';
 
-                Log::info('CalendarService: Local calendar event record deleted', [
-                    'event_id' => $calendarEvent->id
-                ]);
+                Log::info('CalendarService: Local calendar event record deleted');
             } catch (\Exception $localDeletionException) {
                 Log::warning('CalendarService: Error deleting local calendar event', [
-                    'event_id' => $calendarEvent->id,
                     'error' => $localDeletionException->getMessage()
                 ]);
                 $result['messages'][] = 'Unable to delete local calendar event record.';
@@ -343,9 +331,7 @@ class CalendarService
                 'status' => 'accepted'
             ], $request->id);
 
-            Log::info('CalendarService: Instruction request status updated to accepted', [
-                'request_id' => $request->id
-            ]);
+            Log::info('CalendarService: Instruction request status updated to accepted');
 
             DB::commit();
 
@@ -355,8 +341,7 @@ class CalendarService
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('CalendarService: Comprehensive calendar event deletion failed', [
-                'calendar_event_id' => $calendarEvent->id,
+            Log::error('CalendarService: Calendar event deletion failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
