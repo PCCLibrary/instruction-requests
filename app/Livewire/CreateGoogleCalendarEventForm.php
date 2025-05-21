@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\View\View;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Masmerise\Toaster\Toaster;
 
 /**
  * Livewire Component for Creating Google Calendar Events
@@ -161,20 +162,9 @@ class CreateGoogleCalendarEventForm extends Component
      */
     public function createEvent(CalendarService $calendarService)
     {
-        // First thing - log that we're in the method - this helps debug if the method is being called
-        Log::critical('CreateGoogleCalendarEventForm: createEvent method is definitely called', [
-            'timestamp' => now()->toDateTimeString(),
-            'component_id' => $this->getId()
-        ]);
-
-        // Log the initial event creation attempt using database records
-        Log::debug('CreateGoogleCalendarEventForm: createEvent() method called', [
-            'component_id' => $this->getId(),
-            'form_data' => [
-                'eventName' => $this->eventName,
-                'startTime' => $this->startTime,
-                'endTime' => $this->endTime
-            ]
+        // First thing - log that we're in the method
+        Log::info('CreateGoogleCalendarEventForm: Creating calendar event', [
+            'request_id' => $this->instructionRequest->id
         ]);
 
         Log::info('CreateGoogleCalendarEventForm: Preparing to create event', [
@@ -203,56 +193,10 @@ class CreateGoogleCalendarEventForm extends Component
                 'end_time_obj' => $endTime
             ];
 
-            // Log detailed event creation attempt
-            Log::info('CreateGoogleCalendarEventForm: Creating event with database-sourced data', [
-                'request_id' => $this->instructionRequest->id,
-                'start_time' => $customData['start_time'],
-                'end_time' => $customData['end_time'],
-                'duration' => $duration
-            ]);
-
-            // Just before calling CalendarService
-            Log::critical('CreateGoogleCalendarEventForm: About to call CalendarService->createEvent', [
-                'timestamp' => now()->toDateTimeString(),
-                'request_id' => $this->instructionRequest->id,
-                'calendar_service_class' => get_class($calendarService)
-            ]);
-
-            // Verify the service instance is valid
-            if (!method_exists($calendarService, 'createEvent')) {
-                Log::critical('CreateGoogleCalendarEventForm: CalendarService missing createEvent method', [
-                    'service_type' => gettype($calendarService),
-                    'service_class' => get_class($calendarService)
-                ]);
-                throw new \RuntimeException('Calendar service does not have createEvent method');
-            }
-
-            // First do a test call to verify the CalendarService is working correctly
-            Log::critical('CreateGoogleCalendarEventForm: Testing CalendarService with test method', [
-                'request_id' => $this->instructionRequest->id
-            ]);
-
-            try {
-                $testResult = $calendarService->testCalendarService($this->instructionRequest);
-                Log::critical('CreateGoogleCalendarEventForm: CalendarService test succeeded', $testResult);
-            } catch (\Exception $testException) {
-                Log::critical('CreateGoogleCalendarEventForm: CalendarService test failed', [
-                    'error' => $testException->getMessage(),
-                    'trace' => $testException->getTraceAsString()
-                ]);
-            }
-
             // Attempt to create the event using CalendarService
             try {
                 // Refresh the instruction request to ensure we have the latest data
                 $this->instructionRequest->refresh();
-
-                // Log the data we're sending
-                Log::critical('CreateGoogleCalendarEventForm: Calling CalendarService->createEvent with data', [
-                    'custom_data_keys' => array_keys($customData),
-                    'start_time' => $customData['start_time'],
-                    'end_time' => $customData['end_time']
-                ]);
 
                 $googleCalendarEvent = $calendarService->createEvent(
                     $this->instructionRequest,
@@ -260,50 +204,31 @@ class CreateGoogleCalendarEventForm extends Component
                 );
 
                 // If we get here, the event was created successfully
-                Log::critical('CreateGoogleCalendarEventForm: CalendarService call succeeded', [
-                    'event_id' => $googleCalendarEvent->id ?? 'unknown',
-                    'google_event_id' => $googleCalendarEvent->google_event_id ?? 'unknown'
+                Log::info('CreateGoogleCalendarEventForm: Event created successfully', [
+                    'request_id' => $this->instructionRequest->id,
+                    'event_id' => $googleCalendarEvent->id
                 ]);
+
+                // Use Toaster facade for success notification
+                app(Toaster::class)->success('Google Calendar event created successfully.');
+
+                // Return redirect to the edit page with parameter to indicate success
+                return $this->redirect(
+                    route('instructionRequests.edit', [
+                        'id' => $this->instructionRequest->id,
+                        'calendar_created' => 'true',
+                        '_' => time() // Add timestamp to force cache reload
+                    ])
+                );
             } catch (\Exception $serviceException) {
                 // Log error from CalendarService call
-                Log::critical('CreateGoogleCalendarEventForm: CalendarService->createEvent threw exception', [
+                Log::error('CreateGoogleCalendarEventForm: Error creating calendar event', [
                     'error' => $serviceException->getMessage(),
-                    'class' => get_class($serviceException),
-                    'trace' => $serviceException->getTraceAsString()
+                    'request_id' => $this->instructionRequest->id
                 ]);
 
                 throw $serviceException;
             }
-
-            // Log successful event creation
-            Log::info('CreateGoogleCalendarEventForm: Event created successfully', [
-                'request_id' => $this->instructionRequest->id,
-                'event_id' => $googleCalendarEvent->id,
-                'google_event_id' => $googleCalendarEvent->google_event_id
-            ]);
-
-            // Log the successful event dispatch
-            Log::info('CreateGoogleCalendarEventForm: Dispatching googleCalendarEventCreated event', [
-                'request_id' => $this->instructionRequest->id,
-                'event_id' => $googleCalendarEvent->id
-            ]);
-
-            // Log the successful event creation
-            Log::info('CreateGoogleCalendarEventForm: Successfully created event, dispatching refresh event', [
-                'request_id' => $this->instructionRequest->id,
-                'event_id' => $googleCalendarEvent->id,
-                'google_event_id' => $googleCalendarEvent->google_event_id
-            ]);
-
-            // Flash message for the next page load
-            session()->flash('success', 'Google Calendar event created successfully.');
-
-            // Using Livewire 3 dispatch to trigger page reload
-            $this->dispatch('googleCalendarEventCreated', [
-                'requestId' => $this->instructionRequest->id,
-                'status' => 'scheduled',
-                'timestamp' => now()->toDateTimeString()
-            ]);
 
         } catch (InvalidCalendarConfigurationException $e) {
             // Log the configuration error
@@ -318,14 +243,23 @@ class CreateGoogleCalendarEventForm extends Component
                     'context' => $e->getContext()
                 ]);
 
-                $this->addError('calendar',
-                    "Calendar configuration issue: Impersonation user not properly configured. " .
-                    "Please contact the system administrator to set the GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable."
-                );
+                $errorMessage = "Calendar configuration issue: Impersonation user not properly configured. " .
+                    "Please contact the system administrator to set the GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable.";
+
+                // Use Toaster facade for error
+                app(Toaster::class)->error($errorMessage);
+
+                $this->addError('calendar', $errorMessage);
             } else {
                 // Add error with link to edit campus for other issues
                 $campusId = $e->getContextValue('campus_id');
                 $campusName = $e->getContextValue('campus_name', 'this campus');
+
+                $errorMessage = "Invalid calendar configuration for {$campusName}. Please " .
+                    "update the calendar in the campus settings.";
+
+                // Use Toaster facade for error
+                app(Toaster::class)->error($errorMessage);
 
                 $this->addError('calendar',
                     "Invalid calendar configuration for {$campusName}. Please " .
@@ -341,7 +275,12 @@ class CreateGoogleCalendarEventForm extends Component
             ]);
 
             // Add a generic error message
-            $this->addError('calendar', 'An unexpected error occurred. Please try again.');
+            $errorMessage = 'An unexpected error occurred. Please try again.';
+
+            // Use Toaster facade for error
+            app(Toaster::class)->error($errorMessage);
+
+            $this->addError('calendar', $errorMessage);
         }
     }
 
