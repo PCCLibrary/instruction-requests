@@ -75,7 +75,36 @@ class CalendarService
                 'request_id' => $request->id,
                 'event_id' => $request->googleCalendarEvent->google_event_id
             ]);
-            return $request->googleCalendarEvent;
+
+            // Update the status to scheduled even for existing events
+            if ($request->status !== 'scheduled') {
+                Log::info('Updating status for existing calendar event', [
+                    'request_id' => $request->id,
+                    'old_status' => $request->status
+                ]);
+
+                // Use the InstructionRequestService to update the status
+                $instructionRequestService = app(InstructionRequestService::class);
+                $updatedRequest = $instructionRequestService->updateInstructionRequest([
+                    'status' => 'scheduled'
+                ], $request->id);
+
+                // Update the existing event with the updated instruction request
+                $request->googleCalendarEvent->instructionRequest = $updatedRequest;
+
+                // Ensure we have the latest version of the request
+                $request = $updatedRequest;
+            }
+
+            // Rather than returning the existing event, we'll continue with the
+            // event creation process to update the existing event
+            Log::info('Updating existing Google Calendar event', [
+                'request_id' => $request->id,
+                'event_id' => $request->googleCalendarEvent->google_event_id
+            ]);
+
+            // We'll continue with the event creation process
+            // to update the existing record
         }
 
         try {
@@ -162,6 +191,35 @@ class CalendarService
                     // Log that we're about to call the Google Calendar API
                     Log::info('CalendarService: Calling Google Calendar API to create event');
 
+                    // If we have an existing event, delete it first
+                    if ($request->googleCalendarEvent) {
+                        try {
+                            // Store the existing record ID
+                            $existingEventId = $request->googleCalendarEvent->id;
+
+                            Log::info('CalendarService: Deleting existing Google Calendar event', [
+                                'request_id' => $request->id,
+                                'google_event_id' => $request->googleCalendarEvent->google_event_id
+                            ]);
+
+                            // Delete from Google Calendar
+                            $calendarService->events->delete(
+                                $request->googleCalendarEvent->google_calendar_id,
+                                $request->googleCalendarEvent->google_event_id
+                            );
+
+                            // Delete local record
+                            $request->googleCalendarEvent()->delete();
+
+                            Log::info('CalendarService: Existing event deleted successfully');
+                        } catch (\Exception $e) {
+                            Log::warning('CalendarService: Failed to delete existing event', [
+                                'error' => $e->getMessage()
+                            ]);
+                            // Continue with creating new event even if delete fails
+                        }
+                    }
+
                     // Insert the event directly using the Google API Client
                     $createdEvent = $calendarService->events->insert(
                         $calendarId,
@@ -191,12 +249,26 @@ class CalendarService
 
                     // Use the injected InstructionRequestService to update the status
                     $instructionRequestService = app(InstructionRequestService::class);
-                    $instructionRequestService->updateInstructionRequest([
+
+                    Log::info('CalendarService: Updating instruction request status', [
+                        'request_id' => $request->id,
+                        'current_status' => $request->status,
+                        'target_status' => 'scheduled'
+                    ]);
+
+                    $updatedRequest = $instructionRequestService->updateInstructionRequest([
                         'status' => 'scheduled'
                     ], $request->id);
 
-                    Log::info('CalendarService: Instruction request status updated to scheduled');
+                    Log::info('CalendarService: Status update completed', [
+                        'request_id' => $request->id,
+                        'old_status' => $request->status,
+                        'new_status' => $updatedRequest->status,
+                        'success' => $updatedRequest->status === 'scheduled' ? 'yes' : 'no'
+                    ]);
 
+                    // Return the event model and reference the updated request
+                    $googleCalendarEvent->instructionRequest = $updatedRequest;
                     return $googleCalendarEvent;
 
                 } catch (\Exception $e) {

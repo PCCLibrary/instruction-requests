@@ -209,17 +209,28 @@ class CreateGoogleCalendarEventForm extends Component
                     'event_id' => $googleCalendarEvent->id
                 ]);
 
+                // Refresh the request to get the latest status
+                $this->instructionRequest->refresh();
+
+                // Log the status after refresh for debugging
+                Log::info('CreateGoogleCalendarEventForm: Status after refresh', [
+                    'request_id' => $this->instructionRequest->id,
+                    'status' => $this->instructionRequest->status
+                ]);
+
                 // Use Toaster facade for success notification
                 app(Toaster::class)->success('Google Calendar event created successfully.');
 
-                // Return redirect to the edit page with parameter to indicate success
-                return $this->redirect(
-                    route('instructionRequests.edit', [
-                        'id' => $this->instructionRequest->id,
-                        'calendar_created' => 'true',
-                        '_' => time() // Add timestamp to force cache reload
-                    ])
-                );
+                // Dispatch event for client-side reload
+                $this->dispatch('googleCalendarEventCreated', [
+                    'requestId' => $this->instructionRequest->id,
+                    'status' => 'scheduled',
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+
+                // Clear the form and close modal (if needed)
+                $this->reset(['description', 'location']);
+                $this->dispatch('close-modal');
             } catch (\Exception $serviceException) {
                 // Log error from CalendarService call
                 Log::error('CreateGoogleCalendarEventForm: Error creating calendar event', [
@@ -292,20 +303,5 @@ class CreateGoogleCalendarEventForm extends Component
     public function render()
     {
         return view('livewire.create-google-calendar-event-form');
-    }
-
-    /**
-     * Method that can be called directly via JavaScript as a backup
-     * This provides an alternative way to trigger the event creation
-     */
-    public function createCalendarEventDirectly()
-    {
-        Log::critical('CreateGoogleCalendarEventForm: createCalendarEventDirectly method called', [
-            'timestamp' => now()->toDateTimeString(),
-            'component_id' => $this->getId()
-        ]);
-
-        // Call the main createEvent method with the CalendarService injected
-        $this->createEvent(app(CalendarService::class));
     }
 }

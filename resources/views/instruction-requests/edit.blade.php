@@ -28,6 +28,8 @@
             // Listen for the calendar event created event and reload the page
             // Using Livewire 3 syntax for event listening
             document.addEventListener('googleCalendarEventCreated', (e) => {
+                console.log('Google Calendar event created, reloading page');
+
                 // Wait a moment to allow the server to process the status change
                 setTimeout(() => {
                     window.location.reload();

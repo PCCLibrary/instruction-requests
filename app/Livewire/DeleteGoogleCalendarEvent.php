@@ -7,7 +7,7 @@ use App\Models\GoogleCalendarEvent;
 use App\Services\CalendarService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
-use function Masmerise\Toaster\toast;
+use Masmerise\Toaster\Toaster;
 
 class DeleteGoogleCalendarEvent extends Component
 {
@@ -36,10 +36,8 @@ class DeleteGoogleCalendarEvent extends Component
             if (!$instructionRequest->googleCalendarEvent) {
                 $this->errorMessage = 'No calendar event found for this instruction request.';
 
-                // Use toast helper for error
-                toast()
-                    ->error($this->errorMessage)
-                    ->autoDismiss(10);
+                // Use Toaster facade for error
+                app(Toaster::class)->error($this->errorMessage);
 
                 $this->isProcessing = false;
                 return;
@@ -76,14 +74,12 @@ class DeleteGoogleCalendarEvent extends Component
                 usleep(300000); // 300ms
 
                 // Flash a success toast that will be shown after redirect
-                toast()
-                    ->success($message)
-                    ->autoDismiss(5);
+                app(Toaster::class)->success($message);
 
                 // Make sure we're returning the redirect with a hash parameter to force reload
                 return $this->redirect(
                     route('instructionRequests.edit', [
-                        'id' => $result['instruction_request_id'],
+                        'instructionRequest' => $result['instruction_request_id'],
                         'calendar_deleted' => 'true',
                         '_' => time() // Add timestamp to force cache reload
                     ])
@@ -93,10 +89,8 @@ class DeleteGoogleCalendarEvent extends Component
             else {
                 $this->errorMessage = implode(' ', $result['messages']);
 
-                // Use toast helper for error
-                toast()
-                    ->error($this->errorMessage)
-                    ->autoDismiss(10);
+                // Use Toaster facade for error
+                app(Toaster::class)->error($this->errorMessage);
 
                 Log::warning('Failed to delete calendar event', [
                     'request_id' => $this->requestId
@@ -114,10 +108,8 @@ class DeleteGoogleCalendarEvent extends Component
                 'error' => $e->getMessage()
             ]);
 
-            // Use toast helper for error
-            toast()
-                ->error($this->errorMessage)
-                ->autoDismiss(10);
+            // Use Toaster facade for error
+            app(Toaster::class)->error($this->errorMessage);
 
             $this->isProcessing = false;
         }

@@ -194,6 +194,13 @@ class InstructionRequestController extends AppBaseController
             // Ensure we have the most recent data
             $instructionRequest->refresh();
 
+            // Debug log to verify status
+            Log::debug('Instruction request status in edit method', [
+                'request_id' => $id,
+                'status' => $instructionRequest->status,
+                'has_calendar_event' => $instructionRequest->relationLoaded('googleCalendarEvent') ? ($instructionRequest->googleCalendarEvent ? 'yes' : 'no') : 'not loaded'
+            ]);
+
             // Ensure calendar event relationship is loaded
             if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
                 $instructionRequest->load('googleCalendarEvent');
