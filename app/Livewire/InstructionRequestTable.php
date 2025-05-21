@@ -250,7 +250,8 @@ final class InstructionRequestTable extends PowerGridComponent
             'size' => 'w-4 h-4',
             'routeKeyName' => 'instructionRequest',
             'isLocked' => $isLocked,
-            'lockerName' => $lockerName
+            'lockerName' => $lockerName,
+            'confirmMessage' => 'Are you sure you want to delete this request?'
         ]);
     }
 
@@ -260,7 +261,8 @@ final class InstructionRequestTable extends PowerGridComponent
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete($id): void
     {
-        $this->js('confirm("Are you sure you want to delete this request?") && $wire.delete(' . $id . ')');
+        // Directly call delete without showing a second confirmation dialog
+        $this->delete($id);
     }
 
     /**

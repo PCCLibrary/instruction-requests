@@ -1,4 +1,4 @@
-@props(['route', 'showBack' => false, 'unlockRequest' => false])
+@props(['route', 'showBack' => false, 'unlockRequest' => false, 'confirmMessage' => 'Are you sure you want to delete this item?'])
 
 <div class="flex space-x-2">
     @if(isset($isLocked) && $isLocked)
@@ -37,6 +37,7 @@
         @if($canDelete)
             <button
                 wire:click="dispatch('{{ $deleteEvent }}', { id: {{ $id }} })"
+                wire:confirm="{{ $confirmMessage }}"
                 class="inline-flex items-center p-2 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-800 dark:text-red-300 dark:hover:bg-red-700"> {{-- Added dark mode classes --}}
                 <x-heroicon-o-trash class="{{ $size }}" />
             </button>

@@ -81,14 +81,16 @@ final class CampusTable extends PowerGridComponent
             'canEdit' => true,
             'canDelete' => true,
             'size' => 'w-4 h-4',
-            'routeKeyName' => 'campus'
+            'routeKeyName' => 'campus',
+            'confirmMessage' => 'Are you sure you want to delete this campus?'
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete($id): void
     {
-        $this->js('confirm("Are you sure you want to delete this campus?") && $wire.delete(' . $id . ')');
+        // Directly call delete without showing a second confirmation dialog
+        $this->delete($id);
     }
 
     #[\Livewire\Attributes\On('delete')]
