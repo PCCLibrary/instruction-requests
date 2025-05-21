@@ -298,8 +298,8 @@ class CreateGoogleCalendarEventForm extends Component
             // Flash message for the next page load
             session()->flash('success', 'Google Calendar event created successfully.');
 
-            // Using Livewire 3 dispatchBrowserEvent to trigger page reload
-            $this->dispatchBrowserEvent('googleCalendarEventCreated', [
+            // Using Livewire 3 dispatch to trigger page reload
+            $this->dispatch('googleCalendarEventCreated', [
                 'requestId' => $this->instructionRequest->id,
                 'status' => 'scheduled',
                 'timestamp' => now()->toDateTimeString()
