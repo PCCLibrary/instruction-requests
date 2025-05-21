@@ -298,9 +298,8 @@ class CreateGoogleCalendarEventForm extends Component
             // Flash message for the next page load
             session()->flash('success', 'Google Calendar event created successfully.');
 
-            // Dispatch event to close modal and refresh page
-            // This must be the last operation as it triggers the page reload
-            $this->dispatch('googleCalendarEventCreated', [
+            // Using Livewire 3 dispatchBrowserEvent to trigger page reload
+            $this->dispatchBrowserEvent('googleCalendarEventCreated', [
                 'requestId' => $this->instructionRequest->id,
                 'status' => 'scheduled',
                 'timestamp' => now()->toDateTimeString()

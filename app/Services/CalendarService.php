@@ -280,31 +280,23 @@ class CalendarService
 
             // Delete local event record using the relationship method
             try {
-                // Log before deletion with count
-                $countBefore = $request->googleCalendarEvent()->count();
-                Log::info('CalendarService: Before deletion count', ['count' => $countBefore]);
+                // Log before deletion
+                Log::info('CalendarService: Starting deletion process for event', [
+                    'event_id' => $calendarEvent->id,
+                    'google_event_id' => $calendarEvent->google_event_id
+                ]);
 
-                // Get a reference to the model before deleting through relationship
-                $calendarEventModel = $request->googleCalendarEvent;
-
-                // Use the relationship for deletion instead of direct deletion
+                // Use relationship method for deletion - this is the only correct approach
                 $request->googleCalendarEvent()->delete();
 
-                // Also delete the model directly as a backup approach
-                if ($calendarEventModel) {
-                    $calendarEventModel->delete();
-                }
+                // Verify deletion was successful
+                $stillExists = GoogleCalendarEvent::where('id', $calendarEvent->id)->exists();
 
-                // Log after deletion with count
-                $countAfter = $request->googleCalendarEvent()->count();
-                Log::info('CalendarService: After deletion count', ['count' => $countAfter]);
-
-                // Verify deletion occurred
-                if ($countBefore > 0 && $countAfter === 0) {
+                if (!$stillExists) {
                     $result['messages'][] = 'Local calendar event record deleted successfully.';
                     Log::info('CalendarService: Local calendar event record deleted through relationship');
                 } else {
-                    throw new \Exception('Record deletion verification failed');
+                    throw new \Exception('Record deletion verification failed - record still exists after deletion attempt');
                 }
             } catch (\Exception $localDeletionException) {
                 Log::warning('CalendarService: Error deleting local calendar event', [

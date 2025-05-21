@@ -26,7 +26,8 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             // Listen for the calendar event created event and reload the page
-            Livewire.on('googleCalendarEventCreated', (requestId) => {
+            // Using Livewire 3 syntax for event listening
+            document.addEventListener('googleCalendarEventCreated', (e) => {
                 // Wait a moment to allow the server to process the status change
                 setTimeout(() => {
                     window.location.reload();
@@ -34,7 +35,7 @@
             });
 
             // Listen for the beforeCreateEvent event and update the Livewire component with current form values
-            Livewire.on('beforeCreateEvent', () => {
+            document.addEventListener('beforeCreateEvent', () => {
                 // Get current form values
                 const instructionDateTime = document.getElementById('instruction_datetime').value;
                 const instructionDuration = document.getElementById('instruction_duration').value;

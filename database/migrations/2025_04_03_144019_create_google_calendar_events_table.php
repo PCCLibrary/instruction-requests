@@ -62,8 +62,6 @@ return new class extends Migration
                 ->comment('Full original event data from Google Calendar API');
 
             $table->timestamps();
-            $table->softDeletes()
-                ->comment('Allows soft deletion of calendar events');
 
             // Add foreign key constraints separately with explicit references
             $table->foreign('instruction_request_id')

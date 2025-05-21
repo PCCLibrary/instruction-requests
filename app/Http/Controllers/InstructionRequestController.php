@@ -120,6 +120,18 @@ class InstructionRequestController extends AppBaseController
                 return redirect(route('instructionRequests.index'));
             }
 
+            // Check if we have a toast flash message from a calendar deletion
+            if (session()->has('toast')) {
+                // The masmerise/livewire-toaster package will automatically handle this toast
+                // No need for additional processing
+            }
+
+            // Check if we're returning after a calendar event deletion
+            if (request()->has('calendar_deleted') && request()->get('calendar_deleted') === 'true') {
+                // Ensure fresh data after deletion
+                $instructionRequest->refresh();
+            }
+
             // Log the current lock state for debugging
             Log::debug('Lock state in edit method', [
                 'request_id' => $id,
