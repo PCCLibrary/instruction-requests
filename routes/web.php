@@ -39,6 +39,13 @@ Route::get('/db-test', function () {
     }
 });
 
+// Dropzone test route (development only)
+if (!app()->environment('production')) {
+    Route::get('/test/dropzone', function () {
+        return view('test.dropzone-test');
+    })->name('test.dropzone');
+}
+
 // Public form for creating instruction requests
 Route::get('/', [PublicInstructionRequestController::class, 'create'])
     ->name('public.instruction-request.create');

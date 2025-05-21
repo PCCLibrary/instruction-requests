@@ -189,6 +189,46 @@
                             }
                         });
                     };
+
+                    // IMPORTANT: Alpine.js Compatibility
+                    // The following code ensures the Dropzone component works well with Alpine.js
+                    // We don't touch Alpine.js global state or modify any Alpine properties
+                    // We use standard DOM events for any interactions that might be needed
+
+                    // If this page uses Alpine.js (check if window.Alpine exists)
+                    if (typeof window.Alpine !== 'undefined') {
+                        // When Alpine initializes a component that contains a dropzone
+                        document.addEventListener('alpine:initialized', function() {
+                            // If any Alpine component manipulates visibility of our container, refresh the dropzone
+                            const container = element.closest('[x-data]');
+                            if (container) {
+                                // Use MutationObserver to detect class changes (like hidden/visible)
+                                const observer = new MutationObserver(function(mutations) {
+                                    mutations.forEach(function(mutation) {
+                                        if (mutation.attributeName === 'class') {
+                                            // Check if the element just became visible
+                                            const isHidden = container.classList.contains('hidden');
+                                            if (!isHidden && dropzone) {
+                                                // Force resize calculation to ensure proper layout
+                                                setTimeout(function() {
+                                                    dropzone.emit('resize');
+                                                }, 100);
+                                            }
+                                        }
+                                    });
+                                });
+
+                                // Start observing the container for class changes
+                                observer.observe(container, { attributes: true });
+                            }
+                        });
+
+                        // Listen for Alpine model changes that might affect form state
+                        element.closest('form')?.addEventListener('change', function() {
+                            // If an Alpine data model changes in a way that could affect our dropzone,
+                            // we might need to take action here, but most cases are covered by the observer above
+                        });
+                    }
                 }
             };
 

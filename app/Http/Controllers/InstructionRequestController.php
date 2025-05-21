@@ -287,6 +287,36 @@ class InstructionRequestController extends AppBaseController
 
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
 
+            // Process upload token for dropzone file uploads if present
+            $uploadToken = $request->input('upload_token');
+            if ($uploadToken) {
+                Log::info('Processing upload token in update method', [
+                    'token' => $uploadToken,
+                    'request_id' => $id
+                ]);
+
+                try {
+                    $fileAssociationResult = app(\App\Http\Controllers\MediaController::class)->associateFiles(
+                        $uploadToken,
+                        $id
+                    );
+
+                    Log::info('File association completed in update method', [
+                        'success' => $fileAssociationResult ? 'true' : 'false',
+                        'token' => $uploadToken,
+                        'request_id' => $id
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error during file association in update method', [
+                        'token' => $uploadToken,
+                        'request_id' => $id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Don't throw the exception - we don't want to fail the update if file association fails
+                }
+            }
+
             Log::info('Update completed', [
                 'id' => $id,
                 'updated_status' => $updated->status,
