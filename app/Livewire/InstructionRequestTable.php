@@ -213,6 +213,7 @@ final class InstructionRequestTable extends PowerGridComponent
                     ['value' => 'assigned', 'label' => 'Assigned'],
                     ['value' => 'accepted', 'label' => 'Accepted'],
                     ['value' => 'rejected', 'label' => 'Rejected'],
+                    ['value' => 'scheduled', 'label' => 'Scheduled'],
                     ['value' => 'completed', 'label' => 'Completed'],
                 ])
                 ->optionValue('value')
