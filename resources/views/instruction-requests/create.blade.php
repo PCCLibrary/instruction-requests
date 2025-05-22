@@ -94,12 +94,12 @@
 
         @include('instruction-requests.partials.create.create-header')
 
-        <x-card title="Request Information" class="bg-white dark:bg-gray-800" headerclass="dark:text-white">
+        <x-card title="Request Information" class="bg-white dark:bg-gray-800 dark:border-gray-700" headerclass="dark:text-white">
             <div class="space-y-6">
                 {{-- These sections are always visible --}}
                 @include('instruction-requests.partials.create.instructor-info')
 
-                <x-fieldset legend="" class="bg-white dark:bg-gray-800">
+                <x-fieldset legend="" class="bg-white dark:bg-gray-800 dark:border-gray-700">
                     <div class="space-y-6">
                         <x-input-select
                             name="instruction_type"

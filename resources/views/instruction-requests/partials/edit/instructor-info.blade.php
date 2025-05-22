@@ -17,7 +17,7 @@
             <button
                 type="button"
                 @click="openModal = true"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-800"
+                class="inline-flex items-center dark:border-gray-700 px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-800"
             >
                 <x-heroicon-o-user class="h-4 w-4 mr-1.5" />
                 Select from Existing Instructors
@@ -94,7 +94,7 @@
         {{-- View Instructor Link (shown in both modes) --}}
         <div class="mt-4 flex justify-end">
             <a href="{{ route('instructors.edit', $instructionRequest->instructor->id) }}"
-               class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-800"
+               class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-700 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-800"
                target="_blank">
                 <x-heroicon-o-eye class="h-4 w-4 mr-1.5" />
                 View Instructor Profile

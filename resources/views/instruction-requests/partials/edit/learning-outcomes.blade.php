@@ -1,6 +1,7 @@
 {{-- Learning Outcomes Section --}}
 <x-card title="By the time students receive library instruction they will have:"
-        class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4">
+        class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4"
+headerclass="dark:text-white">
     <div x-data="{
         get isDisabled() {
             return !$store.formState.isSectionEditable('learningOutcomes');

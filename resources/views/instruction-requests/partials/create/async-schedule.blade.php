@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/async-schedule.blade.php --}}
-<x-fieldset legend="" classes="bg-white dark:bg-gray-800 asynchronous-fields">
+<x-fieldset legend="" classes="bg-white dark:bg-gray-800 dark:border-gray-700 asynchronous-fields">
     <div class="space-y-6">
         <x-input-date
             name="asynchronous_instruction_ready_date"

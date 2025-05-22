@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/create/file-attachments.blade.php --}}
-<x-card title="File Attachments" class="bg-gray-50 dark:bg-gray-800 mb-4 on-campus-fields remote-fields asynchronous-fields" headerclass="dark:text-white">
+<x-card title="File Attachments" class="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4 on-campus-fields remote-fields asynchronous-fields" headerclass="dark:text-white">
     <div class="flex flex-col">  {{-- Main container for flexbox --}}
         <div class="bg-blue-50 dark:bg-blue-900 rounded p-2 mb-3 text-sm text-blue-700 dark:text-blue-200">
             <div class="flex items-start">
