@@ -2,6 +2,9 @@ console.log('App.js loaded');
 import './bootstrap';
 // Lock refresh modules are imported individually in their respective pages
 
+// Import campus reordering module
+import './campus-reorder';
+
 // Import Toaster JavaScript
 import '../../vendor/masmerise/livewire-toaster/resources/js';
 

@@ -31,6 +31,6 @@
 
 @section('content')
 
-    @include('campuses.table')
+    @livewire('campus-reorder-table')
 
 @endsection

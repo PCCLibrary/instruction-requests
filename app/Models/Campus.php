@@ -22,6 +22,7 @@ class Campus extends Model
         'code',
         'gcal',
         'librarian_ids', // Ensure this aligns with the database schema
+        'sort_order',
     ];
 
     // Cast attributes to specific data types
@@ -31,6 +32,7 @@ class Campus extends Model
         'code' => 'string',
         'gcal' => 'string',
         'librarian_ids' => 'array', // Automatically cast JSON to array
+        'sort_order' => 'integer',
     ];
 
     /**
@@ -98,5 +100,16 @@ class Campus extends Model
         }
 
         return $calendarId;
+    }
+
+    /**
+     * Scope a query to order campuses by sort_order then name.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('sort_order')->orderBy('name');
     }
 }

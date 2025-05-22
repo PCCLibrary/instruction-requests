@@ -20,6 +20,7 @@ class CreateCampusesTable extends Migration
             $table->text('code');
             $table->text('gcal');
             $table->json('librarian_ids')->nullable(); // Add this line for the JSON column
+            $table->integer('sort_order')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

@@ -44,7 +44,7 @@ class InstructionRequestController extends AppBaseController
             ->with([
                 'instructionRequest' => null,
                 'librarians' => User::orderedLibrariansScope()->get(),
-                'campuses' => Campus::all(),
+                'campuses' => Campus::ordered()->get(),
                 'instructors' => Instructor::all(),
                 'departments' => $this->departmentService->getAllDepartments()
             ]);
@@ -94,7 +94,7 @@ class InstructionRequestController extends AppBaseController
             'instructionRequest' => $instructionRequest,
 //            'librarians' => User::where('is_admin', false)->get(),
             'librarians' => User::orderedLibrariansScope()->get(),
-            'campuses' => Campus::all(),
+            'campuses' => Campus::ordered()->get(),
             'instructors' => Instructor::all(),
             'departments' => $this->departmentService->getAllDepartments(),
             'syllabus' => $instructionRequest->getMedia('syllabus'),
@@ -212,7 +212,7 @@ class InstructionRequestController extends AppBaseController
             return view('instruction-requests.edit')->with([
                 'instructionRequest' => $instructionRequest,
                 'librarians' => User::orderedLibrariansScope()->get(),
-                'campuses' => Campus::all(),
+                'campuses' => Campus::ordered()->get(),
                 'instructors' => Instructor::all(),
                 'departments' => $this->departmentService->getAllDepartments(),
                 'materials' => $materials

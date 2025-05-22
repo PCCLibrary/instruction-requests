@@ -186,8 +186,8 @@ final class InstructionRequestTable extends PowerGridComponent
 
         // Fetch campuses, selecting 'code' for the value and 'name' for the label,
         // directly from the database and format as an array.
-        $campuses = Campus::select('code as value', 'name as label')
-            ->orderBy('name')
+        $campuses = Campus::ordered()
+            ->select('code as value', 'name as label')
             ->get()
             ->toArray();
 

@@ -17,8 +17,8 @@ class CampusController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $campuses = Campus::select('id', 'name')
-                ->orderBy('name')
+            $campuses = Campus::ordered()
+                ->select('id', 'name')
                 ->get();
 
             return response()->json($campuses, 200);

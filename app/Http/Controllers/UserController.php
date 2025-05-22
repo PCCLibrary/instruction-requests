@@ -45,7 +45,7 @@ class UserController extends AppBaseController
      */
     public function create(): View
     {
-        $campuses = Campus::pluck('name', 'id');
+        $campuses = Campus::ordered()->pluck('name', 'id');
 
         return view('users.create')->with('campuses', $campuses);
     }
@@ -104,7 +104,7 @@ class UserController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        $campuses = Campus::pluck('name', 'id');
+        $campuses = Campus::ordered()->pluck('name', 'id');
 
         return view('users.edit')
             ->with('user', $user)
