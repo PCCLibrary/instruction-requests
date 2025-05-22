@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/course-details.blade.php --}}
-<x-fieldset legend="Course Details" classes="bg-white on-campus-fields remote-fields asynchronous-fields">
+<x-fieldset legend="Course Details" classes="bg-white dark:bg-gray-800 on-campus-fields remote-fields asynchronous-fields">
     <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>

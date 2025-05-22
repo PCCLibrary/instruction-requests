@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/instruction-goals.blade.php --}}
-<x-fieldset legend="Instruction Goals and Discussion Topics" classes="bg-white on-campus-fields remote-fields asynchronous-fields">
+<x-fieldset legend="Instruction Goals and Discussion Topics" classes="bg-white dark:bg-gray-800 on-campus-fields remote-fields asynchronous-fields">
     <div class="space-y-6">
         <div>
             <x-input-textarea

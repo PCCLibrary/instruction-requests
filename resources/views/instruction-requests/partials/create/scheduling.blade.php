@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/scheduling.blade.php --}}
-    <x-fieldset legend="Schedule" classes="bg-white on-campus-fields remote-fields">
+    <x-fieldset legend="Schedule" classes="bg-white dark:bg-gray-800 on-campus-fields remote-fields">
         <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-input-datetime

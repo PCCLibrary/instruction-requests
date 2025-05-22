@@ -1,5 +1,5 @@
 {{-- resources/views/instruction-requests/partials/create/file-attachments.blade.php --}}
-<x-card title="File Attachments" class="bg-gray-50 mb-4 on-campus-fields remote-fields asynchronous-fields">
+<x-card title="File Attachments" class="bg-gray-50 dark:bg-gray-800 mb-4 on-campus-fields remote-fields asynchronous-fields" headerclass="dark:text-white">
     <div class="flex flex-col">  {{-- Main container for flexbox --}}
         <div class="bg-blue-50 dark:bg-blue-900 rounded p-2 mb-3 text-sm text-blue-700 dark:text-blue-200">
             <div class="flex items-start">
@@ -25,7 +25,7 @@
         </div>
 
         {{-- File Type Notice --}}
-        <div class="mt-2 text-sm text-gray-500"> {{-- Notice below the inputs --}}
+        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400"> {{-- Notice below the inputs --}}
             <p>Accepted file types: PDF, Word documents (.doc, .docx), PowerPoint (.ppt, .pptx), and text files (.txt, .rtf). Maximum file size: 20MB per file</p>
         </div>
     </div>

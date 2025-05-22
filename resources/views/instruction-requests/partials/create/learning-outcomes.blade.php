@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/learning-outcomes.blade.php --}}
-<x-fieldset legend="By the time students receive library instruction they will have:" classes="bg-white on-campus-fields remote-fields">
+<x-fieldset legend="By the time students receive library instruction they will have:" classes="bg-white dark:bg-gray-800 on-campus-fields remote-fields">
     <div class="grid grid-cols-2 gap-6">
         <div class="space-y-4">
             <x-input-checkbox

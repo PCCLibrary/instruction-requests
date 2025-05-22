@@ -1,5 +1,5 @@
 {{-- /views/instruction-requests/partials/create/instruction-type.blade.php --}}
-<x-fieldset legend="Instruction Type" classes="bg-white">
+<x-fieldset legend="Instruction Type" classes="bg-white dark:bg-gray-800">
     <div class="space-y-6">
         {{-- Instruction Type Selector --}}
         <div class="grid grid-cols-1 gap-6">
