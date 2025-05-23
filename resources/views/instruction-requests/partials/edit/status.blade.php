@@ -27,6 +27,9 @@
             <option value="accepted" {{ old('status', $instructionRequest->status) === 'accepted' ? 'selected' : '' }} disabled>
                 Accepted
             </option>
+            <option value="rejected" {{ old('status', $instructionRequest->status) === 'rejected' ? 'selected' : '' }} disabled>
+                Rejected
+            </option>
             <option value="scheduled" {{ old('status', $instructionRequest->status) === 'scheduled' ? 'selected' : '' }} disabled>
                 Scheduled
             </option>

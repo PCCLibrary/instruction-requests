@@ -3,17 +3,17 @@
 
 @if($attachments->isNotEmpty())
     <ul class="space-y-2 mb-4">
-        <li class="text-lg font-semibold leading-6 text-gray-900">{{ $title }}</li>
+        <li class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">{{ $title }}</li>
         @foreach($attachments as $item)
-            <li class="flex items-center gap-2 text-gray-900">
+            <li class="flex items-center gap-2 text-gray-900 dark:text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-sm">{{ $item->file_name }}</span>
-                <span class="text-sm text-gray-500">-</span>
+                <span class="text-sm dark:text-white">{{ $item->file_name }}</span>
+                <span class="text-sm text-gray-500 dark:text-white">-</span>
                 <a href="{{ $item->getUrl() }}"
                    target="_blank"
-                   class="text-sm text-blue-600 hover:text-blue-800">
+                   class="text-sm text-blue-600 hover:text-blue-800 dark:text-gray-300 dark:hover:text-blue-100">
                     View
                 </a>
             </li>
