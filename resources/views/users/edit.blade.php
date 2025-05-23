@@ -27,4 +27,6 @@
 
     </form>
 
+    @include('users.partials.requests')
+
 @endsection

@@ -644,6 +644,26 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
+     * Get requests by assigned librarian.
+     *
+     * @param int $librarianId
+     * @param int|null $quantity
+     * @return Collection
+     */
+    public function getRequestsByLibrarian(int $librarianId, ?int $quantity = null): Collection
+    {
+        $modelClass = $this->repository->model();
+        $query = (new $modelClass)
+            ->with(['instructor', 'detail', 'classes', 'campus'])
+            ->whereHas('detail', function($q) use ($librarianId) {
+                $q->where('assigned_librarian_id', $librarianId);
+            })
+            ->orderBy('created_at', 'desc');
+
+        return $quantity ? $query->take($quantity)->get() : $query->get();
+    }
+
+    /**
      * Handle status changes and send appropriate notifications
      *
      * Sends notifications based on status transitions:
