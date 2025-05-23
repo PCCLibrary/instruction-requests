@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use App\Models\Campus;
 use Illuminate\Support\Facades\Auth;
 
 final class LibrarianRequestsTable extends PowerGridComponent
@@ -134,6 +136,60 @@ final class LibrarianRequestsTable extends PowerGridComponent
                 ->sortable(),
 
             Column::action('Action')
+        ];
+    }
+
+    /**
+     * Define the available filters for the table
+     */
+    public function filters(): array
+    {
+        // Fetch campuses using ordered scope, selecting 'code' for the value and 'name' for the label
+        $campuses = Campus::ordered()
+            ->select('code as value', 'name as label')
+            ->get()
+            ->toArray();
+
+        return [
+            // Date range filter for instruction date (following created_at pattern)
+            Filter::datepicker('instruction_datetime_formatted', 'instruction_request_details.instruction_datetime'),
+
+            // Instructor text search (like the main instruction request table)
+            Filter::inputText('instructor_name', 'instructors.display_name')
+                ->operators(['contains']),
+
+            // Class text search (like instructor filter)
+            Filter::inputText('course_name', 'classes.course_name')
+                ->operators(['contains']),
+
+            // Campus select using ordered scope
+            Filter::select('campus_name', 'campuses.code')
+                ->dataSource($campuses)
+                ->optionValue('value')
+                ->optionLabel('label'),
+
+            // Type select (copy from main instruction request table)
+            Filter::select('instruction_type', 'instruction_requests.instruction_type')
+                ->dataSource([
+                    ['value' => 'on-campus', 'label' => 'On Campus'],
+                    ['value' => 'remote', 'label' => 'Remote'],
+                    ['value' => 'asynchronous', 'label' => 'Asynchronous'],
+                ])
+                ->optionValue('value')
+                ->optionLabel('label'),
+
+            // Status select (copy from main instruction request table)
+            Filter::select('status', 'instruction_requests.status')
+                ->dataSource([
+                    ['value' => 'received', 'label' => 'Received'],
+                    ['value' => 'assigned', 'label' => 'Assigned'],
+                    ['value' => 'accepted', 'label' => 'Accepted'],
+                    ['value' => 'rejected', 'label' => 'Rejected'],
+                    ['value' => 'scheduled', 'label' => 'Scheduled'],
+                    ['value' => 'completed', 'label' => 'Completed'],
+                ])
+                ->optionValue('value')
+                ->optionLabel('label'),
         ];
     }
 
