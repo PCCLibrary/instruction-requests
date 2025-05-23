@@ -41,7 +41,8 @@
             <div class="hidden md:block">
                 <div class="ml-4 flex items-center md:ml-6">
                     {{-- User Dropdown --}}
-                    <div x-data="{ open: false }" @click.away="open = false" class="ml-3 relative">
+                    <div x-data="{ open: false }" @click.away="open = false" class="ml-3 relative flex items-center">
+                        <x-user-role-badge :user="Auth::user()" class="mr-3" />
                         <div>
                             <button @click="open = !open"
                                     class="flex items-center text-white hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
@@ -166,11 +167,14 @@
         <div class="pt-4 pb-3 border-t border-cyan-800 dark:border-gray-700">
             <div class="container mx-auto px-4">
                 <div class="flex items-center">
+                    <x-user-role-badge :user="Auth::user()" class="mr-4" />
                     <div class="flex-shrink-0">
                         <x-heroicon-o-user class="h-8 w-8 text-white" />
                     </div>
                     <div class="ml-3">
-                        <div class="text-base font-medium leading-none text-white">{{ Auth::user()->name }}</div>
+                        <div class="text-base font-medium leading-none text-white">
+                            {{ Auth::user()->name }}
+                        </div>
                         <div class="text-sm font-medium leading-none text-cyan-200 dark:text-gray-300 mt-1">{{ Auth::user()->email }}</div>
                     </div>
                 </div>
