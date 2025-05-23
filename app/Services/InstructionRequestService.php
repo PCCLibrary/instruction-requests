@@ -599,10 +599,10 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
             if ($request && $request->status === 'assigned') {
                 $oldStatus = $request->status;
-                $request->update(['status' => 'received']);
-                $request->detail->update(['assigned_librarian_id' => null]);
+                $request->update(['status' => 'rejected']);
+                $request->detail->update(['assigned_librarian_id' => 2]);
 
-                $this->handleStatusChange($request->fresh(['detail', 'instructor', 'classes', 'campus']), $oldStatus, 'received');
+                $this->handleStatusChange($request->fresh(['detail', 'instructor', 'classes', 'campus']), $oldStatus, 'rejected');
             }
         });
     }
