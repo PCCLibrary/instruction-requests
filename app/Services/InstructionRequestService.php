@@ -255,21 +255,29 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
                 // Select the appropriate datetime field based on instruction type
                 if ($data['instruction_type'] === 'asynchronous') {
-                    $detailsData['instruction_datetime'] = $data['asynchronous_instruction_ready_date'];
+                    // For asynchronous requests, use the date and set time to 8:00 AM
+                    $detailsData['instruction_datetime'] = $data['asynchronous_instruction_ready_date'] . ' 08:00:00';
 
-                    Log::debug('Using asynchronous_instruction_ready_date for instruction_datetime', [
+                    Log::debug('Using asynchronous_instruction_ready_date for instruction_datetime with 8:00 AM time', [
                         'instruction_type' => $data['instruction_type'],
-                        'asynchronous_date' => $data['asynchronous_instruction_ready_date']
+                        'asynchronous_date' => $data['asynchronous_instruction_ready_date'],
+                        'instruction_datetime' => $detailsData['instruction_datetime']
                     ]);
                 } else {
                     $detailsData['instruction_datetime'] = $data['preferred_datetime'];
-                    $detailsData['instruction_duration'] = $data['duration'] ?? null;
 
                     Log::debug('Using preferred_datetime for instruction_datetime', [
                         'instruction_type' => $data['instruction_type'],
-                        'preferred_date' => $data['preferred_datetime'],
-                        'duration' => $data['duration'] ?? null
+                        'preferred_date' => $data['preferred_datetime']
                     ]);
+                }
+
+                // Always copy duration to instruction_duration for all request types
+                // For asynchronous requests, set a default of 30 minutes since duration field is not visible/required
+                if ($data['instruction_type'] === 'asynchronous') {
+                    $detailsData['instruction_duration'] = '30';
+                } else {
+                    $detailsData['instruction_duration'] = $data['duration'] ?? null;
                 }
 
                 $instructionRequest->detail()->create($detailsData);
