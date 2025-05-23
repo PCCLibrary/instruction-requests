@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: false }" x-bind:class="{'dark': darkMode}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Scheduler Dashboard - Library Instruction System</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Custom Tailwind config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Figtree', 'ui-sans-serif', 'system-ui'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased bg-gray-100 dark:bg-gray-900">
+
+<!-- Navigation -->
+<nav class="bg-cyan-700 dark:bg-gray-800">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+            <!-- Left side: Logo and Navigation -->
+            <div class="flex items-center">
+                <!-- Brand/Logo -->
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-xl font-bold text-white">
+                        Instruction Request Dashboard
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#" class="text-white bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="#" class="text-gray-200 hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium">
+                            Assignment Queue
+                        </a>
+                        <a href="#" class="text-gray-200 hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium">
+                            Campuses
+                        </a>
+                        <a href="#" class="text-gray-200 hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium">
+                            Librarians
+                        </a>
+                        <a href="#" class="text-gray-200 hover:bg-cyan-800 px-3 py-2 rounded-md text-sm font-medium">
+                            Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right side: User info and role badge -->
+            <div class="flex items-center space-x-4">
+                <span class="bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-medium">Scheduler</span>
+                <div class="text-white text-sm">Sarah Johnson - Sylvania Campus</div>
+                <button @click="darkMode = !darkMode" class="text-gray-200 hover:text-white px-3 py-2 rounded-md">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="py-6">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Scheduler Dashboard</h1>
+            <p class="text-gray-600 dark:text-gray-300">Manage instruction request assignments for Sylvania Campus</p>
+        </div>
+
+        <!-- Status Bar - Scheduler Focused -->
+        <div class="mb-6">
+            <div class="w-full rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                <!-- Header -->
+                <div class="flex items-center bg-orange-500 dark:bg-orange-600 px-4 py-2">
+                    <h3 class="text-sm font-medium text-white">Assignment Status</h3>
+                </div>
+
+                <!-- Status Items -->
+                <div class="bg-white dark:bg-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-y md:divide-y-0 md:divide-x xl:divide-y-0 divide-gray-200 dark:divide-gray-600">
+                        <!-- Awaiting Assignment -->
+                        <div class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-red-500">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">8</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-300">Awaiting Assignment</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Assignments -->
+                        <div class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-blue-500">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">24</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-300">Active Assignments</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overdue -->
+                        <div class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">3</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-300">Overdue (>3 days)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Completed This Week -->
+                        <div class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-green-500">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">12</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-300">Completed This Week</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+            <!-- Left Column: Assignment Queue & Actions -->
+            <div class="xl:col-span-2 space-y-6">
+
+                <!-- Quick Assignment Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div class="bg-red-500 dark:bg-red-600 px-4 py-3 rounded-t-lg">
+                        <h3 class="text-lg font-medium text-white">Urgent: Requests Awaiting Assignment</h3>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Bulk Actions -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                                Smart Assignment
+                            </button>
+                            <button class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                                Assign All to Best Match
+                            </button>
+                            <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                <option>Filter by Campus</option>
+                                <option>Sylvania</option>
+                                <option>Cascade</option>
+                                <option>Rock Creek</option>
+                                <option>Southeast</option>
+                            </select>
+                        </div>
+
+                        <!-- Request List -->
+                        <div class="space-y-3">
+                            <!-- Request 1 -->
+                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                Overdue - 4 days
+                                            </span>
+                                            <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                Sylvania
+                                            </span>
+                                        </div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">ENG 121 - Composition</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                                            Instructor: Prof. Anderson | Preferred: Nov 15, 2:00 PM | Students: 25
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Research methods & citation styles needed
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-col gap-2 ml-4">
+                                        <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm dark:bg-gray-600 dark:text-white">
+                                            <option>Select Librarian</option>
+                                            <option>Sarah Miller (Available)</option>
+                                            <option>David Chen (2 current)</option>
+                                            <option>Lisa Rodriguez (1 current)</option>
+                                        </select>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm">
+                                            Assign
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Request 2 -->
+                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                2 days old
+                                            </span>
+                                            <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                Sylvania
+                                            </span>
+                                        </div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">BIO 234 - Human Anatomy</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                                            Instructor: Dr. Peterson | Preferred: Nov 18, 10:00 AM | Students: 35
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Scientific databases and peer review process
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-col gap-2 ml-4">
+                                        <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm dark:bg-gray-600 dark:text-white">
+                                            <option>Select Librarian</option>
+                                            <option>Sarah Miller (Available) ⭐</option>
+                                            <option>David Chen (2 current)</option>
+                                            <option>Lisa Rodriguez (1 current)</option>
+                                        </select>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm">
+                                            Assign
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Request 3 -->
+                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                New today
+                                            </span>
+                                            <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                                                Sylvania
+                                            </span>
+                                        </div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">HIST 105 - Western Civilization</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                                            Instructor: Prof. Williams | Preferred: Nov 20, 1:00 PM | Students: 28
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Primary sources and historical databases
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-col gap-2 ml-4">
+                                        <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm dark:bg-gray-600 dark:text-white">
+                                            <option>Select Librarian</option>
+                                            <option>Sarah Miller (Available) ⭐</option>
+                                            <option>David Chen (2 current)</option>
+                                            <option>Lisa Rodriguez (1 current)</option>
+                                        </select>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm">
+                                            Assign
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium">
+                                View All Unassigned Requests (8) →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Librarian Status & Quick Stats -->
+            <div class="space-y-6">
+
+                <!-- Librarian Workload Overview -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div class="bg-blue-500 dark:bg-blue-600 px-4 py-3 rounded-t-lg">
+                        <h3 class="text-lg font-medium text-white">Librarian Availability</h3>
+                    </div>
+
+                    <div class="p-4 space-y-4">
+                        <!-- Librarian 1 -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Sarah Miller</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Available</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">0 assigned</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Last: 2 days ago</p>
+                            </div>
+                        </div>
+
+                        <!-- Librarian 2 -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <h4 class="font-medium text-gray-900 dark:text-white">David Chen</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Moderate load</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">2 assigned</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">1 scheduled</p>
+                            </div>
+                        </div>
+
+                        <!-- Librarian 3 -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Lisa Rodriguez</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Heavy load</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">4 assigned</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">3 scheduled</p>
+                            </div>
+                        </div>
+
+                        <!-- Librarian 4 -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Michael Torres</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Out until Mon</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">1 assigned</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Auto-assigned</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Campus Stats -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div class="bg-green-500 dark:bg-green-600 px-4 py-3 rounded-t-lg">
+                        <h3 class="text-lg font-medium text-white">Campus Overview</h3>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Total Active</span>
+                            <span class="font-medium text-gray-900 dark:text-white">24</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">This Week</span>
+                            <span class="font-medium text-gray-900 dark:text-white">8</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Next Week</span>
+                            <span class="font-medium text-gray-900 dark:text-white">6</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Avg Assignment Time</span>
+                            <span class="font-medium text-gray-900 dark:text-white">1.2 days</span>
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm font-medium">
+                                View Detailed Reports →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div class="bg-purple-500 dark:bg-purple-600 px-4 py-3 rounded-t-lg">
+                        <h3 class="text-lg font-medium text-white">Quick Actions</h3>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium">
+                            Bulk Assign by Subject
+                        </button>
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium">
+                            Generate Weekly Report
+                        </button>
+                        <button class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-md text-sm font-medium">
+                            View Calendar Conflicts
+                        </button>
+                        <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm font-medium">
+                            Send Overdue Reminders
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
