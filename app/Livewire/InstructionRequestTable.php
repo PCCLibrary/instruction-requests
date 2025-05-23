@@ -293,6 +293,9 @@ final class InstructionRequestTable extends PowerGridComponent
     #[\Livewire\Attributes\On('filterByLibrarian')]
     public function filterByLibrarian($name): void
     {
+        // Clear any existing filters
+        $this->filters = [];
+
         $this->filters['input_text']['librarians.display_name'] = $name;
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
@@ -342,6 +345,9 @@ final class InstructionRequestTable extends PowerGridComponent
     #[\Livewire\Attributes\On('filterByCampus')]
     public function filterByCampus($code): void
     {
+        // Clear any existing filters
+        $this->filters = [];
+
         $this->filters['select']['campuses.code'] = $code;
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
@@ -349,6 +355,9 @@ final class InstructionRequestTable extends PowerGridComponent
     #[\Livewire\Attributes\On('filterByStatus')]
     public function filterByStatus($status): void
     {
+        // Clear any existing filters
+        $this->filters = [];
+
         $this->filters['select']['instruction_requests.status'] = $status;
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
