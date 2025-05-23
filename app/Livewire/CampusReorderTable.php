@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Campus;
 use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 class CampusReorderTable extends Component
 {
@@ -46,9 +47,16 @@ class CampusReorderTable extends Component
             }
 
             $this->loadCampuses(); // Reload to get fresh data
+
+            // Add success toast message
+            app(Toaster::class)->success('Campus order updated successfully.');
+
             $this->dispatch('orderSaved');
 
         } catch (\Exception $e) {
+            // Add error toast message
+            app(Toaster::class)->error('Failed to save campus order.');
+
             $this->dispatch('orderError', ['message' => 'Failed to save order']);
         }
     }
