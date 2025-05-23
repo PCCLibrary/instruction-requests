@@ -18,15 +18,14 @@
     </div>
 
     <div>
-        <x-input-label for="password" :value="__('Password')" />
-        <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-        <x-input-error class="mt-2" :messages="$errors->get('password')" />
-    </div>
-
-    <div>
-        <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-        <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-        <x-input-error class="mt-2" :messages="$errors->get('password_confirmation')" />
+        <x-input-select
+            name="campus_id"
+            label="Campus"
+            :options="$campuses"
+            :selected="old('campus_id', $user->campus_id ?? '')"
+            class="mt-1 block w-full"
+        />
+        <x-input-error class="mt-2" :messages="$errors->get('campus_id')" />
     </div>
 
     <div>

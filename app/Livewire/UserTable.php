@@ -12,55 +12,97 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 
 final class UserTable extends PowerGridComponent
 {
-    use WithExport;
-
     public string $tableName = 'users';
     public string $primaryKey = 'users.id';
+
+    // Filter properties to control visibility
+    public bool $showActiveUsers = true;
+    public bool $showDeletedUsers = false;
 
     public function setUp(): array
     {
         //$this->showCheckBox();
 
         return [
-            PowerGrid::header(),
-//                ->showSearchInput(),
+            PowerGrid::header()
+                ->includeViewOnTop('users.partials.user-filters'),
 
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
-
-            (new Exportable('users_' . now()->format('Y-m-d')))
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
-                ->stripTags(true)
-                ->csvDelimiter('"')
-                ->csvSeparator(','),
         ];
     }
 
     public function datasource(): Builder
     {
-        return User::query()
-            ->with('campus')
-            ->select('users.*');
+        $query = User::query()->with('campus')->select('users.*');
+
+        // Apply filters based on checkbox states
+        if (!$this->showActiveUsers && !$this->showDeletedUsers) {
+            // If neither is selected, show nothing (empty result)
+            return $query->whereRaw('1 = 0');
+        } elseif ($this->showActiveUsers && !$this->showDeletedUsers) {
+            // Show only active users (default behavior)
+            return $query;
+        } elseif (!$this->showActiveUsers && $this->showDeletedUsers) {
+            // Show only deleted users
+            return $query->onlyTrashed();
+        } else {
+            // Show both active and deleted users
+            return $query->withTrashed();
+        }
+    }
+
+    public function updatedShowActiveUsers()
+    {
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    public function updatedShowDeletedUsers()
+    {
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    // Alternative methods if using wire:click="toggleActiveUsers" instead of $toggle
+    public function toggleActiveUsers()
+    {
+        $this->showActiveUsers = !$this->showActiveUsers;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    public function toggleDeletedUsers()
+    {
+        $this->showDeletedUsers = !$this->showDeletedUsers;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('display_name')
+            ->add('display_name', function (User $model) {
+                // Add visual indicator for soft-deleted users
+                if ($model->trashed()) {
+                    return '<span class="text-gray-400 line-through">' . e($model->display_name) . '</span> <span class="text-red-500 text-xs">(Deleted)</span>';
+                }
+                return e($model->display_name);
+            })
             ->add('email', function (User $model) {
-                return '<a href="mailto:' . $model->email . '" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                $emailHtml = '<a href="mailto:' . $model->email . '" class="inline-flex items-center text-blue-600 hover:text-blue-800">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
                     ' . $model->email . '
                 </a>';
+
+                // Add visual indicator for soft-deleted users
+                if ($model->trashed()) {
+                    return '<div class="text-gray-400">' . $emailHtml . '</div>';
+                }
+                return $emailHtml;
             })
             ->add('created_at')
             ->add('created_at_formatted', fn (User $model) =>
@@ -79,6 +121,9 @@ final class UserTable extends PowerGridComponent
                 ->sortable(),
 
             Column::action('Action')
+                ->visibleInExport(false)
+                ->headerAttribute('class', 'w-24')
+                ->bodyAttribute('class', 'w-24')
         ];
     }
 
@@ -96,21 +141,28 @@ final class UserTable extends PowerGridComponent
 
     public function actionsFromView(User $row): View
     {
+        // Check if user is soft-deleted
+        $isTrashed = $row->trashed();
+
         return view('components.table-actions', [
             'id' => $row->id,
             'editRoute' => 'users.edit',
-            'deleteEvent' => 'confirmDelete',
-            'canEdit' => true,
-            'canDelete' => true,
+            'deleteEvent' => $isTrashed ? null : 'confirmDelete', // Disable delete for already deleted users
+            'restoreEvent' => $isTrashed ? 'confirmRestore' : null, // Add restore for deleted users
+            'canEdit' => !$isTrashed, // Disable edit for soft-deleted users
+            'canDelete' => !$isTrashed, // Disable delete for soft-deleted users
+            'canRestore' => $isTrashed, // Enable restore for soft-deleted users
             'size' => 'w-4 h-4',
-            'routeKeyName' => 'user'
+            'routeKeyName' => 'user',
+            'confirmMessage' => $isTrashed ? 'Are you sure you want to restore this user?' : 'Are you sure you want to delete this user?'
         ]);
     }
 
     #[\Livewire\Attributes\On('confirmDelete')]
     public function confirmDelete($id): void
     {
-        $this->js('confirm("Are you sure you want to delete this user?") && $wire.delete(' . $id . ')');
+        // Directly call delete without showing a second confirmation dialog
+        $this->delete($id);
     }
 
     #[\Livewire\Attributes\On('delete')]
@@ -120,6 +172,23 @@ final class UserTable extends PowerGridComponent
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
+    #[\Livewire\Attributes\On('confirmRestore')]
+    public function confirmRestore($id): void
+    {
+        // Directly call restore without showing a second confirmation dialog
+        $this->restore($id);
+    }
+
+    #[\Livewire\Attributes\On('restore')]
+    public function restore($id): void
+    {
+        $user = User::withTrashed()->find($id);
+        if ($user && $user->trashed()) {
+            $user->restore();
+            $this->dispatch('pg:eventRefresh-' . $this->tableName);
+        }
+    }
+
     protected function getListeners()
     {
         return array_merge(
@@ -127,6 +196,8 @@ final class UserTable extends PowerGridComponent
             [
                 'confirmDelete',
                 'delete',
+                'confirmRestore',
+                'restore',
                 'userUpdated' => '$refresh',
             ]
         );

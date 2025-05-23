@@ -34,8 +34,7 @@ class UpdateUserRequest extends FormRequest
             'name'     => 'required',
             'display_name' => 'required',
             'email'    => 'required|email|unique:users,email,'.$id,
-            'campus_id' => 'required|exists:campuses,id',
-            'password' => 'confirmed',
+            'campus_id' => 'nullable|exists:campuses,id',
             'is_scheduler' => 'boolean',
         ];
 

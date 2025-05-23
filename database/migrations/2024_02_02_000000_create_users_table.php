@@ -18,13 +18,14 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('display_name')->nullable(); // Assuming you may want this to be nullable
             $table->string('email')->unique();
-            $table->unsignedInteger('campus_id')->default(1);
+            $table->unsignedInteger('campus_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->boolean('is_admin')->default(false); // Adds an is_admin column, defaulting to false
             $table->boolean('is_scheduler')->default(false); // Adds an is_scheduler column, defaulting to false
 
+            $table->softDeletes();
             $table->timestamps();
 
             // Foreign keys

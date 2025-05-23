@@ -28,7 +28,7 @@ class CreateUserRequest extends FormRequest
         'name'                  => 'required',
         'display_name'          => 'required',
         'email'                 => 'required|email|unique:users,email',
-        'password'              => 'required|confirmed',
+        'campus_id'             => 'nullable|exists:campuses,id',
         'is_scheduler'          => 'boolean',
        ];
 

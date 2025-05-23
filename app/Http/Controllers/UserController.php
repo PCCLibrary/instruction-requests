@@ -8,7 +8,6 @@ use App\Repositories\UserRepository;
 use App\Models\Campus;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 
@@ -59,14 +58,20 @@ class UserController extends AppBaseController
     public function store(CreateUserRequest $request): RedirectResponse
     {
         $input = $request->validated();
-        $input['password'] = Hash::make($input['password']);
 
-        $this->userRepository->create($input);
+        $user = $this->userRepository->create($input);
 
 //        flash('User saved successfully.')->success();
 
         session()->flash('success', 'User created successfully.');
-        return redirect(route('users.index'));
+
+        // Check if "Save & Close" was clicked
+        if ($request->has('saveAndClose')) {
+            return redirect(route('users.index'));
+        }
+
+        // Otherwise, redirect to edit the newly created user
+        return redirect(route('users.edit', $user->id));
     }
 
     /**
@@ -135,17 +140,18 @@ class UserController extends AppBaseController
         }
 
         $input = $request->validated();
-        if (!empty($input['password'])) {
-            $input['password'] = Hash::make($input['password']);
-        } else {
-            unset($input['password']);
-        }
 
         $this->userRepository->update($input, $id);
 
-//        flash('User updated successfully.')->success();
         session()->flash('success', 'User updated successfully.');
-        return redirect(route('users.index'));
+
+        // Check if "Save & Close" was clicked
+        if ($request->has('saveAndClose')) {
+            return redirect(route('users.index'));
+        }
+
+        // Otherwise, stay on the edit page
+        return redirect(route('users.edit', $id));
     }
 
     /**

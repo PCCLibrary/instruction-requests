@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 //use Laravel\Sanctum\HasApiTokens;
@@ -15,7 +16,7 @@ use LakM\Comments\Contracts\CommenterContract;
 
 class User extends Authenticatable implements CommenterContract
 {
-    use  HasFactory, Notifiable, Commenter;
+    use  HasFactory, Notifiable, Commenter, SoftDeletes;
 
     /**
      * The priority of librarian ids.
@@ -40,7 +41,6 @@ class User extends Authenticatable implements CommenterContract
         'display_name',
         'campus_id',
         'email',
-        'password',
         'is_scheduler'
     ];
 
@@ -64,10 +64,12 @@ class User extends Authenticatable implements CommenterContract
         'campus_id' => 'integer',
         'is_scheduler' => 'boolean',
         'is_admin' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     /**
      * Order librarians with priority accounts first, then alphabetically
+     * Note: With SoftDeletes trait, this automatically excludes soft-deleted users
      */
     public static function orderedLibrariansScope(): Builder
     {
@@ -75,6 +77,47 @@ class User extends Authenticatable implements CommenterContract
             ->where('is_admin', false)
             ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
             ->orderBy('display_name');
+    }
+
+    /**
+     * Scope for all librarians including soft-deleted ones
+     * Useful for administrative views or historical data
+     */
+    public static function allLibrariansScope(): Builder
+    {
+        return static::withTrashed()
+            ->where('is_admin', false)
+            ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
+            ->orderBy('display_name');
+    }
+
+    /**
+     * Scope for only soft-deleted librarians
+     * Useful for restoration/cleanup operations
+     */
+    public static function deletedLibrariansScope(): Builder
+    {
+        return static::onlyTrashed()
+            ->where('is_admin', false)
+            ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
+            ->orderBy('display_name');
+    }
+
+    /**
+     * General scope for active users (non-librarian contexts)
+     * Note: Automatically excludes soft-deleted when SoftDeletes trait is used
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Scope for all users including soft-deleted
+     */
+    public function scopeWithDeleted(Builder $query): Builder
+    {
+        return $query->withTrashed();
     }
 
     /**
