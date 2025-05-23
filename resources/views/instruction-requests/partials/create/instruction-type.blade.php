@@ -8,8 +8,8 @@
                 id="instruction_type"
                 label="Instruction Type"
                 :options="[
-                    'on-campus' => 'Librarian joins my class on campus',
-                    'remote' => 'Librarian joins my online (scheduled meeting) class',
+                    'on-campus' => 'Librarian joins my class in-person',
+                    'remote' => 'Librarian joins my online (scheduled meetings) class',
                     'asynchronous' => 'Librarian provides resources to be used asynchronously'
                 ]"
                 :selected="old('instruction_type')"
