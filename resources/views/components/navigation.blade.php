@@ -39,21 +39,21 @@
 
             {{-- Right side: Dark Mode Toggle and User Dropdown --}}
             <div class="hidden md:block">
-                <div class="ml-4 flex items-center md:ml-6">
+                <div class="ml-4 flex items-center md:ml-6 space-x-3">
+                    {{-- Role Badge --}}
+                    <x-user-role-badge :user="Auth::user()" />
+
                     {{-- User Dropdown --}}
-                    <div x-data="{ open: false }" @click.away="open = false" class="ml-3 relative flex items-center">
-                        <x-user-role-badge :user="Auth::user()" class="mr-3" />
-                        <div>
-                            <button @click="open = !open"
-                                    class="flex items-center text-white hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
-                                    id="user-menu-button"
-                                    aria-expanded="false"
-                                    aria-haspopup="true">
-                                <x-heroicon-o-user class="h-5 w-5 mr-2" />
-                                {{ Auth::user()->display_name }}
-                                <x-heroicon-s-chevron-down class="ml-2 h-4 w-4" />
-                            </button>
-                        </div>
+                    <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                        <button @click="open = !open"
+                                class="flex items-center text-white hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+                                id="user-menu-button"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            <x-heroicon-o-user class="h-5 w-5 mr-2" />
+                            {{ Auth::user()->display_name }}
+                            <x-heroicon-s-chevron-down class="ml-2 h-4 w-4" />
+                        </button>
 
                         <div x-show="open"
                              x-transition:enter="transition ease-out duration-100"
