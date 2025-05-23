@@ -9,7 +9,8 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/public.js',
                 'resources/js/table-lock-refresh.js',
-                'resources/js/edit-lock-refresh.js'
+                'resources/js/edit-lock-refresh.js',
+                'resources/js/campus-edit.js'
             ],
             refresh: true,
         }),

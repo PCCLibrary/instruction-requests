@@ -135,6 +135,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     */
     Route::resource('instructors', InstructorController::class);
     Route::resource('campuses', CampusController::class);
+    Route::get('campuses/{id}/delete-impact', [CampusController::class, 'getDeleteImpact'])
+        ->name('campuses.deleteImpact');
     Route::resource('users', UserController::class);
     Route::resource('instructionRequests', InstructionRequestController::class);
     Route::resource('instructionRequestDetails', InstructionRequestDetailsController::class);

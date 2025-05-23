@@ -8,6 +8,7 @@ use App\Repositories\CampusRepository;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class CampusController extends AppBaseController
 {
@@ -91,7 +92,27 @@ class CampusController extends AppBaseController
         $this->campusRepository->delete($id);
 
         return redirect()->route('campuses.index')
-            ->with('success', 'Campus deleted successfully.');
+            ->with('success', "Campus '{$campus->name}' has been deleted successfully.");
+    }
+
+    public function getDeleteImpact(int $id): JsonResponse
+    {
+        $campus = $this->campusRepository->find($id);
+
+        if (empty($campus)) {
+            return response()->json(['error' => 'Campus not found'], 404);
+        }
+
+        $impact = [
+            'instruction_requests_count' => $campus->instructionRequests()->count(),
+            'active_requests_count' => $campus->instructionRequests()
+                ->whereIn('status', ['received', 'assigned', 'accepted', 'scheduled'])
+                ->count(),
+            'assigned_librarians_count' => count($campus->librarian_ids ?? []),
+            'campus_name' => $campus->name
+        ];
+
+        return response()->json($impact);
     }
 
     private function getLibrarianOptions(): array

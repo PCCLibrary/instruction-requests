@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 
 class Campus extends Model
@@ -49,6 +50,16 @@ class Campus extends Model
             'campus_id',    // Foreign key on pivot table
             'user_id'       // Related key on pivot table
         );
+    }
+
+    /**
+     * Get the instruction requests for this campus.
+     *
+     * @return HasMany
+     */
+    public function instructionRequests(): HasMany
+    {
+        return $this->hasMany(InstructionRequests::class, 'campus_id');
     }
 
     /**
