@@ -897,7 +897,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'course_crn' => $data['course_crn']
             ],
             [
-                'course_name' => $data['class_title'] ?? "{$data['department']} - {$data['course_number']}"
+                'course_name' => $data['class_title'] ?? strtoupper($data['department']) . "-" . $data['course_number']
             ]
         );
     }
