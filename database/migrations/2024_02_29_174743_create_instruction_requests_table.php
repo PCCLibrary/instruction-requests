@@ -26,6 +26,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->string('course_crn');
             $table->integer('number_of_students')->nullable();
             $table->text('class_description')->nullable();
+            $table->text('assignment_description')->nullable();
             $table->boolean('ada_provisions_needed')->default(false);
             $table->text('ada_provisions_description')->nullable();
             $table->datetime('preferred_datetime');

@@ -19,7 +19,7 @@ class CreateClassesTable extends Migration
             $table->string('department_code');
             $table->string('course_number');
             $table->string('course_name');
-            $table->string('course_crn');
+            $table->string('course_crn')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
