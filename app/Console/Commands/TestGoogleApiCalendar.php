@@ -71,7 +71,7 @@ class TestGoogleApiCalendar extends Command
         }
 
         $this->info("Calendar ID: " . $this->config['calendar_id']);
-        $impersonationEmail = config('google-calendar.user_to_impersonate');
+        $impersonationEmail = $this->config['librarian_email'];
         $this->info("Impersonation email: " . ($impersonationEmail ?: 'Not configured'));
         $this->info("Environment: " . app()->environment());
         $this->newLine();
