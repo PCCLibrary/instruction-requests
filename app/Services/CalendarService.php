@@ -13,6 +13,7 @@ use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_EventDateTime;
 use Google_Service_Calendar_EventAttendee;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -170,18 +171,6 @@ class CalendarService
 
                     // Set the attendees array if we have any
                     if (!empty($attendees)) {
-                        // Check if impersonation is properly configured before adding attendees
-                        if (!$this->verifyCalendarConfiguration()) {
-                            throw new InvalidCalendarConfigurationException(
-                                "Cannot add attendees without proper impersonation configuration",
-                                [
-                                    'campus_id' => $request->campus_id,
-                                    'campus_name' => $request->campus->name ?? 'Unknown Campus',
-                                    'missing_config' => 'GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable'
-                                ]
-                            );
-                        }
-
                         $googleEvent->setAttendees($attendees);
                     }
 
@@ -434,36 +423,11 @@ class CalendarService
         // Use the specific scope that is authorized in Google Workspace
         $client->setScopes(['https://www.googleapis.com/auth/calendar.events']);
 
-        // Get impersonation email from config
-        $impersonationEmail = config('google-calendar.user_to_impersonate');
-
-        // Add impersonation if configured
-        if ($impersonationEmail) {
-            $client->setSubject($impersonationEmail);
-        } else {
-            Log::warning('CalendarService: No impersonation email configured, attendees will not work');
-        }
+        // Use current authenticated user (the assigned librarian) for impersonation
+        $client->setSubject(Auth::user()->email);
 
         // Create and return the Google Calendar service
         return new Google_Service_Calendar($client);
-    }
-
-    /**
-     * Verify that the service is properly configured for event creation with attendees
-     *
-     * @return bool Whether impersonation is properly configured
-     */
-    private function verifyCalendarConfiguration(): bool
-    {
-        // Check if impersonation user is configured
-        $impersonationUser = config('google-calendar.user_to_impersonate');
-
-        if (empty($impersonationUser)) {
-            Log::warning('CalendarService: No impersonation user configured');
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -500,9 +464,6 @@ class CalendarService
                 ];
             }
 
-            // Check if impersonation is properly configured
-            $impersonationConfigured = $this->verifyCalendarConfiguration();
-
             // Attempt to initialize Google Calendar API Client directly
             $calendarService = $this->initializeGoogleCalendarService();
 
@@ -519,8 +480,7 @@ class CalendarService
                 'campus_present' => $request->campus ? true : false,
                 'campus_name' => $request->campus?->name,
                 'googleCalendarService_class' => get_class($calendarService),
-                'impersonation_configured' => $impersonationConfigured,
-                'impersonation_user' => config('google-calendar.user_to_impersonate')
+                'current_user_email' => Auth::user()?->email ?? 'Not authenticated'
             ];
 
             // Log result
