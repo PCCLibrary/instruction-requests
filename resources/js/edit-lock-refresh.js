@@ -5,9 +5,9 @@
  */
 
 // Configuration - easily adjust intervals here
-const MIN_EXPIRY_DELAY = 60000; // Minimum expiry delay (1 minute)
+const MIN_EXPIRY_DELAY = 600000; // Minimum expiry delay (10 minute)
 const WARNING_OFFSET = 30000;   // Show warning 30 seconds before expiry
-const EXPIRY_DELAY = Math.max(120000, MIN_EXPIRY_DELAY); // Ensure at least 1 minute expiry
+const EXPIRY_DELAY = Math.max(1200000, MIN_EXPIRY_DELAY); // Ensure at least 1 minute expiry
 const WARNING_DELAY = EXPIRY_DELAY - WARNING_OFFSET;     // Calculated warning time
 
 document.addEventListener('DOMContentLoaded', function() {
