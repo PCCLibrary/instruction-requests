@@ -52,9 +52,9 @@
                             @php
                                 $librarians = \App\Models\User::whereIn('id', $campus->librarian_ids)->pluck('display_name');
                             @endphp
-                            <div class="flex flex-wrap gap-1 max-w-xs">
+                            <div class="flex flex-wrap gap-1 max-w-m">
                                 @foreach($librarians as $librarian)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white">{{ $librarian }}</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 my-0.5 rounded-full text-xs font-medium bg-sky-600 text-white">{{ $librarian }}</span>
                                 @endforeach
                             </div>
                         @endif
