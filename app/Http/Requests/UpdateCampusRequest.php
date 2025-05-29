@@ -48,11 +48,12 @@ class UpdateCampusRequest extends FormRequest
                 Rule::unique('campuses', 'code')->ignore($campusId)
             ],
 
-            // Google Calendar link must be a valid URL if provided
+            // Google Calendar ID must be valid calendar ID format if provided
             'gcal' => [
                 'nullable',
-                'url',
-                'max:' . self::GCAL_MAX_LENGTH
+                'string',
+                'max:' . self::GCAL_MAX_LENGTH,
+                'regex:/^c_[a-f0-9]+@group\.calendar\.google\.com$/'
             ],
 
             // Librarian IDs should be an array, and each value must exist in the `users` table
@@ -79,7 +80,7 @@ class UpdateCampusRequest extends FormRequest
             'code.unique' => 'A campus with this code already exists.',
 
             // Link validation messages
-            'gcal.url' => 'Please provide a valid URL for Google Calendar.',
+            'gcal.regex' => 'Please enter a valid Google Calendar ID in the format: c_[hex]@group.calendar.google.com',
 
             // Librarian validation message
             'librarian_ids.*.exists' => 'One or more selected librarians do not exist.'

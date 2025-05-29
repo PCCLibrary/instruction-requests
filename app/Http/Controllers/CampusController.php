@@ -76,7 +76,14 @@ class CampusController extends AppBaseController
         $input = $request->validated();
         $this->campusRepository->update($input, $id);
 
-        return redirect()->route('campuses.index')
+        // Check if this is a "Save & Close" action
+        if ($request->has('saveAndClose')) {
+            return redirect()->route('campuses.index')
+                ->with('success', 'Campus updated successfully.');
+        }
+
+        // Regular "Save" action - redirect back to edit page
+        return redirect()->route('campuses.edit', $id)
             ->with('success', 'Campus updated successfully.');
     }
 

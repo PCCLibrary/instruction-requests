@@ -4,12 +4,14 @@
         <x-input-text name="name" label="Campus Name"
                       value="{{ old('name', $campus?->name ?? '') }}"
                       required />
+        <x-input-error class="mt-2" :messages="$errors->get('name')" />
     </div>
 
     <div>
         <x-input-text name="code" label="Campus Code"
                       value="{{ old('code', $campus?->code ?? '') }}"
                       required />
+        <x-input-error class="mt-2" :messages="$errors->get('code')" />
     </div>
 
     <div class="mt-4" x-data="{
@@ -51,32 +53,33 @@
             />
 
             <!-- Validation Icons -->
-            <div x-show="gcalValid !== null" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <div x-show="gcalValid !== null" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" x-cloak>
                 <!-- Success Icon -->
-                <svg x-show="gcalValid === true" class="h-5 w-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg x-show="gcalValid === true" class="h-5 w-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" x-cloak>
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
 
                 <!-- Error Icon -->
-                <svg x-show="gcalValid === false" class="h-5 w-5 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg x-show="gcalValid === false" class="h-5 w-5 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" x-cloak>
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                 </svg>
             </div>
         </div>
 
         <!-- Validation Messages -->
-        <p x-show="gcalValid === false" class="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p x-show="gcalValid === false" class="mt-2 text-sm text-red-600 dark:text-red-400" x-cloak>
             Invalid format. Expected: c_[hexadecimal]@group.calendar.google.com
         </p>
-        <p x-show="gcalValid === true" class="mt-2 text-sm text-green-600 dark:text-green-400">
+        <p x-show="gcalValid === true" class="mt-2 text-sm text-green-600 dark:text-green-400" x-cloak>
             Valid Google Calendar ID format
         </p>
-        <p x-show="gcalValid === null && gcalValue && gcalValue.trim() === ''" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <p x-show="gcalValid === null && gcalValue && gcalValue.trim() === ''" class="mt-2 text-sm text-gray-500 dark:text-gray-400" x-cloak>
             Leave empty if no Google Calendar integration needed
         </p>
-        <p x-show="gcalValid === null && (!gcalValue || gcalValue.trim() === '')" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <p x-show="gcalValid === null && (!gcalValue || gcalValue.trim() === '')" class="mt-2 text-sm text-gray-500 dark:text-gray-400" x-cloak>
             Google Calendar key for this campus. This is used to sync with the library calendar.
         </p>
+        <x-input-error class="mt-2" :messages="$errors->get('gcal')" />
     </div>
 
     <div class="sm:col-span-2">
@@ -95,5 +98,6 @@
             @endforeach
         </select>
         <p class="mt-2 text-sm text-gray-500">Librarians to receive notifications from requests at this location.</p>
+        <x-input-error class="mt-2" :messages="$errors->get('librarian_ids')" />
     </div>
 </div>

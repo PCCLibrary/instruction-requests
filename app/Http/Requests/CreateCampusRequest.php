@@ -43,8 +43,9 @@ class CreateCampusRequest extends FormRequest
             ],
             'gcal' => [
                 'nullable',
-                'url',
-                'max:' . self::GCAL_MAX_LENGTH
+                'string',
+                'max:' . self::GCAL_MAX_LENGTH,
+                'regex:/^c_[a-f0-9]+@group\.calendar\.google\.com$/'
             ],
             'librarian_ids' => [
                 'nullable',
@@ -66,7 +67,7 @@ class CreateCampusRequest extends FormRequest
         return [
             'name.unique' => 'A campus with this name already exists.',
             'code.unique' => 'A campus with this code already exists.',
-            'gcal.url' => 'Please provide a valid URL for Google Calendar.',
+            'gcal.regex' => 'Please enter a valid Google Calendar ID in the format: c_[hex]@group.calendar.google.com',
             'librarian_ids.*.exists' => 'One or more selected librarians do not exist.'
         ];
     }
