@@ -47,14 +47,16 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         {{ $campus->code }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                         @if($campus->librarian_ids)
                             @php
                                 $librarians = \App\Models\User::whereIn('id', $campus->librarian_ids)->pluck('display_name');
                             @endphp
-                            @foreach($librarians as $librarian)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white mr-1">{{ $librarian }}</span>
-                            @endforeach
+                            <div class="flex flex-wrap gap-1 max-w-xs">
+                                @foreach($librarians as $librarian)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white">{{ $librarian }}</span>
+                                @endforeach
+                            </div>
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
@@ -65,7 +67,10 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('campuses.edit', $campus->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <a href="{{ route('campuses.edit', $campus->id) }}"
+                           class="inline-flex items-center p-2 text-xs bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 dark:bg-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-700">
+                            <x-heroicon-o-pencil-square class="w-4 h-4" />
+                        </a>
                     </td>
                 </tr>
                 @endforeach
