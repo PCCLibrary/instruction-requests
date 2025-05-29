@@ -83,21 +83,13 @@
     </div>
 
     <div class="sm:col-span-2">
-        <label for="librarian_ids" class="block text-sm font-medium text-gray-700">Send notifications to:</label>
-        <select
-            name="librarian_ids[]"
-            id="librarian_ids"
-            multiple
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 choices-librarian-select"
-        >
-            @foreach($librarians as $id => $name)
-                <option value="{{ $id }}"
-                    @selected(old('librarian_ids', $campus?->librarian_ids ?? []) && in_array($id, old('librarian_ids', is_array($campus?->librarian_ids) ? $campus?->librarian_ids : [])))>
-                    {{ $name }}
-                </option>
-            @endforeach
-        </select>
-        <p class="mt-2 text-sm text-gray-500">Librarians to receive notifications from requests at this location.</p>
+        <x-multiselect
+            name="librarian_ids"
+            label="Send notifications to"
+            :options="$librarians"
+            :selected="old('librarian_ids', $campus?->librarian_ids ?? [])"
+            placeholder="Click to add librarians"
+            helptext="Librarians to receive notifications from requests at this location." />
         <x-input-error class="mt-2" :messages="$errors->get('librarian_ids')" />
     </div>
 </div>
