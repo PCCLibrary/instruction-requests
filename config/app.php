@@ -70,6 +70,17 @@ return [
     //'timezone' => 'UTC',
     'timezone' => 'America/Los_Angeles',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Settings
+    |--------------------------------------------------------------------------
+    |
+    | Controls whether local username/password authentication is enabled.
+    | Set to false in production to only allow SAML2 SSO login.
+    |
+    */
+    'enable_local_login' => env('ENABLE_LOCAL_LOGIN', false),
+
 
     /*
     |--------------------------------------------------------------------------
