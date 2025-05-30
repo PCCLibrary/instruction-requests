@@ -24,7 +24,7 @@
                 return;
             }
 
-            const pattern = /^c_[a-f0-9]+@group\.calendar\.google\.com$/;
+            const pattern = /^[a-z0-9._]+@group\.calendar\.google\.com$/;
             this.gcalValid = pattern.test(this.gcalValue.trim());
         },
 
@@ -49,7 +49,7 @@
                     'border-red-300 dark:border-red-500 text-red-900 dark:text-red-300 placeholder-red-300 dark:placeholder-red-400 focus:border-red-500 focus:ring-red-500': gcalValid === false,
                     'border-green-300 dark:border-green-500 text-green-900 dark:text-green-300 placeholder-green-300 dark:placeholder-green-400 focus:border-green-500 focus:ring-green-500': gcalValid === true
                 }"
-                placeholder="c_[hex]@group.calendar.google.com"
+                placeholder="[calendar-id]@group.calendar.google.com"
             />
 
             <!-- Validation Icons -->
@@ -68,7 +68,7 @@
 
         <!-- Validation Messages -->
         <p x-show="gcalValid === false" class="mt-2 text-sm text-red-600 dark:text-red-400" x-cloak>
-            Invalid format. Expected: c_[hexadecimal]@group.calendar.google.com
+            Invalid format. Expected: [calendar-id]@group.calendar.google.com
         </p>
         <p x-show="gcalValid === true" class="mt-2 text-sm text-green-600 dark:text-green-400" x-cloak>
             Valid Google Calendar ID format

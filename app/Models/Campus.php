@@ -99,7 +99,7 @@ class Campus extends Model
         $calendarId = trim($this->gcal);
 
         // Validate the format of the calendar ID
-        $isValidFormat = preg_match('/^c_[a-zA-Z0-9]+@group\.calendar\.google\.com$/', $calendarId);
+        $isValidFormat = preg_match('/^[a-z0-9._]+@group\.calendar\.google\.com$/', $calendarId);
 
         if (!$isValidFormat) {
             Log::error('Campus: Invalid Google Calendar ID format', [

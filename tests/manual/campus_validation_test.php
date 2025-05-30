@@ -91,17 +91,20 @@ try {
 // Test 4: Test regex pattern directly
 echo "\nTest 4: Test regex pattern directly\n";
 
-$pattern = '/^c_[a-f0-9]+@group\.calendar\.google\.com$/';
+$pattern = '/^[a-z0-9._]+@group\.calendar\.google\.com$/';
 $testCases = [
-    ['c_abc123@group.calendar.google.com', true, 'Valid basic format'],
-    ['c_123abc456def@group.calendar.google.com', true, 'Valid longer hex'],
-    ['c_@group.calendar.google.com', false, 'Empty hex part'],
-    ['abc123@group.calendar.google.com', false, 'Missing c_ prefix'],
+    ['c_abc123@group.calendar.google.com', true, 'Valid c_ prefixed format'],
+    ['c_gcjdt32rchu9uk1i259k5nngdc@group.calendar.google.com', true, 'Valid c_ with mixed chars'],
+    ['pcc.edu_rmshf5pbpi5qar07jvnu5eph8c@group.calendar.google.com', true, 'Valid domain prefixed format'],
+    ['4pp219iaud759ol1k3l6r62tic@group.calendar.google.com', true, 'Valid number prefixed format'],
+    ['test.calendar_123@group.calendar.google.com', true, 'Valid mixed format with dots and underscores'],
+    ['c_@group.calendar.google.com', false, 'Empty ID part'],
+    ['abc123@group.calendar.google.com', true, 'Valid simple format'],
     ['c_abc123@calendar.google.com', false, 'Missing group subdomain'],
     ['https://calendar.google.com/...', false, 'URL format (old)'],
     ['', false, 'Empty string'],
-    ['c_ABC123@group.calendar.google.com', false, 'Uppercase hex (should fail)'],
-    ['c_abc123xyz@group.calendar.google.com', false, 'Non-hex characters'],
+    ['c_ABC123@group.calendar.google.com', false, 'Uppercase characters (should fail)'],
+    ['c_abc123xyz@group.calendar.google.com', true, 'Letters and numbers (should pass now)'],
 ];
 
 foreach ($testCases as [$input, $expected, $description]) {
