@@ -13,7 +13,8 @@
 
 @php
     $baseAttributes = $attributes->class([
-        'block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 sm:text-sm',
+        'w-full rounded-md focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300',
+        'text-gray-900 bg-white border-gray-300 shadow-sm' => !$disabled,
         'text-gray-400 bg-gray-300 border-gray-400 cursor-not-allowed' => $disabled
     ])->merge([
         'type' => 'text',

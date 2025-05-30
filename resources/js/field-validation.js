@@ -18,10 +18,8 @@ function fieldValidation(fieldName, validationRules = null) {
             // Check for server-side errors - these take precedence
             this.hasServerError = this.$el.querySelector('.text-red-600:not([x-show])') !== null;
 
-            // Register with global form validation state
-            if (Alpine.store('instructionFormValidation')) {
-                Alpine.store('instructionFormValidation').registerField(this.fieldName, this);
-            }
+            // Register with global form validation state with retry mechanism
+            this.registerWithStore();
 
             // Initial validation if field has a value
             if (this.fieldValue && this.fieldValue.trim() !== '') {
@@ -29,27 +27,47 @@ function fieldValidation(fieldName, validationRules = null) {
             }
         },
 
+        registerWithStore() {
+            // Try to register with the store, retry if not available yet
+            const tryRegister = () => {
+                if (Alpine.store('instructionFormValidation')) {
+                    Alpine.store('instructionFormValidation').registerField(this.fieldName, this);
+                } else {
+                    // Store not ready, try again in a bit
+                    setTimeout(tryRegister, 50);
+                }
+            };
+            tryRegister();
+        },
+
         validateField() {
+            // Temporary debugging
+            console.log('Validating field:', this.fieldName, 'value:', this.fieldValue, 'validationState:', this.validationState);
+
             // Skip validation if field is hidden or has server errors
             if (!this.isFieldVisible() || this.hasServerError) {
                 this.validationState = null;
                 this.errorMessage = '';
+                console.log('Skipping validation for', this.fieldName, 'hidden or server error');
                 return;
             }
 
             // Get current instruction type for context-aware validation
-            const instructionType = Alpine.store('instructionFormValidation')?.instructionType || '';
+            const store = Alpine.store('instructionFormValidation');
+            const instructionType = store?.instructionType || '';
+            console.log('Current instruction type from store:', instructionType);
 
             // Apply validation rules
             const result = this.applyValidationRules(this.fieldValue, instructionType);
+            console.log('Validation result for', this.fieldName, ':', result);
 
             // Only set error states (no success states)
             this.validationState = result.isValid === false ? false : null;
             this.errorMessage = result.errorMessage || '';
 
             // Update global form validation state
-            if (Alpine.store('instructionFormValidation')) {
-                Alpine.store('instructionFormValidation').updateFieldValidation(this.fieldName, result.isValid !== false);
+            if (store) {
+                store.updateFieldValidation(this.fieldName, result.isValid !== false);
             }
         },
 

@@ -10,7 +10,10 @@ export default defineConfig({
                 'resources/js/public.js',
                 'resources/js/table-lock-refresh.js',
                 'resources/js/edit-lock-refresh.js',
-                'resources/js/campus-edit.js'
+                'resources/js/campus-edit.js',
+                'resources/js/field-validation.js',
+                'resources/js/custom-validators.js',
+                'resources/js/instruction-form-validation.js'
             ],
             refresh: true,
         }),

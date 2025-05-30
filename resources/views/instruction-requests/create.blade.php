@@ -37,7 +37,7 @@
                   'asynchronous': {
                       required: ['asynchronous_instruction_ready_date', 'campus_id'],
                       notRequired: ['librarian_id', 'number_of_students', 'preferred_datetime', 'alternate_datetime', 'duration'],
-                      disable: ['librarian_id', 'preferred_datetime', 'alternate_datetime', 'duration']
+                      disable: ['preferred_datetime', 'alternate_datetime', 'duration']
                   }
               },
 
@@ -153,7 +153,7 @@
                             :selected="old('instruction_type')"
                             help-text="Please select what you need help with."
                             required
-                            x-model="instructionType"
+                            @change="instructionType = $event.target.value"
                             :validation="[
                                 'alwaysRequired' => true,
                                 'messages' => [

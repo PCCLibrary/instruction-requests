@@ -49,8 +49,9 @@ if (window.location.pathname.includes('/create')) {
         }
     };
 
-    // Initialize Alpine.js stores when Alpine is ready
-    document.addEventListener('alpine:init', () => {
+    // Initialize Alpine.js stores immediately instead of waiting for alpine:init
+    // This ensures the store is available when field validation components initialize
+    if (typeof Alpine !== 'undefined') {
         Alpine.store('instructionFormValidation', {
             instructionType: '',
             fields: {},
@@ -160,7 +161,14 @@ if (window.location.pathname.includes('/create')) {
                 });
             }
         });
-    });
+    } else {
+        // Alpine not loaded yet, wait for it
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('instructionFormValidation', {
+                // ... same store definition
+            });
+        });
+    }
 
     // Form submission enhancement function
     window.enhanceFormSubmission = function(event, formValidationStore) {
