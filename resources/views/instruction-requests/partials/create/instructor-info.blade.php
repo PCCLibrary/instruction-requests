@@ -20,13 +20,19 @@
 
         {{-- Instructor form fields --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <x-input-text
+            <x-validated-input-text
                 name="name"
                 id="name"
                 label="Instructor Name"
                 :value="old('name')"
                 help-text="Your full name"
                 required
+                :validation="[
+                    'alwaysRequired' => true,
+                    'messages' => [
+                        'required' => 'Instructor name is required'
+                    ]
+                ]"
             />
 
             <x-input-text
@@ -46,13 +52,21 @@
                 :value="old('pronouns')"
             />
 
-            <x-input-text
+            <x-validated-input-text
                 name="email"
                 id="email"
                 label="Email"
                 type="email"
                 :value="old('email')"
                 required
+                :validation="[
+                    'alwaysRequired' => true,
+                    'customValidator' => 'validateEmail',
+                    'messages' => [
+                        'required' => 'Email is required',
+                        'invalid' => 'Please enter a valid email address'
+                    ]
+                ]"
             />
 
             <x-input-text

@@ -10,11 +10,16 @@
     </h1>
 @endsection
 
+@push('scripts')
+    @vite(['resources/js/field-validation.js', 'resources/js/custom-validators.js', 'resources/js/instruction-form-validation.js'])
+@endpush
+
 @section('content')
     <form action="{{ route('instructionRequests.store') }}"
           id="createInstructionRequestForm"
           method="POST"
           enctype="multipart/form-data"
+          @submit="enhanceFormSubmission($event, $store.instructionFormValidation)"
           x-data="{
               instructionType: '{{ old('instruction_type', '') }}',
 
@@ -74,18 +79,53 @@
               },
 
               init() {
-               // Set up the date validation store
-                    Alpine.store('dateValidation', {
-                        minDate: new Date().toISOString().split('T')[0],  // For date-only fields
-                        minTime: new Date().toISOString().slice(0, 16)    // For datetime-local fields
-                    });
+                  // Set up the date validation store
+                  Alpine.store('dateValidation', {
+                      minDate: new Date().toISOString().split('T')[0],  // For date-only fields
+                      minTime: new Date().toISOString().slice(0, 16)    // For datetime-local fields
+                  });
+
+                  // Initialize validation store with current instruction type
+                  if (Alpine.store('instructionFormValidation')) {
+                      Alpine.store('instructionFormValidation').instructionType = this.instructionType;
+                  }
+
                   this.toggleFieldVisibility();
                   this.updateFieldRequirements();
 
                   this.$watch('instructionType', () => {
+                      // Update validation store
+                      if (Alpine.store('instructionFormValidation')) {
+                          Alpine.store('instructionFormValidation').instructionType = this.instructionType;
+                          Alpine.store('instructionFormValidation').clearHiddenFieldValidation(this.instructionType);
+                      }
+
                       this.toggleFieldVisibility();
                       this.updateFieldRequirements();
+                      this.resetHiddenFieldValues();
+
+                      // Re-validate visible fields after instruction type change
+                      this.$nextTick(() => {
+                          if (Alpine.store('instructionFormValidation')) {
+                              Alpine.store('instructionFormValidation').revalidateVisibleFields();
+                          }
+                      });
                   });
+              },
+
+              resetHiddenFieldValues() {
+                  // Reset values for fields that become hidden
+                  const settings = this.instructionTypeSettings[this.instructionType];
+                  if (settings?.disable) {
+                      settings.disable.forEach(id => {
+                          const field = document.getElementById(id);
+                          if (field) {
+                              field.value = '';
+                              // Trigger Alpine update if it's an x-model field
+                              field.dispatchEvent(new Event('input', { bubbles: true }));
+                          }
+                      });
+                  }
               }
           }"
           x-init="init"
@@ -101,7 +141,7 @@
 
                 <x-fieldset legend="" class="bg-white dark:bg-gray-800 dark:border-gray-700">
                     <div class="space-y-6">
-                        <x-input-select
+                        <x-validated-input-select
                             name="instruction_type"
                             id="instruction_type"
                             label="Instruction Type"
@@ -114,6 +154,12 @@
                             help-text="Please select what you need help with."
                             required
                             x-model="instructionType"
+                            :validation="[
+                                'alwaysRequired' => true,
+                                'messages' => [
+                                    'required' => 'Instruction type is required'
+                                ]
+                            ]"
                         />
                     </div>
                 </x-fieldset>
