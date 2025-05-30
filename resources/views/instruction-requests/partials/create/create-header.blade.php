@@ -10,6 +10,7 @@
         </div>
         <x-editor-actions
             route="{{ route('instructionRequests.index') }}"
+            :showSubmit="false"
             :showBack="true"
         />
     </div>
