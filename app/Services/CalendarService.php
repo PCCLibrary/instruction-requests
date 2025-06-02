@@ -169,13 +169,25 @@ class CalendarService
                         }
                     }
 
+                    // Validate that we have an assigned librarian with email for impersonation
+                    if (!$assignedLibrarian || !$assignedLibrarian->email) {
+                        throw new InvalidCalendarConfigurationException(
+                            "Cannot create calendar event: No assigned librarian with valid email found",
+                            [
+                                'request_id' => $request->id,
+                                'assigned_librarian_id' => $request->detail->assigned_librarian_id ?? 'not_set',
+                                'assigned_librarian_email' => $assignedLibrarian?->email ?? 'not_found'
+                            ]
+                        );
+                    }
+
                     // Set the attendees array if we have any
                     if (!empty($attendees)) {
                         $googleEvent->setAttendees($attendees);
                     }
 
-                    // Initialize the Google Calendar Service with our custom implementation
-                    $calendarService = $this->initializeGoogleCalendarService();
+                    // Initialize the Google Calendar Service using assigned librarian's email
+                    $calendarService = $this->initializeGoogleCalendarService($assignedLibrarian->email);
 
                     // Log that we're about to call the Google Calendar API
                     Log::info('CalendarService: Calling Google Calendar API to create event');
@@ -317,8 +329,26 @@ class CalendarService
 
             // Try to delete from Google Calendar
             try {
-                // Initialize the Google Calendar service with direct API client
-                $calendarService = $this->initializeGoogleCalendarService();
+                // Get the librarian who created the event for impersonation
+                $eventLibrarian = null;
+                if ($calendarEvent->librarian_id) {
+                    $eventLibrarian = User::find($calendarEvent->librarian_id);
+                }
+
+                // Validate that we have the event librarian with email for impersonation
+                if (!$eventLibrarian || !$eventLibrarian->email) {
+                    throw new InvalidCalendarConfigurationException(
+                        "Cannot delete calendar event: No event librarian with valid email found",
+                        [
+                            'event_id' => $calendarEvent->id,
+                            'librarian_id' => $calendarEvent->librarian_id ?? 'not_set',
+                            'librarian_email' => $eventLibrarian?->email ?? 'not_found'
+                        ]
+                    );
+                }
+
+                // Initialize the Google Calendar service using event librarian's email
+                $calendarService = $this->initializeGoogleCalendarService($eventLibrarian->email);
 
                 // Use the event ID and calendar ID to delete the event
                 $calendarId = $calendarId ?? $calendarEvent->google_calendar_id; // Fallback to stored ID
@@ -397,10 +427,11 @@ class CalendarService
     /**
      * Initialize the Google API Client with correct scopes and authentication
      *
+     * @param string $impersonateEmail Email to impersonate (required)
      * @return Google_Service_Calendar The initialized Google Calendar service
      * @throws InvalidCalendarConfigurationException If configuration is invalid
      */
-    private function initializeGoogleCalendarService(): Google_Service_Calendar
+    private function initializeGoogleCalendarService(string $impersonateEmail): Google_Service_Calendar
     {
         // Get credentials path from environment
         $credentialsPath = base_path(env('GOOGLE_CALENDAR_SERVICE_ACCOUNT_JSON_LOCATION'));
@@ -416,6 +447,19 @@ class CalendarService
             );
         }
 
+        // Validate impersonation email is provided
+        if (empty($impersonateEmail)) {
+            throw new InvalidCalendarConfigurationException(
+                "Impersonation email is required for calendar operations",
+                ['provided_email' => $impersonateEmail]
+            );
+        }
+
+        // Log which email we're using for impersonation
+        Log::info('CalendarService: Using impersonation email', [
+            'impersonate_email' => $impersonateEmail
+        ]);
+
         // Initialize Google API Client
         $client = new Google_Client();
         $client->setAuthConfig($credentialsPath);
@@ -423,8 +467,8 @@ class CalendarService
         // Use the specific scope that is authorized in Google Workspace
         $client->setScopes(['https://www.googleapis.com/auth/calendar.events']);
 
-        // Use current authenticated user (the assigned librarian) for impersonation
-        $client->setSubject(Auth::user()->email);
+        // Use the provided email for impersonation
+        $client->setSubject($impersonateEmail);
 
         // Create and return the Google Calendar service
         return new Google_Service_Calendar($client);
@@ -464,8 +508,25 @@ class CalendarService
                 ];
             }
 
-            // Attempt to initialize Google Calendar API Client directly
-            $calendarService = $this->initializeGoogleCalendarService();
+            // Get assigned librarian for testing
+            $assignedLibrarian = null;
+            if ($request->detail && $request->detail->assigned_librarian_id) {
+                $assignedLibrarian = User::find($request->detail->assigned_librarian_id);
+            }
+
+            if (!$assignedLibrarian || !$assignedLibrarian->email) {
+                return [
+                    'success' => false,
+                    'timestamp' => now()->toDateTimeString(),
+                    'request_id' => $request->id,
+                    'error' => 'No assigned librarian with valid email found for testing',
+                    'assigned_librarian_id' => $request->detail->assigned_librarian_id ?? 'not_set',
+                    'assigned_librarian_email' => $assignedLibrarian?->email ?? 'not_found'
+                ];
+            }
+
+            // Attempt to initialize Google Calendar API Client using assigned librarian
+            $calendarService = $this->initializeGoogleCalendarService($assignedLibrarian->email);
 
             $result = [
                 'success' => true,
@@ -480,6 +541,9 @@ class CalendarService
                 'campus_present' => $request->campus ? true : false,
                 'campus_name' => $request->campus?->name,
                 'googleCalendarService_class' => get_class($calendarService),
+                'assigned_librarian_id' => $assignedLibrarian->id,
+                'assigned_librarian_email' => $assignedLibrarian->email,
+                'assigned_librarian_name' => $assignedLibrarian->display_name ?? $assignedLibrarian->name,
                 'current_user_email' => Auth::user()?->email ?? 'Not authenticated'
             ];
 
