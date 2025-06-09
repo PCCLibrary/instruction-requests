@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Exceptions\InvalidCalendarConfigurationException;
+use App\Exceptions\GoogleCalendarApiException;
 use App\Models\InstructionRequests;
 use App\Models\User;
 use App\Services\CalendarService;
@@ -59,11 +60,6 @@ class CreateGoogleCalendarEventForm extends Component
      */
     public function mount(int $requestId)
     {
-        // Log that the component is being mounted
-        Log::info('CreateGoogleCalendarEventForm: Component mounting', [
-            'request_id' => $requestId
-        ]);
-
         // Fetch the instruction request with all necessary relationships
         $this->instructionRequest = InstructionRequests::with([
             'instructor',
@@ -85,11 +81,6 @@ class CreateGoogleCalendarEventForm extends Component
      */
     protected function populateFormData()
     {
-        // Log that we're starting to populate form data
-        Log::debug('CreateGoogleCalendarEventForm: Starting populateFormData', [
-            'request_id' => $this->instructionRequest->id
-        ]);
-
         try {
             // Use CalendarService to get pre-formatted event data
             $calendarService = app(CalendarService::class);
@@ -97,13 +88,6 @@ class CreateGoogleCalendarEventForm extends Component
 
             // Ensure we're using database record for datetime
             $detail = $this->instructionRequest->detail;
-
-            // Log the source of our datetime for debugging
-            Log::info('Populating Calendar Event Form Data', [
-                'instruction_datetime' => $detail->instruction_datetime,
-                'instruction_duration' => $detail->instruction_duration,
-                'event_data' => $eventData
-            ]);
 
             $this->eventName = $eventData['event_title'];
 
@@ -130,17 +114,11 @@ class CreateGoogleCalendarEventForm extends Component
                 $this->librarianEmail = $this->instructionRequest->librarian?->email;
             }
 
-            // Log successful form population
-            Log::debug('CreateGoogleCalendarEventForm: Form data populated successfully', [
-                'eventName' => $this->eventName,
-                'startTime' => $this->startTime,
-                'endTime' => $this->endTime
-            ]);
         } catch (\Exception $e) {
             // Log any errors that occurred during form population
-            Log::error('CreateGoogleCalendarEventForm: Error populating form data', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::error('Error populating calendar form data', [
+                'request_id' => $this->instructionRequest->id,
+                'error' => $e->getMessage()
             ]);
 
             // Re-throw the exception to be handled by the caller
@@ -162,17 +140,6 @@ class CreateGoogleCalendarEventForm extends Component
      */
     public function createEvent(CalendarService $calendarService)
     {
-        // First thing - log that we're in the method
-        Log::info('CreateGoogleCalendarEventForm: Creating calendar event', [
-            'request_id' => $this->instructionRequest->id
-        ]);
-
-        Log::info('CreateGoogleCalendarEventForm: Preparing to create event', [
-            'request_id' => $this->instructionRequest->id,
-            'database_datetime' => $this->instructionRequest->detail->instruction_datetime,
-            'database_duration' => $this->instructionRequest->detail->instruction_duration
-        ]);
-
         // Validate form inputs
         $this->validate();
 
@@ -194,72 +161,68 @@ class CreateGoogleCalendarEventForm extends Component
             ];
 
             // Attempt to create the event using CalendarService
-            try {
-                // Refresh the instruction request to ensure we have the latest data
-                $this->instructionRequest->refresh();
+            // Refresh the instruction request to ensure we have the latest data
+            $this->instructionRequest->refresh();
 
-                $googleCalendarEvent = $calendarService->createEvent(
-                    $this->instructionRequest,
-                    $customData
-                );
+            $googleCalendarEvent = $calendarService->createEvent(
+                $this->instructionRequest,
+                $customData
+            );
 
-                // If we get here, the event was created successfully
-                Log::info('CreateGoogleCalendarEventForm: Event created successfully', [
-                    'request_id' => $this->instructionRequest->id,
-                    'event_id' => $googleCalendarEvent->id
-                ]);
+            // If we get here, the event was created successfully
+            // Refresh the request to get the latest status
+            $this->instructionRequest->refresh();
 
-                // Refresh the request to get the latest status
-                $this->instructionRequest->refresh();
+            // Use Toaster facade for success notification
+            app(Toaster::class)->success('Google Calendar event created successfully.');
 
-                // Log the status after refresh for debugging
-                Log::info('CreateGoogleCalendarEventForm: Status after refresh', [
-                    'request_id' => $this->instructionRequest->id,
-                    'status' => $this->instructionRequest->status
-                ]);
-
-                // Use Toaster facade for success notification
-                app(Toaster::class)->success('Google Calendar event created successfully.');
-
-                // Dispatch event for client-side reload
-                $this->dispatch('googleCalendarEventCreated', [
-                    'requestId' => $this->instructionRequest->id,
-                    'status' => 'scheduled',
-                    'timestamp' => now()->toDateTimeString()
-                ]);
-
-                // Clear the form and close modal (if needed)
-                $this->reset(['description', 'location']);
-                $this->dispatch('close-modal');
-            } catch (\Exception $serviceException) {
-                // Log error from CalendarService call
-                Log::error('CreateGoogleCalendarEventForm: Error creating calendar event', [
-                    'error' => $serviceException->getMessage(),
-                    'request_id' => $this->instructionRequest->id
-                ]);
-
-                throw $serviceException;
-            }
-
-        } catch (InvalidCalendarConfigurationException $e) {
-            // Log the configuration error
-            Log::warning('CreateGoogleCalendarEventForm: Invalid calendar configuration', [
-                'request_id' => $this->instructionRequest->id,
-                'context' => $e->getContext()
+            // Dispatch event for client-side reload
+            $this->dispatch('googleCalendarEventCreated', [
+                'requestId' => $this->instructionRequest->id,
+                'status' => 'scheduled',
+                'timestamp' => now()->toDateTimeString()
             ]);
 
+            // Clear the form and close modal (if needed)
+            $this->reset(['description', 'location']);
+            $this->dispatch('close-modal');
+
+        } catch (GoogleCalendarApiException $e) {
+            // Handle Google Calendar API errors with specific messages
+            $googleErrorMessage = $e->getMessage();
+
+            // Add contextual help based on error type
+            if ($e->isPermissionError()) {
+                $helpText = "💡 Contact DST for help with calendar permissions.";
+            } elseif ($e->isConfigurationError()) {
+                $helpText = "💡 Check the calendar configuration for this campus.";
+            } else {
+                $helpText = "💡 Please try again in a few minutes.";
+            }
+
+            $fullErrorMessage = $googleErrorMessage . " " . $helpText;
+
+            // Log the error for debugging but with less detail
+            Log::error('Google Calendar API error', [
+                'request_id' => $this->instructionRequest->id,
+                'error' => $googleErrorMessage,
+                'error_reason' => $e->getGoogleErrorReason(),
+                'http_code' => $e->getHttpStatusCode()
+            ]);
+
+            // Use Toaster facade for error
+            app(Toaster::class)->error($fullErrorMessage);
+            $this->addError('calendar', $fullErrorMessage);
+
+        } catch (InvalidCalendarConfigurationException $e) {
+            // Handle configuration errors
             // Special handling for impersonation issues
             if (strpos($e->getMessage(), 'impersonation') !== false) {
-                Log::warning('Calendar impersonation configuration issue', [
-                    'context' => $e->getContext()
-                ]);
-
                 $errorMessage = "Calendar configuration issue: Impersonation user not properly configured. " .
                     "Please contact the system administrator to set the GOOGLE_CALENDAR_IMPERSONATE_EMAIL environment variable.";
 
                 // Use Toaster facade for error
                 app(Toaster::class)->error($errorMessage);
-
                 $this->addError('calendar', $errorMessage);
             } else {
                 // Add error with link to edit campus for other issues
@@ -278,11 +241,10 @@ class CreateGoogleCalendarEventForm extends Component
                 );
             }
         } catch (\Exception $e) {
-            // Log any unexpected errors
-            Log::error('CreateGoogleCalendarEventForm: Unexpected error creating event', [
+            // Log unexpected errors with minimal detail
+            Log::error('Unexpected error creating calendar event', [
                 'request_id' => $this->instructionRequest->id,
-                'error_message' => $e->getMessage(),
-                'error_trace' => $e->getTraceAsString()
+                'error_message' => $e->getMessage()
             ]);
 
             // Add a generic error message
@@ -290,7 +252,6 @@ class CreateGoogleCalendarEventForm extends Component
 
             // Use Toaster facade for error
             app(Toaster::class)->error($errorMessage);
-
             $this->addError('calendar', $errorMessage);
         }
     }

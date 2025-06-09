@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\InvalidCalendarConfigurationException;
+use App\Exceptions\GoogleCalendarApiException;
 use App\Models\GoogleCalendarEvent;
 use App\Models\InstructionRequests;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_EventDateTime;
 use Google_Service_Calendar_EventAttendee;
+use Google_Service_Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -40,12 +42,11 @@ class CalendarService
      * @param array $customData Optional override data for the event
      * @return GoogleCalendarEvent The created calendar event record
      * @throws InvalidCalendarConfigurationException If calendar configuration is invalid
+     * @throws GoogleCalendarApiException If Google Calendar API returns an error
      * @throws \Exception For unexpected errors during event creation
      */
     public function createEvent(InstructionRequests $request, array $customData = []): GoogleCalendarEvent
     {
-        Log::info('CalendarService: Starting createEvent method');
-
         // Load relationships if not already loaded
         if (!$request->relationLoaded('instructor') || !$request->relationLoaded('detail') ||
             !$request->relationLoaded('campus') || !$request->relationLoaded('librarian')) {
@@ -72,18 +73,8 @@ class CalendarService
 
         // Check if event already exists for this request
         if ($request->googleCalendarEvent) {
-            Log::info('Event already exists for request', [
-                'request_id' => $request->id,
-                'event_id' => $request->googleCalendarEvent->google_event_id
-            ]);
-
             // Update the status to scheduled even for existing events
             if ($request->status !== 'scheduled') {
-                Log::info('Updating status for existing calendar event', [
-                    'request_id' => $request->id,
-                    'old_status' => $request->status
-                ]);
-
                 // Use the InstructionRequestService to update the status
                 $instructionRequestService = app(InstructionRequestService::class);
                 $updatedRequest = $instructionRequestService->updateInstructionRequest([
@@ -97,15 +88,7 @@ class CalendarService
                 $request = $updatedRequest;
             }
 
-            // Rather than returning the existing event, we'll continue with the
-            // event creation process to update the existing event
-            Log::info('Updating existing Google Calendar event', [
-                'request_id' => $request->id,
-                'event_id' => $request->googleCalendarEvent->google_event_id
-            ]);
-
-            // We'll continue with the event creation process
-            // to update the existing record
+            // Continue with the event creation process to update the existing event
         }
 
         try {
@@ -116,9 +99,6 @@ class CalendarService
             $eventData = array_merge($eventData, $customData);
 
             return DB::transaction(function() use ($request, $eventData, $calendarId) {
-                // Log transaction start
-                Log::info('CalendarService: Starting transaction to create event');
-
                 try {
                     // Create a native Google Calendar Event object for more direct control
                     $googleEvent = new Google_Service_Calendar_Event();
@@ -189,20 +169,9 @@ class CalendarService
                     // Initialize the Google Calendar Service using assigned librarian's email
                     $calendarService = $this->initializeGoogleCalendarService($assignedLibrarian->email);
 
-                    // Log that we're about to call the Google Calendar API
-                    Log::info('CalendarService: Calling Google Calendar API to create event');
-
                     // If we have an existing event, delete it first
                     if ($request->googleCalendarEvent) {
                         try {
-                            // Store the existing record ID
-                            $existingEventId = $request->googleCalendarEvent->id;
-
-                            Log::info('CalendarService: Deleting existing Google Calendar event', [
-                                'request_id' => $request->id,
-                                'google_event_id' => $request->googleCalendarEvent->google_event_id
-                            ]);
-
                             // Delete from Google Calendar
                             $calendarService->events->delete(
                                 $request->googleCalendarEvent->google_calendar_id,
@@ -212,10 +181,9 @@ class CalendarService
                             // Delete local record
                             $request->googleCalendarEvent()->delete();
 
-                            Log::info('CalendarService: Existing event deleted successfully');
-                        } catch (\Exception $e) {
+                        } catch (Google_Service_Exception $deleteException) {
                             Log::warning('CalendarService: Failed to delete existing event', [
-                                'error' => $e->getMessage()
+                                'error' => $deleteException->getMessage()
                             ]);
                             // Continue with creating new event even if delete fails
                         }
@@ -227,8 +195,6 @@ class CalendarService
                         $googleEvent,
                         ['sendUpdates' => 'all', 'conferenceDataVersion' => 0]
                     );
-
-                    Log::info('CalendarService: Successfully created event in Google Calendar');
 
                     // Create a local record for the event using the relationship method
                     $googleCalendarEvent = $request->googleCalendarEvent()->create([
@@ -246,34 +212,22 @@ class CalendarService
                         'html_link' => $createdEvent->getHtmlLink()
                     ]);
 
-                    Log::info('CalendarService: Local GoogleCalendarEvent record created');
-
                     // Use the injected InstructionRequestService to update the status
                     $instructionRequestService = app(InstructionRequestService::class);
-
-                    Log::info('CalendarService: Updating instruction request status', [
-                        'request_id' => $request->id,
-                        'current_status' => $request->status,
-                        'target_status' => 'scheduled'
-                    ]);
-
                     $updatedRequest = $instructionRequestService->updateInstructionRequest([
                         'status' => 'scheduled'
                     ], $request->id);
-
-                    Log::info('CalendarService: Status update completed', [
-                        'request_id' => $request->id,
-                        'old_status' => $request->status,
-                        'new_status' => $updatedRequest->status,
-                        'success' => $updatedRequest->status === 'scheduled' ? 'yes' : 'no'
-                    ]);
 
                     // Return the event model and reference the updated request
                     $googleCalendarEvent->instructionRequest = $updatedRequest;
                     return $googleCalendarEvent;
 
+                } catch (Google_Service_Exception $googleException) {
+                    // Convert Google API exception to our custom exception
+                    throw GoogleCalendarApiException::fromGoogleServiceException($googleException);
                 } catch (\Exception $e) {
-                    Log::error('CalendarService: Failed to create Google Calendar event', [
+                    // Log unexpected errors but re-throw them
+                    Log::error('CalendarService: Unexpected error creating calendar event', [
                         'request_id' => $request->id,
                         'error' => $e->getMessage()
                     ]);
@@ -281,11 +235,18 @@ class CalendarService
                 }
             });
 
+        } catch (GoogleCalendarApiException $e) {
+            // Re-throw Google API exceptions as-is
+            throw $e;
+        } catch (InvalidCalendarConfigurationException $e) {
+            // Re-throw configuration exceptions as-is
+            throw $e;
         } catch (\Exception $e) {
+            // Log and re-throw unexpected errors
             Log::error('CalendarService: Failed to create Google Calendar event', [
+                'request_id' => $request->id,
                 'error' => $e->getMessage()
             ]);
-
             throw $e;
         }
     }
