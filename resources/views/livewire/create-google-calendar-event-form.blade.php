@@ -20,18 +20,74 @@
                     @endif
 
                     @error('calendar')
-                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded toast-message">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                                <span>{!! $message !!}</span>
-                            </div>
-                            @if(strpos($message, 'Impersonation') !== false)
-                                <div class="mt-1 pl-6 text-xs text-gray-500">
-                                    This is a configuration issue that requires administrator action.
+                        <div class="mb-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg shadow-sm">
+                            <div class="p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <h3 class="text-sm font-medium text-red-800">
+                                            Calendar Event Creation Failed
+                                        </h3>
+                                        <div class="mt-2 text-sm text-red-700">
+                                            <p>{!! $message !!}</p>
+                                        </div>
+                                        @if(strpos($message, 'writer access') !== false)
+                                            <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                                                <div class="flex items-start">
+                                                    <svg class="h-4 w-4 text-blue-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    <div class="text-xs text-blue-800">
+                                                        <p class="font-medium">Need Help?</p>
+                                                        <p class="mt-1">This appears to be a calendar permissions issue. Please contact <strong>DST (503-977-8227)</strong> and reference this error. They can help resolve calendar access permissions.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif(strpos($message, 'configuration') !== false)
+                                            <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
+                                                <div class="flex items-start">
+                                                    <svg class="h-4 w-4 text-amber-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17a1 1 0 01-.293.707L11 20.414A1 1 0 0110 20v-4.586a1 1 0 00-.293-.707L3.293 8.293A1 1 0 013 7.586V4z"></path>
+                                                    </svg>
+                                                    <div class="text-xs text-amber-800">
+                                                        <p class="font-medium">Configuration Issue</p>
+                                                        <p class="mt-1">There's an issue with the calendar setup for this campus. Please contact your administrator to review the calendar configuration.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif(strpos($message, 'impersonation') !== false || strpos($message, 'Impersonation') !== false)
+                                            <div class="mt-3 p-3 bg-purple-50 border border-purple-200 rounded">
+                                                <div class="flex items-start">
+                                                    <svg class="h-4 w-4 text-purple-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    </svg>
+                                                    <div class="text-xs text-purple-800">
+                                                        <p class="font-medium">System Configuration Required</p>
+                                                        <p class="mt-1">This is a system-level configuration issue that requires administrator action. Please contact the system administrator to configure the impersonation settings.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="mt-3 p-3 bg-gray-50 border border-gray-200 rounded">
+                                                <div class="flex items-start">
+                                                    <svg class="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                    </svg>
+                                                    <div class="text-xs text-gray-700">
+                                                        <p class="font-medium">Retry Suggestion</p>
+                                                        <p class="mt-1">This may be a temporary issue. Please wait a few minutes and try again. If the problem persists, contact support.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     @enderror
 
@@ -150,13 +206,12 @@
 
 <script>
     document.addEventListener('livewire:initialized', function() {
-        // Only monitor critical errors for debugging
-        try {
-            Livewire.hook('message.failed', (message, component) => {
-                console.error('Livewire message failed:', message);
-            });
-        } catch (err) {
-            console.error('Error setting up Livewire monitoring:', err);
-        }
+        // Monitor only critical errors without verbose logging
+        Livewire.hook('message.failed', (message, component) => {
+            // Only log actual failures, not verbose debugging
+            if (message.errors && Object.keys(message.errors).length > 0) {
+                console.error('Calendar form error:', message.errors);
+            }
+        });
     });
 </script>

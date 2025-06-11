@@ -265,8 +265,6 @@ class CalendarService
             'instruction_request_id' => $calendarEvent->instruction_request_id
         ];
 
-        Log::info('CalendarService: Starting deleteEvent method');
-
         try {
             DB::beginTransaction();
 
@@ -416,11 +414,6 @@ class CalendarService
             );
         }
 
-        // Log which email we're using for impersonation
-        Log::info('CalendarService: Using impersonation email', [
-            'impersonate_email' => $impersonateEmail
-        ]);
-
         // Initialize Google API Client
         $client = new Google_Client();
         $client->setAuthConfig($credentialsPath);
@@ -507,9 +500,6 @@ class CalendarService
                 'assigned_librarian_name' => $assignedLibrarian->display_name ?? $assignedLibrarian->name,
                 'current_user_email' => Auth::user()?->email ?? 'Not authenticated'
             ];
-
-            // Log result
-            Log::info('CalendarService: testCalendarService succeeded');
 
             return $result;
 
