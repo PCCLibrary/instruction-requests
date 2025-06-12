@@ -319,7 +319,6 @@ class CalendarService
 
                 $result['messages'][] = 'Google Calendar event deleted successfully.';
 
-                Log::info('CalendarService: Google Calendar event deleted successfully');
             } catch (\Exception $apiException) {
                 Log::warning('CalendarService: Error deleting event from Google Calendar', [
                     'error' => $apiException->getMessage()
@@ -330,12 +329,6 @@ class CalendarService
 
             // Delete local event record using the relationship method
             try {
-                // Log before deletion
-                Log::info('CalendarService: Starting deletion process for event', [
-                    'event_id' => $calendarEvent->id,
-                    'google_event_id' => $calendarEvent->google_event_id
-                ]);
-
                 // Use relationship method for deletion - this is the only correct approach
                 $request->googleCalendarEvent()->delete();
 
@@ -344,7 +337,6 @@ class CalendarService
 
                 if (!$stillExists) {
                     $result['messages'][] = 'Local calendar event record deleted successfully.';
-                    Log::info('CalendarService: Local calendar event record deleted through relationship');
                 } else {
                     throw new \Exception('Record deletion verification failed - record still exists after deletion attempt');
                 }
@@ -362,11 +354,7 @@ class CalendarService
                 'status' => 'accepted'
             ], $request->id);
 
-            Log::info('CalendarService: Instruction request status updated to accepted');
-
             DB::commit();
-
-            Log::info('CalendarService: Deletion completed successfully');
 
             $result['success'] = true;
             return $result;
@@ -436,8 +424,6 @@ class CalendarService
      */
     public function testCalendarService(InstructionRequests $request): array
     {
-        Log::info('CalendarService: testCalendarService called');
-
         // Load relationships if not already loaded
         if (!$request->relationLoaded('instructor') || !$request->relationLoaded('detail') ||
             !$request->relationLoaded('campus') || !$request->relationLoaded('librarian')) {
