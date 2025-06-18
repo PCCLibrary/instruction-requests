@@ -158,6 +158,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
                 'duration' => $request->duration,
                 'campus_name' => $request->campus->name,
                 'instructor_name' => $request->instructor->name,
+                'instructor_email' => $request->instructor->email,
                 'librarian_name' => $assignedLibrarian?->display_name,
                 'ada_provisions_needed' => $request->ada_provisions_needed,
                 'ada_provisions_description' => $request->ada_provisions_description,

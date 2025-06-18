@@ -6,6 +6,10 @@
             <td>{{ $request['instructor_name'] ?? 'Not specified' }}</td>
         </tr>
         <tr>
+            <td style="padding: 8px 0;"><strong>Instructor Email:</strong></td>
+            <td>{{ $request['instructor_email'] ?? 'Not specified' }}</td>
+        </tr>
+        <tr>
             <td style="padding: 8px 0;"><strong>Campus:</strong></td>
             <td>{{ $request['campus_name'] ?? 'Not specified' }}</td>
         </tr>
