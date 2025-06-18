@@ -81,6 +81,15 @@ return [
     */
     'enable_local_login' => env('ENABLE_LOCAL_LOGIN', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public Form URL
+    |--------------------------------------------------------------------------
+    |
+    | The URL for the public instruction request form.
+    |
+    */
+    'public_form_url' => env('PUBLIC_FORM_URL', 'https://www.pcc.edu/library/instruction-request/'),
 
     /*
     |--------------------------------------------------------------------------
