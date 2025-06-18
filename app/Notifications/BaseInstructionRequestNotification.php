@@ -188,14 +188,14 @@ abstract class BaseInstructionRequestNotification extends Notification implement
 
         // Prepare parts of the subject line
         $parts = [
-            "Date: {$formattedDateTime}",
-            "Campus: {$data['campus_name']}",
-            "Class: {$data['course_department']}{$data['course_number']}",
+            "{$formattedDateTime}",
+            "{$data['campus_name']}",
+            "{$data['course_department']}-{$data['course_number']}",
         ];
 
         // Add librarian name if available
         if (!empty($data['librarian_name'])) {
-            $parts[] = "Librarian: {$data['librarian_name']}";
+            $parts[] = "{$data['librarian_name']}";
         }
 
         return "Library Instruction Request: " . implode(', ', $parts);
