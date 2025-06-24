@@ -7,10 +7,7 @@ use App\Models\Classes;
 use App\Models\InstructionRequests;
 use App\Models\Instructor;
 use App\Models\User;
-use App\Notifications\RequestAcceptedNotification;
-use App\Notifications\RequestAssignedNotification;
-use App\Notifications\RequestReceivedNotification;
-use App\Notifications\RequestRejectedNotification;
+use App\Services\NotificationService;
 use App\Repositories\InstructionRequestRepository;
 use App\Contracts\InstructionRequestDetailsServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,17 +34,25 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     private InstructionRequestDetailsServiceInterface $detailsService;
 
     /**
+     * @var NotificationService
+     */
+    private NotificationService $notificationService;
+
+    /**
      * Constructor for InstructionRequestService
      *
      * @param InstructionRequestRepository $repository
      * @param InstructionRequestDetailsServiceInterface $detailsService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         InstructionRequestRepository $repository,
         InstructionRequestDetailsServiceInterface $detailsService,
+        NotificationService $notificationService,
     ) {
         $this->repository = $repository;
         $this->detailsService = $detailsService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -193,17 +198,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     public function createNewInstructionRequest(array $data, Request $request): InstructionRequests
     {
-        Log::debug('Starting createNewInstructionRequest', [
-            'data' => $data,
-            'has_files' => $request->hasFile('class_syllabus') || $request->hasFile('instructor_attachments')
-        ]);
-
         return DB::transaction(function () use ($data, $request) {
             try {
                 // Handle JSON fields
                 foreach (['materials', 'assessments'] as $field) {
                     if (isset($data[$field]) && is_array($data[$field])) {
-                        Log::debug("Converting $field to JSON", ['value' => $data[$field]]);
                         $data[$field] = json_encode($data[$field]);
                     }
                 }
@@ -211,11 +210,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 // Create or find related records
                 $instructor = $this->findOrCreateInstructor($data);
                 $classes = $this->findOrCreateClasses($data);
-
-                Log::debug('Created/found related records', [
-                    'instructor_id' => $instructor->id,
-                    'class_id' => $classes->id
-                ]);
 
                 // Prepare instruction request data
                 $data['instructor_id'] = $instructor->id;
@@ -228,20 +222,10 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                     // For asynchronous requests, set preferred_datetime to the same date as asynchronous_instruction_ready_date
                     // but with a default time, since it's required by the database but not meaningful for this type
                     $data['preferred_datetime'] = $data['asynchronous_instruction_ready_date'] . ' 00:00:00';
-
-                    Log::debug('Setting default preferred_datetime for asynchronous request', [
-                        'instruction_type' => $data['instruction_type'],
-                        'preferred_datetime' => $data['preferred_datetime'],
-                        'asynchronous_date' => $data['asynchronous_instruction_ready_date']
-                    ]);
                 }
 
                 // Create main instruction request
                 $instructionRequest = $this->repository->create($data);
-
-                Log::debug('Created instruction request', [
-                    'id' => $instructionRequest->id,
-                    'status' => $instructionRequest->status
                 ]);
 
                 // Create associated details
@@ -257,19 +241,8 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 if ($data['instruction_type'] === 'asynchronous') {
                     // For asynchronous requests, use the date and set time to 8:00 AM
                     $detailsData['instruction_datetime'] = $data['asynchronous_instruction_ready_date'] . ' 08:00:00';
-
-                    Log::debug('Using asynchronous_instruction_ready_date for instruction_datetime with 8:00 AM time', [
-                        'instruction_type' => $data['instruction_type'],
-                        'asynchronous_date' => $data['asynchronous_instruction_ready_date'],
-                        'instruction_datetime' => $detailsData['instruction_datetime']
-                    ]);
                 } else {
                     $detailsData['instruction_datetime'] = $data['preferred_datetime'];
-
-                    Log::debug('Using preferred_datetime for instruction_datetime', [
-                        'instruction_type' => $data['instruction_type'],
-                        'preferred_date' => $data['preferred_datetime']
-                    ]);
                 }
 
                 // Always copy duration to instruction_duration for all request types
@@ -281,8 +254,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 }
 
                 $instructionRequest->detail()->create($detailsData);
-
-                Log::debug('Created instruction request details', ['details' => $detailsData]);
 
                 // Handle file uploads
                 $this->processFileUploads($request, $instructionRequest);
@@ -312,15 +283,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     public function updateInstructionRequest(array $data, int $id): InstructionRequests
     {
-        Log::info('SERVICE ENTRY: updateInstructionRequest', [
-            'id' => $id,
-            'raw_data' => $data,
-            'assigned_librarian_id' => $data['assigned_librarian_id'] ?? 'not set'
-        ]);
-
-        // Debug dump of all data for comprehensive logging
-//        Log::debug('COMPLETE DATA DUMP FOR UPDATE', $data);
-
         return DB::transaction(function () use ($data, $id) {
             $instructionRequest = $this->findInstructionRequestById($id);
 
@@ -672,16 +634,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
     }
 
     /**
-     * Handle status changes and send appropriate notifications
-     *
-     * Sends notifications based on status transitions:
-     * - New request ('' -> received): Notify instructor and campus librarians
-     * - Assignment (-> assigned): Notify assigned librarian
-     * - Acceptance (-> accepted): Notify campus librarians
-     * - Rejection (assigned -> received): Notify campus librarians
-     *
-     * Future status transitions:
-     * - Scheduled: Will integrate with calendar system (not implemented)
+     * Handle status changes and delegate notification sending to NotificationService
      *
      * @param InstructionRequests $request The request with status change
      * @param string $oldStatus Previous status
@@ -691,113 +644,7 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     protected function handleStatusChange(InstructionRequests $request, string $oldStatus, string $newStatus): void
     {
-        // Comprehensive logging for all status changes
-        $logContext = [
-            'request_id' => $request->id,
-            'old_status' => $oldStatus,
-            'new_status' => $newStatus,
-            'changed_by' => auth()->check() ? auth()->user()->id : 'system',
-            'changed_at' => now()->toDateTimeString(),
-            'instructor_id' => $request->instructor_id,
-            'librarian_id' => $request->detail?->assigned_librarian_id,
-            'campus_id' => $request->campus_id
-        ];
-
-        try {
-            // Initial request received
-            if ($newStatus === 'received' && $oldStatus === '') {
-                Log::info('New instruction request received', $logContext);
-                // Notify instructor
-                if ($request->instructor) {
-                    $request->instructor->notify(new RequestReceivedNotification(
-                        $request->id,
-                        $oldStatus,
-                        $newStatus
-                    ));
-                }
-
-                // Notify campus librarians if available
-                if ($request->campus && !empty($request->campus->librarian_ids)) {
-                    User::whereIn('id', $request->campus->librarian_ids)
-                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
-                            $librarian->notify(new RequestReceivedNotification(
-                                $request->id,
-                                $oldStatus,
-                                $newStatus
-                            ));
-                        });
-                }
-            }
-
-            // Request assigned to librarian
-            if ($newStatus === 'assigned' && $request->detail?->assigned_librarian_id) {
-                Log::info('Instruction request assigned to librarian', $logContext);
-                $librarian = User::find($request->detail->assigned_librarian_id);
-                if ($librarian) {
-                    $librarian->notify(new RequestAssignedNotification(
-                        $request->id,
-                        $oldStatus,
-                        $newStatus
-                    ));
-                }
-            }
-
-            // Request accepted by librarian
-            if ($newStatus === 'accepted' && $request->campus) {
-                Log::info('Instruction request accepted by librarian', $logContext);
-
-                // Notify campus librarians
-                if (!empty($request->campus->librarian_ids)) {
-                    User::whereIn('id', $request->campus->librarian_ids)
-                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
-                            $librarian->notify(new RequestAcceptedNotification(
-                                $request->id,
-                                $oldStatus,
-                                $newStatus
-                            ));
-                        });
-                }
-            }
-
-            // Request rejected (status changed back to received)
-            if ($oldStatus === 'assigned' && $newStatus === 'rejected' && $request->campus) {
-                Log::info('Instruction request rejected', $logContext);
-
-                // Notify campus librarians
-                if (!empty($request->campus->librarian_ids)) {
-                    User::whereIn('id', $request->campus->librarian_ids)
-                        ->each(function($librarian) use ($request, $oldStatus, $newStatus) {
-                            $librarian->notify(new RequestRejectedNotification(
-                                $request->id,
-                                $oldStatus,
-                                $newStatus
-                            ));
-                        });
-                }
-            }
-
-            // Request scheduled
-            if ($newStatus === 'scheduled') {
-                Log::info('Instruction request scheduled', $logContext);
-                //  No notifications at this time.
-            }
-
-            // Request rejected (status changed back to received)
-            if ($oldStatus === 'assigned' && $newStatus === 'received' && $request->campus) {
-                Log::info('Instruction request rejected and returned to received status', $logContext);
-                // No notifications at this time.
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Failed to send status change notifications', [
-                'request_id' => $request->id,
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
-        }
+        $this->notificationService->sendStatusChangeNotifications($request, $oldStatus, $newStatus);
     }
 
     /**
@@ -815,11 +662,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
         string $collectionName,
         InstructionRequests $instructionRequest
     ): void {
-        Log::debug("handleFileUploads called", [
-            'fieldName' => $fieldName,
-            'collectionName' => $collectionName,
-            'files' => $request->file($fieldName)
-        ]);
         if ($request->hasFile($fieldName)) {
             foreach ($request->file($fieldName) as $file) {
                 $instructionRequest->addMedia($file)->toMediaCollection($collectionName);
@@ -836,12 +678,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
      */
     private function processFileUploads(Request $request, InstructionRequests $instructionRequest): void
     {
-        Log::debug('Starting file upload process', [
-            'has_materials' => $request->hasFile('materials'),
-            'has_assessments' => $request->hasFile('assessments'),
-            'request_files' => $request->allFiles()
-        ]);
-
         $fileTypes = [
             'class_syllabus' => 'syllabus',
             'instructor_attachments' => 'instructor_attachments',
@@ -900,5 +736,36 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'course_name' => $data['class_title'] ?? strtoupper($data['department']) . "-" . $data['course_number']
             ]
         );
+    }
+
+    /**
+     * Update just the status of an instruction request.
+     *
+     * @param int $id
+     * @param string $status
+     * @return InstructionRequests
+     * @throws \Exception
+     */
+    public function updateInstructionRequestStatus(int $id, string $status): InstructionRequests
+    {
+        $instructionRequest = $this->findInstructionRequestById($id);
+
+        if (!$instructionRequest) {
+            throw new \Exception("Instruction request {$id} not found");
+        }
+
+        $oldStatus = $instructionRequest->status;
+
+        $instructionRequest->update(['status' => $status]);
+        $instructionRequest->fresh(['detail', 'instructor', 'classes', 'campus']);
+
+        Log::info('Instruction request status updated', [
+            'request_id' => $id,
+            'old_status' => $oldStatus,
+            'new_status' => $status,
+            'updated_by' => auth()->check() ? auth()->user()->id : 'system'
+        ]);
+
+        return $instructionRequest;
     }
 }

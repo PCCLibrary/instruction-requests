@@ -34,51 +34,32 @@ class RequestAcceptedNotification extends BaseInstructionRequestNotification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        // Retrieve template data using base class method
+        // Retrieve template data from package
         $templateData = $this->getTemplateData();
 
         // Determine template based on recipient type
         $templateName = match(true) {
-            $notifiable instanceof Instructor,
-                $notifiable instanceof User => 'emails.librarian.accepted',
+            $notifiable instanceof Instructor => 'emails.instructor.accepted',
+            $notifiable instanceof User => 'emails.librarian.accepted',
             default => throw new \InvalidArgumentException(
                 'Unsupported notifiable type: ' . get_class($notifiable)
             )
         };
 
-        // Log the email preparation details
-        Log::info('Preparing accepted status email', [
-            'request_id' => $templateData['id'],
-            'recipient_id' => $notifiable->id,
-            'recipient_type' => get_class($notifiable),
-            'template' => $templateName
-        ]);
-
         try {
-
-            Log::debug('Notification Email Preparation', [
-                'notification_class' => get_class($this),
-                'recipient_type' => get_class($notifiable),
-                'template_name' => $templateName,
-                'dashboard_url' => $this->generateDashboardEditUrl(),
-                'template_data_keys' => array_keys($templateData)
-            ]);
-
             return (new MailMessage)
-                ->subject($this->buildSubjectLine())
+                ->subject($this->getSubjectForNotifiable($notifiable))
                 ->view($templateName, [
                     'request' => $templateData,
-                    'dashboardUrl' => $this->generateDashboardEditUrl(),
-                    'emailSubject' => $this->buildSubjectLine()
+                    'dashboardUrl' => $this->getDashboardUrl(),
+                    'emailSubject' => $this->getSubjectForNotifiable($notifiable)
                 ]);
         } catch (\Exception $e) {
-            // Log any errors in email creation
             Log::error('Failed to create accepted notification email', [
                 'request_id' => $templateData['id'],
                 'recipient_id' => $notifiable->id,
                 'recipient_type' => get_class($notifiable),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
             ]);
             throw $e;
         }

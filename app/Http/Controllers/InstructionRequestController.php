@@ -618,4 +618,97 @@ class InstructionRequestController extends AppBaseController
 
         return $instructionRequest;
     }
+
+    /**
+     * Update the specified InstructionRequests in storage.
+     *
+     * @param UpdateInstructionRequestRequest $request
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function update(UpdateInstructionRequestRequest $request, int $id): RedirectResponse
+    {
+        try {
+            $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
+
+            if (empty($instructionRequest)) {
+                session()->flash('error', 'Instruction Request not found.');
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Update the instruction request via service (which already handles status change notifications)
+            $updatedRequest = $this->instructionRequestService->updateInstructionRequest($request->all(), $id);
+
+            // Release the lock after successful update
+            $this->instructionRequestService->unlockRequest($id, false, false);
+
+            session()->flash('success', 'Instruction Request updated successfully.');
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            Log::error('Failed to update instruction request', [
+                'request_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            session()->flash('error', 'Failed to update instruction request: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
+    }
+
+    /**
+     * Accept an instruction request (change status to accepted).
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function accept(int $id): RedirectResponse
+    {
+        try {
+            $userId = auth()->id();
+            if (!$userId) {
+                session()->flash('error', 'User not authenticated.');
+                return redirect(route('instructionRequests.index'));
+            }
+
+            // Use existing service method which handles notifications
+            $this->instructionRequestService->acceptRequest($id, $userId);
+
+            session()->flash('success', 'Instruction request accepted successfully.');
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            Log::error('Failed to accept instruction request', [
+                'request_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            session()->flash('error', 'Failed to accept instruction request: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Reject an instruction request (change status to rejected).
+     *
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function reject(int $id): RedirectResponse
+    {
+        try {
+            // Use existing service method which handles notifications
+            $this->instructionRequestService->rejectRequest($id);
+
+            session()->flash('success', 'Instruction request rejected successfully.');
+            return redirect(route('instructionRequests.index'));
+        } catch (\Exception $e) {
+            Log::error('Failed to reject instruction request', [
+                'request_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            session()->flash('error', 'Failed to reject instruction request: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
 }
