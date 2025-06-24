@@ -46,6 +46,13 @@ abstract class BaseInstructionRequestNotification extends Notification implement
     protected string $newStatus;
 
     /**
+     * Cached template data to avoid multiple database queries
+     *
+     * @var array|null
+     */
+    private ?array $cachedTemplateData = null;
+
+    /**
      * Create a new notification instance.
      *
      * @param int $requestId The ID of the instruction request
@@ -123,6 +130,11 @@ abstract class BaseInstructionRequestNotification extends Notification implement
      */
     protected function getTemplateData(): array
     {
+        // Return cached data if already loaded
+        if ($this->cachedTemplateData !== null) {
+            return $this->cachedTemplateData;
+        }
+
         Log::info('Loading template data', [
             'class' => get_class($this),
             'request_id' => $this->requestId
@@ -141,7 +153,8 @@ abstract class BaseInstructionRequestNotification extends Notification implement
                 $assignedLibrarian = User::find($request->detail->assigned_librarian_id);
             }
 
-            return [
+            // Cache and return template data
+            $this->cachedTemplateData = [
                 'id' => $request->id,
                 'instruction_type' => $request->instruction_type,
                 'status' => $request->status,
@@ -164,6 +177,8 @@ abstract class BaseInstructionRequestNotification extends Notification implement
                 'ada_provisions_description' => $request->ada_provisions_description,
                 'detail' => $request->detail?->toArray() ?? []
             ];
+
+            return $this->cachedTemplateData;
         } catch (\Exception $e) {
             Log::error('Failed to load template data', [
                 'request_id' => $this->requestId,
