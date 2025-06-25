@@ -226,7 +226,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
                 // Create main instruction request
                 $instructionRequest = $this->repository->create($data);
-                ]);
 
                 // Create associated details
                 $detailsData = [
