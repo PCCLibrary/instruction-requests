@@ -4,7 +4,7 @@
     x-ref="comment{{ $comment->getKey() }}"
     x-data="{ showReplyList: @js($showReplyList), replyCount: @js($comment->replies_count) }"
     @class([
-        "flex gap-x-2 sm:gap-x-4 pb-2 dark:!bg-black dark:!text-white",
+        "flex gap-x-2 sm:gap-x-4 pb-2 p-4 dark:!bg-black dark:!text-white",
         "border rounded-lg p-4" => Helpers::isModernTheme(),
     ])
     @style([
