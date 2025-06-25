@@ -58,7 +58,7 @@ class RequestAssignedNotification extends BaseInstructionRequestNotification
                 ]);
         } catch (\Exception $e) {
             Log::error('Failed to create assigned notification email', [
-                'request_id' => $templateData['id'],
+                'request_id' => $templateData['request_id'] ?? 'unknown',
                 'recipient_id' => $notifiable->id,
                 'recipient_type' => get_class($notifiable),
                 'error' => $e->getMessage(),

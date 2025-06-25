@@ -21,27 +21,6 @@ abstract class BaseInstructionRequestNotification extends Notification implement
     use Queueable;
 
     /**
-     * The ID of the instruction request
-     *
-     * @var int
-     */
-    protected int $requestId;
-
-    /**
-     * Previous status of the request, if applicable
-     *
-     * @var string
-     */
-    protected string $oldStatus;
-
-    /**
-     * New status of the request
-     *
-     * @var string
-     */
-    protected string $newStatus;
-
-    /**
      * Notification package containing all required data
      *
      * @var NotificationPackage
@@ -51,16 +30,10 @@ abstract class BaseInstructionRequestNotification extends Notification implement
     /**
      * Create a new notification instance.
      *
-     * @param int $requestId The ID of the instruction request
-     * @param string $oldStatus Previous status (if applicable)
-     * @param string $newStatus New status
      * @param NotificationPackage $package Pre-loaded data package
      */
-    public function __construct(int $requestId, string $oldStatus, string $newStatus, NotificationPackage $package)
+    public function __construct(NotificationPackage $package)
     {
-        $this->requestId = $requestId;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
         $this->package = $package;
     }
 
@@ -117,7 +90,7 @@ abstract class BaseInstructionRequestNotification extends Notification implement
     {
         Log::error('Notification delivery failed', [
             'notification_type' => get_class($this),
-            'request_id' => $this->requestId,
+            'request_id' => $this->package->templateData['request_id'] ?? 'unknown',
             'recipient_id' => $notifiable->id,
             'recipient_type' => get_class($notifiable),
             'error' => $exception->getMessage(),

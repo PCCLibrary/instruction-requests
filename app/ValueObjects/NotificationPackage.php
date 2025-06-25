@@ -3,21 +3,14 @@
 namespace App\ValueObjects;
 
 /**
- * Value object containing all data needed for an instruction request notification.
+ * NotificationPackage
  *
- * This package eliminates the need for notifications to load data themselves,
- * improving performance by ensuring single data loads per notification type.
+ * Value object that contains all data needed for sending instruction request notifications.
+ * This eliminates redundant data loading and provides clean separation between
+ * data preparation and notification sending.
  */
 class NotificationPackage
 {
-    /**
-     * Create a new notification package.
-     *
-     * @param array $templateData Formatted data for email templates
-     * @param string $dashboardUrl Direct link to request in dashboard
-     * @param string $instructorSubject Subject line for instructor emails
-     * @param string $librarianSubject Subject line for librarian emails
-     */
     public function __construct(
         public readonly array $templateData,
         public readonly string $dashboardUrl,
@@ -26,18 +19,16 @@ class NotificationPackage
     ) {}
 
     /**
-     * Get the appropriate subject line for a notifiable entity.
-     *
-     * @param object $notifiable The User or Instructor being notified
-     * @return string The subject line to use
+     * Get the appropriate subject line for the given notifiable
      */
     public function getSubjectFor(object $notifiable): string
     {
-        // Determine recipient type and return appropriate subject
-        if (get_class($notifiable) === 'App\Models\Instructor') {
+        // If it's an instructor (has email but no display_name), use instructor subject
+        if (isset($notifiable->email) && !isset($notifiable->display_name)) {
             return $this->instructorSubject;
         }
 
+        // Otherwise use librarian subject
         return $this->librarianSubject;
     }
 }
