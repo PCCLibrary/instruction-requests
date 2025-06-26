@@ -47,13 +47,18 @@ class RequestReceivedNotification extends BaseInstructionRequestNotification
             )
         };
 
+        // Determine subject based on recipient type
+        $subject = ($notifiable instanceof Instructor)
+            ? $this->package->instructorSubject
+            : $this->package->librarianSubject;
+
         try {
             return (new MailMessage)
-                ->subject($this->getSubjectForNotifiable($notifiable))
+                ->subject($subject)
                 ->view($templateName, [
                     'request' => $templateData,
                     'dashboardUrl' => $this->getDashboardUrl(),
-                    'emailSubject' => $this->getSubjectForNotifiable($notifiable)
+                    'emailSubject' => $subject
                 ]);
         } catch (\Exception $e) {
             Log::error('Failed to create received request email notification', [

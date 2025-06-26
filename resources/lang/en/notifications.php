@@ -3,7 +3,7 @@
 return [
     'subjects' => [
         'instructor' => [
-            'confirmation' => 'Confirmation: :type library instruction request for :class :date_phrase',
+            'confirmation' => 'Confirmation: :type library instruction request for :class :date_phrase - :campus',
             'date_phrases' => [
                 'on' => 'on :datetime',
                 'by' => 'by :date'

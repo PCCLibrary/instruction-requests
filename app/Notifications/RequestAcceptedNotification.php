@@ -48,11 +48,11 @@ class RequestAcceptedNotification extends BaseInstructionRequestNotification
 
         try {
             return (new MailMessage)
-                ->subject($this->getSubjectForNotifiable($notifiable))
+                ->subject($this->package->librarianSubject)
                 ->view($templateName, [
                     'request' => $templateData,
                     'dashboardUrl' => $this->getDashboardUrl(),
-                    'emailSubject' => $this->getSubjectForNotifiable($notifiable)
+                    'emailSubject' => $this->package->librarianSubject
                 ]);
         } catch (\Exception $e) {
             Log::error('Failed to create accepted notification email', [

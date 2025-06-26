@@ -304,7 +304,8 @@ class NotificationService
         return __('notifications.subjects.instructor.confirmation', [
             'type' => $type,
             'class' => $class,
-            'date_phrase' => $datePhrase
+            'date_phrase' => $datePhrase,
+            'campus' => $request->campus->name
         ], 'en');
     }
 
