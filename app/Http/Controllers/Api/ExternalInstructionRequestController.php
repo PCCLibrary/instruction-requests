@@ -39,13 +39,6 @@ class ExternalInstructionRequestController extends Controller
             $input = $request->except(['class_syllabus', 'instructor_attachments']);
             $uploadToken = $request->input('upload_token');
 
-            Log::info('Processing external instruction request submission', [
-                'has_token' => !empty($uploadToken),
-                'token' => $uploadToken,
-                'form_data' => array_keys($input),
-                'source' => 'external'
-            ]);
-
             // Create instruction request with files
             $instructionRequest = $this->instructionRequestService->createNewInstructionRequest($input, $request);
 
@@ -61,12 +54,7 @@ class ExternalInstructionRequestController extends Controller
                 );
             }
 
-            Log::info('External store operation completed', [
-                'request_id' => $instructionRequest->id,
-                'has_details' => !is_null($instructionRequest->detail),
-                'instructor_id' => $instructionRequest->instructor_id,
-                'had_token' => !empty($uploadToken)
-            ]);
+            Log::info("Successfully created request {$instructionRequest->id}");
 
             return response()->json([
                 'success' => true,

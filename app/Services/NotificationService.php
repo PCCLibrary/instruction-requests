@@ -243,12 +243,6 @@ class NotificationService
             $requestId
         );
 
-        Log::debug('Dashboard URL Generation', [
-            'request_id' => $requestId,
-            'generated_url' => $dashboardUrl,
-            'app_url' => config('app.url')
-        ]);
-
         return $dashboardUrl;
     }
 

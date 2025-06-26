@@ -73,29 +73,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
         $currentUserId = $userId ?? auth()->id();
 
-        // Enhanced logging for all lock attempts to aid debugging
-        Log::debug('Lock request analysis', [
-            'request_id' => $request->id,
-            'current_user' => $currentUserId,
-            'locked' => $request->isLocked(),
-            'locked_by' => $request->locked_by,
-            'locked_at' => $request->locked_at,
-            'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null,
-            'referer' => request()->header('referer'),
-            'user_agent' => request()->header('user-agent')
-        ]);
+
 
         // PRIORITIZE: If this record was previously locked by the current user
         // allow them to reacquire the lock regardless of other factors
         if ($request->locked_by === $currentUserId) {
-            Log::info('User reacquiring their own lock', [
-                'request_id' => $request->id,
-                'user_id' => $currentUserId,
-                'is_locked' => $request->isLocked(),
-                'locked_at' => $request->locked_at,
-                'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null
-            ]);
-
             // Always allow reacquisition by the same user
             $request->markLockedBy($currentUserId);
             return $request->fresh();
@@ -106,15 +88,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                         $request->locked_by === $currentUserId &&
                         $request->locked_at &&
                         now()->diffInMinutes($request->locked_at) < 5; // Extended window from 1 to 5 minutes
-
-        if ($isReloadCase) {
-            Log::info('Detected likely page reload - reacquiring lock', [
-                'request_id' => $request->id,
-                'user_id' => $currentUserId,
-                'locked_at' => $request->locked_at,
-                'time_diff_seconds' => $request->locked_at ? now()->diffInSeconds($request->locked_at) : null
-            ]);
-        }
 
         // If already locked by someone else and lock is not stale
         if ($request->isLocked() &&
@@ -166,27 +139,8 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             throw new \Exception('You cannot unlock a request locked by someone else');
         }
 
-        // Enhanced logging for unlock operations
-        Log::debug('Unlock request operation', [
-            'request_id' => $request->id,
-            'current_user' => auth()->id(),
-            'locked_by' => $request->locked_by,
-            'preserve_info' => $preserveInfo,
-            'force' => $force,
-            'is_ajax' => request()->ajax(),
-            'referer' => request()->header('referer'),
-            'user_agent' => request()->header('user-agent')
-        ]);
-
         // Unlock the request, preserving info by default to help with reload detection
         $request->markUnlocked($preserveInfo);
-
-        // Log the result after unlocking
-        Log::debug('Unlock result', [
-            'request_id' => $request->id,
-            'still_locked' => $request->fresh()->isLocked(),
-            'locked_by_after' => $request->fresh()->locked_by
-        ]);
 
         return $request->fresh();
     }
@@ -357,14 +311,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 'room'
             ]));
 
-            // Detailed logging of details data extraction
-//            Log::info('DETAILS DATA EXTRACTION', [
-//                'extracted_details_data' => $detailsData,
-//                'has_assigned_librarian_id' => isset($detailsData['assigned_librarian_id']) ? 'YES' : 'NO',
-//                'assigned_librarian_id_value' => $detailsData['assigned_librarian_id'] ?? 'NOT PRESENT',
-//                'assigned_librarian_id_type' => isset($detailsData['assigned_librarian_id']) ? gettype($detailsData['assigned_librarian_id']) : 'N/A'
-//            ]);
-
             // Extract instructor data
             $instructorData = array_intersect_key($data, array_flip([
                 'instructor_id',
@@ -396,40 +342,17 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 }
             }
 
-//            if (isset($data['assigned_librarian_id'])) {
-//                Log::info('Preparing librarian assignment', [
-//                    'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id ?? null,
-//                    'new_assigned_librarian' => $data['assigned_librarian_id']
-//                ]);
-//            }
-
             // If we have main request data, update the request
             if (!empty($mainRequestData)) {
                 $this->repository->update($mainRequestData, $id);
             }
 
             if ($instructionRequest->detail && (!empty($detailsData))) {
-//                Log::info('DETAIL UPDATE PREPARATION', [
-//                    'instruction_request_id' => $id,
-//                    'detail_id' => $instructionRequest->detail->id,
-//                    'current_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id,
-//                    'new_assigned_librarian' => $detailsData['assigned_librarian_id'] ?? null,
-//                    'details_data_keys' => array_keys($detailsData)
-//                ]);
-//
-//                // Dump complete details for debugging
-//                Log::debug('COMPLETE DETAILS DATA', $detailsData);
-
                 $detailsData['last_updated_by'] = auth()->user()?->display_name ?? 'System';
 
                 // For updates, if instruction_datetime is directly provided in the form, respect that value
                 if (isset($detailsData['instruction_datetime'])) {
                     // Keep the value as-is since it was directly set in the form
-                    Log::info('Update: Using directly provided instruction_datetime value', [
-                        'instruction_datetime' => $detailsData['instruction_datetime'],
-                        'has_time' => strpos($detailsData['instruction_datetime'], 'T') !== false,
-                        'instruction_request_id' => $id
-                    ]);
                 }
                 // Otherwise, fall back to deriving from appropriate date fields based on instruction type
                 else if (isset($mainRequestData['instruction_type']) &&
@@ -438,36 +361,14 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
                     // For asynchronous requests, use asynchronous_instruction_ready_date for instruction_datetime
                     $detailsData['instruction_datetime'] = $mainRequestData['asynchronous_instruction_ready_date'];
-
-                    Log::debug('Update: Using asynchronous_instruction_ready_date for instruction_datetime', [
-                        'instruction_type' => $mainRequestData['instruction_type'],
-                        'asynchronous_date' => $mainRequestData['asynchronous_instruction_ready_date']
-                    ]);
                 } elseif (isset($mainRequestData['instruction_type']) &&
                          isset($mainRequestData['preferred_datetime'])) {
 
                     // For on-campus and remote requests, use preferred_datetime
                     $detailsData['instruction_datetime'] = $mainRequestData['preferred_datetime'];
-
-                    Log::debug('Update: Using preferred_datetime for instruction_datetime', [
-                        'instruction_type' => $mainRequestData['instruction_type'],
-                        'preferred_date' => $mainRequestData['preferred_datetime']
-                    ]);
                 }
 
-                // Log the exact parameters being passed to the details service
-//                Log::info('CALLING detailsService->updateInstructionRequestDetails', [
-//                    'instruction_request_id' => $id,
-//                    'assigned_librarian_id' => $detailsData['assigned_librarian_id'] ?? 'NOT SET'
-//                ]);
-
                 $updatedDetails = $this->detailsService->updateInstructionRequestDetails($detailsData, $id);
-
-                Log::info('AFTER DETAILS UPDATE', [
-                    'success' => $updatedDetails ? 'yes' : 'no',
-                    'final_assigned_librarian' => $updatedDetails?->assigned_librarian_id ?? 'NULL AFTER UPDATE',
-                    'detail_id' => $updatedDetails?->id ?? 'NO ID RETURNED'
-                ]);
             }
 
             if (request()->hasFile('materials') || request()->hasFile('assessments')) {
@@ -475,17 +376,6 @@ class InstructionRequestService implements InstructionRequestServiceInterface
             }
 
             $updatedRequest = $instructionRequest->fresh(['detail', 'instructor', 'classes', 'campus']);
-
-            // Add enhanced logging for debugging the assigned librarian issue
-//            Log::info('Final state after update', [
-//                'request_id' => $id,
-//                'old_status' => $oldStatus,
-//                'new_status' => $updatedRequest->status,
-//                'old_assigned_librarian' => $instructionRequest->detail->assigned_librarian_id ?? 'not set',
-//                'new_assigned_librarian' => $updatedRequest->detail->assigned_librarian_id ?? 'not set',
-//                'details_data_had_librarian' => isset($detailsData['assigned_librarian_id']) ? 'yes' : 'no',
-//                'details_librarian_value' => $detailsData['assigned_librarian_id'] ?? 'not present'
-//            ]);
 
             if ($updatedRequest->status !== $oldStatus) {
                 $this->handleStatusChange($updatedRequest, $oldStatus, $updatedRequest->status);

@@ -132,28 +132,11 @@ class InstructionRequestController extends AppBaseController
                 $instructionRequest->refresh();
             }
 
-            // Log the current lock state for debugging
-            Log::debug('Lock state in edit method', [
-                'request_id' => $id,
-                'locked' => $instructionRequest->isLocked(),
-                'locked_by' => $instructionRequest->locked_by,
-                'locked_at' => $instructionRequest->locked_at,
-                'current_user' => auth()->id(),
-            ]);
-
             // Check for reload scenario (not locked, but locked_by is current user and locked_at is recent)
             $isReloadScenario = !$instructionRequest->isLocked() &&
                                $instructionRequest->locked_by === auth()->id() &&
                                $instructionRequest->locked_at &&
                                now()->diffInMinutes($instructionRequest->locked_at) < 5;
-
-            if ($isReloadScenario) {
-                Log::info('Controller detected reload scenario', [
-                    'request_id' => $id,
-                    'user_id' => auth()->id(),
-                    'time_since_locked' => $instructionRequest->locked_at ? now()->diffInSeconds($instructionRequest->locked_at) : null
-                ]);
-            }
 
             // Check if locked by someone else
             if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
@@ -162,23 +145,12 @@ class InstructionRequestController extends AppBaseController
                 return redirect(route('instructionRequests.index'));
             } elseif ($instructionRequest->isLocked() && $instructionRequest->locked_by === auth()->id()) {
                 // Record is locked by current user - allow them to continue editing
-                Log::info('User continuing their own locked edit session', [
-                    'request_id' => $id,
-                    'user_id' => auth()->id()
-                ]);
                 // No warning toast needed, proceed with edit
             }
 
             // Try to lock or reacquire the lock for this user
             try {
                 $this->instructionRequestService->lockRequest($id);
-
-                // Log success after locking
-                Log::info('Lock acquired successfully in controller', [
-                    'request_id' => $id,
-                    'user_id' => auth()->id(),
-                    'was_reload_scenario' => $isReloadScenario
-                ]);
             } catch (\Exception $e) {
                 // This should only happen if locked by someone else after our first check
                 Log::error('Failed to acquire lock in controller', [
@@ -193,13 +165,6 @@ class InstructionRequestController extends AppBaseController
 
             // Ensure we have the most recent data
             $instructionRequest->refresh();
-
-            // Debug log to verify status
-            Log::debug('Instruction request status in edit method', [
-                'request_id' => $id,
-                'status' => $instructionRequest->status,
-                'has_calendar_event' => $instructionRequest->relationLoaded('googleCalendarEvent') ? ($instructionRequest->googleCalendarEvent ? 'yes' : 'no') : 'not loaded'
-            ]);
 
             // Ensure calendar event relationship is loaded
             if (!$instructionRequest->relationLoaded('googleCalendarEvent')) {
@@ -239,14 +204,6 @@ class InstructionRequestController extends AppBaseController
      */
     public function update(int $id, UpdateInstructionRequestRequest $request): RedirectResponse
     {
-        // Enhanced logging for debugging
-        Log::info('Controller received update request', [
-            'id' => $id,
-            'raw_input' => $request->all(),
-            'validated_data' => $request->validated(),
-            'assigned_librarian_id' => $request->input('assigned_librarian_id')
-        ]);
-
         $instructionRequest = $this->instructionRequestService->findInstructionRequestById($id);
 
         if (empty($instructionRequest)) {
@@ -262,50 +219,19 @@ class InstructionRequestController extends AppBaseController
             return redirect(route('instructionRequests.index'));
         }
 
-        Log::info('Found instruction request', [
-            'id' => $id,
-            'current_status' => $instructionRequest->status,
-            'has_details' => $instructionRequest->detail ? 'yes' : 'no'
-        ]);
-
         try {
             $validatedData = $request->validated();
-            // Comprehensive detailed logging of all request data
-            Log::debug('FULL REQUEST DATA', $request->all());
-            Log::debug('VALIDATED REQUEST DATA', $validatedData);
-
-            // Specially log the assigned_librarian_id
-            if (isset($validatedData['assigned_librarian_id'])) {
-                Log::info('CRITICAL FIELD CHECK: assigned_librarian_id in validated data', [
-                    'value' => $validatedData['assigned_librarian_id'],
-                    'type' => gettype($validatedData['assigned_librarian_id']),
-                    'raw_request_value' => $request->input('assigned_librarian_id')
-                ]);
-            } else {
-                Log::warning('assigned_librarian_id NOT FOUND in validated data');
-            }
 
             $updated = $this->instructionRequestService->updateInstructionRequest($validatedData, $id);
 
             // Process upload token for dropzone file uploads if present
             $uploadToken = $request->input('upload_token');
             if ($uploadToken) {
-                Log::info('Processing upload token in update method', [
-                    'token' => $uploadToken,
-                    'request_id' => $id
-                ]);
-
                 try {
                     $fileAssociationResult = app(\App\Http\Controllers\MediaController::class)->associateFiles(
                         $uploadToken,
                         $id
                     );
-
-                    Log::info('File association completed in update method', [
-                        'success' => $fileAssociationResult ? 'true' : 'false',
-                        'token' => $uploadToken,
-                        'request_id' => $id
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('Error during file association in update method', [
                         'token' => $uploadToken,
@@ -316,14 +242,6 @@ class InstructionRequestController extends AppBaseController
                     // Don't throw the exception - we don't want to fail the update if file association fails
                 }
             }
-
-            Log::info('Update completed', [
-                'id' => $id,
-                'updated_status' => $updated->status,
-                'has_details' => $updated->detail ? 'yes' : 'no',
-                'detail_id' => $updated->detail ? $updated->detail->id : 'none',
-                'assigned_librarian_id' => $updated->detail ? $updated->detail->assigned_librarian_id : 'none'
-            ]);
 
             // After successful update, release the lock if saveAndClose was provided
             if ($request->has('saveAndClose')) {
