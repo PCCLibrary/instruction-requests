@@ -160,6 +160,12 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
         Route::post('/toggle-assignment', [AdminController::class, 'toggleAssignmentAvailability'])->name('toggle-assignment');
+
+        // System management routes
+        Route::get('/system-status', [AdminController::class, 'systemStatus'])->name('system-status');
+        Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear-cache');
+        Route::post('/flush-queue', [AdminController::class, 'flushQueue'])->name('flush-queue');
+        Route::post('/restart-queue', [AdminController::class, 'restartQueue'])->name('restart-queue');
     });
 
     /*
