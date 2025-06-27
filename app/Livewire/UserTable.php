@@ -40,7 +40,16 @@ final class UserTable extends PowerGridComponent
     {
         $query = User::query()->with('campus')->select('users.*');
 
-        // Apply filters based on checkbox states
+        // Always filter admin users unless they're available for assignment
+        $query->where(function ($q) {
+            $q->where('is_admin', false)
+              ->orWhere(function ($subQ) {
+                  $subQ->where('is_admin', true)
+                       ->where('available_for_assignment', true);
+              });
+        });
+
+        // Apply soft delete filters
         if (!$this->showActiveUsers && !$this->showDeletedUsers) {
             // If neither is selected, show nothing (empty result)
             return $query->whereRaw('1 = 0');

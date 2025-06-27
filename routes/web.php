@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
 use App\Http\Controllers\InstructorController;
@@ -153,6 +154,16 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('index');
+        Route::post('/toggle-assignment', [AdminController::class, 'toggleAssignmentAvailability'])->name('toggle-assignment');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | Instruction Requests Additional Routes
     |--------------------------------------------------------------------------
     */
@@ -191,6 +202,19 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 });
 
 // Add this for debugging during development only (remove in production)
+Route::get('debug-user', function () {
+    $user = Auth::user();
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'is_admin' => $user->is_admin,
+        'available_for_assignment' => $user->available_for_assignment ?? 'field_not_set',
+        'admin_route_exists' => Route::has('admin.index'),
+        'admin_route_url' => Route::has('admin.index') ? route('admin.index') : 'route_not_found'
+    ];
+})->middleware('auth')->name('debug.user');
+
 // Route::get('debug', function () {
 //     dd(Socialite::driver('saml2')->user());
 // })->name('saml2.debug');

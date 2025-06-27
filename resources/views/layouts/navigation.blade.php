@@ -84,6 +84,12 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                @if(Auth::user()->is_admin)
+                    <x-responsive-nav-link :href="route('admin.index')">
+                        {{ __('Admin Panel') }}
+                    </x-responsive-nav-link>
+                @endif
+
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

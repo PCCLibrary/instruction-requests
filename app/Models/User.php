@@ -41,7 +41,8 @@ class User extends Authenticatable implements CommenterContract
         'display_name',
         'campus_id',
         'email',
-        'is_scheduler'
+        'is_scheduler',
+        'available_for_assignment'
     ];
 
     /**
@@ -64,6 +65,7 @@ class User extends Authenticatable implements CommenterContract
         'campus_id' => 'integer',
         'is_scheduler' => 'boolean',
         'is_admin' => 'boolean',
+        'available_for_assignment' => 'boolean',
         'deleted_at' => 'datetime',
     ];
 
@@ -74,7 +76,13 @@ class User extends Authenticatable implements CommenterContract
     public static function orderedLibrariansScope(): Builder
     {
         return static::query()
-            ->where('is_admin', false)
+            ->where(function ($query) {
+                $query->where('is_admin', false)
+                      ->orWhere(function ($subQuery) {
+                          $subQuery->where('is_admin', true)
+                                   ->where('available_for_assignment', true);
+                      });
+            })
             ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
             ->orderBy('display_name');
     }
@@ -86,7 +94,13 @@ class User extends Authenticatable implements CommenterContract
     public static function allLibrariansScope(): Builder
     {
         return static::withTrashed()
-            ->where('is_admin', false)
+            ->where(function ($query) {
+                $query->where('is_admin', false)
+                      ->orWhere(function ($subQuery) {
+                          $subQuery->where('is_admin', true)
+                                   ->where('available_for_assignment', true);
+                      });
+            })
             ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
             ->orderBy('display_name');
     }
@@ -98,7 +112,13 @@ class User extends Authenticatable implements CommenterContract
     public static function deletedLibrariansScope(): Builder
     {
         return static::onlyTrashed()
-            ->where('is_admin', false)
+            ->where(function ($query) {
+                $query->where('is_admin', false)
+                      ->orWhere(function ($subQuery) {
+                          $subQuery->where('is_admin', true)
+                                   ->where('available_for_assignment', true);
+                      });
+            })
             ->orderByRaw('FIELD(id, ' . implode(',', static::$priorityLibrarianIds) . ') DESC')
             ->orderBy('display_name');
     }

@@ -67,6 +67,13 @@
                              aria-orientation="vertical"
                              aria-labelledby="user-menu-button"
                              tabindex="-1">
+                            @if(Auth::user()->is_admin)
+                                <a href="{{ route('admin.index') }}"
+                                   class="block px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 dark:hover:bg-gray-600 hover:text-white"
+                                   role="menuitem">
+                                    {{ __('Admin Panel') }}
+                                </a>
+                            @endif
                             <a href="{{ route('users.edit', Auth::user()->id) }}"
                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 dark:hover:bg-gray-600 hover:text-white"
                                role="menuitem">
@@ -184,6 +191,12 @@
                     </div>
                 </div>
                 <div class="mt-3 space-y-1">
+                    @if(Auth::user()->is_admin)
+                        <a href="{{ route('admin.index') }}"
+                           class="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700 hover:text-white">
+                            {{ __('Admin Panel') }}
+                        </a>
+                    @endif
                     <a href="{{ route('users.edit', Auth::user()->id) }}"
                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700 hover:text-white">
                         {{ __('Edit Profile') }}
