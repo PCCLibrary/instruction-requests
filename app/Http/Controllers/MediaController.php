@@ -135,20 +135,20 @@ class MediaController extends Controller
             $logLevel = app()->environment('production') ? 'info' : 'debug';
 
             // Log more detailed info about the request
-            Log::log('debug', 'File upload request received [DETAILED]', [
-                'headers' => $request->headers->all(),
-                'has_file' => $request->hasFile('file'),
-                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
-                'file_size' => $request->hasFile('file') ? $request->file('file')->getSize() : 0,
-                'file_mime' => $request->hasFile('file') ? $request->file('file')->getMimeType() : '',
-                'storage_path' => storage_path(),
-                'public_path' => public_path('storage'),
-                'environment' => app()->environment(),
-                'media_disk' => config('media-library.disk_name'),
-                'request_ip' => $request->ip(),
-                'request_method' => $request->method(),
-                'request_time' => now()->toDateTimeString(),
-            ]);
+//            Log::log('debug', 'File upload request received [DETAILED]', [
+//                'headers' => $request->headers->all(),
+//                'has_file' => $request->hasFile('file'),
+//                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
+//                'file_size' => $request->hasFile('file') ? $request->file('file')->getSize() : 0,
+//                'file_mime' => $request->hasFile('file') ? $request->file('file')->getMimeType() : '',
+//                'storage_path' => storage_path(),
+//                'public_path' => public_path('storage'),
+//                'environment' => app()->environment(),
+//                'media_disk' => config('media-library.disk_name'),
+//                'request_ip' => $request->ip(),
+//                'request_method' => $request->method(),
+//                'request_time' => now()->toDateTimeString(),
+//            ]);
 
             // Validate token
             $token = $request->header('X-Upload-Token');
@@ -209,14 +209,14 @@ class MediaController extends Controller
                     ->toMediaCollection('materials');
 
                 // Log file upload details
-                Log::debug('File uploaded and media record created', [
-                    'media_id' => $media->id,
-                    'file_name' => $media->file_name,
-                    'file_original_name' => $fileName,
-                    'disk' => $media->disk,
-                    'file_path' => $media->getPath(),
-                    'url' => $media->getUrl(),
-                ]);
+//                Log::debug('File uploaded and media record created', [
+//                    'media_id' => $media->id,
+//                    'file_name' => $media->file_name,
+//                    'file_original_name' => $fileName,
+//                    'disk' => $media->disk,
+//                    'file_path' => $media->getPath(),
+//                    'url' => $media->getUrl(),
+//                ]);
             } catch (\Exception $e) {
                 Log::error('Failed to upload file and create media record', [
                     'temp_upload_id' => $temporaryUpload->id,
@@ -348,10 +348,10 @@ class MediaController extends Controller
             return false;
         }
 
-        Log::info('Associating files with instruction request', [
-            'token' => $token,
-            'request_id' => $requestId,
-        ]);
+//        Log::info('Associating files with instruction request', [
+//            'token' => $token,
+//            'request_id' => $requestId,
+//        ]);
 
         // Find the temporary upload
         $temporaryUpload = TemporaryUpload::where('upload_token', $token)->first();
@@ -383,12 +383,12 @@ class MediaController extends Controller
                 $originalFilePath = $file->getPath();
 
                 // Log the file details before processing
-                Log::debug('Processing file for association', [
-                    'file_id' => $file->id,
-                    'file_name' => $fileName,
-                    'file_path' => $originalFilePath,
-                    'exists' => file_exists($originalFilePath)
-                ]);
+//                Log::debug('Processing file for association', [
+//                    'file_id' => $file->id,
+//                    'file_name' => $fileName,
+//                    'file_path' => $originalFilePath,
+//                    'exists' => file_exists($originalFilePath)
+//                ]);
 
                 if (!file_exists($originalFilePath)) {
                     Log::error('Original file does not exist', [
@@ -414,13 +414,13 @@ class MediaController extends Controller
                     ->toMediaCollection('materials');
 
                 // Log successful file association
-                Log::info('File successfully associated', [
-                    'original_file_id' => $file->id,
-                    'new_media_id' => $newMedia->id,
-                    'file_name' => $fileName,
-                    'new_file_path' => $newMedia->getPath(),
-                    'request_id' => $requestId
-                ]);
+//                Log::info('File successfully associated', [
+//                    'original_file_id' => $file->id,
+//                    'new_media_id' => $newMedia->id,
+//                    'file_name' => $fileName,
+//                    'new_file_path' => $newMedia->getPath(),
+//                    'request_id' => $requestId
+//                ]);
 
                 $filesProcessed++;
             }
@@ -436,12 +436,12 @@ class MediaController extends Controller
 
             DB::commit();
 
-            Log::info('File association completed', [
-                'success' => $filesProcessed > 0 ? 'true' : 'false',
-                'token' => $token,
-                'request_id' => $requestId,
-                'files_processed' => $filesProcessed
-            ]);
+//            Log::info('File association completed', [
+//                'success' => $filesProcessed > 0 ? 'true' : 'false',
+//                'token' => $token,
+//                'request_id' => $requestId,
+//                'files_processed' => $filesProcessed
+//            ]);
 
             return $filesProcessed > 0;
 
@@ -468,12 +468,12 @@ class MediaController extends Controller
         try {
             $logLevel = app()->environment('production') ? 'info' : 'debug';
 
-            Log::log($logLevel, 'Admin file upload request received', [
-                'user_id' => auth()->id(),
-                'has_file' => $request->hasFile('file'),
-                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
-                'environment' => app()->environment()
-            ]);
+//            Log::log($logLevel, 'Admin file upload request received', [
+//                'user_id' => auth()->id(),
+//                'has_file' => $request->hasFile('file'),
+//                'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : 'no file',
+//                'environment' => app()->environment()
+//            ]);
 
             // Validate file
             if (!$request->hasFile('file')) {
@@ -492,11 +492,11 @@ class MediaController extends Controller
             $instructionRequest = InstructionRequests::findOrFail($request->input('instruction_request_id'));
             $collection = $request->input('collection');
 
-            Log::log($logLevel, 'Adding file to instruction request', [
-                'request_id' => $instructionRequest->id,
-                'collection' => $collection,
-                'file_name' => $request->file('file')->getClientOriginalName()
-            ]);
+//            Log::log($logLevel, 'Adding file to instruction request', [
+//                'request_id' => $instructionRequest->id,
+//                'collection' => $collection,
+//                'file_name' => $request->file('file')->getClientOriginalName()
+//            ]);
 
             // Add the file to the specified collection
             $media = $instructionRequest->addMediaFromRequest('file')

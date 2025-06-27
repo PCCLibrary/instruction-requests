@@ -36,12 +36,12 @@ class SamlAuthController extends Controller
             $samlUser = Socialite::driver('saml2')->user();
 
             // Log all attributes for debugging
-            Log::info('SAML2 response received', [
-                'all_attributes' => $samlUser->getRaw(),
-                'id' => $samlUser->getId(),
-                'email' => $samlUser->email,
-                'name' => $samlUser->name
-            ]);
+//            Log::info('SAML2 response received', [
+//                'all_attributes' => $samlUser->getRaw(),
+//                'id' => $samlUser->getId(),
+//                'email' => $samlUser->email,
+//                'name' => $samlUser->name
+//            ]);
 
             // Extract the user identifier - try multiple possible attributes
             $email = $samlUser->email ?? $samlUser->getRaw()['mail'][0] ?? $samlUser->getRaw()['emailAddress'][0] ?? null;
@@ -83,7 +83,7 @@ class SamlAuthController extends Controller
             // Log the user in
             Auth::login($user);
 
-            Log::info("User {$email} successfully authenticated via SAML2");
+//            Log::info("User {$email} successfully authenticated via SAML2");
 
             // Redirect to the dashboard
             return redirect()->intended(route('dashboard'));
@@ -132,9 +132,9 @@ class SamlAuthController extends Controller
 
             // Log driver configuration for debugging
             $config = config('services.saml2');
-            Log::debug('SAML2 configuration', [
-                'config' => $config
-            ]);
+//            Log::debug('SAML2 configuration', [
+//                'config' => $config
+//            ]);
 
             // Get the metadata - this is actually a Response object
             $response = Socialite::driver('saml2')->getServiceProviderMetadata();
@@ -142,9 +142,9 @@ class SamlAuthController extends Controller
             // Extract the content from the Response object
             $metadata = $response->getContent();
 
-            Log::debug('Extracted metadata content', [
-                'metadata' => $metadata
-            ]);
+//            Log::debug('Extracted metadata content', [
+//                'metadata' => $metadata
+//            ]);
 
             // Return the extracted content directly
             return response($metadata, 200, ['Content-Type' => 'text/xml']);
