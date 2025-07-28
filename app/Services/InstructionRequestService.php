@@ -171,6 +171,11 @@ class InstructionRequestService implements InstructionRequestServiceInterface
                 $data['status'] = 'received';
                 $data['created_by'] = $this->getCreatedBy($data);
 
+                // Handle librarian_id fallback - use "No Librarian Preference" if not specified
+                if (empty($data['librarian_id'])) {
+                    $data['librarian_id'] = 2; // "No Librarian Preference" user
+                }
+
                 // Handle preferred_datetime for asynchronous requests
                 if ($data['instruction_type'] === 'asynchronous' && !isset($data['preferred_datetime'])) {
                     // For asynchronous requests, set preferred_datetime to the same date as asynchronous_instruction_ready_date
