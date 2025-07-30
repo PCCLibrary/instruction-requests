@@ -32,8 +32,29 @@ class SamlAuthController extends Controller
     public function handleCallback()
     {
         try {
-            // Get the user data from the SAML response
-            $samlUser = Socialite::driver('saml2')->user();
+            // Debug: Log the incoming request
+            Log::info('SAML2 handleCallback called', [
+                'request_method' => request()->method(),
+                'has_saml_response' => request()->has('SAMLResponse'),
+                'has_relay_state' => request()->has('RelayState'),
+                'request_url' => request()->fullUrl(),
+                'all_input' => request()->all()
+            ]);
+
+            // Try to get more detailed error information
+            try {
+                Log::info('About to call Socialite SAML2 user() method');
+                $samlUser = Socialite::driver('saml2')->user();
+            } catch (\Exception $e) {
+                Log::error('Detailed Socialite SAML2 error', [
+                    'exception_class' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'previous' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null
+                ]);
+                throw $e; // Re-throw to maintain existing error handling
+            }
 
             // Log all attributes for debugging
 //            Log::info('SAML2 response received', [
@@ -132,9 +153,9 @@ class SamlAuthController extends Controller
 
             // Log driver configuration for debugging
             $config = config('services.saml2');
-//            Log::debug('SAML2 configuration', [
-//                'config' => $config
-//            ]);
+            Log::debug('SAML2 configuration', [
+                'config' => $config
+            ]);
 
             // Get the metadata - this is actually a Response object
             $response = Socialite::driver('saml2')->getServiceProviderMetadata();
@@ -142,9 +163,9 @@ class SamlAuthController extends Controller
             // Extract the content from the Response object
             $metadata = $response->getContent();
 
-//            Log::debug('Extracted metadata content', [
-//                'metadata' => $metadata
-//            ]);
+            Log::debug('Extracted metadata content', [
+                'metadata' => $metadata
+            ]);
 
             // Return the extracted content directly
             return response($metadata, 200, ['Content-Type' => 'text/xml']);
