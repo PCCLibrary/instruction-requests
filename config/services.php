@@ -36,34 +36,65 @@ return [
 |--------------------------------------------------------------------------
 |
 | This configuration is used by the SocialiteProviders SAML2 driver to
-| connect with PCC's authentication service. All sensitive values are
-| stored in environment variables.
+| connect with Microsoft Entra ID authentication service. All sensitive
+| values are stored in environment variables.
 |
 */
     'saml2' => [
-        // Identity Provider (IdP) settings - direct configuration
-        'entityid' => env('SAML2_IDP_ENTITY_ID', 'authenticate.pcc.edu'),
-        'acs' => env('SAML2_IDP_SSO_URL', 'https://authenticate.pcc.edu/samlsso'),
+        // Identity Provider (IdP) settings - Entra ID configuration
+        'entityid' => env('SAML2_IDP_ENTITY_ID'),
+        'acs' => env('SAML2_IDP_SSO_URL'),
         'certificate' => env('SAML2_IDP_X509CERT'),
 
         // Service Provider (SP) settings
-        'sp_entityid' => env('SAML2_SP_ENTITY_ID', 'https://wwwtest.pcc.edu/library/instruction-requests/public/saml2/metadata'),
+        'sp_entityid' => env('SAML2_SP_ENTITY_ID'),
         'sp_acs' => 'saml2/acs',
 
         // Default binding method
         'sp_default_binding_method' => \LightSaml\SamlConstants::BINDING_SAML2_HTTP_POST,
 
-        // Security settings
+        // Security settings for Entra ID
         'sp_security_messages_signed' => env('SAML2_SECURITY_MESSAGES_SIGNED', false),
-        'sp_security_assertions_signed' => env('SAML2_SECURITY_ASSERTIONS_SIGNED', false),
+        'sp_security_assertions_signed' => env('SAML2_SECURITY_ASSERTIONS_SIGNED', true),
+        'want_message_signed' => env('SAML2_WANT_MESSAGE_SIGNED', true),
+        'want_assertion_signed' => env('SAML2_WANT_ASSERTION_SIGNED', true),
+        'want_assertion_encrypted' => env('SAML2_WANT_ASSERTION_ENCRYPTED', false),
 
-        // NameID format - change to support various formats, not just email
+        // NameID format for Entra ID
         'nameid_format' => \LightSaml\SamlConstants::NAME_ID_FORMAT_PERSISTENT,
 
-        // Custom attribute mapping
+        // Entra ID specific settings
+        'strict' => env('SAML2_STRICT', true),
+        'wanna_match_url_profile' => env('SAML2_WANNA_MATCH_URL_PROFILE', true),
+        'relay_state_required' => env('SAML2_RELAY_STATE_REQUIRED', true),
+
+        // Clock skew tolerance for server time differences
+        'validation' => [
+            'clock_skew' => env('SAML2_CLOCK_SKEW', 120), // 2 minutes tolerance
+        ],
+
+        // Enhanced attribute mapping for Microsoft Entra ID
         'attribute_map' => [
-            'email' => ['mail', 'email', 'emailAddress'],
-            'name' => ['displayName', 'cn', 'name', 'uid']
+            // Multiple fallback options for email extraction
+            'email' => [
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+                'mail',
+                'email',
+                'emailAddress',
+                'userPrincipalName'
+            ],
+            // Multiple fallback options for name extraction
+            'name' => [
+                'http://schemas.microsoft.com/ws/2008/06/identity/claims/displayname',
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+                'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
+                'displayName',
+                'cn',
+                'name',
+                'givenName',
+                'firstName'
+            ]
         ],
     ]
 ];

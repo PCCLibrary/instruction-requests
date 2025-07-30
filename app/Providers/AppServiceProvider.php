@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         $basePath = '/library/instruction-requests/public';
 
         Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
-            $event->extendSocialite('saml2', \SocialiteProviders\Saml2\Provider::class);
+            $event->extendSocialite('saml2', \App\Providers\CustomSaml2Provider::class);
         });
 
         // Configure Livewire assets
