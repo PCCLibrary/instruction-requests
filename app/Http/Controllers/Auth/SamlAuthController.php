@@ -33,13 +33,13 @@ class SamlAuthController extends Controller
     {
         try {
             // Debug: Log the incoming request
-            Log::info('SAML2 handleCallback called', [
-                'request_method' => request()->method(),
-                'has_saml_response' => request()->has('SAMLResponse'),
-                'has_relay_state' => request()->has('RelayState'),
-                'request_url' => request()->fullUrl(),
-                'all_input' => request()->all()
-            ]);
+//            Log::info('SAML2 handleCallback called', [
+//                'request_method' => request()->method(),
+//                'has_saml_response' => request()->has('SAMLResponse'),
+//                'has_relay_state' => request()->has('RelayState'),
+//                'request_url' => request()->fullUrl(),
+//                'all_input' => request()->all()
+//            ]);
 
             // Try to get more detailed error information
             try {

@@ -31,12 +31,12 @@ class CustomSaml2Provider extends Saml2Provider
         $sessionState = $this->request->session()->pull('state');
         $requestRelayState = $this->request->input('RelayState');
 
-        Log::info('CustomSaml2Provider State Validation:', [
-            'session_state' => $sessionState,
-            'request_relay_state' => $requestRelayState,
-            'is_match' => ($sessionState === $requestRelayState),
-            'session_state_length' => strlen((string) $sessionState),
-        ]);
+//        Log::info('CustomSaml2Provider State Validation:', [
+//            'session_state' => $sessionState,
+//            'request_relay_state' => $requestRelayState,
+//            'is_match' => ($sessionState === $requestRelayState),
+//            'session_state_length' => strlen((string) $sessionState),
+//        ]);
 
         // Validate that both state values exist and match
         // This bypasses the LightSAML messageContext parsing issue
@@ -55,11 +55,11 @@ class CustomSaml2Provider extends Saml2Provider
             // Call parent user() method which will use our overridden hasInvalidState()
             $user = parent::user();
 
-            Log::info('CustomSaml2Provider User Object Created:', [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'name' => $user->getName(),
-            ]);
+//            Log::info('CustomSaml2Provider User Object Created:', [
+//                'id' => $user->getId(),
+//                'email' => $user->getEmail(),
+//                'name' => $user->getName(),
+//            ]);
 
             return $user;
         } catch (\Exception $e) {
@@ -87,9 +87,9 @@ class CustomSaml2Provider extends Saml2Provider
             $email = $this->extractEmailFromAttributes($user['attributes']);
             if ($email) {
                 $socialiteUser->setEmail($email);
-                Log::info('CustomSaml2Provider: Email manually mapped from attributes.', [
-                    'email' => $email
-                ]);
+//                Log::info('CustomSaml2Provider: Email manually mapped from attributes.', [
+//                    'email' => $email
+//                ]);
             }
         }
 
@@ -98,9 +98,9 @@ class CustomSaml2Provider extends Saml2Provider
             $name = $this->extractNameFromAttributes($user['attributes']);
             if ($name) {
                 $socialiteUser->setName($name);
-                Log::info('CustomSaml2Provider: Name manually mapped from attributes.', [
-                    'name' => $name
-                ]);
+//                Log::info('CustomSaml2Provider: Name manually mapped from attributes.', [
+//                    'name' => $name
+//                ]);
             }
         }
 
