@@ -31,12 +31,13 @@ class CustomSaml2Provider extends Saml2Provider
         $sessionState = $this->request->session()->pull('state');
         $requestRelayState = $this->request->input('RelayState');
 
-//        Log::info('CustomSaml2Provider State Validation:', [
-//            'session_state' => $sessionState,
-//            'request_relay_state' => $requestRelayState,
-//            'is_match' => ($sessionState === $requestRelayState),
-//            'session_state_length' => strlen((string) $sessionState),
-//        ]);
+        Log::info('CustomSaml2Provider State Validation:', [
+            'session_state' => $sessionState,
+            'request_relay_state' => $requestRelayState,
+            'is_match' => ($sessionState === $requestRelayState),
+            'session_state_length' => strlen((string) $sessionState),
+            'request_relay_state_length' => strlen((string) $requestRelayState),
+        ]);
 
         // Validate that both state values exist and match
         // This bypasses the LightSAML messageContext parsing issue
@@ -52,14 +53,24 @@ class CustomSaml2Provider extends Saml2Provider
     public function user()
     {
         try {
+            Log::info('CustomSaml2Provider: Starting user() method');
+
+            // Log available request data before calling parent
+            Log::info('CustomSaml2Provider: Request data before parent call:', [
+                'relay_state' => $this->request->input('RelayState'),
+                'saml_response' => substr($this->request->input('SAMLResponse', 'MISSING'), 0, 100) . '...',
+                'request_method' => $this->request->method(),
+                'session_id' => session()->getId(),
+            ]);
+
             // Call parent user() method which will use our overridden hasInvalidState()
             $user = parent::user();
 
-//            Log::info('CustomSaml2Provider User Object Created:', [
-//                'id' => $user->getId(),
-//                'email' => $user->getEmail(),
-//                'name' => $user->getName(),
-//            ]);
+            Log::info('CustomSaml2Provider User Object Created:', [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+            ]);
 
             return $user;
         } catch (\Exception $e) {
