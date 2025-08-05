@@ -20,6 +20,17 @@ class SamlAuthController extends Controller
     public function login()
     {
         Log::info('Initiating SAML2 authentication redirect');
+
+        // Log session info before redirect to compare with callback
+        Log::info('SAML2 Redirect Session Debug', [
+            'session_id' => session()->getId(),
+            'has_active_session' => session()->isStarted(),
+            'session_name' => session()->getName(),
+            'request_url' => request()->fullUrl(),
+            'user_agent' => request()->userAgent(),
+            'environment' => app()->environment()
+        ]);
+
         return Socialite::driver('saml2')->redirect();
     }
 
