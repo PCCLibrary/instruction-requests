@@ -19,18 +19,6 @@ class SamlAuthController extends Controller
      */
     public function login()
     {
-        Log::info('Initiating SAML2 authentication redirect');
-
-        // Log session info before redirect to compare with callback
-        Log::info('SAML2 Redirect Session Debug', [
-            'session_id' => session()->getId(),
-            'has_active_session' => session()->isStarted(),
-            'session_name' => session()->getName(),
-            'request_url' => request()->fullUrl(),
-            'user_agent' => request()->userAgent(),
-            'environment' => app()->environment()
-        ]);
-
         return Socialite::driver('saml2')->redirect();
     }
 
@@ -43,18 +31,7 @@ class SamlAuthController extends Controller
     public function handleCallback()
     {
         try {
-            // Debug: Log the incoming request
-//            Log::info('SAML2 handleCallback called', [
-//                'request_method' => request()->method(),
-//                'has_saml_response' => request()->has('SAMLResponse'),
-//                'has_relay_state' => request()->has('RelayState'),
-//                'request_url' => request()->fullUrl(),
-//                'all_input' => request()->all()
-//            ]);
-
-            // Try to get more detailed error information
             try {
-                Log::info('About to call Socialite SAML2 user() method');
                 $samlUser = Socialite::driver('saml2')->user();
             } catch (\Exception $e) {
                 Log::error('Detailed Socialite SAML2 error', [
@@ -66,14 +43,6 @@ class SamlAuthController extends Controller
                 ]);
                 throw $e; // Re-throw to maintain existing error handling
             }
-
-            // Log all attributes for debugging
-//            Log::info('SAML2 response received', [
-//                'all_attributes' => $samlUser->getRaw(),
-//                'id' => $samlUser->getId(),
-//                'email' => $samlUser->email,
-//                'name' => $samlUser->name
-//            ]);
 
             // Extract the user identifier - try multiple possible attributes
             $email = $samlUser->email ?? $samlUser->getRaw()['mail'][0] ?? $samlUser->getRaw()['emailAddress'][0] ?? null;
@@ -114,8 +83,6 @@ class SamlAuthController extends Controller
 
             // Log the user in
             Auth::login($user);
-
-//            Log::info("User {$email} successfully authenticated via SAML2");
 
             // Redirect to the dashboard
             return redirect()->intended(route('dashboard'));
