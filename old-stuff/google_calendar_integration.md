@@ -653,7 +653,7 @@ This command:
 
 ### 13.3 Troubleshooting Guide
 
-For detailed troubleshooting steps, refer to the [Google Calendar Troubleshooting Guide](./google-calendar-troubleshooting.md) which includes:
+For detailed troubleshooting steps, refer to the [Google Calendar Troubleshooting Guide](google-calendar-troubleshooting.md) which includes:
 
 - Common error messages and solutions
 - Configuration verification steps

@@ -1,0 +1,77 @@
+INFO  2025-09-25 14:31:56,303 serena.cli:health_check:557 - Starting health check for project: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests
+INFO  2025-09-25 14:31:56,303 serena.cli:health_check:561 - Creating SerenaAgent with disabled dashboard...
+INFO  2025-09-25 14:31:56,367 serena.agent:__init__:204 - Starting Serena server (version=0.1.4-69f16bd2, process id=17507, parent process id=17427)
+INFO  2025-09-25 14:31:56,367 serena.agent:__init__:205 - Configuration file: None
+INFO  2025-09-25 14:31:56,367 serena.agent:__init__:206 - Available projects: 
+INFO  2025-09-25 14:31:56,367 serena.agent:__init__:207 - Loaded tools (36): read_file, create_text_file, list_dir, find_file, replace_regex, delete_lines, replace_lines, insert_at_line, search_for_pattern, restart_language_server, get_symbols_overview, find_symbol, find_referencing_symbols, replace_symbol_body, insert_after_symbol, insert_before_symbol, write_memory, read_memory, list_memories, delete_memory, execute_shell_command, activate_project, remove_project, switch_modes, get_current_config, check_onboarding_performed, onboarding, think_about_collected_information, think_about_task_adherence, think_about_whether_you_are_done, summarize_changes, prepare_for_new_conversation, initial_instructions, jet_brains_find_symbol, jet_brains_find_referencing_symbols, jet_brains_get_symbols_overview
+INFO  2025-09-25 14:31:56,367 serena.config.serena_config:apply:106 - SerenaAgentContext[name='desktop-app'] included 1 tools: switch_modes
+INFO  2025-09-25 14:31:56,368 serena.agent:__init__:221 - Number of exposed tools: 26
+INFO  2025-09-25 14:31:56,378 serena.agent:_update_active_tools:401 - Active tools (26): activate_project, check_onboarding_performed, create_text_file, delete_memory, execute_shell_command, find_file, find_referencing_symbols, find_symbol, get_current_config, get_symbols_overview, insert_after_symbol, insert_before_symbol, list_dir, list_memories, onboarding, prepare_for_new_conversation, read_file, read_memory, replace_regex, replace_symbol_body, search_for_pattern, switch_modes, think_about_collected_information, think_about_task_adherence, think_about_whether_you_are_done, write_memory
+INFO  2025-09-25 14:31:56,379 serena.util.file_system:start:329 - Loading of .gitignore files starting ...
+INFO  2025-09-25 14:31:56,380 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/.gitignore
+INFO  2025-09-25 14:31:56,380 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/database/.gitignore
+INFO  2025-09-25 14:31:56,380 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/.serena/.gitignore
+INFO  2025-09-25 14:31:56,382 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/app/.gitignore
+INFO  2025-09-25 14:31:56,382 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/framework/.gitignore
+INFO  2025-09-25 14:31:56,382 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/logs/.gitignore
+INFO  2025-09-25 14:31:56,384 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/framework/cache/.gitignore
+INFO  2025-09-25 14:31:56,384 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/framework/testing/.gitignore
+INFO  2025-09-25 14:31:56,384 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/framework/sessions/.gitignore
+INFO  2025-09-25 14:31:56,384 serena.util.file_system:_load_gitignore_files:148 - Processing .gitignore file: /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/storage/framework/views/.gitignore
+INFO  2025-09-25 14:31:56,394 serena.util.file_system:stop:336 - Loading of .gitignore files completed in 0.014 seconds
+INFO  2025-09-25 14:31:56,394 serena.agent:load_project_from_path_or_name:476 - Added new project instruction-requests for path /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests
+INFO  2025-09-25 14:31:56,394 serena.agent:_activate_project:441 - Activating instruction-requests at /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests
+INFO  2025-09-25 14:31:56,394 serena.agent:_update_active_tools:401 - Active tools (26): activate_project, check_onboarding_performed, create_text_file, delete_memory, execute_shell_command, find_file, find_referencing_symbols, find_symbol, get_current_config, get_symbols_overview, insert_after_symbol, insert_before_symbol, list_dir, list_memories, onboarding, prepare_for_new_conversation, read_file, read_memory, replace_regex, replace_symbol_body, search_for_pattern, switch_modes, think_about_collected_information, think_about_task_adherence, think_about_whether_you_are_done, write_memory
+INFO  2025-09-25 14:31:56,394 serena.agent:issue_task:420 - Scheduling Task-1[init_language_server]
+INFO  2025-09-25 14:31:56,394 serena.agent:start:329 - Task-1[init_language_server] starting ...
+INFO  2025-09-25 14:31:56,394 serena.cli:health_check:564 - SerenaAgent created successfully
+INFO  2025-09-25 14:31:56,394 serena.agent:start:329 - Language server initialization starting ...
+INFO  2025-09-25 14:31:56,395 serena.cli:health_check:567 - Searching for analyzable files...
+INFO  2025-09-25 14:31:56,395 serena.project:create_language_server:303 - Creating language server instance for /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests.
+WARNING 2025-09-25 14:31:56,503 serena.project:gather_source_files:218 - File /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/public/storage not found (possibly due it being a symlink), skipping it in request_parsed_files
+INFO  2025-09-25 14:31:56,508 serena.cli:health_check:576 - Found analyzable file: server.php
+INFO  2025-09-25 14:31:56,508 serena.cli:health_check:594 - Testing GetSymbolsOverviewTool on file: server.php
+INFO  2025-09-25 14:31:56,508 serena.agent:issue_task:420 - Scheduling Task-2[<lambda>]
+INFO  2025-09-25 14:31:56,518 serena.agent:reset_language_server:594 - Starting the language server for instruction-requests
+INFO  2025-09-25 14:31:56,519 solidlsp:start:1622 - Starting language server with language php for /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests
+INFO  2025-09-25 14:31:56,519 solidlsp:_start_server:163 - Starting Intelephense server process
+INFO  2025-09-25 14:31:56,519 solidlsp.ls_handler:start:189 - Starting language server process via command: /Users/gustavo.lanzas/.serena/language_servers/static/Intelephense/php-lsp/node_modules/.bin/intelephense --stdio
+INFO  2025-09-25 14:31:56,549 solidlsp:_start_server:167 - Sending initialize request from LSP client to LSP server and awaiting response
+INFO  2025-09-25 14:31:57,000 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Initialising intelephense 1.14.4"}
+INFO  2025-09-25 14:31:57,002 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Reading state from /var/folders/1c/gg0srbgs4s3_gyhrxc4xtpr00000gq/T/intelephense/8d7872a."}
+INFO  2025-09-25 14:31:57,006 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Initialised in 32 ms"}
+INFO  2025-09-25 14:31:57,006 solidlsp:_start_server:172 - After sent initialize params
+INFO  2025-09-25 14:31:57,006 serena.agent:stop:336 - Language server initialization completed in 0.612 seconds
+INFO  2025-09-25 14:31:57,006 serena.agent:stop:336 - Task-1[init_language_server] completed in 0.612 seconds
+INFO  2025-09-25 14:31:57,006 serena.agent:start:329 - Task-2[<lambda>] starting ...
+INFO  2025-09-25 14:31:57,022 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Searching file:///Users/gustavo.lanzas/.serena/language_servers/static/Intelephense/php-lsp/node_modules/intelephense/lib/stub for files to index."}
+INFO  2025-09-25 14:31:57,023 serena.agent:stop:336 - Task-2[<lambda>] completed in 0.017 seconds
+INFO  2025-09-25 14:31:57,023 serena.cli:health_check:597 - GetSymbolsOverviewTool returned 1 symbols
+INFO  2025-09-25 14:31:57,023 serena.cli:health_check:618 - No class or function found, using first available symbol
+INFO  2025-09-25 14:31:57,024 serena.cli:health_check:622 - Using symbol for testing: $uri (kind: 13)
+INFO  2025-09-25 14:31:57,024 serena.cli:health_check:625 - Testing FindSymbolTool for symbol: $uri
+INFO  2025-09-25 14:31:57,024 serena.agent:issue_task:420 - Scheduling Task-3[<lambda>]
+INFO  2025-09-25 14:31:57,024 serena.agent:start:329 - Task-3[<lambda>] starting ...
+INFO  2025-09-25 14:31:57,026 serena.agent:stop:336 - Task-3[<lambda>] completed in 0.002 seconds
+INFO  2025-09-25 14:31:57,026 serena.cli:health_check:630 - FindSymbolTool found 1 matches for symbol $uri
+INFO  2025-09-25 14:31:57,026 serena.cli:health_check:633 - Testing FindReferencingSymbolsTool for symbol: $uri
+INFO  2025-09-25 14:31:57,026 serena.agent:issue_task:420 - Scheduling Task-4[<lambda>]
+INFO  2025-09-25 14:31:57,026 serena.agent:start:329 - Task-4[<lambda>] starting ...
+INFO  2025-09-25 14:31:57,032 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Searching file:///Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests for files to index."}
+INFO  2025-09-25 14:31:57,382 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 2, "message": "file:///Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/vendor/composer/autoload_classmap.php is over the maximum file size of 1000000 bytes."}
+INFO  2025-09-25 14:31:57,382 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 2, "message": "file:///Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/vendor/composer/autoload_static.php is over the maximum file size of 1000000 bytes."}
+INFO  2025-09-25 14:31:57,382 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 2, "message": "file:///Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/vendor/fakerphp/faker/src/Faker/Provider/nl_BE/Text.php is over the maximum file size of 1000000 bytes."}
+INFO  2025-09-25 14:31:57,382 solidlsp:window_log_message:153 - LSP: window/logMessage: {"type": 3, "message": "Indexing started."}
+WARNING 2025-09-25 14:32:00,041 solidlsp:request_referencing_symbols:1294 - Could not find containing symbol for server.php:16:4. Returning file symbol instead
+WARNING 2025-09-25 14:32:00,042 solidlsp:request_referencing_symbols:1294 - Could not find containing symbol for server.php:16:50. Returning file symbol instead
+INFO  2025-09-25 14:32:00,043 serena.agent:stop:336 - Task-4[<lambda>] completed in 3.016 seconds
+INFO  2025-09-25 14:32:00,043 serena.cli:health_check:637 - FindReferencingSymbolsTool found 2 references for symbol $uri
+INFO  2025-09-25 14:32:00,043 serena.cli:health_check:643 - Testing SearchForPatternTool for pattern: $uri
+INFO  2025-09-25 14:32:00,043 serena.agent:issue_task:420 - Scheduling Task-5[<lambda>]
+INFO  2025-09-25 14:32:00,043 serena.agent:start:329 - Task-5[<lambda>] starting ...
+WARNING 2025-09-25 14:32:00,100 serena.project:gather_source_files:218 - File /Users/gustavo.lanzas/Sites/Library2024/web/library/instruction-requests/public/storage not found (possibly due it being a symlink), skipping it in request_parsed_files
+INFO  2025-09-25 14:32:00,102 serena.text_utils:search_files:326 - Processing 712 files.
+INFO  2025-09-25 14:32:00,176 serena.text_utils:search_files:367 - Found 0 total matches across 712 files
+INFO  2025-09-25 14:32:00,177 serena.agent:stop:336 - Task-5[<lambda>] completed in 0.134 seconds
+INFO  2025-09-25 14:32:00,177 serena.cli:health_check:650 - SearchForPatternTool found 0 pattern matches for $uri
+INFO  2025-09-25 14:32:00,177 serena.cli:health_check:664 - Health check completed successfully
