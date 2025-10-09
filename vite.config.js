@@ -13,7 +13,8 @@ export default defineConfig({
                 'resources/js/campus-edit.js',
                 'resources/js/field-validation.js',
                 'resources/js/custom-validators.js',
-                'resources/js/instruction-form-validation.js'
+                'resources/js/instruction-form-validation.js',
+                'resources/png/library-logo.png'
             ],
             refresh: true,
         }),

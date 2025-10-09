@@ -1,215 +1,58 @@
 {{-- resources/views/components/navigation.blade.php --}}
-<nav class="bg-cyan-700 dark:bg-gray-800">
-    <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between h-16">
-            {{-- Left side: Logo and Navigation --}}
-            <div class="flex items-center">
-                {{-- Brand/Logo --}}
-                <div class="flex-shrink-0">
-                    <a href="{{ route('dashboard') }}" class="text-xl font-bold text-white">
-                        {{ __('Instruction Request Dashboard') }}
-                    </a>
-                </div>
 
-                {{-- Desktop Navigation --}}
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="{{ route('campuses.index') }}"
-                           class="hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('campuses.*') ? 'text-white' : 'text-gray-200' }}">
-                            {{ __('Campuses') }}
-                        </a>
+{{-- Sidebar (Vertical Navigation) --}}
+<aside class="bg-cyan-700 dark:bg-gray-800 w-64 min-h-screen flex flex-col fixed lg:relative z-30"
+       :class="{'block': sidebarOpen, 'hidden lg:flex': !sidebarOpen}">
 
-                        <a href="{{ route('instructors.index') }}"
-                           class="hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('instructors.*') ? 'text-white' : 'text-gray-200' }}">
-                            {{ __('Instructors') }}
-                        </a>
-
-                        <a href="{{ route('users.index') }}"
-                           class="hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('users.*') ? 'text-white' : 'text-gray-200' }}">
-                            {{ __('Librarians') }}
-                        </a>
-
-                        <a href="{{ route('instructionRequests.index') }}"
-                           class="hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium {{ Route::is('instructionRequests.*') ? 'text-white' : 'text-gray-200' }}">
-                            {{ __('Instruction Requests') }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Right side: Dark Mode Toggle and User Dropdown --}}
-            <div class="hidden md:block">
-                <div class="ml-4 flex items-center md:ml-6 space-x-3">
-                    {{-- Role Badge --}}
-                    <x-user-role-badge :user="Auth::user()" />
-
-                    {{-- User Dropdown --}}
-                    <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                        <button @click="open = !open"
-                                class="flex items-center text-white hover:bg-cyan-800 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
-                                id="user-menu-button"
-                                aria-expanded="false"
-                                aria-haspopup="true">
-                            <x-heroicon-o-user class="h-5 w-5 mr-2" />
-                            {{ Auth::user()->display_name }}
-                            <x-heroicon-s-chevron-down class="ml-2 h-4 w-4" />
-                        </button>
-
-                        <div x-show="open"
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-cyan-800 dark:bg-gray-700"
-                             role="menu"
-                             aria-orientation="vertical"
-                             aria-labelledby="user-menu-button"
-                             tabindex="-1">
-                            @if(Auth::user()->is_admin)
-                                <a href="{{ route('admin.index') }}"
-                                   class="block px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 dark:hover:bg-gray-600 hover:text-white"
-                                   role="menuitem">
-                                    {{ __('Admin Panel') }}
-                                </a>
-                            @endif
-                            <a href="{{ route('users.edit', Auth::user()->id) }}"
-                               class="block px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 dark:hover:bg-gray-600 hover:text-white"
-                               role="menuitem">
-                                {{ __('Edit Profile') }}
-                            </a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit"
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-cyan-700 dark:hover:bg-gray-600 hover:text-white"
-                                        role="menuitem">
-                                    {{ __('Logout') }}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    {{-- Dark Mode Toggle --}}
-                    <button
-                        @click="darkMode = !darkMode"
-                        class="text-gray-200 hover:text-white px-3 py-2 rounded-md">
-                        <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                        <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Mobile menu button --}}
-            <div class="-mr-2 flex md:hidden">
-
-                <button type="button"
-                        @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="bg-cyan-600 dark:bg-gray-700 inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-cyan-500 dark:hover:bg-gray-600 focus:outline-none">
-                    <span class="sr-only">Open main menu</span>
-                    <svg class="h-6 w-6"
-                         :class="{'hidden': mobileMenuOpen, 'block': !mobileMenuOpen }"
-                         xmlns="http://www.w3.org/2000/svg"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    <svg class="hidden h-6 w-6"
-                         :class="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }"
-                         xmlns="http://www.w3.org/2000/svg"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
-                {{-- Dark Mode Toggle (Mobile) --}}
-                <button
-                    @click="darkMode = !darkMode"
-                    class="text-gray-200 hover:text-white p-2 mr-2">
-                    <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                    <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+    {{-- Sidebar Header with Logo --}}
+    <div class="px-6 py-4 border-b border-cyan-600 dark:border-gray-700">
+        <img src="{{ \Illuminate\Support\Facades\Vite::asset('resources/png/library-logo.png') }}"
+             alt="Library Logo"
+             class="max-h-12 w-auto max-w-full object-contain">
+        <p class="text-xs text-white mt-2 break-words">Instruction Request Dashboard</p>
     </div>
 
-    {{-- Mobile menu --}}
-    <div class="md:hidden"
-         x-show="mobileMenuOpen"
-         x-transition:enter="transition ease-out duration-100"
-         x-transition:enter-start="transform opacity-0 scale-95"
-         x-transition:enter-end="transform opacity-100 scale-100"
-         x-transition:leave="transition ease-in duration-75"
-         x-transition:leave-start="transform opacity-100 scale-100"
-         x-transition:leave-end="transform opacity-0 scale-95">
-        <div class="px-2 pt-2 pb-3 space-y-1 container mx-auto">
-            <a href="{{ route('campuses.index') }}"
-               class="hover:bg-cyan-800 dark:hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('campuses.*') ? 'text-white' : 'text-gray-200' }}">
-                {{ __('Campuses') }}
-            </a>
+    {{-- Navigation Links --}}
+    <nav class="flex-1 px-4 py-6 space-y-2">
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('dashboard') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-chart-bar class="w-5 h-5 mr-3" />
+            {{ __('Dashboard') }}
+        </a>
 
-            <a href="{{ route('instructors.index') }}"
-               class="hover:bg-cyan-800 dark:hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('instructors.*') ? 'text-white' : 'text-gray-200' }}">
-                {{ __('Instructors') }}
-            </a>
+        <a href="{{ route('campuses.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('campuses.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-building-office-2 class="w-5 h-5 mr-3" />
+            {{ __('Campuses') }}
+        </a>
 
-            <a href="{{ route('users.index') }}"
-               class="hover:bg-cyan-800 dark:hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('users.*') ? 'text-white' : 'text-gray-200' }}">
-                {{ __('Librarians') }}
-            </a>
+        <a href="{{ route('instructors.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('instructors.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-user-group class="w-5 h-5 mr-3" />
+            {{ __('Instructors') }}
+        </a>
 
-            <a href="{{ route('instructionRequests.index') }}"
-               class="hover:bg-cyan-800 dark:hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium {{ Route::is('instructionRequests.*') ? 'text-white' : 'text-gray-200' }}">
-                {{ __('Instruction Requests') }}
-            </a>
-        </div>
+        <a href="{{ route('users.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('users.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-user class="w-5 h-5 mr-3" />
+            {{ __('Librarians') }}
+        </a>
 
-        {{-- Mobile menu profile section --}}
-        <div class="pt-4 pb-3 border-t border-cyan-800 dark:border-gray-700">
-            <div class="container mx-auto px-4">
-                <div class="flex items-center">
-                    <x-user-role-badge :user="Auth::user()" class="mr-4" />
-                    <div class="flex-shrink-0">
-                        <x-heroicon-o-user class="h-8 w-8 text-white" />
-                    </div>
-                    <div class="ml-3">
-                        <div class="text-base font-medium leading-none text-white">
-                            {{ Auth::user()->name }}
-                        </div>
-                        <div class="text-sm font-medium leading-none text-cyan-200 dark:text-gray-300 mt-1">{{ Auth::user()->email }}</div>
-                    </div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    @if(Auth::user()->is_admin)
-                        <a href="{{ route('admin.index') }}"
-                           class="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700 hover:text-white">
-                            {{ __('Admin Panel') }}
-                        </a>
-                    @endif
-                    <a href="{{ route('users.edit', Auth::user()->id) }}"
-                       class="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700 hover:text-white">
-                        {{ __('Edit Profile') }}
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                                class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700 hover:text-white">
-                            {{ __('Logout') }}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
+        <a href="{{ route('instructionRequests.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('instructionRequests.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-document-text class="w-5 h-5 mr-3" />
+            {{ __('Instruction Requests') }}
+        </a>
+    </nav>
+</aside>
+
+{{-- Mobile Sidebar Overlay --}}
+<div x-show="sidebarOpen"
+     @click="sidebarOpen = false"
+     x-transition:enter="transition-opacity ease-linear duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity ease-linear duration-300"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-gray-600 bg-opacity-75 lg:hidden z-20"></div>
