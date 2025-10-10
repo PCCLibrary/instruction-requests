@@ -20,6 +20,24 @@
             {{ __('Dashboard') }}
         </a>
 
+        {{-- Separator --}}
+        <div class="border-t border-cyan-600 dark:border-gray-700 my-2"></div>
+
+        <a href="{{ route('instructionRequests.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('instructionRequests.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-document-text class="w-5 h-5 mr-3" />
+            {{ __('Instruction Requests') }}
+        </a>
+
+        <a href="{{ route('statistics.index') }}"
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('statistics.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+            <x-heroicon-o-chart-pie class="w-5 h-5 mr-3" />
+            {{ __('Statistics') }}
+        </a>
+
+        {{-- Separator --}}
+        <div class="border-t border-cyan-600 dark:border-gray-700 my-2"></div>
+
         <a href="{{ route('campuses.index') }}"
            class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('campuses.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
             <x-heroicon-o-building-office-2 class="w-5 h-5 mr-3" />
@@ -36,12 +54,6 @@
            class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('users.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
             <x-heroicon-o-user class="w-5 h-5 mr-3" />
             {{ __('Librarians') }}
-        </a>
-
-        <a href="{{ route('instructionRequests.index') }}"
-           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('instructionRequests.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
-            <x-heroicon-o-document-text class="w-5 h-5 mr-3" />
-            {{ __('Instruction Requests') }}
         </a>
     </nav>
 </aside>

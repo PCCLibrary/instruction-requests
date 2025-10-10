@@ -129,6 +129,9 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Dashboard home
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Statistics page
+    Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
+
     /*
     |--------------------------------------------------------------------------
     | Resource Routes
