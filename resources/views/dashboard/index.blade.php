@@ -2,7 +2,6 @@
 
 @section('content')
     <x-status-bar
-        :headerBgColor="'bg-sky-500 dark:bg-sky-700'" {{-- Distinct dark mode header color --}}
         :items="[
         [
             'iconBgColor' => 'bg-amber-500 dark:bg-amber-700',  // Matches assigned table header

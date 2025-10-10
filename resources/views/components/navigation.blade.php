@@ -9,7 +9,6 @@
         <img src="{{ \Illuminate\Support\Facades\Vite::asset('resources/png/library-logo.png') }}"
              alt="Library Logo"
              class="max-h-12 w-auto max-w-full object-contain">
-        <p class="text-xs text-white mt-2 break-words">Instruction Request Dashboard</p>
     </div>
 
     {{-- Navigation Links --}}

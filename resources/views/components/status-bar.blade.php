@@ -1,48 +1,31 @@
 {{-- status-bar.blade.php --}}
 @props([
     'items' => [],
-    'containerClass' => 'mb-6',
-    'headerBgColor' => 'bg-sky-500'
+    'containerClass' => 'mb-6'
 ])
 
-<div class="{{ $containerClass }}">
-    <div class="w-full rounded-md overflow-hidden border border-gray-200 dark:border-black">
-        {{-- Header --}}
-        <div class="flex items-center {{ $headerBgColor }} px-4 py-2">
-            <h3 class="text-sm font-medium text-white">Status</h3>
-        </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 {{ $containerClass }}">
+    @foreach($items as $item)
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center">
+                {{-- Icon container --}}
+                <div class="flex-shrink-0 {{ $item['iconBgColor'] }} rounded-lg p-3">
+                    <x-dynamic-component
+                        :component="'heroicon-o-'.$item['icon']"
+                        class="w-6 h-6 text-white"
+                    />
+                </div>
 
-        {{-- Status Items --}}
-        <div class="bg-white dark:bg-gray-700">
-            <div class="flex flex-col md:grid md:grid-cols-2 xl:flex xl:flex-row divide-y md:divide-y-0 xl:divide-y-0">
-                @foreach($items as $index => $item)
-                    <div class="flex-1 p-3 sm:p-4 border-gray-200  dark:border-black{{-- Consistent borders --}}
-                        md:border-r md:last:border-r-0 xl:border-r xl:last:border-r-0
-                        @if($index === 1 && count($items) > 1) md:border-b @endif
-                    ">
-                        <div class="flex items-center gap-2">
-                            {{-- Icon container with matching table header colors --}}
-                            <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center {{ $item['iconBgColor'] }}">
-                                <x-dynamic-component
-                                    :component="'heroicon-o-'.$item['icon']"
-                                    class="w-4 h-4 md:w-5 md:h-5 text-white dark:text-gray-200"
-                                    {{-- Icon color --}}
-                                />
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="min-w-0 flex-1">
-                                <p class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-200">
-                                    {{ $item['count'] }}
-                                </p>
-                                <p class="text-sm text-gray-500 dark:text-gray-200 truncate">
-                                    {{ $item['infoBoxText'] }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+                {{-- Content --}}
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {{ $item['infoBoxText'] }}
+                    </p>
+                    <p class="text-2xl font-semibold {{ $item['countColor'] ?? 'text-gray-900 dark:text-white' }}">
+                        {{ $item['count'] }}
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
+    @endforeach
 </div>
