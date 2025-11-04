@@ -38,7 +38,7 @@ return [
     |
     */
 
-    'layout' => 'components.layouts.app',
+    'layout' => 'layouts.app',
 
     /*
     |---------------------------------------------------------------------------
@@ -197,4 +197,3 @@ return [
     'path' => '/library/instruction-requests/public/vendor/livewire',
 
 ];
-
