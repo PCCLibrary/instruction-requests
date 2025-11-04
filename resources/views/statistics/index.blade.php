@@ -5,7 +5,8 @@
     <!-- Page Header -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Statistics Dashboard</h1>
-        <p class="text-gray-600 dark:text-gray-300">Instruction request metrics and reporting</p>
+marking        <p class="text-gray-600 dark:text-gray-300">Instruction request metrics and reporting.</p>
+        <h3>THIS IS A MOCKUP! IT DOES NOT WORK YET!</h3>
     </div>
 
     <!-- Filter Panel -->
