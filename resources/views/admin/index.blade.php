@@ -183,9 +183,12 @@
                                 @endif
                             </span>
                         </div>
-                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                        <div class="text-xs text-gray-600 dark:text-gray-400 mb-4">
                             <p>Shows instruction requests currently being edited by users.</p>
                         </div>
+
+                        <!-- Old Locks Management Component -->
+                        <livewire:admin-old-locks />
                     </div>
 
                     <!-- Application Cache Section -->
@@ -239,6 +242,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (locksBadge && data.locks_html) {
                 locksBadge.innerHTML = data.locks_html;
+            }
+
+            // Refresh Livewire old locks component
+            if (typeof Livewire !== 'undefined') {
+                Livewire.dispatch('refreshOldLocks');
             }
         })
         .catch(error => {

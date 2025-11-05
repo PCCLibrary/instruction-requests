@@ -208,17 +208,18 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     }
 
     /**
-     * Check if a lock is stale (older than 15 minutes).
+     * Check if a lock is stale (older than specified minutes).
      *
+     * @param int $minutes Number of minutes after which lock is considered stale (default: 15)
      * @return bool
      */
-    public function hasStalelock(): bool
+    public function hasStalelock(int $minutes = 15): bool
     {
         if (!$this->isLocked() || !$this->locked_at) {
             return false;
         }
 
-        return now()->diffInMinutes($this->locked_at) > 15;
+        return now()->diffInMinutes($this->locked_at) > $minutes;
     }
 
     /**
