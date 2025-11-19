@@ -10,7 +10,10 @@ return [
             ]
         ],
         'librarian' => [
-            'new_request' => 'Library Instruction Request: :type, :date, :campus, :class, :instructor'
+            'received' => 'New: :campus, :instructor, :class, :date, :time, :type, Lib Instr Req',
+            'assigned' => 'Assigned: :campus, :instructor, :class, :date, :time, :type, Lib Instr Req',
+            'accepted' => 'Accepted: :campus, :instructor, :class, :date, :time, :type, Lib Instr Req',
+            'rejected' => 'Rejected: :campus, :instructor, :class, :date, :time, :type, Lib Instr Req'
         ]
     ],
     'instruction_types' => [

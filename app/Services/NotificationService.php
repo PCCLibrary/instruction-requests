@@ -68,10 +68,9 @@ class NotificationService
 
         $type = $this->mapInstructionType($request->instruction_type);
         $class = $request->department . $request->course_number;
-        $dateFormatted = $this->selectAndFormatDate($request);
 
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
-        $librarianSubject = $this->buildLibrarianSubject($type, $dateFormatted, $request->campus->name, $class, $request->instructor->name);
+        $librarianSubject = $this->buildReceivedSubject($request);
 
         return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
     }
@@ -87,10 +86,9 @@ class NotificationService
 
         $type = $this->mapInstructionType($request->instruction_type);
         $class = $request->department . $request->course_number;
-        $dateFormatted = $this->selectAndFormatDate($request);
 
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
-        $librarianSubject = $this->buildLibrarianSubject($type, $dateFormatted, $request->campus->name, $class, $request->instructor->name);
+        $librarianSubject = $this->buildAssignedSubject($request);
 
         return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
     }
@@ -106,10 +104,9 @@ class NotificationService
 
         $type = $this->mapInstructionType($request->instruction_type);
         $class = $request->department . $request->course_number;
-        $dateFormatted = $this->selectAndFormatDate($request);
 
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
-        $librarianSubject = $this->buildLibrarianSubject($type, $dateFormatted, $request->campus->name, $class, $request->instructor->name);
+        $librarianSubject = $this->buildAcceptedSubject($request);
 
         return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
     }
@@ -125,10 +122,9 @@ class NotificationService
 
         $type = $this->mapInstructionType($request->instruction_type);
         $class = $request->department . $request->course_number;
-        $dateFormatted = $this->selectAndFormatDate($request);
 
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
-        $librarianSubject = $this->buildLibrarianSubject($type, $dateFormatted, $request->campus->name, $class, $request->instructor->name);
+        $librarianSubject = $this->buildRejectedSubject($request);
 
         return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
     }
@@ -221,9 +217,13 @@ class NotificationService
             'preferred_datetime' => $request->preferred_datetime,
             'asynchronous_instruction_ready_date' => $request->asynchronous_instruction_ready_date,
             'date_formatted' => $this->selectAndFormatDate($request),
+            'duration' => $request->duration,
             'number_of_students' => $request->number_of_students,
             'class_description' => $request->class_description,
             'assignment_description' => $request->assignment_description,
+            'instruction_goals' => $this->formatLearningOutcomes($request),
+            'genai_discussion_interest' => $request->genai_discussion_interest,
+            'other_notes' => $request->other_notes,
             'request_id' => $request->id,
             'librarian_name' => $request->detail->assignedLibrarian->display_name ?? null,
             'detail' => [
@@ -287,6 +287,55 @@ class NotificationService
     }
 
     /**
+     * Format learning outcomes in concise semicolon-separated format
+     */
+    private function formatLearningOutcomes(InstructionRequests $request): string
+    {
+        $outcomes = [];
+
+        if ($request->received_assignment) {
+            $outcomes[] = 'Received assignment';
+        }
+        if ($request->selected_topics) {
+            $outcomes[] = 'Selected topics';
+        }
+        if ($request->explored_background) {
+            $outcomes[] = 'Explored background';
+        }
+        if ($request->written_draft) {
+            $outcomes[] = 'Written draft';
+        }
+        if ($request->other_learning_outcome && !empty($request->other_learning_outcome_description)) {
+            $outcomes[] = 'Other: ' . $request->other_learning_outcome_description;
+        }
+
+        return !empty($outcomes) ? implode('; ', $outcomes) : 'Not specified';
+    }
+
+    /**
+     * Parse date and time components in US format for subject lines
+     */
+    private function parseDateTimeComponents(InstructionRequests $request): array
+    {
+        if ($request->instruction_type === 'asynchronous' && $request->asynchronous_instruction_ready_date) {
+            return [
+                'date' => \Carbon\Carbon::parse($request->asynchronous_instruction_ready_date)->format('m/d/Y'),
+                'time' => 'N/A'
+            ];
+        }
+
+        if ($request->preferred_datetime) {
+            $dt = \Carbon\Carbon::parse($request->preferred_datetime);
+            return [
+                'date' => $dt->format('m/d/Y'),
+                'time' => $dt->format('g:ia')
+            ];
+        }
+
+        return ['date' => 'TBD', 'time' => 'TBD'];
+    }
+
+    /**
      * Build instructor subject line using language files
      */
     private function buildInstructorSubject(string $type, string $class, InstructionRequests $request): string
@@ -304,16 +353,78 @@ class NotificationService
     }
 
     /**
-     * Build librarian subject line using language files
+     * Build librarian subject line for received status
      */
-    private function buildLibrarianSubject(string $type, string $dateFormatted, string $campus, string $class, string $instructor): string
+    private function buildReceivedSubject(InstructionRequests $request): string
     {
-        return __('notifications.subjects.librarian.new_request', [
-            'type' => $type,
-            'date' => $dateFormatted,
-            'campus' => $campus,
+        $dateTime = $this->parseDateTimeComponents($request);
+        $type = $this->mapInstructionType($request->instruction_type);
+        $class = $request->department . $request->course_number;
+
+        return __('notifications.subjects.librarian.received', [
+            'campus' => $request->campus->name,
+            'instructor' => $request->instructor->name,
             'class' => $class,
-            'instructor' => $instructor
+            'date' => $dateTime['date'],
+            'time' => $dateTime['time'],
+            'type' => $type
+        ], 'en');
+    }
+
+    /**
+     * Build librarian subject line for assigned status
+     */
+    private function buildAssignedSubject(InstructionRequests $request): string
+    {
+        $dateTime = $this->parseDateTimeComponents($request);
+        $type = $this->mapInstructionType($request->instruction_type);
+        $class = $request->department . $request->course_number;
+
+        return __('notifications.subjects.librarian.assigned', [
+            'campus' => $request->campus->name,
+            'instructor' => $request->instructor->name,
+            'class' => $class,
+            'date' => $dateTime['date'],
+            'time' => $dateTime['time'],
+            'type' => $type
+        ], 'en');
+    }
+
+    /**
+     * Build librarian subject line for accepted status
+     */
+    private function buildAcceptedSubject(InstructionRequests $request): string
+    {
+        $dateTime = $this->parseDateTimeComponents($request);
+        $type = $this->mapInstructionType($request->instruction_type);
+        $class = $request->department . $request->course_number;
+
+        return __('notifications.subjects.librarian.accepted', [
+            'campus' => $request->campus->name,
+            'instructor' => $request->instructor->name,
+            'class' => $class,
+            'date' => $dateTime['date'],
+            'time' => $dateTime['time'],
+            'type' => $type
+        ], 'en');
+    }
+
+    /**
+     * Build librarian subject line for rejected status
+     */
+    private function buildRejectedSubject(InstructionRequests $request): string
+    {
+        $dateTime = $this->parseDateTimeComponents($request);
+        $type = $this->mapInstructionType($request->instruction_type);
+        $class = $request->department . $request->course_number;
+
+        return __('notifications.subjects.librarian.rejected', [
+            'campus' => $request->campus->name,
+            'instructor' => $request->instructor->name,
+            'class' => $class,
+            'date' => $dateTime['date'],
+            'time' => $dateTime['time'],
+            'type' => $type
         ], 'en');
     }
 

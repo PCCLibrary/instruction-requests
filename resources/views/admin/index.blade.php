@@ -163,6 +163,9 @@
                         </div>
                     </div>
 
+                    <!-- Test Notifications Section -->
+                    @livewire('admin-test-notifications')
+
                     <!-- Active Locks Section -->
                     <div class="mb-6">
                         <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Active Edit Locks</h4>
