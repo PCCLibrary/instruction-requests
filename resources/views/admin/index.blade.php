@@ -14,10 +14,86 @@
     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900 dark:text-gray-100">
 
-            <!-- Two-column grid layout -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- Single column full-width layout -->
+            <div class="space-y-8">
 
-                <!-- Left Column: Existing Admin Users Table -->
+                <!-- Test Notifications Section -->
+                @livewire('admin-test-notifications')
+
+                <!-- Mail Queue Section -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Mail Queue</h3>
+
+                    <!-- Queue Status Display -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-3">
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Email Queue Status</span>
+                        <span id="queue-badge">
+                            @php
+                                $queuePending = DB::table('jobs')->count();
+                                $queueFailed = DB::table('failed_jobs')->count();
+                            @endphp
+                            @if($queueFailed > 0)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                    ⚠️ {{ $queueFailed }} failed{{ $queuePending > 0 ? ", {$queuePending} pending" : "" }}
+                                </span>
+                            @elseif($queuePending > 0)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                    ⏳ {{ $queuePending }} pending
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                    ✅ Queue empty
+                                </span>
+                            @endif
+                        </span>
+                    </div>
+
+                    <!-- Queue Actions -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                        <form method="POST" action="{{ route('admin.flush-queue') }}" class="inline-block w-full">
+                            @csrf
+                            <button type="submit"
+                                    onclick="return confirm('Remove all pending jobs from the queue? This cannot be undone.')"
+                                    class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                                <x-heroicon-o-stop class="w-4 h-4" />
+                                <span>Flush Mail Queue</span>
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('admin.restart-queue') }}" class="inline-block w-full">
+                            @csrf
+                            <button type="submit"
+                                    onclick="return confirm('Restart queue workers? Current jobs will finish, then workers will restart.')"
+                                    class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <x-heroicon-o-arrow-path class="w-4 h-4" />
+                                <span>Restart Queue Workers</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-xs text-gray-600 dark:text-gray-400">
+                        <p>Shows pending and failed email jobs (updates every 30 seconds). Manage email delivery system with flush and restart actions.</p>
+                    </div>
+                </div>
+
+                <!-- Application Cache Section -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Application Cache</h3>
+                    <form method="POST" action="{{ route('admin.clear-cache') }}" class="inline-block w-full mb-2">
+                        @csrf
+                        <button type="submit"
+                                onclick="return confirm('Clear all application caches? This will temporarily slow down the next few requests.')"
+                                class="w-full md:w-auto flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <x-heroicon-o-trash class="w-4 h-4" />
+                            <span>Clear Application Cache</span>
+                        </button>
+                    </form>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">
+                        <p>Clears application, config, route, and view caches to resolve configuration issues.</p>
+                    </div>
+                </div>
+
+                <!-- Admin User Assignment Availability Section -->
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                         Admin User Assignment Availability
@@ -101,116 +177,34 @@
                     </div>
                 </div>
 
-                <!-- Right Column: System Management -->
+                <!-- Active Locks Section -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                        System Management
-                    </h3>
-
-                    <!-- Mail Queue Section -->
-                    <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Mail Queue</h4>
-
-                        <!-- Queue Status Display -->
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-3">
-                            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Email Queue Status</span>
-                            <span id="queue-badge">
-                                @php
-                                    $queuePending = DB::table('jobs')->count();
-                                    $queueFailed = DB::table('failed_jobs')->count();
-                                @endphp
-                                @if($queueFailed > 0)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                        ⚠️ {{ $queueFailed }} failed{{ $queuePending > 0 ? ", {$queuePending} pending" : "" }}
-                                    </span>
-                                @elseif($queuePending > 0)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                        ⏳ {{ $queuePending }} pending
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                        ✅ Queue empty
-                                    </span>
-                                @endif
-                            </span>
-                        </div>
-
-                        <!-- Queue Actions -->
-                        <div class="space-y-3 mb-2">
-                            <form method="POST" action="{{ route('admin.flush-queue') }}" class="inline-block w-full">
-                                @csrf
-                                <button type="submit"
-                                        onclick="return confirm('Remove all pending jobs from the queue? This cannot be undone.')"
-                                        class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                                    <x-heroicon-o-stop class="w-4 h-4" />
-                                    <span>Flush Mail Queue</span>
-                                </button>
-                            </form>
-
-                            <form method="POST" action="{{ route('admin.restart-queue') }}" class="inline-block w-full">
-                                @csrf
-                                <button type="submit"
-                                        onclick="return confirm('Restart queue workers? Current jobs will finish, then workers will restart.')"
-                                        class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                    <x-heroicon-o-arrow-path class="w-4 h-4" />
-                                    <span>Restart Queue Workers</span>
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="text-xs text-gray-600 dark:text-gray-400">
-                            <p>Shows pending and failed email jobs (updates every 30 seconds). Manage email delivery system with flush and restart actions.</p>
-                        </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Active Edit Locks</h3>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Edit Sessions</span>
+                        <span id="locks-badge">
+                            @php
+                                $activeLocks = \App\Models\InstructionRequests::where('locked', true)->count();
+                            @endphp
+                            @if($activeLocks > 0)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                    🔒 {{ $activeLocks }} locked
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                    ✅ No locks
+                                </span>
+                            @endif
+                        </span>
+                    </div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                        <p>Shows instruction requests currently being edited by users.</p>
                     </div>
 
-                    <!-- Test Notifications Section -->
-                    @livewire('admin-test-notifications')
-
-                    <!-- Active Locks Section -->
-                    <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Active Edit Locks</h4>
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
-                            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Edit Sessions</span>
-                            <span id="locks-badge">
-                                @php
-                                    $activeLocks = \App\Models\InstructionRequests::where('locked', true)->count();
-                                @endphp
-                                @if($activeLocks > 0)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                        🔒 {{ $activeLocks }} locked
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                        ✅ No locks
-                                    </span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="text-xs text-gray-600 dark:text-gray-400 mb-4">
-                            <p>Shows instruction requests currently being edited by users.</p>
-                        </div>
-
-                        <!-- Old Locks Management Component -->
-                        <livewire:admin-old-locks />
-                    </div>
-
-                    <!-- Application Cache Section -->
-                    <div class="mb-6">
-                        <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-3">Application Cache</h4>
-                        <form method="POST" action="{{ route('admin.clear-cache') }}" class="inline-block w-full mb-2">
-                            @csrf
-                            <button type="submit"
-                                    onclick="return confirm('Clear all application caches? This will temporarily slow down the next few requests.')"
-                                    class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <x-heroicon-o-trash class="w-4 h-4" />
-                                <span>Clear Application Cache</span>
-                            </button>
-                        </form>
-                        <div class="text-xs text-gray-600 dark:text-gray-400">
-                            <p>Clears application, config, route, and view caches to resolve configuration issues.</p>
-                        </div>
-                    </div>
+                    <!-- Old Locks Management Component -->
+                    <livewire:admin-old-locks />
                 </div>
+
             </div>
         </div>
     </div>
