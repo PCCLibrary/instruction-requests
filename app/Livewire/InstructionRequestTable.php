@@ -18,7 +18,6 @@ use PowerComponents\LivewirePowerGrid\Components\SetUp\Responsive;
 use App\Models\Campus;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
 
 final class InstructionRequestTable extends PowerGridComponent
 {
@@ -393,30 +392,7 @@ final class InstructionRequestTable extends PowerGridComponent
         }
     }
 
-    /**
-     * Get the count of exportable records
-     */
-    #[Computed]
-    public function exportableRecordCount(): int
-    {
-        return $this->total;
-    }
 
-    /**
-     * Triggers XLS export
-     */
-    public function exportXls()
-    {
-        return $this->export('xlsx');
-    }
-
-    /**
-     * Triggers CSV export
-     */
-    public function exportCsv()
-    {
-        return $this->export('csv');
-    }
 
     /**
      * Define event listeners
