@@ -7,6 +7,11 @@
     display: none !important;
 }
 
+/* Hide PowerGrid's default export dropdown */
+div[wire\:id] > div.w-full.md\:w-auto.flex.flex-col.md\:flex-row.space-y-2.md\:space-y-0.md\:space-x-2 > div:nth-child(2) {
+    display: none;
+}
+
 /* Library Instruction System custom styling */
 .choices__list--multiple .choices__item {
     @apply text-white rounded-full px-2 py-1 text-xs m-1 bg-sky-600 hover:bg-sky-800;

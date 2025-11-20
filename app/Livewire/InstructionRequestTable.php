@@ -18,6 +18,7 @@ use PowerComponents\LivewirePowerGrid\Components\SetUp\Responsive;
 use App\Models\Campus;
 
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 
 final class InstructionRequestTable extends PowerGridComponent
 {
@@ -127,7 +128,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->visibleInExport(false),
 
 
-            Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_datetime')
+            Column::make('Instruction Date', 'instruction_datetime_formatted', 'instruction_request_details.instruction_datetime')
                 ->sortable()
                 ->searchable()
                 ->visibleInExport(false),
@@ -229,7 +230,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->optionLabel('label'),
 
             Filter::datepicker('created_at', 'instruction_requests.created_at'),
-            Filter::datepicker('instruction_datetime'),
+            Filter::datepicker('instruction_datetime', 'instruction_request_details.instruction_datetime'),
         ];
     }
 
@@ -390,6 +391,31 @@ final class InstructionRequestTable extends PowerGridComponent
         if (isset($data['type']) && isset($data['message'])) {
             session()->flash($data['type'], $data['message']);
         }
+    }
+
+    /**
+     * Get the count of exportable records
+     */
+    #[Computed]
+    public function exportableRecordCount(): int
+    {
+        return $this->total;
+    }
+
+    /**
+     * Triggers XLS export
+     */
+    public function exportXls()
+    {
+        return $this->export('xlsx');
+    }
+
+    /**
+     * Triggers CSV export
+     */
+    public function exportCsv()
+    {
+        return $this->export('csv');
     }
 
     /**
