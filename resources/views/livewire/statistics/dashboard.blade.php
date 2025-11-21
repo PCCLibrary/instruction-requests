@@ -118,29 +118,43 @@
 
                 <!-- Instructor -->
                 <div>
-                    <x-searchable-select
+                    <x-searchable-select-server
                         name="instructor"
                         label="Instructor"
                         placeholder="Type to search instructors..."
                         valueProperty="instructor"
                         searchProperty="instructorSearch"
                         :options="$this->filteredInstructors"
-                        mode="server"
-                        :selectedLabel="$instructor ? $instructors->find($instructor)?->display_name : null"
-                    />
+                        :selectedLabel="$instructor ? $instructors->firstWhere('id', $instructor)?->display_name : null"
+                    >
+                        <x-slot:optionTemplate>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100" x-text="option.name"></p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400" x-text="option.display_name"></p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="option.email"></p>
+                            </div>
+                        </x-slot:optionTemplate>
+                    </x-searchable-select-server>
                 </div>
 
                 <!-- Assigned Librarian -->
                 <div>
-                    <x-searchable-select
+                    <x-searchable-select-client
                         name="assignedLibrarian"
                         label="Assigned Librarian"
                         placeholder="Search librarians..."
                         valueProperty="assignedLibrarian"
                         :options="$librarians"
-                        mode="client"
-                        :selectedLabel="$assignedLibrarian ? $librarians->find($assignedLibrarian)?->display_name : null"
-                    />
+                        :selectedLabel="$assignedLibrarian ? $librarians->firstWhere('id', $assignedLibrarian)?->display_name : null"
+                    >
+                        <x-slot:optionTemplate>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100" x-text="option.name"></p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400" x-text="option.display_name"></p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="option.email"></p>
+                            </div>
+                        </x-slot:optionTemplate>
+                    </x-searchable-select-client>
                 </div>
             </div>
 

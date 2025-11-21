@@ -96,19 +96,21 @@ class Dashboard extends Component
 
     public function getFilteredInstructorsProperty()
     {
-        if (empty($this->instructorSearch)) {
-            return collect();
+        $query = Instructor::query();
+
+        if (!empty($this->instructorSearch)) {
+            $search = strtolower($this->instructorSearch);
+
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
+            });
         }
 
-        return Instructor::where(function($query) {
-            $search = $this->instructorSearch;
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('display_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-        })
-        ->orderBy('display_name')
-        ->limit(20)
-        ->get();
+        return $query->orderBy('display_name')
+                     ->limit(100)
+                     ->get();
     }
 
     public function getLibrarians()

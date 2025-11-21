@@ -1,12 +1,11 @@
-{{-- Searchable Select Component - Supports both server-side and client-side filtering --}}
+{{-- Searchable Select Server Component - Server-side filtering only --}}
 @props([
     'name',
     'label',
     'placeholder' => 'Search...',
     'valueProperty',
-    'searchProperty' => null,
+    'searchProperty',
     'options' => [],
-    'mode' => 'client',
     'selectedLabel' => null,
     'valueField' => 'id',
     'labelField' => 'display_name',
@@ -14,56 +13,27 @@
 ])
 
 @php
-    $isServerMode = $mode === 'server';
     $optionsArray = $options instanceof \Illuminate\Support\Collection ? $options->toArray() : $options;
 @endphp
 
 <div class="relative"
      x-data="{
         open: false,
-        search: '',
-        mode: '{{ $mode }}',
         valueField: '{{ $valueField }}',
         labelField: '{{ $labelField }}',
         options: {{ Js::from($optionsArray) }},
         selectedLabel: {{ Js::from($selectedLabel) }},
 
-        get filteredOptions() {
-            if (this.mode === 'server') {
-                return this.options;
-            }
-
-            if (!this.search) {
-                return this.options;
-            }
-
-            const searchLower = this.search.toLowerCase();
-            return this.options.filter(option => {
-                const label = option[this.labelField] || '';
-                return label.toLowerCase().includes(searchLower);
-            });
-        },
-
         selectOption(option) {
-            @if($isServerMode)
-                $wire.set('{{ $valueProperty }}', option[this.valueField]);
-                $wire.set('{{ $searchProperty }}', '');
-            @else
-                $wire.set('{{ $valueProperty }}', option[this.valueField]);
-            @endif
-            this.search = '';
+            $wire.set('{{ $valueProperty }}', option[this.valueField]);
+            $wire.set('{{ $searchProperty }}', '');
             this.selectedLabel = option[this.labelField];
             this.open = false;
         },
 
         clearSelection() {
-            @if($isServerMode)
-                $wire.set('{{ $valueProperty }}', null);
-                $wire.set('{{ $searchProperty }}', '');
-            @else
-                $wire.set('{{ $valueProperty }}', null);
-            @endif
-            this.search = '';
+            $wire.set('{{ $valueProperty }}', null);
+            $wire.set('{{ $searchProperty }}', '');
             this.selectedLabel = null;
         },
 
@@ -102,10 +72,8 @@
 
         <template x-if="!selectedLabel">
             <input type="text"
-                   x-model="{{ $isServerMode ? '$wire.' . $searchProperty : 'search' }}"
-                   @if($isServerMode)
-                       wire:model.live.debounce.300ms="{{ $searchProperty }}"
-                   @endif
+                   x-model="$wire.{{ $searchProperty }}"
+                   wire:model.live.debounce.300ms="{{ $searchProperty }}"
                    @focus="open = true"
                    @input="open = true"
                    placeholder="{{ $placeholder }}"
@@ -125,7 +93,7 @@
     </div>
 
     <!-- Dropdown Results -->
-    <div x-show="open && filteredOptions.length > 0"
+    <div x-show="open && options.length > 0"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="transform opacity-0 scale-95"
          x-transition:enter-end="transform opacity-100 scale-100"
@@ -135,7 +103,7 @@
          class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
          x-cloak>
 
-        <template x-for="option in filteredOptions" :key="option[valueField]">
+        <template x-for="option in options" :key="option[valueField]">
             <div @click="selectOption(option)"
                  class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-gray-900 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700">
                 @if(isset($optionTemplate))
@@ -150,7 +118,7 @@
     </div>
 
     <!-- Empty State -->
-    <div x-show="open && filteredOptions.length === 0 && {{ $isServerMode ? 'true' : 'search' }}"
+    <div x-show="open && options.length === 0"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="transform opacity-0 scale-95"
          x-transition:enter-end="transform opacity-100 scale-100"
@@ -160,15 +128,7 @@
          class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-3 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
          x-cloak>
         <div class="text-center text-gray-500 dark:text-gray-400 text-sm px-3">
-            <template x-if="mode === 'server' && !{{ $isServerMode ? '$wire.' . $searchProperty : 'search' }}">
-                <span>Type to search...</span>
-            </template>
-            <template x-if="mode === 'server' && {{ $isServerMode ? '$wire.' . $searchProperty : 'search' }}">
-                <span>No results found</span>
-            </template>
-            <template x-if="mode === 'client'">
-                <span>No results found</span>
-            </template>
+            <span>No results found</span>
         </div>
     </div>
 </div>
