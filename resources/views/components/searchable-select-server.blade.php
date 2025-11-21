@@ -17,6 +17,7 @@
 @endphp
 
 <div class="relative"
+     wire:key="searchable-server-{{ $valueProperty }}"
      x-data="{
         open: false,
         valueField: '{{ $valueField }}',
@@ -29,12 +30,17 @@
             $wire.set('{{ $searchProperty }}', '');
             this.selectedLabel = option[this.labelField];
             this.open = false;
+            $wire.call('applyFilters');
         },
 
         clearSelection() {
             $wire.set('{{ $valueProperty }}', null);
             $wire.set('{{ $searchProperty }}', '');
             this.selectedLabel = null;
+            this.$nextTick(() => {
+                this.$refs.searchInput.focus();
+                this.open = true;
+            });
         },
 
         init() {
@@ -43,6 +49,19 @@
             });
         }
      }"
+     x-init="
+        selectedLabel = {{ Js::from($selectedLabel) }};
+        $watch('$wire.{{ $valueProperty }}', value => {
+            if (!value) {
+                selectedLabel = null;
+            } else {
+                const option = options.find(opt => opt[valueField] == value);
+                if (option) {
+                    selectedLabel = option[labelField];
+                }
+            }
+        });
+     "
      @click.away="open = false"
      @keydown.escape="open = false">
 
@@ -55,32 +74,32 @@
 
     <!-- Input Container -->
     <div class="relative">
-        <!-- Selected Display / Search Input -->
-        <template x-if="selectedLabel">
-            <div class="w-full flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
-                <span class="flex-1 truncate" x-text="selectedLabel"></span>
-                <button type="button"
-                        @click="clearSelection()"
-                        class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                        :disabled="{{ $disabled ? 'true' : 'false' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-        </template>
+        <!-- Selected Display (shown when something is selected) -->
+        <div x-show="selectedLabel"
+             class="w-full flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
+            <span class="flex-1 truncate" x-text="selectedLabel"></span>
+            <button type="button"
+                    @click="clearSelection()"
+                    class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    :disabled="{{ $disabled ? 'true' : 'false' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
 
-        <template x-if="!selectedLabel">
-            <input type="text"
-                   x-model="$wire.{{ $searchProperty }}"
-                   wire:model.live.debounce.300ms="{{ $searchProperty }}"
-                   @focus="open = true"
-                   @input="open = true"
-                   placeholder="{{ $placeholder }}"
-                   class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white"
-                   :disabled="{{ $disabled ? 'true' : 'false' }}"
-                   autocomplete="off" />
-        </template>
+        <!-- Search Input (shown when nothing is selected) -->
+        <input type="text"
+               x-ref="searchInput"
+               x-show="!selectedLabel"
+               x-model="$wire.{{ $searchProperty }}"
+               wire:model.live.debounce.300ms="{{ $searchProperty }}"
+               @focus="open = true"
+               @input="open = true"
+               placeholder="{{ $placeholder }}"
+               class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white"
+               :disabled="{{ $disabled ? 'true' : 'false' }}"
+               autocomplete="off" />
 
         <!-- Dropdown Icon -->
         <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
