@@ -113,6 +113,11 @@ class Dashboard extends Component
                      ->get();
     }
 
+    public function updatedInstructorSearch()
+    {
+        $this->dispatch('choices-updated-instructor', $this->filteredInstructors);
+    }
+
     public function getLibrarians()
     {
         return User::where('is_admin', false)
@@ -139,11 +144,17 @@ class Dashboard extends Component
         $this->assignedLibrarian = null;
         $this->showTruncationWarning = false;
         $this->truncationMessage = '';
+
+        $this->dispatch('clear-instructor');
     }
 
     public function removeFilter($filterName)
     {
         $this->$filterName = null;
+
+        if ($filterName === 'instructor') {
+            $this->dispatch('clear-instructor');
+        }
     }
 
     public function getColumns(): array

@@ -16,6 +16,11 @@ import '../../vendor/power-components/livewire-powergrid/dist/powergrid'
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/flatpickr.min.css'
 
+// Choices.js for searchable selects
+import Choices from 'choices.js';
+import 'choices.js/public/assets/styles/choices.min.css';
+window.Choices = Choices;
+
 document.addEventListener('DOMContentLoaded', () => {
     // Log when Livewire is initialized
     document.addEventListener('livewire:initialized', () => {
