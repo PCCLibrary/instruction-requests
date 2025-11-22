@@ -135,7 +135,7 @@
                                class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
 
                         <!-- Dropdown Results -->
-                        @if($this->filteredInstructors->isNotEmpty() && $instructorSearch)
+                        @if($this->filteredInstructors->isNotEmpty())
                             <div x-show="showDropdown"
                                  x-transition:enter="transition ease-out duration-100"
                                  x-transition:enter-start="transform opacity-0 scale-95"
@@ -147,6 +147,7 @@
                                  x-cloak>
                                 @foreach($this->filteredInstructors as $inst)
                                     <div wire:click="$set('instructor', {{ $inst->id }}); $set('instructorSearch', ''); $wire.call('applyFilters')"
+                                         @click="showDropdown = false"
                                          class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-gray-900 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700">
                                         <div>
                                             <p class="text-sm font-medium">{{ $inst->name }}</p>
