@@ -272,19 +272,30 @@
         </div>
     @endif
 
+    <!-- Export Controls -->
+    <div class="mb-4 flex items-center space-x-2">
+        <span class="text-sm text-gray-700 dark:text-gray-300">
+            Export {{ number_format($totalSessions) }} records:
+        </span>
+        <button
+            wire:click="exportExcel"
+            class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-600 transition duration-150 ease-in-out"
+        >
+            XLS
+        </button>
+        <button
+            wire:click="exportCsv"
+            class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 transition duration-150 ease-in-out"
+        >
+            CSV
+        </button>
+    </div>
+
     <!-- Statistics Table -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
         <!-- Table Header -->
-        <div class="bg-green-500 dark:bg-green-600 px-4 py-3 flex items-center justify-between">
+        <div class="bg-green-500 dark:bg-green-600 px-4 py-3">
             <h3 class="text-lg font-medium text-white">Instruction Type Report</h3>
-            <div class="flex gap-2">
-                <button wire:click="exportCsv" class="bg-white hover:bg-gray-100 text-green-700 px-3 py-1 rounded-md text-sm font-medium">
-                    Export CSV
-                </button>
-                <button wire:click="exportExcel" class="bg-white hover:bg-gray-100 text-green-700 px-3 py-1 rounded-md text-sm font-medium">
-                    Export Excel
-                </button>
-            </div>
         </div>
 
         <!-- Table Content -->
