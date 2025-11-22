@@ -443,7 +443,10 @@ class Dashboard extends Component
             'totalInstructionHours' => $summaryMetrics['totalInstructionHours'],
             'averageClassSize' => $summaryMetrics['averageClassSize'],
             'adaSessions' => $summaryMetrics['adaSessions'],
-            'adaPercentage' => $summaryMetrics['adaPercentage']
+            'adaPercentage' => $summaryMetrics['adaPercentage'],
+            'scheduledAndCompleted' => $summaryMetrics['scheduledAndCompleted'],
+            'completedOnly' => $summaryMetrics['completedOnly'],
+            'avgSessionDuration' => $summaryMetrics['avgSessionDuration']
         ]);
     }
 
@@ -453,6 +456,8 @@ class Dashboard extends Component
         $totalStudents = 0;
         $totalSessions = 0;
         $adaSessions = 0;
+        $scheduledAndCompleted = 0;
+        $completedOnly = 0;
 
         foreach ($columns as $column) {
             $query = InstructionRequests::query()
@@ -475,17 +480,25 @@ class Dashboard extends Component
             $totalStudents += $query->sum('instruction_requests.number_of_students') ?? 0;
 
             $adaSessions += $query->where('instruction_requests.ada_provisions_needed', true)->count();
+
+            $scheduledAndCompleted += $query->whereIn('instruction_requests.status', ['scheduled', 'completed'])->count();
+
+            $completedOnly += $query->where('instruction_requests.status', 'completed')->count();
         }
 
         $totalHours = round($totalMinutes / 60, 1);
         $avgClassSize = $totalSessions > 0 ? round($totalStudents / $totalSessions, 1) : 0;
         $adaPercent = $totalSessions > 0 ? round(($adaSessions / $totalSessions) * 100, 1) : 0;
+        $avgSessionDuration = $totalSessions > 0 ? round($totalMinutes / $totalSessions) : 0;
 
         return [
             'totalInstructionHours' => $totalHours,
             'averageClassSize' => $avgClassSize,
             'adaSessions' => $adaSessions,
-            'adaPercentage' => $adaPercent
+            'adaPercentage' => $adaPercent,
+            'scheduledAndCompleted' => $scheduledAndCompleted,
+            'completedOnly' => $completedOnly,
+            'avgSessionDuration' => $avgSessionDuration
         ];
     }
 }

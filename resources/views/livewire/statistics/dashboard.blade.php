@@ -387,9 +387,14 @@
         </div>
     </div>
 
+    <!-- Report Summary Header -->
+    <div class="mt-6 mb-3">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Report Summary</h3>
+    </div>
+
     <!-- Summary Stats -->
     <x-status-bar
-        containerClass="mt-6"
+        containerClass=""
         :items="[
             [
                 'iconBgColor' => 'bg-blue-500',
@@ -417,9 +422,27 @@
             ],
             [
                 'iconBgColor' => 'bg-teal-500',
-                'icon' => 'hand-raised',
+                'icon' => 'heart',
                 'infoBoxText' => 'ADA Sessions',
                 'count' => number_format($adaSessions) . ' (' . number_format($adaPercentage, 1) . '%)'
+            ],
+            [
+                'iconBgColor' => 'bg-purple-500',
+                'icon' => 'calendar-days',
+                'infoBoxText' => 'Scheduled',
+                'count' => number_format($scheduledAndCompleted)
+            ],
+            [
+                'iconBgColor' => 'bg-emerald-500',
+                'icon' => 'check-circle',
+                'infoBoxText' => 'Completed',
+                'count' => number_format($completedOnly)
+            ],
+            [
+                'iconBgColor' => 'bg-pink-500',
+                'icon' => 'arrow-path',
+                'infoBoxText' => 'Avg Session Duration',
+                'count' => number_format($avgSessionDuration) . ' min'
             ]
         ]"
     />
