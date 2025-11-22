@@ -204,11 +204,8 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <button wire:click="applyFilters" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    Apply Filters
-                </button>
+            <!-- Action Button -->
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                 <button wire:click="clearFilters" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
                     Clear All Filters
                 </button>
