@@ -106,14 +106,66 @@
                 </div>
 
                 <!-- Department -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
-                    <select wire:model.live="department" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                        <option value="">All Departments</option>
-                        @foreach($departments as $code => $name)
-                            <option value="{{ $code }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
+                <div x-data="{ showDropdown: false }"
+                     @click.away="showDropdown = false"
+                     class="relative">
+
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Department
+                    </label>
+
+                    <!-- Search Input (shown when nothing is selected) -->
+                    @if(!$department)
+                        <input type="text"
+                               wire:model.live.debounce.300ms="departmentSearch"
+                               @focus="showDropdown = true"
+                               @keydown.escape="showDropdown = false"
+                               placeholder="Type to search departments..."
+                               class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
+
+                        <!-- Dropdown Results -->
+                        @if(!empty($this->filteredDepartments))
+                            <div x-show="showDropdown"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                                 x-cloak>
+                                @foreach($this->filteredDepartments as $code => $name)
+                                    <div wire:click="$set('department', '{{ $code }}'); $set('departmentSearch', '')"
+                                         @click="showDropdown = false"
+                                         class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-gray-900 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <p class="text-sm">{{ $name }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif($departmentSearch && strlen($departmentSearch) >= 2)
+                            <div x-show="showDropdown"
+                                 class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md py-3 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                 x-cloak>
+                                <div class="text-center text-gray-500 dark:text-gray-400 text-sm px-3">
+                                    No departments found
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+
+                    <!-- Selected Display (shown when something is selected) -->
+                    @if($department)
+                        <div class="w-full flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
+                            <span class="flex-1 truncate">{{ $departments[$department] ?? $department }}</span>
+                            <button type="button"
+                                    wire:click="$set('department', null)"
+                                    class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Instructor -->

@@ -23,6 +23,7 @@ class Dashboard extends Component
     public $instructor = null;
     public $assignedLibrarian = null;
     public $instructorSearch = '';
+    public $departmentSearch = '';
     public $showTruncationWarning = false;
     public $truncationMessage = '';
     public $filtersExpanded = true;
@@ -113,6 +114,26 @@ class Dashboard extends Component
                      ->get();
     }
 
+    public function getFilteredDepartmentsProperty()
+    {
+        $allDepartments = $this->departmentService->getAllDepartments();
+
+        if (empty($this->departmentSearch)) {
+            return $allDepartments;
+        }
+
+        $search = strtolower($this->departmentSearch);
+        $filtered = [];
+
+        foreach ($allDepartments as $code => $name) {
+            if (str_contains(strtolower($name), $search) || str_contains(strtolower($code), $search)) {
+                $filtered[$code] = $name;
+            }
+        }
+
+        return $filtered;
+    }
+
     public function updatedInstructorSearch()
     {
         // Get filtered instructors
@@ -146,6 +167,7 @@ class Dashboard extends Component
         $this->department = null;
         $this->instructor = null;
         $this->assignedLibrarian = null;
+        $this->departmentSearch = '';
         $this->showTruncationWarning = false;
         $this->truncationMessage = '';
 
