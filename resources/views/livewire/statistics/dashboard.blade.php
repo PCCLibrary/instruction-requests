@@ -1,10 +1,4 @@
 <div x-data="{ filtersExpanded: @entangle('filtersExpanded') }">
-    <!-- Page Header -->
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Statistics Dashboard</h1>
-        <p class="text-gray-600 dark:text-gray-300">Instruction request metrics and reporting.</p>
-    </div>
-
     <!-- Filter Panel -->
     <div class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
         <!-- Filter Header -->
