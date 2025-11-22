@@ -115,7 +115,11 @@ class Dashboard extends Component
 
     public function updatedInstructorSearch()
     {
-        $this->dispatch('choices-updated-instructor', $this->filteredInstructors);
+        // Get filtered instructors
+        $filteredInstructors = $this->filteredInstructors;
+
+        // Dispatch event with the filtered instructors
+        $this->dispatch('instructors-updated', $filteredInstructors->toArray());
     }
 
     public function getLibrarians()

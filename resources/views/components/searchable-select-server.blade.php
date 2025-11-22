@@ -20,6 +20,7 @@
      wire:key="searchable-server-{{ $valueProperty }}"
      x-data="{
         open: false,
+        search: '',
         valueField: '{{ $valueField }}',
         labelField: '{{ $labelField }}',
         options: {{ Js::from($optionsArray) }},
@@ -28,6 +29,7 @@
         selectOption(option) {
             $wire.set('{{ $valueProperty }}', option[this.valueField]);
             $wire.set('{{ $searchProperty }}', '');
+            this.search = '';
             this.selectedLabel = option[this.labelField];
             this.open = false;
             $wire.call('applyFilters');
@@ -36,6 +38,7 @@
         clearSelection() {
             $wire.set('{{ $valueProperty }}', null);
             $wire.set('{{ $searchProperty }}', '');
+            this.search = '';
             this.selectedLabel = null;
             this.$nextTick(() => {
                 this.$refs.searchInput.focus();
@@ -44,13 +47,24 @@
         },
 
         init() {
-            this.$watch('options', value => {
-                this.options = value;
+            // Listen for cleared filters
+            Livewire.on('filtersCleared', () => {
+                this.selectedLabel = null;
+                this.search = '';
+                this.open = false;
+            });
+
+            Livewire.on('clear-instructor', () => {
+                this.selectedLabel = null;
+                this.search = '';
+                this.open = false;
             });
         }
      }"
      x-init="
         selectedLabel = {{ Js::from($selectedLabel) }};
+
+        // Watch for value changes from Livewire
         $watch('$wire.{{ $valueProperty }}', value => {
             if (!value) {
                 selectedLabel = null;
@@ -60,6 +74,25 @@
                     selectedLabel = option[labelField];
                 }
             }
+        });
+
+        // Watch search and update Livewire with debounce
+        let searchTimeout;
+        $watch('search', value => {
+            clearTimeout(searchTimeout);
+            if (value.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    $wire.set('{{ $searchProperty }}', value);
+                }, 300);
+            } else if (value.length === 0) {
+                $wire.set('{{ $searchProperty }}', '');
+            }
+        });
+
+        // Watch for options updates from Livewire
+        Livewire.on('instructors-updated', (data) => {
+            const instructors = data[0] || data;
+            options = instructors;
         });
      "
      @click.away="open = false"
@@ -92,8 +125,7 @@
         <input type="text"
                x-ref="searchInput"
                x-show="!selectedLabel"
-               x-model="$wire.{{ $searchProperty }}"
-               wire:model.live.debounce.300ms="{{ $searchProperty }}"
+               x-model="search"
                @focus="open = true"
                @input="open = true"
                placeholder="{{ $placeholder }}"
