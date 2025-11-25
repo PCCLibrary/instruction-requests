@@ -163,9 +163,8 @@ final class InstructionRequestTable extends PowerGridComponent
 
             Column::make('Course', 'course_name')
                 ->sortable()
+                ->searchable()
                 ->visibleInExport(true),
-
-//                ->searchable(),
 
             Column::make('Status', 'status')
                 ->sortable()
@@ -230,6 +229,9 @@ final class InstructionRequestTable extends PowerGridComponent
 
             Filter::datepicker('created_at', 'instruction_requests.created_at'),
             Filter::datepicker('instruction_datetime', 'instruction_request_details.instruction_datetime'),
+
+            Filter::inputText('course_name', 'classes.course_name')
+                ->operators(['contains']),
         ];
     }
 
