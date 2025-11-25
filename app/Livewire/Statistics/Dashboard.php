@@ -20,10 +20,12 @@ class Dashboard extends Component
     public $endPeriod;
     public $campus = null;
     public $department = null;
+    public $class = null;
     public $instructor = null;
     public $assignedLibrarian = null;
     public $instructorSearch = '';
     public $departmentSearch = '';
+    public $classSearch = '';
     public $showTruncationWarning = false;
     public $truncationMessage = '';
     public $filtersExpanded = true;
@@ -134,6 +136,38 @@ class Dashboard extends Component
         return $filtered;
     }
 
+    public function getFilteredClassesProperty()
+    {
+        $query = InstructionRequests::select(
+            DB::raw("DISTINCT CONCAT(UPPER(department), '-', course_number) as class_code"),
+            'department',
+            'course_number'
+        )
+        ->whereNotNull('department')
+        ->whereNotNull('course_number')
+        ->where('department', '!=', '')
+        ->where('course_number', '!=', '')
+        ->orderBy('department')
+        ->orderBy('course_number');
+
+        $classes = $query->get()->map(function($item) {
+            return [
+                'code' => $item->class_code,
+                'display' => str_replace('-', ' ', $item->class_code)
+            ];
+        });
+
+        if (empty($this->classSearch)) {
+            return $classes->take(100);
+        }
+
+        $search = strtolower($this->classSearch);
+        return $classes->filter(function($class) use ($search) {
+            return str_contains(strtolower($class['display']), $search) ||
+                   str_contains(strtolower($class['code']), $search);
+        })->take(100);
+    }
+
     public function updatedInstructorSearch()
     {
         // Get filtered instructors
@@ -165,9 +199,11 @@ class Dashboard extends Component
         $this->endPeriod = $currentFiscalYear;
         $this->campus = null;
         $this->department = null;
+        $this->class = null;
         $this->instructor = null;
         $this->assignedLibrarian = null;
         $this->departmentSearch = '';
+        $this->classSearch = '';
         $this->showTruncationWarning = false;
         $this->truncationMessage = '';
 
@@ -203,12 +239,12 @@ class Dashboard extends Component
     protected function getYearColumns($startFY, $endFY): array
     {
         $columns = [];
-        $years = range($endFY, $startFY);
+        $years = range($startFY, $endFY);
 
         if (count($years) > 5) {
-            $years = array_slice($years, 0, 5);
+            $years = array_slice($years, -5);
             $this->showTruncationWarning = true;
-            $this->truncationMessage = "Showing last 5 fiscal years of selected range (" . $years[4] . "-" . ($years[0] + 1) . ")";
+            $this->truncationMessage = "Showing last 5 fiscal years of selected range (" . $years[0] . "-" . ($years[4] + 1) . ")";
         }
 
         foreach ($years as $fy) {
@@ -234,14 +270,14 @@ class Dashboard extends Component
         }
 
         $months = [];
-        $current = $end->copy();
-        while ($current->greaterThanOrEqualTo($start)) {
+        $current = $start->copy();
+        while ($current->lessThanOrEqualTo($end)) {
             $months[] = $current->copy();
-            $current->subMonth();
+            $current->addMonth();
         }
 
         if (count($months) > 12) {
-            $months = array_slice($months, 0, 12);
+            $months = array_slice($months, -12);
             $this->showTruncationWarning = true;
             $this->truncationMessage = "Showing last 12 months of selected range";
         }
@@ -269,10 +305,10 @@ class Dashboard extends Component
         }
 
         $days = [];
-        $current = $end->copy();
-        while ($current->greaterThanOrEqualTo($start) && count($days) < 31) {
+        $current = $start->copy();
+        while ($current->lessThanOrEqualTo($end) && count($days) < 31) {
             $days[] = $current->copy();
-            $current->subDay();
+            $current->addDay();
         }
 
         if ($end->diffInDays($start) > 30) {
@@ -330,6 +366,14 @@ class Dashboard extends Component
             ->whereBetween('instruction_request_details.instruction_datetime', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->when($this->campus, fn($q) => $q->where('instruction_requests.campus_id', $this->campus))
             ->when($this->department, fn($q) => $q->where('instruction_requests.department', $this->department))
+            ->when($this->class, function($q) {
+                $parts = explode('-', $this->class);
+                if (count($parts) === 2) {
+                    return $q->where('instruction_requests.department', $parts[0])
+                             ->where('instruction_requests.course_number', $parts[1]);
+                }
+                return $q;
+            })
             ->when($this->instructor, fn($q) => $q->where('instruction_requests.instructor_id', $this->instructor))
             ->when($this->assignedLibrarian, fn($q) =>
                 $q->where('instruction_request_details.assigned_librarian_id', $this->assignedLibrarian));
@@ -468,6 +512,14 @@ class Dashboard extends Component
                     [$column['start'] . ' 00:00:00', $column['end'] . ' 23:59:59'])
                 ->when($this->campus, fn($q) => $q->where('instruction_requests.campus_id', $this->campus))
                 ->when($this->department, fn($q) => $q->where('instruction_requests.department', $this->department))
+                ->when($this->class, function($q) {
+                    $parts = explode('-', $this->class);
+                    if (count($parts) === 2) {
+                        return $q->where('instruction_requests.department', $parts[0])
+                                 ->where('instruction_requests.course_number', $parts[1]);
+                    }
+                    return $q;
+                })
                 ->when($this->instructor, fn($q) => $q->where('instruction_requests.instructor_id', $this->instructor))
                 ->when($this->assignedLibrarian, fn($q) =>
                     $q->where('instruction_request_details.assigned_librarian_id', $this->assignedLibrarian));

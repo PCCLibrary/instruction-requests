@@ -87,7 +87,7 @@
             </div>
 
             <!-- Secondary Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 <!-- Campus -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Campus</label>
@@ -153,6 +153,69 @@
                             <span class="flex-1 truncate">{{ $departments[$department] ?? $department }}</span>
                             <button type="button"
                                     wire:click="$set('department', null)"
+                                    class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Class -->
+                <div x-data="{ showDropdown: false }"
+                     @click.away="showDropdown = false"
+                     class="relative">
+
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Class
+                    </label>
+
+                    <!-- Search Input (shown when nothing is selected) -->
+                    @if(!$class)
+                        <input type="text"
+                               wire:model.live.debounce.300ms="classSearch"
+                               @focus="showDropdown = true"
+                               @keydown.escape="showDropdown = false"
+                               placeholder="Type to search classes..."
+                               class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
+
+                        <!-- Dropdown Results -->
+                        @if(!empty($this->filteredClasses) && count($this->filteredClasses) > 0)
+                            <div x-show="showDropdown"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                                 x-cloak>
+                                @foreach($this->filteredClasses as $classItem)
+                                    <div wire:click="$set('class', '{{ $classItem['code'] }}'); $set('classSearch', '')"
+                                         @click="showDropdown = false"
+                                         class="cursor-pointer select-none relative py-2 pl-3 pr-9 text-gray-900 dark:text-gray-100 hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <p class="text-sm">{{ $classItem['display'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif($classSearch && strlen($classSearch) >= 2)
+                            <div x-show="showDropdown"
+                                 class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md py-3 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                 x-cloak>
+                                <div class="text-center text-gray-500 dark:text-gray-400 text-sm px-3">
+                                    No classes found
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+
+                    <!-- Selected Display (shown when something is selected) -->
+                    @if($class)
+                        <div class="w-full flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white bg-white">
+                            <span class="flex-1 truncate">{{ str_replace('-', ' ', $class) }}</span>
+                            <button type="button"
+                                    wire:click="$set('class', null)"
                                     class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -270,7 +333,7 @@
     @endif
 
     <!-- Active Filters -->
-    @if($campus || $department || $instructor || $assignedLibrarian)
+    @if($campus || $department || $class || $instructor || $assignedLibrarian)
         <div class="mb-4 flex flex-wrap gap-2">
             @if($campus)
                 <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm">
@@ -287,6 +350,17 @@
                 <span class="inline-flex items-center gap-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-3 py-1 rounded-full text-sm">
                     Department: {{ $departments[$department] }}
                     <button wire:click="removeFilter('department')" class="hover:text-purple-600 dark:hover:text-purple-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </span>
+            @endif
+
+            @if($class)
+                <span class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 px-3 py-1 rounded-full text-sm">
+                    Class: {{ str_replace('-', ' ', $class) }}
+                    <button wire:click="removeFilter('class')" class="hover:text-indigo-600 dark:hover:text-indigo-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
