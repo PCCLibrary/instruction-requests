@@ -28,11 +28,33 @@
             {{ __('Instruction Requests') }}
         </a>
 
+        {{-- Statistics Parent --}}
         <a href="{{ route('statistics.index') }}"
-           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('statistics.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+           class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('statistics.index') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
             <x-heroicon-o-chart-pie class="w-5 h-5 mr-3" />
             {{ __('Statistics') }}
         </a>
+
+        {{-- Statistics Sub-navigation --}}
+        @if(Route::is('statistics.*'))
+            <div class="ml-8 space-y-1">
+                <a href="{{ route('statistics.trends') }}"
+                   class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-colors {{ Route::is('statistics.trends') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-300 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+                    <x-heroicon-o-chart-bar class="w-4 h-4 mr-2" />
+                    {{ __('Trends Over Time') }}
+                </a>
+                <a href="{{ route('statistics.detailed-export') }}"
+                   class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-colors {{ Route::is('statistics.detailed-export') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-300 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+                    <x-heroicon-o-table-cells class="w-4 h-4 mr-2" />
+                    {{ __('Detailed Export') }}
+                </a>
+                <a href="{{ route('statistics.comparison') }}"
+                   class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-colors {{ Route::is('statistics.comparison') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-300 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+                    <x-heroicon-o-arrows-right-left class="w-4 h-4 mr-2" />
+                    {{ __('Comparison Analysis') }}
+                </a>
+            </div>
+        @endif
 
         {{-- Separator --}}
         <div class="border-t border-cyan-600 dark:border-gray-700 my-2"></div>

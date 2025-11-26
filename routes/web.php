@@ -129,8 +129,13 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Dashboard home
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Statistics page
+    // Statistics landing page
     Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
+
+    // Statistics report pages
+    Route::get('/statistics/trends', [App\Http\Controllers\StatisticsController::class, 'trends'])->name('statistics.trends');
+    Route::get('/statistics/detailed-export', [App\Http\Controllers\StatisticsController::class, 'detailedExport'])->name('statistics.detailed-export');
+    Route::get('/statistics/comparison', [App\Http\Controllers\StatisticsController::class, 'comparison'])->name('statistics.comparison');
 
     /*
     |--------------------------------------------------------------------------

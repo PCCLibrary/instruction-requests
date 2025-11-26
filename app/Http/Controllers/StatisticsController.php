@@ -10,4 +10,19 @@ class StatisticsController extends Controller
     {
         return view('statistics.index');
     }
+
+    public function trends()
+    {
+        return view('statistics.trends');
+    }
+
+    public function detailedExport()
+    {
+        return view('statistics.detailed-export');
+    }
+
+    public function comparison()
+    {
+        return view('statistics.comparison');
+    }
 }
