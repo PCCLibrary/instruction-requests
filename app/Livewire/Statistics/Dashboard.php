@@ -39,19 +39,19 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $currentFiscalYear = $this->getCurrentFiscalYear();
-        $this->startPeriod = $currentFiscalYear;
-        $this->endPeriod = $currentFiscalYear;
+        $currentAcademicYear = $this->getCurrentAcademicYear();
+        $this->startPeriod = $currentAcademicYear;
+        $this->endPeriod = $currentAcademicYear;
     }
 
-    public function getCurrentFiscalYear(): int
+    public function getCurrentAcademicYear(): int
     {
         $currentYear = now()->year;
         $currentMonth = now()->month;
-        return $currentMonth >= 7 ? $currentYear : $currentYear - 1;
+        return $currentMonth >= 9 ? $currentYear : $currentYear - 1;
     }
 
-    public function getAvailableFiscalYears(): array
+    public function getAvailableAcademicYears(): array
     {
         $minDate = DB::table('instruction_request_details')
             ->whereNotNull('instruction_datetime')
@@ -62,24 +62,24 @@ class Dashboard extends Component
             ->max('instruction_datetime');
 
         if (!$minDate || !$maxDate) {
-            $currentFY = $this->getCurrentFiscalYear();
-            return [$currentFY => "$currentFY-" . ($currentFY + 1)];
+            $currentAY = $this->getCurrentAcademicYear();
+            return [$currentAY => "$currentAY-" . ($currentAY + 1)];
         }
 
         $minYear = (int) date('Y', strtotime($minDate));
         $minMonth = (int) date('m', strtotime($minDate));
-        $minFY = $minMonth >= 7 ? $minYear : $minYear - 1;
+        $minAY = $minMonth >= 9 ? $minYear : $minYear - 1;
 
         $maxYear = (int) date('Y', strtotime($maxDate));
         $maxMonth = (int) date('m', strtotime($maxDate));
-        $maxFY = $maxMonth >= 7 ? $maxYear : $maxYear - 1;
+        $maxAY = $maxMonth >= 9 ? $maxYear : $maxYear - 1;
 
-        $fiscalYears = [];
-        for ($fy = $maxFY; $fy >= $minFY; $fy--) {
-            $fiscalYears[$fy] = "$fy-" . ($fy + 1);
+        $academicYears = [];
+        for ($ay = $maxAY; $ay >= $minAY; $ay--) {
+            $academicYears[$ay] = "$ay-" . ($ay + 1);
         }
 
-        return $fiscalYears;
+        return $academicYears;
     }
 
     public function getCampuses()
@@ -193,10 +193,10 @@ class Dashboard extends Component
 
     public function clearFilters()
     {
-        $currentFiscalYear = $this->getCurrentFiscalYear();
+        $currentAcademicYear = $this->getCurrentAcademicYear();
         $this->viewMode = 'year';
-        $this->startPeriod = $currentFiscalYear;
-        $this->endPeriod = $currentFiscalYear;
+        $this->startPeriod = $currentAcademicYear;
+        $this->endPeriod = $currentAcademicYear;
         $this->campus = null;
         $this->department = null;
         $this->class = null;
@@ -222,7 +222,7 @@ class Dashboard extends Component
     public function getColumns(): array
     {
         $start = $this->startPeriod;
-        $end = $this->endPeriod ?? ($this->viewMode === 'year' ? $this->getCurrentFiscalYear() : now()->format('Y-m-d'));
+        $end = $this->endPeriod ?? ($this->viewMode === 'year' ? $this->getCurrentAcademicYear() : now()->format('Y-m-d'));
 
         switch ($this->viewMode) {
             case 'year':
@@ -236,23 +236,23 @@ class Dashboard extends Component
         }
     }
 
-    protected function getYearColumns($startFY, $endFY): array
+    protected function getYearColumns($startAY, $endAY): array
     {
         $columns = [];
-        $years = range($startFY, $endFY);
+        $years = range($startAY, $endAY);
 
         if (count($years) > 5) {
             $years = array_slice($years, -5);
             $this->showTruncationWarning = true;
-            $this->truncationMessage = "Showing last 5 fiscal years of selected range (" . $years[0] . "-" . ($years[4] + 1) . ")";
+            $this->truncationMessage = "Showing last 5 academic years of selected range (" . $years[0] . "-" . ($years[4] + 1) . ")";
         }
 
-        foreach ($years as $fy) {
+        foreach ($years as $ay) {
             $columns[] = [
-                'key' => "fy_$fy",
-                'label' => "$fy-" . ($fy + 1),
-                'start' => "$fy-07-01",
-                'end' => ($fy + 1) . "-06-30"
+                'key' => "ay_$ay",
+                'label' => "$ay-" . ($ay + 1),
+                'start' => "$ay-09-01",
+                'end' => ($ay + 1) . "-08-31"
             ];
         }
 
@@ -475,7 +475,7 @@ class Dashboard extends Component
         $summaryMetrics = $this->calculateSummaryMetrics($columns);
 
         return view('livewire.statistics.dashboard', [
-            'availableFiscalYears' => $this->getAvailableFiscalYears(),
+            'availableAcademicYears' => $this->getAvailableAcademicYears(),
             'campuses' => $this->getCampuses(),
             'departments' => $this->getDepartments(),
             'instructors' => $this->getInstructors(),

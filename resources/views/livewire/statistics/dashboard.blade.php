@@ -45,18 +45,18 @@
                 @if($viewMode === 'year')
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Fiscal Year</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Academic Year</label>
                             <select wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                                @foreach($availableFiscalYears as $fy => $label)
-                                    <option value="{{ $fy }}">{{ $label }}</option>
+                                @foreach($availableAcademicYears as $ay => $label)
+                                    <option value="{{ $ay }}">{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Fiscal Year</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Academic Year</label>
                             <select wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                                @foreach($availableFiscalYears as $fy => $label)
-                                    <option value="{{ $fy }}">{{ $label }}</option>
+                                @foreach($availableAcademicYears as $ay => $label)
+                                    <option value="{{ $ay }}">{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
