@@ -8,6 +8,22 @@
 <li class="dropdown-divider"></li>
 
 <li class="nav-item">
+    <a href="{{ route('dashboard.mockup.librarian') }}"
+       class="nav-link {{ Request::is('dashboard/mockup-librarian') ? 'active' : '' }}">
+        <i class="fa fa-paint-brush"></i> <span>🎨 Librarian Dashboard</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('dashboard.mockup.scheduler') }}"
+       class="nav-link {{ Request::is('dashboard/mockup-scheduler') ? 'active' : '' }}">
+        <i class="fa fa-paint-brush"></i> <span>🎨 Scheduler Dashboard</span>
+    </a>
+</li>
+
+<li class="dropdown-divider"></li>
+
+<li class="nav-item">
     <a href="{{ route('campuses.index') }}"
        class="nav-link {{ Request::is('campuses*') ? 'active' : '' }}">
         <i class="fa fa-globe"></i> <span>Campuses</span>
@@ -45,4 +61,3 @@
 {{--       class="nav-link {{ Request::is('details*') ? 'active' : '' }}">--}}
 {{--        <i class="fa fa-gear"></i> <span>Details</span></a>--}}
 {{--</li>--}}
-

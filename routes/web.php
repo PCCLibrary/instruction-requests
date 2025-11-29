@@ -129,6 +129,15 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Dashboard home
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Temporary mockup routes for new dashboard designs
+    Route::get('/mockup-librarian', function () {
+        return view('mockups.librarian-dashboard');
+    })->name('dashboard.mockup.librarian');
+
+    Route::get('/mockup-scheduler', function () {
+        return view('mockups.scheduler-dashboard');
+    })->name('dashboard.mockup.scheduler');
+
     // Statistics landing page
     Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
 
