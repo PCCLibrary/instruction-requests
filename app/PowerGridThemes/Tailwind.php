@@ -15,6 +15,12 @@ class Tailwind extends Theme
     public string $name = 'tailwind';
 
     /**
+     * @var string
+     */
+    public string $header_color = 'bg-cyan-600 dark:bg-cyan-900';
+
+
+    /**
      * @return array[]
      */
     public function table(): array
@@ -29,7 +35,8 @@ class Tailwind extends Theme
             ],
 
             'header' => [
-                'thead'    => 'shadow-sm rounded-t-lg bg-cyan-600 dark:bg-cyan-900',
+//                'thead'    => 'shadow-sm rounded-t-lg bg-cyan-600 dark:bg-cyan-900',
+                'thead'    => 'shadow-sm rounded-t-lg '. $this->header_color,
                 'tr'       => '',
                 'th'       => 'font-extrabold px-3 py-3 text-left text-xs text-white tracking-wider whitespace-nowrap dark:text-white',
                 'thAction' => '!font-bold',

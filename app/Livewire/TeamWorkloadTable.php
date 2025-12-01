@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use App\Services\LibrarianWorkloadService;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -24,6 +26,26 @@ final class TeamWorkloadTable extends PowerGridComponent
 
     protected $listeners = ['campusFilterUpdated' => 'updateCampusFilter'];
 
+    /**
+     * Configure theme color before PowerGrid processes it
+     * Uses service container binding to inject pre-configured theme instance
+     */
+    public function mount(): void
+    {
+        $themeClass = $this->customThemeClass() ?? strval(config('livewire-powergrid.theme'));
+
+        // Create and configure theme instance
+        $theme = new $themeClass();
+        $theme->header_color = 'bg-purple-500 dark:bg-purple-600'; // Match filter panel
+
+        // Bind this specific configured instance into the service container
+        // When parent::mount() calls app($themeClass), it will get THIS instance
+        app()->instance($themeClass, $theme);
+
+        // Now parent can safely call app($themeClass)->apply() and get our configured theme
+        parent::mount();
+    }
+
     public function updateCampusFilter($campus)
     {
         // Convert empty string to null
@@ -33,8 +55,7 @@ final class TeamWorkloadTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            PowerGrid::header()
-                ->showSearchInput(),
+            PowerGrid::header(),
 
             PowerGrid::footer()
                 ->showPerPage()
@@ -94,7 +115,8 @@ final class TeamWorkloadTable extends PowerGridComponent
     {
         return [
             Column::make('Librarian', 'librarian_display', 'display_name')
-                ->sortable(),
+                ->sortable()
+                ->searchable(),
 
             Column::make('Total Active', 'total_active')
                 ->sortable()
@@ -123,6 +145,37 @@ final class TeamWorkloadTable extends PowerGridComponent
             Column::make('Scheduled / In Progress', 'scheduled_count')
                 ->sortable()
                 ->bodyAttribute('class', 'text-center'),
+
+            Column::action('Action')
+                ->visibleInExport(false)
+                ->headerAttribute('class', 'w-24')
+                ->bodyAttribute('class', 'w-24'),
         ];
+    }
+
+    /**
+     * Define filters for the table
+     */
+    public function filters(): array
+    {
+        return [
+            Filter::inputText('display_name')
+                ->operators(['contains']),
+        ];
+    }
+
+    /**
+     * Define action buttons for each row
+     */
+    public function actionsFromView($row): View
+    {
+        return view('components.table-actions', [
+            'id' => $row->id,
+            'editRoute' => 'users.edit',
+            'canEdit' => true,
+            'canDelete' => false,  // No delete button for workload table
+            'size' => 'w-4 h-4',
+            'routeKeyName' => 'user',
+        ]);
     }
 }
