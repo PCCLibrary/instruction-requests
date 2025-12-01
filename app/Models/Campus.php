@@ -123,4 +123,19 @@ class Campus extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
+
+    /**
+     * Scope to exclude "No Campus Preference" for librarian-related contexts.
+     * This is used when filtering librarians or assigning campuses to users,
+     * as librarians must have a specific campus assignment.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForLibrarians($query)
+    {
+        return $query->where('name', '!=', 'No Campus Preference')
+                     ->orderBy('sort_order')
+                     ->orderBy('name');
+    }
 }
