@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SchedulerDashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\CampusController;
@@ -134,9 +135,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         return view('mockups.librarian-dashboard');
     })->name('dashboard.mockup.librarian');
 
-    Route::get('/mockup-scheduler', function () {
-        return view('mockups.scheduler-dashboard');
-    })->name('dashboard.mockup.scheduler');
+    Route::get('/mockup-scheduler', [SchedulerDashboardController::class, 'index'])
+        ->name('dashboard.mockup.scheduler');
 
     // Statistics landing page
     Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');

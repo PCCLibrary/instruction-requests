@@ -11,22 +11,28 @@
     <x-status-bar
         :items="[
         [
-            'iconBgColor' => 'bg-red-500 dark:bg-red-700',
-            'icon' => 'inbox',
-            'infoBoxText' => 'Unassigned Requests',
-            'count' => 15
-        ],
-        [
-            'iconBgColor' => 'bg-yellow-500 dark:bg-yellow-700',
-            'icon' => 'exclamation-triangle',
-            'infoBoxText' => 'Needs Attention',
-            'count' => 23
-        ],
-        [
             'iconBgColor' => 'bg-blue-500 dark:bg-blue-700',
-            'icon' => 'clipboard-document-list',
-            'infoBoxText' => 'Total Active Requests',
-            'count' => 156
+            'icon' => 'document-text',
+            'infoBoxText' => 'Received Requests',
+            'count' => $receivedCount
+        ],
+        [
+            'iconBgColor' => 'bg-amber-500 dark:bg-amber-700',
+            'icon' => 'clock',
+            'infoBoxText' => 'Expiring Soon',
+            'count' => $expiringSoonCount
+        ],
+        [
+            'iconBgColor' => 'bg-purple-500 dark:bg-purple-700',
+            'icon' => 'arrow-path',
+            'infoBoxText' => 'Rejected Requests',
+            'count' => $rejectedCount
+        ],
+        [
+            'iconBgColor' => 'bg-emerald-500 dark:bg-emerald-700',
+            'icon' => 'clipboard-document-check',
+            'infoBoxText' => 'Active Work',
+            'count' => $activeWorkCount
         ]
     ]"
     />
