@@ -31,7 +31,7 @@
         [
             'iconBgColor' => 'bg-emerald-500 dark:bg-emerald-700',
             'icon' => 'clipboard-document-check',
-            'infoBoxText' => 'Active Work',
+            'infoBoxText' => 'Active Requests',
             'count' => $activeWorkCount
         ]
     ]"
