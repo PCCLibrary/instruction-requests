@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mb-4 p-4 bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 rounded-lg">
-        <p class="text-yellow-800 dark:text-yellow-200 font-semibold">
-            🎨 MOCKUP: Librarian Dashboard - This is a static preview of the proposed design
+    <div class="mb-4 p-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg">
+        <p class="text-green-800 dark:text-green-200 font-semibold">
+            🚀 New Feature:Librarian Dashboard - We're actively building this! Try it out and let us know what you think.
         </p>
     </div>
 
@@ -33,21 +33,19 @@
 
     {{-- Table 1: Assigned to Me (Full Width, Amber header) - FUNCTIONAL --}}
     <div class="mt-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">My Assigned Requests</h2>
         <livewire:assigned-to-me-table />
     </div>
 
-    {{-- Table 2: My Active Requests (Full Width, Blue header) --}}
-    {{-- PLACEHOLDER: Will be implemented as PowerGrid with Google Calendar modal and conditional action buttons --}}
-    <div class="mt-4 w-full rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between bg-blue-500 dark:bg-blue-700 px-4 py-2">
-            <h3 class="text-sm font-medium text-white">My Active Requests</h3>
-        </div>
 
-        <div class="px-4 py-8 bg-gray-50 dark:bg-gray-800 text-center">
-            <x-heroicon-o-briefcase class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
-            <p class="text-base font-medium text-gray-700 dark:text-gray-300">My Active Requests Table</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">PowerGrid showing accepted/scheduled/in_progress for current librarian with action buttons</p>
-        </div>
+    {{-- Table 2: My Active Requests (Blue PowerGrid header with Google Calendar modal) --}}
+    <div class="mt-4"
+         @open-schedule-modal.window="console.log('Dashboard: Caught open-schedule-modal event, dispatching Livewire event', $event.detail); Livewire.dispatch('openScheduleModal', $event.detail)"
+         @mark-in-progress.window="console.log('Dashboard: Caught mark-in-progress event, dispatching Livewire event', $event.detail); Livewire.dispatch('markInProgress', $event.detail)"
+         @mark-complete.window="console.log('Dashboard: Caught mark-complete event, dispatching Livewire event', $event.detail); Livewire.dispatch('markComplete', $event.detail)">
+
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">My Active Requests</h2>
+        <livewire:my-active-requests-table />
     </div>
 
     {{-- Table 3: Recently Received (Full Width, Green header) - FUNCTIONAL --}}
@@ -55,9 +53,7 @@
          with filtering capabilities matching InstructionRequestTable pattern.
     --}}
     <div class="mt-4">
-        <div class="mb-2">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Received Requests</h2>
-        </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">All Received Requests</h2>
         <livewire:recently-received-table />
     </div>
 
