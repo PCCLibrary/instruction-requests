@@ -31,19 +31,9 @@
     ]"
     />
 
-    {{-- Table 1: Assigned to Me (Full Width, Amber header) --}}
-    {{-- PLACEHOLDER: Will be implemented as a simple table component showing status='assigned' for current librarian --}}
-    <div class="mt-4 w-full rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between bg-amber-500 dark:bg-amber-700 px-4 py-2">
-            <h3 class="text-sm font-medium text-white">Assigned to Me</h3>
-            <span class="text-xs text-white">10 most recent</span>
-        </div>
-
-        <div class="px-4 py-8 bg-gray-50 dark:bg-gray-800 text-center">
-            <x-heroicon-o-clipboard-document-list class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
-            <p class="text-base font-medium text-gray-700 dark:text-gray-300">Assigned to Me Table</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Simple table component showing status='assigned' for current librarian</p>
-        </div>
+    {{-- Table 1: Assigned to Me (Full Width, Amber header) - FUNCTIONAL --}}
+    <div class="mt-4">
+        <livewire:assigned-to-me-table />
     </div>
 
     {{-- Table 2: My Active Requests (Full Width, Blue header) --}}
