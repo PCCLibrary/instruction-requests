@@ -58,7 +58,8 @@ class RequestReceivedNotification extends BaseInstructionRequestNotification
                 ->view($templateName, [
                     'request' => $templateData,
                     'dashboardUrl' => $this->getDashboardUrl(),
-                    'emailSubject' => $subject
+                    'emailSubject' => $subject,
+                    'headerColor' => $this->package->headerColor
                 ]);
         } catch (\Exception $e) {
             Log::error('Failed to create received request email notification', [

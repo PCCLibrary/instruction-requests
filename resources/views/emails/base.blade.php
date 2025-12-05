@@ -66,6 +66,7 @@
 </head>
 <body>
 <div class="container">
+    <div style="background-color: {{ $headerColor ?? '#008099' }}; height: 8px; margin: -20px -20px 0 -20px;"></div>
     <div class="header">
         <h1 style="margin: 0; font-size: 24px;">
             {{ $emailSubject }}
@@ -90,6 +91,9 @@
 
     <div class="footer">
         <p>Thank you,<br>PCC Librarians</p>
+        <p style="font-size: 10px; color: #999; margin-top: 20px;">
+            Library Instruction Request System
+        </p>
     </div>
 </div>
 </body>

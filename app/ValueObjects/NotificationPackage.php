@@ -15,6 +15,7 @@ class NotificationPackage
         public readonly array $templateData,
         public readonly string $dashboardUrl,
         public readonly string $instructorSubject,
-        public readonly string $librarianSubject
+        public readonly string $librarianSubject,
+        public readonly string $headerColor
     ) {}
 }

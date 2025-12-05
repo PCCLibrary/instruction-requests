@@ -54,7 +54,8 @@ class RequestAssignedNotification extends BaseInstructionRequestNotification
                 ->view($templateName, [
                     'request' => $templateData,
                     'dashboardUrl' => $this->getDashboardUrl(),
-                    'emailSubject' => $this->package->librarianSubject
+                    'emailSubject' => $this->package->librarianSubject,
+                    'headerColor' => $this->package->headerColor
                 ]);
         } catch (\Exception $e) {
             Log::error('Failed to create assigned notification email', [

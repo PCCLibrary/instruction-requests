@@ -10,7 +10,6 @@ use App\Notifications\RequestAssignedNotification;
 use App\Notifications\RequestAcceptedNotification;
 use App\Notifications\RequestRejectedNotification;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 
 class AdminTestNotifications extends Component
 {
@@ -69,7 +68,8 @@ class AdminTestNotifications extends Component
                 $this->previewHtml = view($viewName, [
                     'request' => $package->templateData,
                     'dashboardUrl' => $package->dashboardUrl,
-                    'emailSubject' => $package->librarianSubject
+                    'emailSubject' => $package->librarianSubject,
+                    'headerColor' => $package->headerColor
                 ])->render();
             }
         } catch (\Exception $e) {
@@ -89,13 +89,8 @@ class AdminTestNotifications extends Component
         $this->sendSuccess = false;
         $this->sendError = '';
 
-        if (!$this->selectedRequestId || !$this->notificationType || !$this->emailAddress) {
-            $this->sendError = 'Please select a request, notification type, and enter an email address.';
-            return;
-        }
-
-        if (!filter_var($this->emailAddress, FILTER_VALIDATE_EMAIL)) {
-            $this->sendError = 'Please enter a valid email address.';
+        if (!$this->selectedRequestId || !$this->notificationType) {
+            $this->sendError = 'Please select a request and notification type.';
             return;
         }
 
@@ -118,14 +113,14 @@ class AdminTestNotifications extends Component
                     'rejected' => new RequestRejectedNotification($package),
                 };
 
-                Notification::route('mail', $this->emailAddress)->notify($notification);
+                auth()->user()->notify($notification);
 
                 Log::info('Admin sent test notification', [
                     'admin_user_id' => auth()->id(),
                     'admin_user_name' => auth()->user()->display_name,
                     'request_id' => $this->selectedRequestId,
                     'notification_type' => $this->notificationType,
-                    'recipient_email' => $this->emailAddress
+                    'recipient_email' => auth()->user()->email
                 ]);
 
                 $this->sendSuccess = true;
@@ -136,7 +131,6 @@ class AdminTestNotifications extends Component
                 'admin_user_id' => auth()->id(),
                 'request_id' => $this->selectedRequestId,
                 'type' => $this->notificationType,
-                'email' => $this->emailAddress,
                 'error' => $e->getMessage()
             ]);
         }

@@ -72,7 +72,7 @@ class NotificationService
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
         $librarianSubject = $this->buildReceivedSubject($request);
 
-        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
+        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject, $this->getStatusColor('received'));
     }
 
     /**
@@ -90,7 +90,7 @@ class NotificationService
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
         $librarianSubject = $this->buildAssignedSubject($request);
 
-        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
+        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject, $this->getStatusColor('assigned'));
     }
 
     /**
@@ -108,7 +108,7 @@ class NotificationService
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
         $librarianSubject = $this->buildAcceptedSubject($request);
 
-        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
+        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject, $this->getStatusColor('accepted'));
     }
 
     /**
@@ -126,7 +126,7 @@ class NotificationService
         $instructorSubject = $this->buildInstructorSubject($type, $class, $request);
         $librarianSubject = $this->buildRejectedSubject($request);
 
-        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject);
+        return new NotificationPackage($templateData, $dashboardUrl, $instructorSubject, $librarianSubject, $this->getStatusColor('rejected'));
     }
 
     /**
@@ -333,6 +333,20 @@ class NotificationService
         }
 
         return ['date' => 'TBD', 'time' => 'TBD'];
+    }
+
+    /**
+     * Get header color for notification status
+     */
+    private function getStatusColor(string $status): string
+    {
+        return match($status) {
+            'received' => '#1E90FF',  // Bright azure blue (high contrast with cyan)
+            'assigned' => '#FF8C00',  // Orange (action required)
+            'accepted' => '#28A745',  // Green (positive)
+            'rejected' => '#DC3545',  // Red (alert)
+            default => '#008099'
+        };
     }
 
     /**
