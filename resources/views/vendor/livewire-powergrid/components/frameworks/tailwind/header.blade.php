@@ -7,14 +7,6 @@
                 <span class="pg-actions" x-html="toHtml"></span>
             </div>
             <div class="flex flex-row items-center text-sm flex-wrap">
-                @if (data_get($setUp, 'exportable'))
-                    <div
-                        class="mr-2 mt-2 sm:mt-0"
-                        id="pg-header-export"
-                    >
-                        @include(data_get($theme, 'root') . '.header.export')
-                    </div>
-                @endif
                 @includeIf(data_get($theme, 'root') . '.header.toggle-columns')
                 @includeIf(data_get($theme, 'root') . '.header.soft-deletes')
                 @if (config('livewire-powergrid.filter') == 'outside' && count($this->filters()) > 0)

@@ -392,25 +392,6 @@
         </div>
     @endif
 
-    <!-- Export Controls -->
-    <div class="mb-4 flex items-center space-x-2">
-        <span class="text-sm text-gray-700 dark:text-gray-300">
-            Export {{ number_format($totalSessions) }} records:
-        </span>
-        <button
-            wire:click="exportExcel"
-            class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-600 transition duration-150 ease-in-out"
-        >
-            XLS
-        </button>
-        <button
-            wire:click="exportCsv"
-            class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 transition duration-150 ease-in-out"
-        >
-            CSV
-        </button>
-    </div>
-
     <!-- Statistics Table -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
         <!-- Table Header -->
@@ -459,6 +440,25 @@
                 <span class="font-medium">Total sessions: {{ number_format($totalSessions) }}</span>
             </p>
         </div>
+    </div>
+
+    <!-- Export Controls -->
+    <div class="mt-4 mb-4 flex items-center space-x-2">
+        <span class="text-sm text-gray-700 dark:text-gray-300">
+            Export {{ number_format($totalSessions) }} records:
+        </span>
+        <button
+            wire:click="exportExcel"
+            class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-600 transition duration-150 ease-in-out"
+        >
+            XLS
+        </button>
+        <button
+            wire:click="exportCsv"
+            class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 transition duration-150 ease-in-out"
+        >
+            CSV
+        </button>
     </div>
 
     <!-- Report Summary Header -->

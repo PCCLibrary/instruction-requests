@@ -1,5 +1,13 @@
 <div>
     @includeIf(data_get($setUp, 'footer.includeViewOnTop'))
+
+    {{-- Export Controls - Moved from header to appear below table --}}
+    @if(data_get($setUp, 'exportable'))
+        <div class="mt-4 mb-4 flex items-center space-x-2 px-2">
+            @include(data_get($theme, 'root') . '.header.export')
+        </div>
+    @endif
+
     <footer
         id="pg-footer"
         @class([
