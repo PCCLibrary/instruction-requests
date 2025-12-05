@@ -27,7 +27,7 @@ final class MyActiveRequestsTable extends PowerGridComponent
         $themeClass = $this->customThemeClass() ?? strval(config('livewire-powergrid.theme'));
 
         $theme = new $themeClass();
-        $theme->header_color = 'bg-blue-500 dark:bg-blue-700';
+        $theme->header_color = 'bg-teal-500 dark:bg-teal-600';
 
         app()->instance($themeClass, $theme);
 

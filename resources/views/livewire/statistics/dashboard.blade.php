@@ -313,84 +313,72 @@
                 </div>
             </div>
 
-            <!-- Action Button -->
-            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <button wire:click="clearFilters" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    Clear All Filters
-                </button>
+            <!-- Action Button and Active Filters -->
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <button wire:click="clearFilters" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Clear All Filters
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-end">
+                    @if($campus)
+                        <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm">
+                            Campus: {{ $campuses->find($campus)->name }}
+                            <button wire:click="removeFilter('campus')" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($department)
+                        <span class="inline-flex items-center gap-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-3 py-1 rounded-full text-sm">
+                            Department: {{ $departments[$department] }}
+                            <button wire:click="removeFilter('department')" class="hover:text-purple-600 dark:hover:text-purple-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($class)
+                        <span class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 px-3 py-1 rounded-full text-sm">
+                            Class: {{ str_replace('-', ' ', $class) }}
+                            <button wire:click="removeFilter('class')" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($instructor)
+                        <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-3 py-1 rounded-full text-sm">
+                            Instructor: {{ $instructors->find($instructor)->display_name }}
+                            <button wire:click="removeFilter('instructor')" class="hover:text-green-600 dark:hover:text-green-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($assignedLibrarian)
+                        <span class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-3 py-1 rounded-full text-sm">
+                            Librarian: {{ $librarians->find($assignedLibrarian)->display_name }}
+                            <button wire:click="removeFilter('assignedLibrarian')" class="hover:text-amber-600 dark:hover:text-amber-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Truncation Warning -->
-    @if($showTruncationWarning)
-        <div class="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-start gap-2">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <p class="text-sm text-blue-800 dark:text-blue-200">{{ $truncationMessage }}</p>
-        </div>
-    @endif
-
-    <!-- Active Filters -->
-    @if($campus || $department || $class || $instructor || $assignedLibrarian)
-        <div class="mb-4 flex flex-wrap gap-2">
-            @if($campus)
-                <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm">
-                    Campus: {{ $campuses->find($campus)->name }}
-                    <button wire:click="removeFilter('campus')" class="hover:text-blue-600 dark:hover:text-blue-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </span>
-            @endif
-
-            @if($department)
-                <span class="inline-flex items-center gap-2 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-3 py-1 rounded-full text-sm">
-                    Department: {{ $departments[$department] }}
-                    <button wire:click="removeFilter('department')" class="hover:text-purple-600 dark:hover:text-purple-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </span>
-            @endif
-
-            @if($class)
-                <span class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 px-3 py-1 rounded-full text-sm">
-                    Class: {{ str_replace('-', ' ', $class) }}
-                    <button wire:click="removeFilter('class')" class="hover:text-indigo-600 dark:hover:text-indigo-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </span>
-            @endif
-
-            @if($instructor)
-                <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-3 py-1 rounded-full text-sm">
-                    Instructor: {{ $instructors->find($instructor)->display_name }}
-                    <button wire:click="removeFilter('instructor')" class="hover:text-green-600 dark:hover:text-green-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </span>
-            @endif
-
-            @if($assignedLibrarian)
-                <span class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-3 py-1 rounded-full text-sm">
-                    Librarian: {{ $librarians->find($assignedLibrarian)->display_name }}
-                    <button wire:click="removeFilter('assignedLibrarian')" class="hover:text-amber-600 dark:hover:text-amber-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </span>
-            @endif
-        </div>
-    @endif
 
     <!-- Statistics Table -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">

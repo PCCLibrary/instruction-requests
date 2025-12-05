@@ -29,28 +29,26 @@
                 </div>
             </div>
 
-            <!-- Clear All Filters Button -->
-            @if($campus)
-                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+            <!-- Clear All Filters Button and Pills -->
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between flex-wrap gap-4">
+                <div>
                     <button wire:click="clearFilters" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium">
                         Clear All Filters
                     </button>
                 </div>
-            @endif
+                <div class="flex flex-wrap gap-2 justify-end">
+                    @if($campus)
+                        <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm">
+                            Campus: {{ $campuses->find($campus)->name }}
+                            <button wire:click="removeFilter('campus')" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Active Filters Pills -->
-    @if($campus)
-        <div class="mt-4 flex flex-wrap gap-2">
-            <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm">
-                Campus: {{ $campuses->find($campus)->name }}
-                <button wire:click="removeFilter('campus')" class="hover:text-blue-600 dark:hover:text-blue-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </span>
-        </div>
-    @endif
 </div>

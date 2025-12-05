@@ -23,13 +23,13 @@
             'count' => $expiringSoonCount
         ],
         [
-            'iconBgColor' => 'bg-purple-500 dark:bg-purple-700',
+            'iconBgColor' => 'bg-rose-500 dark:bg-rose-700',
             'icon' => 'arrow-path',
             'infoBoxText' => 'Rejected Requests',
             'count' => $rejectedCount
         ],
         [
-            'iconBgColor' => 'bg-emerald-500 dark:bg-emerald-700',
+            'iconBgColor' => 'bg-teal-500 dark:bg-teal-700',
             'icon' => 'clipboard-document-check',
             'infoBoxText' => 'Active Requests',
             'count' => $activeWorkCount
@@ -45,12 +45,12 @@
         <livewire:team-workload-table />
     </div>
 
-    {{-- Scheduler Request Filters --}}
-    <livewire:scheduler-request-filters />
+    {{-- Unified Request Filters --}}
+    <livewire:request-filters />
 
-    {{-- Scheduler Request Table --}}
+    {{-- Unified Instruction Request Table --}}
     <div class="mt-4">
-        <livewire:scheduler-request-table />
+        <livewire:instruction-request-table />
     </div>
 
     {{-- Calendar Placeholder --}}
@@ -63,3 +63,8 @@
     </div>
 
 @endsection
+
+{{-- Import table-specific lock refresh script for auto-unlock functionality --}}
+@push('scripts')
+    @vite(['resources/js/table-lock-refresh.js'])
+@endpush

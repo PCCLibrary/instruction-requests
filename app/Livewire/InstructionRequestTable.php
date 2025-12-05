@@ -31,6 +31,23 @@ final class InstructionRequestTable extends PowerGridComponent
     public bool $withSortStringNumber = true;
 
     /**
+     * Set blue header color and default 'received' filter
+     */
+    public function mount(): void
+    {
+        // Set blue header color
+        $themeClass = $this->customThemeClass() ?? strval(config('livewire-powergrid.theme'));
+        $theme = new $themeClass();
+        $theme->header_color = 'bg-blue-500 dark:bg-blue-600';
+        app()->instance($themeClass, $theme);
+
+        // Set default filter to 'received' status
+        $this->filters['select']['instruction_requests.status'] = 'received';
+
+        parent::mount();
+    }
+
+    /**
      * Configure the table setup including export functionality
      */
     public function setUp(): array
@@ -228,7 +245,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 ->optionLabel('label'),
 
             Filter::datepicker('created_at', 'instruction_requests.created_at'),
-            Filter::datepicker('instruction_datetime', 'instruction_request_details.instruction_datetime'),
+            Filter::datepicker('instruction_request_details.instruction_datetime', 'instruction_request_details.instruction_datetime'),
 
             Filter::inputText('course_name', 'classes.course_name')
                 ->operators(['contains']),
@@ -372,6 +389,60 @@ final class InstructionRequestTable extends PowerGridComponent
     }
 
     /**
+     * Handle "Unassigned" filter - status = 'received'
+     */
+    #[\Livewire\Attributes\On('filterUnassigned')]
+    public function filterUnassigned(): void
+    {
+        $this->filters = [];
+        $this->filters['select']['instruction_requests.status'] = 'received';
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
+     * Handle "No Preference" filter - status = 'received' AND assigned_librarian_id = 2
+     */
+    #[\Livewire\Attributes\On('filterNoPreference')]
+    public function filterNoPreference(): void
+    {
+        $this->filters = [];
+        $this->filters['select']['instruction_requests.status'] = 'received';
+        $this->filters['select']['instruction_request_details.assigned_librarian_id'] = 2;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
+     * Handle "Expiring Unassigned" filter
+     */
+    #[\Livewire\Attributes\On('filterExpiringUnassigned')]
+    public function filterExpiringUnassigned(): void
+    {
+        $this->filters = [];
+        $this->filters['select']['instruction_requests.status'] = 'received';
+
+        $startDate = now()->startOfDay();
+        $endDate = now()->addDays(14)->endOfDay();
+
+        $this->filters['datepicker']['instruction_request_details.instruction_datetime'] = [
+            'start' => $startDate->format('Y-m-d'),
+            'end' => $endDate->format('Y-m-d')
+        ];
+
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
+     * Handle "My Requests" filter - assigned to current user
+     */
+    #[\Livewire\Attributes\On('filterMyRequests')]
+    public function filterMyRequests(): void
+    {
+        $this->filters = [];
+        $this->filters['input_text']['librarians.display_name'] = Auth::user()->display_name;
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
      * Handle refreshing lock status (for polling updates)
      */
     #[\Livewire\Attributes\On('refreshLockStatus')]
@@ -412,8 +483,14 @@ final class InstructionRequestTable extends PowerGridComponent
                 'filterByStatus',
                 'clearFilters',
                 'refreshLockStatus',
-                'filterExpiringReceived',  // Add new listener
-                'filterRejected'           // Add new listener
+                'filterExpiringReceived',
+                'filterRejected',
+                // NEW scheduler filters:
+                'filterUnassigned',
+                'filterNoPreference',
+                'filterExpiringUnassigned',
+                // NEW librarian filter:
+                'filterMyRequests',
             ]
         );
     }

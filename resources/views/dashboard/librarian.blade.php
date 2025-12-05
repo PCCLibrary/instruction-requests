@@ -17,13 +17,13 @@
             'count' => $assignedToMeCount
         ],
         [
-            'iconBgColor' => 'bg-blue-500 dark:bg-blue-700',
+            'iconBgColor' => 'bg-teal-500 dark:bg-teal-700',
             'icon' => 'clipboard-document-list',
             'infoBoxText' => 'My Active Requests',
             'count' => $myActiveRequestsCount
         ],
         [
-            'iconBgColor' => 'bg-purple-500 dark:bg-purple-700',
+            'iconBgColor' => 'bg-blue-500 dark:bg-blue-700',
             'icon' => 'document-text',
             'infoBoxText' => 'All Received Requests',
             'count' => $receivedRequestsCount
@@ -54,13 +54,11 @@
         <livewire:my-active-requests-table />
     </div>
 
-    {{-- Table 3: Recently Received (Full Width, Green header) - FUNCTIONAL --}}
-    {{-- FUNCTIONAL: This PowerGrid table shows ALL received requests (not filtered by librarian)
-         with filtering capabilities matching InstructionRequestTable pattern.
-    --}}
+    {{-- Table 3: Instruction Requests (Unified table with filters) --}}
     <div class="mt-4">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">All Received Requests</h2>
-        <livewire:recently-received-table />
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">All Instruction Requests</h2>
+        <livewire:request-filters />
+        <livewire:instruction-request-table />
     </div>
 
     {{-- Calendar Placeholder --}}

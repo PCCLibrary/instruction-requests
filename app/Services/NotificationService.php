@@ -341,11 +341,11 @@ class NotificationService
     private function getStatusColor(string $status): string
     {
         return match($status) {
-            'received' => '#1E90FF',  // Bright azure blue (high contrast with cyan)
-            'assigned' => '#FF8C00',  // Orange (action required)
-            'accepted' => '#28A745',  // Green (positive)
-            'rejected' => '#DC3545',  // Red (alert)
-            default => '#008099'
+            'received' => '#3B82F6',  // Tailwind blue-500 (matches UI)
+            'assigned' => '#F59E0B',  // Tailwind amber-500 (matches UI)
+            'accepted' => '#14B8A6',  // Tailwind teal-500 (matches UI)
+            'rejected' => '#F43F5E',  // Tailwind rose-500 (matches UI)
+            default => '#3B82F6'
         };
     }
 
