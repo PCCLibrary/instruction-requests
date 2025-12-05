@@ -45,7 +45,7 @@ class CreateInstructionRequestsTable extends Migration
             $table->text('desired_student_outcomes')->nullable();
             $table->text('genai_discussion_interest')->nullable();
             $table->text('other_notes')->nullable();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('received');
             $table->timestamps();
             $table->softDeletes();
 

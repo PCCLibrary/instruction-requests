@@ -22,9 +22,6 @@ final class MyActiveRequestsTable extends PowerGridComponent
 
     public string $tableName = 'MyActiveRequestsTable';
 
-    public $scheduleModalOpen = false;
-    public $scheduleRequestId = null;
-
     public function mount(): void
     {
         $themeClass = $this->customThemeClass() ?? strval(config('livewire-powergrid.theme'));
@@ -167,26 +164,6 @@ final class MyActiveRequestsTable extends PowerGridComponent
             'isLocked' => $isLocked,
             'lockerName' => $lockerName,
         ]);
-    }
-
-    public function openScheduleModal($id)
-    {
-        Log::info('openScheduleModal called', ['id' => $id]);
-        $this->scheduleRequestId = $id;
-        $this->scheduleModalOpen = true;
-        Log::info('Modal state after open', [
-            'scheduleRequestId' => $this->scheduleRequestId,
-            'scheduleModalOpen' => $this->scheduleModalOpen
-        ]);
-    }
-
-    #[\Livewire\Attributes\On('googleCalendarEventCreated')]
-    public function handleEventCreated()
-    {
-        Log::info('handleEventCreated called');
-        $this->scheduleModalOpen = false;
-        $this->scheduleRequestId = null;
-        $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
     public function markInProgress($id)

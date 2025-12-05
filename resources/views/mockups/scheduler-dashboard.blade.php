@@ -3,7 +3,7 @@
 @section('content')
     <div class="mb-4 p-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg">
         <p class="text-green-800 dark:text-green-200 font-semibold">
-            🚀 New Feature: Team Workload Dashboard - We're actively building this! Try it out and let us know what you think.
+            🚀 New Feature:Scheduler Dashboard - We're actively building this! Try it out and let us know what you think.
         </p>
     </div>
 

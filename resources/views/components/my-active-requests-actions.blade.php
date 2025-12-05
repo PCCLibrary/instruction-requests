@@ -6,7 +6,7 @@
         @if(in_array($instructionType, ['on-campus', 'remote']))
             {{-- Schedule Button for sync requests --}}
             <button
-                @click="console.log('Schedule button clicked, dispatching open-schedule-modal event', { requestId: {{ $id }} }); $dispatch('open-schedule-modal', { requestId: {{ $id }} })"
+                @click="$dispatch('openScheduleModal', {{ $id }})"
                 class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded dark:bg-indigo-700 dark:hover:bg-indigo-600"
                 title="Schedule this instruction session">
                 <x-heroicon-o-calendar-days class="{{ $size }} mr-1" />
@@ -15,7 +15,7 @@
         @elseif($instructionType === 'asynchronous')
             {{-- Mark In Progress Button for async requests --}}
             <button
-                @click="console.log('Mark In Progress button clicked, dispatching mark-in-progress event', { requestId: {{ $id }} }); $dispatch('mark-in-progress', { requestId: {{ $id }} })"
+                wire:click="markInProgress({{ $id }})"
                 class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded dark:bg-purple-700 dark:hover:bg-purple-600"
                 title="Mark this request as in progress">
                 <x-heroicon-o-play class="{{ $size }} mr-1" />
@@ -27,7 +27,7 @@
     @if(in_array($status, ['scheduled', 'in_progress']))
         {{-- Mark Complete Button --}}
         <button
-            @click="console.log('Mark Complete button clicked, dispatching mark-complete event', { requestId: {{ $id }} }); $dispatch('mark-complete', { requestId: {{ $id }} })"
+            wire:click="markComplete({{ $id }})"
             class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded dark:bg-green-700 dark:hover:bg-green-600"
             title="Mark this request as completed">
             <x-heroicon-o-check-circle class="{{ $size }} mr-1" />

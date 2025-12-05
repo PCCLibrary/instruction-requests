@@ -176,6 +176,9 @@ class CreateGoogleCalendarEventForm extends Component
             // Use Toaster facade for success notification
             app(Toaster::class)->success('Google Calendar event created successfully.');
 
+            // Dispatch event to close parent modal
+            $this->dispatch('close-schedule-modal');
+
             // Dispatch event for client-side reload
             $this->dispatch('googleCalendarEventCreated', [
                 'requestId' => $this->instructionRequest->id,
@@ -183,9 +186,8 @@ class CreateGoogleCalendarEventForm extends Component
                 'timestamp' => now()->toDateTimeString()
             ]);
 
-            // Clear the form and close modal (if needed)
+            // Clear the form
             $this->reset(['description', 'location']);
-            $this->dispatch('close-modal');
 
         } catch (GoogleCalendarApiException $e) {
             // Handle Google Calendar API errors with specific messages
@@ -254,6 +256,14 @@ class CreateGoogleCalendarEventForm extends Component
             app(Toaster::class)->error($errorMessage);
             $this->addError('calendar', $errorMessage);
         }
+    }
+
+    /**
+     * Cancel and close the modal
+     */
+    public function cancel()
+    {
+        $this->dispatch('close-schedule-modal');
     }
 
     /**

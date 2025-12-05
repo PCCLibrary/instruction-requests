@@ -184,16 +184,7 @@
                         </span>
                         </button>
                         <button type="button"
-                                @click="
-                                  $dispatch('close-modal');
-                                  // Safely try to close the modal using parent element
-                                  const parentEl = document.querySelector('[x-data*=\'isOpen\']');
-                                  if (parentEl && parentEl.__x) {
-                                    parentEl.__x.$data.isOpen = false;
-                                  }
-                                  // Clean up toast messages
-                                  document.querySelectorAll('.toast-message').forEach(toast => toast.remove());
-                                "
+                                wire:click="cancel"
                                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
                             Cancel
                         </button>
