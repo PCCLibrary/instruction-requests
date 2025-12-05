@@ -65,10 +65,10 @@
                                 <form method="POST" action="{{ route('instructionRequests.accept', $request->id) }}" class="inline">
                                     @csrf
                                     <button type="submit"
-                                            class="inline-flex items-center gap-1 px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200 dark:bg-green-800 dark:text-green-300 dark:hover:bg-green-700"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded dark:bg-green-700 dark:hover:bg-green-600"
                                             title="Accept this request">
-                                        <x-heroicon-o-check class="w-4 h-4" />
-                                        <span>Accept</span>
+                                        <x-heroicon-o-check class="w-4 h-4 mr-1" />
+                                        Accept
                                     </button>
                                 </form>
 
@@ -77,16 +77,16 @@
                                     @csrf
                                     <button type="submit"
                                             onclick="return confirm('Are you sure you want to reject this request? This action cannot be undone.')"
-                                            class="inline-flex items-center gap-1 px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-800 dark:text-red-300 dark:hover:bg-red-700"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded dark:bg-red-700 dark:hover:bg-red-600"
                                             title="Reject this request">
-                                        <x-heroicon-o-x-mark class="w-4 h-4" />
-                                        <span>Reject</span>
+                                        <x-heroicon-o-x-mark class="w-4 h-4 mr-1" />
+                                        Reject
                                     </button>
                                 </form>
 
                                 {{-- Edit Button --}}
                                 <a href="{{ route('instructionRequests.edit', $request->id) }}"
-                                   class="inline-flex items-center px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 dark:bg-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-700"
+                                   class="inline-flex items-center p-2 text-xs bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 dark:bg-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-700"
                                    title="Edit this request">
                                     <x-heroicon-o-pencil-square class="w-4 h-4" />
                                 </a>

@@ -13,20 +13,26 @@
         [
             'iconBgColor' => 'bg-amber-500 dark:bg-amber-700',
             'icon' => 'clock',
-            'infoBoxText' => 'Pending Your Response',
-            'count' => 12
+            'infoBoxText' => 'Assigned to Me',
+            'count' => $assignedToMeCount
         ],
         [
             'iconBgColor' => 'bg-blue-500 dark:bg-blue-700',
             'icon' => 'clipboard-document-list',
             'infoBoxText' => 'My Active Requests',
-            'count' => 8
+            'count' => $myActiveRequestsCount
+        ],
+        [
+            'iconBgColor' => 'bg-purple-500 dark:bg-purple-700',
+            'icon' => 'document-text',
+            'infoBoxText' => 'All Received Requests',
+            'count' => $receivedRequestsCount
         ],
         [
             'iconBgColor' => 'bg-green-500 dark:bg-green-700',
             'icon' => 'check-circle',
             'infoBoxText' => 'Completed This Term',
-            'count' => 45
+            'count' => $completedRequestsCount
         ]
     ]"
     />

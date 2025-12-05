@@ -1,6 +1,6 @@
 @props(['id', 'status', 'instructionType', 'isLocked' => false, 'lockerName' => null, 'editRoute' => 'instructionRequests.edit', 'routeKeyName' => 'instructionRequest', 'size' => 'w-4 h-4'])
 
-<div class="flex space-x-2">
+<div class="flex justify-end space-x-2">
     {{-- Conditional Action Buttons Based on Status --}}
     @if($status === 'accepted')
         @if(in_array($instructionType, ['on-campus', 'remote']))

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LibrarianDashboardController;
 use App\Http\Controllers\SchedulerDashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
 use App\Http\Controllers\InstructorController;
@@ -131,9 +132,8 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Temporary mockup routes for new dashboard designs
-    Route::get('/mockup-librarian', function () {
-        return view('mockups.librarian-dashboard');
-    })->name('dashboard.mockup.librarian');
+    Route::get('/mockup-librarian', [LibrarianDashboardController::class, 'index'])
+        ->name('dashboard.mockup.librarian');
 
     Route::get('/mockup-scheduler', [SchedulerDashboardController::class, 'index'])
         ->name('dashboard.mockup.scheduler');
