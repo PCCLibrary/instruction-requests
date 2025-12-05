@@ -35,7 +35,7 @@ class SchedulerDashboardController extends Controller
         $activeWorkCount = InstructionRequests::whereIn('status', ['assigned', 'accepted', 'scheduled'])
             ->count();
 
-        return view('mockups.scheduler-dashboard', compact(
+        return view('dashboard.scheduler', compact(
             'receivedCount',
             'expiringSoonCount',
             'rejectedCount',

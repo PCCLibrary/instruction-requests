@@ -131,12 +131,12 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     // Dashboard home
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Temporary mockup routes for new dashboard designs
-    Route::get('/mockup-librarian', [LibrarianDashboardController::class, 'index'])
-        ->name('dashboard.mockup.librarian');
+    // Dashboard routes for librarian and scheduler views
+    Route::get('/librarian', [LibrarianDashboardController::class, 'index'])
+        ->name('dashboard.librarian');
 
-    Route::get('/mockup-scheduler', [SchedulerDashboardController::class, 'index'])
-        ->name('dashboard.mockup.scheduler');
+    Route::get('/scheduler', [SchedulerDashboardController::class, 'index'])
+        ->name('dashboard.scheduler');
 
     // Statistics landing page
     Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');

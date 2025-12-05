@@ -44,7 +44,7 @@ class LibrarianDashboardController extends Controller
             })
             ->count();
 
-        return view('mockups.librarian-dashboard', compact(
+        return view('dashboard.librarian', compact(
             'assignedToMeCount',
             'myActiveRequestsCount',
             'receivedRequestsCount',

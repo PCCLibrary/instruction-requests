@@ -8,16 +8,16 @@
 <li class="dropdown-divider"></li>
 
 <li class="nav-item">
-    <a href="{{ route('dashboard.mockup.librarian') }}"
-       class="nav-link {{ Request::is('dashboard/mockup-librarian') ? 'active' : '' }}">
-        <i class="fa fa-paint-brush"></i> <span>🎨 Librarian Dashboard</span>
+    <a href="{{ route('dashboard.librarian') }}"
+       class="nav-link {{ Request::is('dashboard/librarian') ? 'active' : '' }}">
+        <i class="fa fa-book-open"></i> <span>Librarian Dashboard</span>
     </a>
 </li>
 
 <li class="nav-item">
-    <a href="{{ route('dashboard.mockup.scheduler') }}"
-       class="nav-link {{ Request::is('dashboard/mockup-scheduler') ? 'active' : '' }}">
-        <i class="fa fa-paint-brush"></i> <span>🎨 Scheduler Dashboard</span>
+    <a href="{{ route('dashboard.scheduler') }}"
+       class="nav-link {{ Request::is('dashboard/scheduler') ? 'active' : '' }}">
+        <i class="fa fa-calendar-days"></i> <span>Scheduler Dashboard</span>
     </a>
 </li>
 

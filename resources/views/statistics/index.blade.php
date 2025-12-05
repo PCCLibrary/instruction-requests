@@ -62,7 +62,7 @@
                         </div>
                     </div>
                     <p class="text-gray-600 dark:text-gray-300 mb-4">
-                        Export individual session data with all fields including instructor, course, campus, date, duration, and student count. Perfect for ACRL reporting and detailed analysis.
+                        Export individual session data with all fields including instructor, course, campus, date, duration, and student count.
                     </p>
                     <button disabled
                             class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 rounded-lg cursor-not-allowed">
