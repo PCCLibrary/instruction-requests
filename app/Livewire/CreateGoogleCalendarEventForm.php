@@ -263,7 +263,7 @@ class CreateGoogleCalendarEventForm extends Component
      */
     public function cancel()
     {
-        $this->dispatch('close-schedule-modal');
+        $this->dispatch('close-modal');
     }
 
     /**
