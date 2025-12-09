@@ -44,6 +44,12 @@
                 >
                     Rejected Requests
                 </button>
+                <button
+                    wire:click="filterMyCompletedRequests"
+                    class="px-3 py-2 text-sm font-medium text-white bg-green-500 border border-green-500 rounded-md hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
+                >
+                    My Completed Requests
+                </button>
             </div>
 
             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between flex-wrap gap-4">
@@ -123,6 +129,17 @@
                         <span class="inline-flex items-center gap-2 bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200 px-3 py-1 rounded-full text-sm">
                             Showing: Rejected Requests
                             <button wire:click="clearFilters" class="hover:text-rose-600 dark:hover:text-rose-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    @endif
+
+                    @if($showingMyCompletedRequests)
+                        <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-3 py-1 rounded-full text-sm">
+                            Showing: My Completed Requests
+                            <button wire:click="clearFilters" class="hover:text-green-600 dark:hover:text-green-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>

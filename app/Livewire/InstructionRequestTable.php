@@ -443,6 +443,18 @@ final class InstructionRequestTable extends PowerGridComponent
     }
 
     /**
+     * Handle "My Completed Requests" filter - completed requests assigned to current user
+     */
+    #[\Livewire\Attributes\On('filterMyCompletedRequests')]
+    public function filterMyCompletedRequests(): void
+    {
+        $this->filters = [];
+        $this->filters['input_text']['librarians.display_name'] = Auth::user()->display_name;
+        $this->filters['select']['instruction_requests.status'] = 'completed';
+        $this->dispatch('pg:eventRefresh-' . $this->tableName);
+    }
+
+    /**
      * Handle refreshing lock status (for polling updates)
      */
     #[\Livewire\Attributes\On('refreshLockStatus')]
@@ -491,6 +503,7 @@ final class InstructionRequestTable extends PowerGridComponent
                 'filterExpiringUnassigned',
                 // NEW librarian filter:
                 'filterMyRequests',
+                'filterMyCompletedRequests',
             ]
         );
     }

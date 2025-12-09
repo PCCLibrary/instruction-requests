@@ -15,6 +15,7 @@ class RequestFilters extends Component
     public bool $showingNoPreference = false;  // New property
     public bool $showingExpiringUnassigned = false;  // New property
     public bool $showingReceivedDefault = true;  // Default filter on page load
+    public bool $showingMyCompletedRequests = false;  // New property
 
     public function mount()
     {
@@ -88,6 +89,19 @@ class RequestFilters extends Component
             ->to('instruction-request-table');
     }
 
+    // New method for My Completed Requests filter
+    public function filterMyCompletedRequests()
+    {
+        // Reset all filter states
+        $this->resetFilterStates();
+
+        // Set active filter
+        $this->showingMyCompletedRequests = true;
+
+        $this->dispatch('filterMyCompletedRequests')
+            ->to('instruction-request-table');
+    }
+
     public function filterByCampus($code)
     {
         $this->dispatch('filterByCampus', code: $code)
@@ -119,6 +133,7 @@ class RequestFilters extends Component
         $this->showingNoPreference = false;
         $this->showingExpiringUnassigned = false;
         $this->showingReceivedDefault = false;  // Clear default filter pill when other filters applied
+        $this->showingMyCompletedRequests = false;
     }
 
     public function render()
