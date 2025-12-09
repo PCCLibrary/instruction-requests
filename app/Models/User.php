@@ -155,9 +155,10 @@ class User extends Authenticatable implements CommenterContract
      */
     public function campuses(): BelongsToMany
     {
-        // Define the many-to-many relationship
-        return $this->belongsToMany(Campus::class, 'campus_user', 'librarian_id', 'campus_id')
-            ->withTimestamps(); // Optional: if you want to automatically update created_at and updated_at timestamps in pivot table
+        return $this->belongsToMany(Campus::class, 'campus_user', 'user_id', 'campus_id')
+            ->withTimestamps()
+            ->orderBy('sort_order')
+            ->orderBy('name');
     }
 
 

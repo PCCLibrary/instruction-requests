@@ -4,8 +4,11 @@ namespace App\Notifications;
 
 use App\Models\User;
 use App\Models\Instructor;
+use Exception;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 /**
  * Notification sent when an instruction request is assigned to a librarian
@@ -18,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  * Verifies the librarian assignment by checking data loaded from
  * the repository instead of direct model relationships.
  *
- * @implements \Illuminate\Contracts\Queue\ShouldQueue via parent class
+ * @implements ShouldQueue via parent class
  */
 class RequestAssignedNotification extends BaseInstructionRequestNotification
 {
@@ -30,8 +33,8 @@ class RequestAssignedNotification extends BaseInstructionRequestNotification
      * base class methods to load consistent template data.
      *
      * @param object $notifiable The recipient of the notification (User or Instructor)
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     * @throws \InvalidArgumentException When notifiable type is not supported
+     * @return MailMessage
+     * @throws InvalidArgumentException|Exception When notifiable type is not supported
      */
     public function toMail(object $notifiable): MailMessage
     {
@@ -43,7 +46,7 @@ class RequestAssignedNotification extends BaseInstructionRequestNotification
             $notifiable instanceof User &&
             $notifiable->id === ($templateData['detail']['assigned_librarian_id'] ?? null) => 'emails.librarian.assigned',
             $notifiable instanceof Instructor => 'emails.instructor.assigned',
-            default => throw new \InvalidArgumentException(
+            default => throw new InvalidArgumentException(
                 'Unsupported notifiable type: ' . get_class($notifiable)
             )
         };
@@ -57,7 +60,7 @@ class RequestAssignedNotification extends BaseInstructionRequestNotification
                     'emailSubject' => $this->package->librarianSubject,
                     'headerColor' => $this->package->headerColor
                 ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create assigned notification email', [
                 'request_id' => $templateData['request_id'] ?? 'unknown',
                 'recipient_id' => $notifiable->id,

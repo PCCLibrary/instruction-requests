@@ -94,27 +94,25 @@ final class TeamWorkloadTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('display_name')
-            ->add('campus_name')
+            ->add('campuses_codes')
+            ->add('campuses_names')
             ->add('total_active')
             ->add('assigned_count')
             ->add('accepted_count')
             ->add('scheduled_count')
             ->add('async_count')
             ->add('in_person_count')
-            ->add('remote_count')
-            ->add('librarian_display', function($row) {
-                $html = '<div>' . e($row->display_name) . '</div>';
-                if (!empty($row->campus_name)) {
-                    $html .= '<div class="text-sm text-gray-500 dark:text-gray-400">' . e($row->campus_name) . '</div>';
-                }
-                return $html;
-            });
+            ->add('remote_count');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Librarian', 'librarian_display', 'display_name')
+            Column::make('Librarian', 'display_name')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Campuses', 'campuses_codes', 'campuses_names')
                 ->sortable()
                 ->searchable(),
 

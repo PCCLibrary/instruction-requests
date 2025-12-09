@@ -44,7 +44,7 @@ class UserController extends AppBaseController
      */
     public function create(): View
     {
-        $campuses = Campus::forLibrarians()->pluck('name', 'id');
+        $campuses = Campus::forLibrarians()->pluck('name', 'id')->toArray();
 
         return view('users.create')->with('campuses', $campuses);
     }
@@ -61,16 +61,17 @@ class UserController extends AppBaseController
 
         $user = $this->userRepository->create($input);
 
-//        flash('User saved successfully.')->success();
+        if (isset($input['campus_ids'])) {
+            Log::info('Syncing campuses for new user', ['user_id' => $user->id, 'campus_ids' => $input['campus_ids']]);
+            $user->campuses()->sync($input['campus_ids']);
+        }
 
         session()->flash('success', 'User created successfully.');
 
-        // Check if "Save & Close" was clicked
         if ($request->has('saveAndClose')) {
             return redirect(route('users.index'));
         }
 
-        // Otherwise, redirect to edit the newly created user
         return redirect(route('users.edit', $user->id));
     }
 
@@ -104,12 +105,13 @@ class UserController extends AppBaseController
         $user = $this->userRepository->find($id);
 
         if (empty($user)) {
-//            flash('User not found')->error();
             session()->flash('error', 'User not found');
             return redirect(route('users.index'));
         }
 
-        $campuses = Campus::forLibrarians()->pluck('name', 'id');
+        $user->load('campuses');
+
+        $campuses = Campus::forLibrarians()->pluck('name', 'id')->toArray();
 
         return view('users.edit')
             ->with('user', $user)
@@ -143,14 +145,22 @@ class UserController extends AppBaseController
 
         $this->userRepository->update($input, $id);
 
+        $user = $this->userRepository->find($id);
+
+        if (isset($input['campus_ids'])) {
+            Log::info('Syncing campuses for user', ['user_id' => $id, 'campus_ids' => $input['campus_ids']]);
+            $user->campuses()->sync($input['campus_ids']);
+        } else {
+            Log::info('Clearing all campus assignments for user', ['user_id' => $id]);
+            $user->campuses()->sync([]);
+        }
+
         session()->flash('success', 'User updated successfully.');
 
-        // Check if "Save & Close" was clicked
         if ($request->has('saveAndClose')) {
             return redirect(route('users.index'));
         }
 
-        // Otherwise, stay on the edit page
         return redirect(route('users.edit', $id));
     }
 

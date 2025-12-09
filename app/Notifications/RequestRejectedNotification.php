@@ -4,8 +4,11 @@ namespace App\Notifications;
 
 use App\Models\Instructor;
 use App\Models\User;
+use Exception;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 /**
  * Notification sent when an instruction request is rejected
@@ -18,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  * Provides appropriate template data based on the rejection context,
  * using data loaded from the repository.
  *
- * @implements \Illuminate\Contracts\Queue\ShouldQueue via parent class
+ * @implements ShouldQueue via parent class
  */
 class RequestRejectedNotification extends BaseInstructionRequestNotification
 {
@@ -30,8 +33,8 @@ class RequestRejectedNotification extends BaseInstructionRequestNotification
      * base class methods to load consistent template data.
      *
      * @param object $notifiable The recipient of the notification (Instructor or User/Librarian)
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     * @throws \InvalidArgumentException|\Exception When notifiable type is not supported
+     * @return MailMessage
+     * @throws InvalidArgumentException|Exception When notifiable type is not supported
      */
     public function toMail(object $notifiable): MailMessage
     {
@@ -42,7 +45,7 @@ class RequestRejectedNotification extends BaseInstructionRequestNotification
         $templateName = match(true) {
             $notifiable instanceof Instructor => 'emails.instructor.rejected',
             $notifiable instanceof User => 'emails.librarian.rejected',
-            default => throw new \InvalidArgumentException(
+            default => throw new InvalidArgumentException(
                 'Unsupported notifiable type: ' . get_class($notifiable)
             )
         };
@@ -56,7 +59,7 @@ class RequestRejectedNotification extends BaseInstructionRequestNotification
                     'emailSubject' => $this->package->librarianSubject,
                     'headerColor' => $this->package->headerColor
                 ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create rejected notification email', [
                 'request_id' => $templateData['request_id'] ?? 'unknown',
                 'recipient_id' => $notifiable->id,

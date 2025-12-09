@@ -38,7 +38,7 @@ final class UserTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = User::query()->with('campus')->select('users.*');
+        $query = User::query()->with('campuses')->select('users.*');
 
         // Always filter admin users unless they're available for assignment
         $query->where(function ($q) {
@@ -115,7 +115,12 @@ final class UserTable extends PowerGridComponent
             })
             ->add('created_at')
             ->add('created_at_formatted', fn (User $model) =>
-            Carbon::parse($model->created_at)->format('m/d/Y g:i a'));
+            Carbon::parse($model->created_at)->format('m/d/Y g:i a'))
+            ->add('campuses', function (User $model) {
+                return $model->campuses->map(fn($campus) =>
+                    "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white\">{$campus->code}</span>"
+                )->implode(' ');
+            });
     }
 
     public function columns(): array
@@ -128,6 +133,8 @@ final class UserTable extends PowerGridComponent
             Column::make('Email', 'email')
                 ->searchable()
                 ->sortable(),
+
+            Column::make('Campuses', 'campuses'),
 
             Column::action('Action')
                 ->visibleInExport(false)

@@ -11,15 +11,20 @@ class LibrarianWorkloadService
     public function getWorkloadStatistics(?int $campusFilter = null): Collection
     {
         $librarians = User::orderedLibrariansScope()
-            ->with('campus')
-            ->when($campusFilter, fn($q) => $q->where('campus_id', $campusFilter))
+            ->with(['campus', 'campuses'])
+            ->when($campusFilter, function($q) use ($campusFilter) {
+                $q->whereHas('campuses', function($campusQuery) use ($campusFilter) {
+                    $campusQuery->where('campuses.id', $campusFilter);
+                });
+            })
             ->get();
 
         return $librarians->map(function($user) {
             return [
                 'id' => $user->id,
                 'display_name' => $user->display_name,
-                'campus_name' => $user->campus?->name ?? '',
+                'campuses_codes' => $user->campuses->pluck('code')->filter()->join(', '),
+                'campuses_names' => $user->campuses->pluck('name')->join(', '),
                 'total_active' => $this->countTotalActive($user->id),
                 'assigned_count' => $this->countAssigned($user->id),
                 'accepted_count' => $this->countAccepted($user->id),

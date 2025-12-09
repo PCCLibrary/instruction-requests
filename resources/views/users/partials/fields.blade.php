@@ -18,14 +18,16 @@
     </div>
 
     <div>
-        <x-input-select
-            name="campus_id"
-            label="Campus"
+        <x-multiselect
+            name="campus_ids"
+            label="Campuses"
+            placeholder="Select campuses..."
             :options="$campuses"
-            :selected="old('campus_id', $user->campus_id ?? '')"
-            class="mt-1 block w-full"
+            :selected="old('campus_ids', $user->campuses->pluck('id')->toArray() ?? [])"
+            searchable
         />
-        <x-input-error class="mt-2" :messages="$errors->get('campus_id')" />
+        <x-input-error class="mt-2" :messages="$errors->get('campus_ids')" />
+        <x-input-error class="mt-2" :messages="$errors->get('campus_ids.*')" />
     </div>
 
     <div>
