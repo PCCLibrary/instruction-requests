@@ -104,25 +104,6 @@
     <div class="relative"
          :class="{ 'opacity-50 pointer-events-none': {{ $disabled ? 'true' : 'false' }} }">
 
-        <!-- Selected items (pills) -->
-        <div x-show="hasSelection"
-             class="flex flex-wrap gap-2 mb-2"
-             x-cloak>
-            <template x-for="item in selectedItems" :key="item.value">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white dark:bg-sky-700">
-                    <span x-text="item.label"></span>
-                    <button type="button"
-                            @click="removeItem(item.value)"
-                            class="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-sky-200 hover:text-white hover:bg-sky-800 focus:outline-none focus:bg-sky-800 focus:text-white"
-                            :aria-label="'Remove ' + item.label">
-                        <svg class="w-2 h-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
-                            <path stroke-linecap="round" stroke-width="1.5" d="m1 1 6 6m0-6-6 6"/>
-                        </svg>
-                    </button>
-                </span>
-            </template>
-        </div>
-
         <!-- Input trigger -->
         <div class="relative">
             <input type="text"
@@ -143,6 +124,25 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
             </div>
+        </div>
+
+        <!-- Selected items (pills) -->
+        <div x-show="hasSelection"
+             class="flex flex-wrap gap-2 mt-2"
+             x-cloak>
+            <template x-for="item in selectedItems" :key="item.value">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-600 text-white dark:bg-sky-700">
+                    <span x-text="item.label"></span>
+                    <button type="button"
+                            @click="removeItem(item.value)"
+                            class="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-sky-200 hover:text-white hover:bg-sky-800 focus:outline-none focus:bg-sky-800 focus:text-white"
+                            :aria-label="'Remove ' + item.label">
+                        <svg class="w-2 h-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                            <path stroke-linecap="round" stroke-width="1.5" d="m1 1 6 6m0-6-6 6"/>
+                        </svg>
+                    </button>
+                </span>
+            </template>
         </div>
 
         <!-- Dropdown -->
