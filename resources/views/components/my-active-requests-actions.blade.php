@@ -6,7 +6,7 @@
         @if(in_array($instructionType, ['on-campus', 'remote']))
             {{-- Schedule Button for sync requests --}}
             <button
-                @click="$dispatch('openScheduleModal', {{ $id }})"
+                wire:click="openScheduleModal({{ $id }})"
                 class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded dark:bg-indigo-700 dark:hover:bg-indigo-600"
                 title="Schedule this instruction session">
                 <x-heroicon-o-calendar-days class="{{ $size }} mr-1" />

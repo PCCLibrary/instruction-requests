@@ -1,12 +1,22 @@
 @extends('layouts.app')
 
-@section('content')
-    <div class="mb-4 p-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg">
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+        ['label' => 'Librarian Dashboard']
+    ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+        Librarian Dashboard
+    </h1>
+    <p class="text-gray-600 dark:text-gray-300">Manage instruction requests assigned to you.</p>
+
+    <div class="mt-2 p-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg">
         <p class="text-green-800 dark:text-green-200 font-semibold">
             🚀 New Feature:Librarian Dashboard - We're actively building this! Try it out and let us know what you think.
         </p>
     </div>
+@endsection
 
+@section('content')
     {{-- Status Bar --}}
     <x-status-bar
         :items="[
@@ -45,11 +55,7 @@
 
 
     {{-- Table 2: My Active Requests (Blue PowerGrid header with Google Calendar modal) --}}
-    <div class="mt-4"
-         @open-schedule-modal.window="console.log('Dashboard: Caught open-schedule-modal event, dispatching Livewire event', $event.detail); Livewire.dispatch('openScheduleModal', $event.detail)"
-         @mark-in-progress.window="console.log('Dashboard: Caught mark-in-progress event, dispatching Livewire event', $event.detail); Livewire.dispatch('markInProgress', $event.detail)"
-         @mark-complete.window="console.log('Dashboard: Caught mark-complete event, dispatching Livewire event', $event.detail); Livewire.dispatch('markComplete', $event.detail)">
-
+    <div class="mt-4">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">My Active Requests</h2>
         <livewire:my-active-requests-table />
     </div>
@@ -70,6 +76,8 @@
         </div>
     </div>
 
+    {{-- Wrapper component for modal management --}}
+    <livewire:librarian-dashboard-wrapper />
 @endsection
 
 {{-- Import table-specific lock refresh script for auto-unlock functionality --}}

@@ -203,4 +203,14 @@ final class MyActiveRequestsTable extends PowerGridComponent
             app(Toaster::class)->error('Failed to update request status.');
         }
     }
+
+    public function openScheduleModal(int $id): void
+    {
+        Log::info('OpenScheduleModal dispatching event', [
+            'id' => $id
+        ]);
+
+        // Dispatch event to parent dashboard
+        $this->dispatch('open-schedule-modal', id: $id);
+    }
 }
