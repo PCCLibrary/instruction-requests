@@ -10,9 +10,6 @@
     <p class="text-gray-600 dark:text-gray-300">
         Manage team workload and request assignments.
         <span class="text-gray-400 dark:text-gray-500">•</span>
-        Also try:
-        <a href="{{ route('dashboard') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Main Dashboard</a>
-        <span class="text-gray-400 dark:text-gray-500">•</span>
         <a href="{{ route('dashboard.librarian') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Librarian Dashboard</a>
     </p>
 @endsection
@@ -66,7 +63,7 @@
 
     {{-- Calendar Component --}}
     <div class="mt-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Team Schedule</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Instruction Requests Calendar</h2>
         <livewire:dashboard-calendar
             :allow-librarian-select="true"
         />
