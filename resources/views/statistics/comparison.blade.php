@@ -1,20 +1,13 @@
 @extends('layouts.app')
 
-@section('header')
-    <x-breadcrumbs :breadcrumbs="[
-        ['label' => 'Statistics', 'route' => 'statistics.index'],
-        ['label' => 'Comparison Analysis']
-    ]" />
-    <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Comparison Analysis
-        </h1>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-            Coming Soon
-        </span>
-    </div>
-    <p class="text-gray-600 dark:text-gray-300">Compare metrics across campuses and departments for strategic planning.</p>
+@section('page-title')
+    Comparison Analysis
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 ml-3">
+        Coming Soon
+    </span>
 @endsection
+
+@section('page-description', 'Compare metrics across campuses and departments for strategic planning.')
 
 @section('content')
 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

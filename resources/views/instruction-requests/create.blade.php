@@ -1,14 +1,6 @@
 @extends('layouts.app')
 
-@section('header')
-    <x-breadcrumbs :breadcrumbs="[
-        ['label' => 'Instruction Requests', 'route' => 'instructionRequests.index'],
-        ['label' => 'Create New Instruction Request']
-    ]"/>
-    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-        Create New Instruction Request
-    </h1>
-@endsection
+@section('page-title', 'Create New Instruction Request')
 
 @push('scripts')
     @vite(['resources/js/field-validation.js', 'resources/js/custom-validators.js', 'resources/js/instruction-form-validation.js'])

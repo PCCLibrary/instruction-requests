@@ -1,14 +1,7 @@
 @extends('layouts.app')
 
-@section('header')
-    <x-breadcrumbs :breadcrumbs="[
-        ['label' => 'Statistics & Reporting']
-    ]" />
-    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-        Statistics & Reporting
-    </h1>
-    <p class="text-gray-600 dark:text-gray-300">Choose from three reporting tools to analyze your instruction program data.</p>
-@endsection
+@section('page-title', 'Statistics & Reporting')
+@section('page-description', 'Choose from three reporting tools to analyze your instruction program data.')
 
 @section('content')
 <div class="space-y-6">

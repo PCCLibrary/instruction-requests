@@ -2,11 +2,7 @@
 <!-- resources/views/instructors/create.blade.php -->
 @extends('layouts.app')
 
-@section('header')
-    <h2 class="text-xl font-semibold leading-tight text-gray-800">
-        {{ __('Create Instructor') }}
-    </h2>
-@endsection
+@section('page-title', 'Create Instructor')
 
 @section('content')
     <div class="py-12">

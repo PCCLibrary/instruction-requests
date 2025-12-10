@@ -1,14 +1,7 @@
 @extends('layouts.app')
 
-@section('header')
-    <x-breadcrumbs :breadcrumbs="[
-            ['label' => 'Admin Control Panel']
-        ]" />
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">Admin Control Panel</h1>
-        <p class="mt-1 text-gray-500 dark:text-gray-300">Manage admin user assignment availability settings.</p>
-    </div>
-@endsection
+@section('page-title', 'Admin Control Panel')
+@section('page-description', 'Manage admin user assignment availability settings.')
 
 @section('content')
     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

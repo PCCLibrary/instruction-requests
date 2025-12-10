@@ -11,6 +11,8 @@ use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 use LakM\Comments\CommentServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\View;
+use App\Http\View\Composers\BreadcrumbComposer;
 
 
 /**
@@ -54,6 +56,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
             $event->extendSocialite('saml2', \App\Providers\CustomSaml2Provider::class);
         });
+
+        // Share breadcrumbs with all views
+        View::composer('*', BreadcrumbComposer::class);
 
         // Configure Livewire assets
         Livewire::setScriptRoute(function ($handle) use ($basePath) {

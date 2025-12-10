@@ -1,10 +1,6 @@
 @extends('layouts.app')
 
-@section('header')
-    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-        Dropzone Component Test
-    </h1>
-@endsection
+@section('page-title', 'Dropzone Component Test')
 
 @section('content')
     <div class="container mx-auto py-6">

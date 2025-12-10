@@ -40,39 +40,32 @@
     <div class="flex-1 flex flex-col lg:ml-64">
         {{-- Top Header (Mobile) --}}
         <header class="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-20">
-            <div class="px-4 sm:px-6 py-4 flex items-center justify-between gap-2">
-                {{-- Left side: Menu button and app title --}}
-                <div class="flex items-center gap-2 sm:gap-3">
-                    {{-- Mobile menu button --}}
-                    <button @click="sidebarOpen = !sidebarOpen"
-                            class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-                        <span class="sr-only">Open sidebar</span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
+            {{-- Row 1: Menu Button + User Controls --}}
+            <div class="px-4 sm:px-6 py-2 flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
+                {{-- Left: Mobile menu button --}}
+                <button @click="sidebarOpen = !sidebarOpen"
+                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                    <span class="sr-only">Open sidebar</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
 
-                    {{-- App title - hidden on small screens to avoid collision --}}
-                    <span class="hidden md:block text-sm md:text-base font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                        Instruction Request Dashboard
-                    </span>
-                </div>
-
-                {{-- Right side: User controls --}}
-                <div class="flex items-center space-x-2 sm:space-x-4">
+                {{-- Right: User controls --}}
+                <div class="flex items-center space-x-2">
                     {{-- Role Badge --}}
                     <x-user-role-badge :user="Auth::user()" />
 
                     {{-- User Dropdown --}}
                     <div x-data="{ open: false }" @click.away="open = false" class="relative">
                         <button @click="open = !open"
-                                class="flex items-center text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+                                class="flex items-center text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white px-2 py-2 rounded-md text-sm font-medium focus:outline-none"
                                 id="user-menu-button-mobile"
                                 aria-expanded="false"
                                 aria-haspopup="true">
-                            <x-heroicon-o-user class="h-5 w-5 mr-2" />
-                            {{ Auth::user()->display_name }}
-                            <x-heroicon-s-chevron-down class="ml-2 h-4 w-4" />
+                            <x-heroicon-o-user class="h-5 w-5" />
+                            <span class="hidden sm:inline ml-2">{{ Auth::user()->display_name }}</span>
+                            <x-heroicon-s-chevron-down class="ml-1 h-4 w-4" />
                         </button>
 
                         <div x-show="open"
@@ -123,17 +116,44 @@
                     </button>
                 </div>
             </div>
+
+            {{-- Row 2: Breadcrumbs --}}
+            <div class="px-4 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700">
+                <x-breadcrumbs />
+            </div>
+
+            {{-- Row 3: Page Title + Description --}}
+            <div class="px-4 sm:px-6 py-2">
+                @if (View::hasSection('page-title'))
+                    <h1 class="text-lg font-bold text-gray-900 dark:text-white">
+                        @yield('page-title')
+                    </h1>
+                @endif
+                @if (View::hasSection('page-description'))
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                        @yield('page-description')
+                    </p>
+                @endif
+            </div>
+
+            {{-- Row 4: Page Navigation (Optional) --}}
+            @if (View::hasSection('page-nav'))
+                <div class="border-t border-gray-200 dark:border-gray-700 px-4 sm:px-6 overflow-x-auto">
+                    <nav class="flex space-x-4 text-xs font-medium -mb-px whitespace-nowrap">
+                        @yield('page-nav')
+                    </nav>
+                </div>
+            @endif
         </header>
 
         {{-- Top Header (Desktop Only) --}}
-        <header class="hidden lg:block bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-64 right-0 z-20">
-            <div class="px-6 py-4 flex items-center justify-between">
-                {{-- Left side: App title --}}
-                <span class="text-base font-semibold text-gray-700 dark:text-gray-300">
-                    Instruction Request Dashboard
-                </span>
+        <header class="hidden lg:block bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-64 right-0 z-30">
+            {{-- Row 1: Breadcrumb + User Controls --}}
+            <div class="px-6 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+                {{-- Left: Breadcrumbs --}}
+                <x-breadcrumbs />
 
-                {{-- Right side: User controls --}}
+                {{-- Right: User controls --}}
                 <div class="flex items-center space-x-4">
                     {{-- Role Badge --}}
                     <x-user-role-badge :user="Auth::user()" />
@@ -198,27 +218,41 @@
                     </button>
                 </div>
             </div>
+
+            {{-- Row 2: Page Title + Description --}}
+            <div class="px-6 py-3">
+                @if (View::hasSection('page-title'))
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                        @yield('page-title')
+                    </h1>
+                @endif
+                @if (View::hasSection('page-description'))
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        @yield('page-description')
+                    </p>
+                @endif
+            </div>
+
+            {{-- Row 3: Page Navigation (Optional) --}}
+            @if (View::hasSection('page-nav'))
+                <div class="border-t border-gray-200 dark:border-gray-700 px-6">
+                    <nav class="flex space-x-6 text-sm font-medium -mb-px">
+                        @yield('page-nav')
+                    </nav>
+                </div>
+            @endif
         </header>
 
-        <!-- Page Heading -->
+        <!-- Main content with adjusted top margin -->
         <div class="pt-16 lg:pt-0">
-        @if (View::hasSection('header'))
-            <header class="py-4 bg-white dark:bg-gray-800 shadow lg:mt-16">
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                    @yield('header')
+            <main class="py-0 flex-1 mt-32 lg:mt-36 overflow-y-auto">
+                <x-alerts/>
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-8 3xl:px-8">
+                    @yield('content')
                 </div>
-            </header>
-        @endif
+            </main>
 
-        <!-- Page Content -->
-        <main class="py-0 flex-1 lg:mt-0 overflow-y-auto">
-            <x-alerts/>
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-8 3xl:px-8">
-                @yield('content')
-            </div>
-        </main>
-
-        <x-footer/>
+            <x-footer/>
         </div>
     </div>
 </div>

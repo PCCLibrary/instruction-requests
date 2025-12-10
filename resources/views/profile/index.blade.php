@@ -1,15 +1,7 @@
 @extends('layouts.app')
 
-@section('header')
-    <x-breadcrumbs :breadcrumbs="[
-            ['label' => 'My Profile'] // No route for this one
-        ]" />
-    <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-        My Profile
-    </h1>
-    <p>Update your account information. </p>
-
-@endsection
+@section('page-title', 'My Profile')
+@section('page-description', 'Update your account information.')
 
 @section('content')
 

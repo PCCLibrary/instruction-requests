@@ -23,7 +23,7 @@
             label="Campuses"
             placeholder="Select campuses..."
             :options="$campuses"
-            :selected="old('campus_ids', $user->campuses->pluck('id')->toArray() ?? [])"
+            :selected="old('campus_ids', isset($user) ? $user->campuses->pluck('id')->toArray() : [])"
             searchable
         />
         <x-input-error class="mt-2" :messages="$errors->get('campus_ids')" />
