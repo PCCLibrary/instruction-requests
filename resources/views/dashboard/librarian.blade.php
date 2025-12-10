@@ -67,13 +67,13 @@
         <livewire:instruction-request-table />
     </div>
 
-    {{-- Calendar Placeholder --}}
-    <div class="mt-4 w-full rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div class="px-4 py-8 bg-gray-50 dark:bg-gray-800 text-center">
-            <x-heroicon-o-calendar class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
-            <p class="text-base font-medium text-gray-700 dark:text-gray-300">Calendar Component</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Month view showing scheduled sessions will appear here</p>
-        </div>
+    {{-- Calendar Component --}}
+    <div class="mt-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">My Schedule</h2>
+        <livewire:dashboard-calendar
+            :user-id="auth()->id()"
+            :allow-librarian-select="false"
+        />
     </div>
 
     {{-- Wrapper component for modal management --}}

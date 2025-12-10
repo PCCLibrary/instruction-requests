@@ -14,6 +14,7 @@
         "laravel/ui": "^4.6",
         "livewire/livewire": "3.5.20",
         "masmerise/livewire-toaster": "^2.6",
+        "omnia-digital/livewire-calendar": "^3.2",
         "openspout/openspout": "^4.28",
         "power-components/livewire-powergrid": "6.1.14",
         "socialiteproviders/saml2": "^4.7",
