@@ -23,7 +23,13 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // Smart redirect based on user's is_scheduler flag
+                $user = Auth::user();
+                $redirectTo = $user->is_scheduler
+                    ? route('dashboard.scheduler')
+                    : route('dashboard.librarian');
+
+                return redirect($redirectTo);
             }
         }
 

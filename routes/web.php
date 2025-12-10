@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LibrarianDashboardController;
 use App\Http\Controllers\SchedulerDashboardController;
 use App\Http\Controllers\PublicInstructionRequestController;
@@ -119,6 +118,18 @@ Route::prefix('saml2')->middleware('guest')->group(function () {
 });
 /*
 |--------------------------------------------------------------------------
+| Statistics Routes (Top-Level Section)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('statistics')->name('statistics.')->group(function () {
+    Route::get('/', [App\Http\Controllers\StatisticsController::class, 'index'])->name('index');
+    Route::get('/trends', [App\Http\Controllers\StatisticsController::class, 'trends'])->name('trends');
+    Route::get('/detailed-export', [App\Http\Controllers\StatisticsController::class, 'detailedExport'])->name('detailed-export');
+    Route::get('/comparison', [App\Http\Controllers\StatisticsController::class, 'comparison'])->name('comparison');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Authenticated Routes (Dashboard)
 |--------------------------------------------------------------------------
 */
@@ -128,35 +139,41 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
         return view('debug-assets');
     });
 
-    // Dashboard home
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    // Smart dashboard redirect - routes users to their appropriate dashboard based on is_scheduler flag
+    Route::get('/', function () {
+        return redirect(auth()->user()->is_scheduler
+            ? route('dashboard.scheduler')
+            : route('dashboard.librarian'));
+    })->name('dashboard');
 
-    // Dashboard routes for librarian and scheduler views
+    // Dashboard routes for librarian and scheduler views (both accessible to all users)
     Route::get('/librarian', [LibrarianDashboardController::class, 'index'])
         ->name('dashboard.librarian');
 
     Route::get('/scheduler', [SchedulerDashboardController::class, 'index'])
         ->name('dashboard.scheduler');
 
-    // Statistics landing page
-    Route::get('/statistics', [App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
-
-    // Statistics report pages
-    Route::get('/statistics/trends', [App\Http\Controllers\StatisticsController::class, 'trends'])->name('statistics.trends');
-    Route::get('/statistics/detailed-export', [App\Http\Controllers\StatisticsController::class, 'detailedExport'])->name('statistics.detailed-export');
-    Route::get('/statistics/comparison', [App\Http\Controllers\StatisticsController::class, 'comparison'])->name('statistics.comparison');
-
     /*
     |--------------------------------------------------------------------------
     | Resource Routes
     |--------------------------------------------------------------------------
     */
+    // Smart redirect for instruction requests index - routes to appropriate dashboard
+    Route::get('/instructionRequests', function () {
+        return redirect(auth()->user()->is_scheduler
+            ? route('dashboard.scheduler')
+            : route('dashboard.librarian'));
+    })->name('instructionRequests.index');
+
+    // Other instruction request resource routes (except index)
+    Route::resource('instructionRequests', InstructionRequestController::class)
+        ->except(['index']);
+
     Route::resource('instructors', InstructorController::class);
     Route::resource('campuses', CampusController::class);
     Route::get('campuses/{id}/delete-impact', [CampusController::class, 'getDeleteImpact'])
         ->name('campuses.deleteImpact');
     Route::resource('users', UserController::class);
-    Route::resource('instructionRequests', InstructionRequestController::class);
     Route::resource('instructionRequestDetails', InstructionRequestDetailsController::class);
     Route::resource('classes', ClassesController::class);
 

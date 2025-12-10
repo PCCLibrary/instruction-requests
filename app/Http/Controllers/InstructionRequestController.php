@@ -24,6 +24,18 @@ class InstructionRequestController extends AppBaseController
     ) {}
 
     /**
+     * Get the appropriate dashboard route for the current user based on is_scheduler flag
+     *
+     * @return string
+     */
+    protected function getDashboardRoute(): string
+    {
+        return auth()->user()->is_scheduler
+            ? route('dashboard.scheduler')
+            : route('dashboard.librarian');
+    }
+
+    /**
      * Display a listing of the InstructionRequests with Livewire PowerTable.
      *
      * @return View
@@ -66,10 +78,10 @@ class InstructionRequestController extends AppBaseController
             $instructionRequest = $this->appendAdditionalData($instructionRequest);
 
             session()->flash('success', 'Instruction Request saved successfully.');
-            return redirect(route('instructionRequests.index'));
+            return redirect($this->getDashboardRoute());
         } catch (\Exception $e) {
             session()->flash('error', 'Instruction Request not saved.');
-            return redirect(route('instructionRequests.index'))
+            return redirect($this->getDashboardRoute())
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
@@ -87,7 +99,7 @@ class InstructionRequestController extends AppBaseController
 
         if (empty($instructionRequest)) {
             session()->flash('error', 'Instruction Request not found.');
-            return redirect(route('instructionRequests.index'));
+            return redirect($this->getDashboardRoute());
         }
 
         return view('instruction-requests.show')->with([
@@ -117,7 +129,7 @@ class InstructionRequestController extends AppBaseController
 
             if (empty($instructionRequest)) {
                 session()->flash('error', 'Instruction Request not found.');
-                return redirect(route('instructionRequests.index'));
+                return redirect($this->getDashboardRoute());
             }
 
             // Check if we have a toast flash message from a calendar deletion
@@ -142,7 +154,7 @@ class InstructionRequestController extends AppBaseController
             if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
                 $locker = $instructionRequest->lockedBy;
                 session()->flash('warning', "{$locker->display_name} is currently editing this request.");
-                return redirect(route('instructionRequests.index'));
+                return redirect($this->getDashboardRoute());
             } elseif ($instructionRequest->isLocked() && $instructionRequest->locked_by === auth()->id()) {
                 // Record is locked by current user - allow them to continue editing
                 // No warning toast needed, proceed with edit
@@ -209,14 +221,14 @@ class InstructionRequestController extends AppBaseController
         if (empty($instructionRequest)) {
             Log::warning('Instruction request not found', ['id' => $id]);
             session()->flash('error', 'Instruction Request not found.');
-            return redirect(route('instructionRequests.index'));
+            return redirect($this->getDashboardRoute());
         }
 
         // Check if this user has lock before proceeding
         if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
             $locker = $instructionRequest->lockedBy;
             session()->flash('error', "Cannot save changes: {$locker->display_name} is currently editing this request.");
-            return redirect(route('instructionRequests.index'));
+            return redirect($this->getDashboardRoute());
         }
 
         try {
@@ -248,7 +260,7 @@ class InstructionRequestController extends AppBaseController
                 // For save and close actions, fully clear the lock info
                 $this->instructionRequestService->unlockRequest($id, false, false);
                 session()->flash('success', 'Instruction Request updated and closed successfully.');
-                return redirect(route('instructionRequests.index'));
+                return redirect($this->getDashboardRoute());
             }
 
             session()->flash('success', 'Instruction Request updated successfully.');
@@ -262,7 +274,7 @@ class InstructionRequestController extends AppBaseController
             ]);
 
             session()->flash('error', 'Error updating Instruction Request: ' . $e->getMessage());
-            return redirect(route('instructionRequests.index'))
+            return redirect($this->getDashboardRoute())
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
@@ -282,14 +294,14 @@ class InstructionRequestController extends AppBaseController
 
             if (!$instructionRequest) {
                 session()->flash('error', 'Instruction Request not found.');
-                return redirect(route('instructionRequests.index'));
+                return redirect($this->getDashboardRoute());
             }
 
             // Prevent deletion of records locked by others
             if ($instructionRequest->isLocked() && $instructionRequest->locked_by !== auth()->id()) {
                 $locker = $instructionRequest->lockedBy;
                 session()->flash('warning', "Cannot delete: This request is currently being edited by {$locker->display_name}.");
-                return redirect(route('instructionRequests.index'));
+                return redirect($this->getDashboardRoute());
             }
 
             $this->instructionRequestService->deleteInstructionRequest($id);
@@ -298,7 +310,7 @@ class InstructionRequestController extends AppBaseController
             session()->flash('error', 'Error deleting Instruction Request: ' . $e->getMessage());
         }
 
-        return redirect(route('instructionRequests.index'));
+        return redirect($this->getDashboardRoute());
     }
 
     /**
