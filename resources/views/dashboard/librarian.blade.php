@@ -41,7 +41,7 @@
         [
             'iconBgColor' => 'bg-green-500 dark:bg-green-700',
             'icon' => 'check-circle',
-            'infoBoxText' => 'Completed This Term',
+            'infoBoxText' => 'Completed',
             'count' => $completedRequestsCount
         ]
     ]"
