@@ -1,7 +1,7 @@
 {{-- status-bar.blade.php --}}
 @props([
     'items' => [],
-    'containerClass' => 'mb-6'
+    'containerClass' => 'mb-4'
 ])
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 {{ $containerClass }}">

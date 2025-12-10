@@ -7,13 +7,14 @@
     <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
         Librarian Dashboard
     </h1>
-    <p class="text-gray-600 dark:text-gray-300">Manage instruction requests assigned to you.</p>
-
-    <div class="mt-2 p-4 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg">
-        <p class="text-green-800 dark:text-green-200 font-semibold">
-            🚀 New Feature:Librarian Dashboard - We're actively building this! Try it out and let us know what you think.
-        </p>
-    </div>
+    <p class="text-gray-600 dark:text-gray-300">
+        Manage instruction requests assigned to you.
+        <span class="text-gray-400 dark:text-gray-500">•</span>
+        Also try:
+        <a href="{{ route('dashboard') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Main Dashboard</a>
+        <span class="text-gray-400 dark:text-gray-500">•</span>
+        <a href="{{ route('dashboard.scheduler') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Scheduler Dashboard</a>
+    </p>
 @endsection
 
 @section('content')

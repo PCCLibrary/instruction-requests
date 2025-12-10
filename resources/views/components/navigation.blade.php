@@ -1,7 +1,7 @@
 {{-- resources/views/components/navigation.blade.php --}}
 
 {{-- Sidebar (Vertical Navigation) --}}
-<aside class="bg-cyan-700 dark:bg-gray-800 w-64 min-h-screen flex flex-col fixed lg:relative z-30"
+<aside class="bg-cyan-700 dark:bg-gray-800 w-64 h-screen flex flex-col fixed z-30 overflow-y-auto"
        :class="{'block': sidebarOpen, 'hidden lg:flex': !sidebarOpen}">
 
     {{-- Sidebar Header with Logo --}}

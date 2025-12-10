@@ -37,9 +37,9 @@
     @include('components.navigation')
 
     {{-- Main Content Area --}}
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col lg:ml-64">
         {{-- Top Header (Mobile) --}}
-        <header class="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <header class="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-20">
             <div class="px-4 sm:px-6 py-4 flex items-center justify-between gap-2">
                 {{-- Left side: Menu button and app title --}}
                 <div class="flex items-center gap-2 sm:gap-3">
@@ -126,7 +126,7 @@
         </header>
 
         {{-- Top Header (Desktop Only) --}}
-        <header class="hidden lg:block bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <header class="hidden lg:block bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-64 right-0 z-20">
             <div class="px-6 py-4 flex items-center justify-between">
                 {{-- Left side: App title --}}
                 <span class="text-base font-semibold text-gray-700 dark:text-gray-300">
@@ -201,8 +201,9 @@
         </header>
 
         <!-- Page Heading -->
+        <div class="pt-16 lg:pt-0">
         @if (View::hasSection('header'))
-            <header class="py-6 bg-white dark:bg-gray-800 shadow">
+            <header class="py-4 bg-white dark:bg-gray-800 shadow lg:mt-16">
                 <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                     @yield('header')
                 </div>
@@ -210,7 +211,7 @@
         @endif
 
         <!-- Page Content -->
-        <main class="py-0 flex-1">
+        <main class="py-0 flex-1 lg:mt-16 overflow-y-auto">
             <x-alerts/>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-8 3xl:px-8">
                 @yield('content')
@@ -218,6 +219,7 @@
         </main>
 
         <x-footer/>
+        </div>
     </div>
 </div>
 
