@@ -1,5 +1,21 @@
 @extends('layouts.app')
 
+@section('header')
+    <x-breadcrumbs :breadcrumbs="[
+        ['label' => 'Dashboard']
+    ]" />
+    <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+        Dashboard
+    </h1>
+    <p class="text-gray-600 dark:text-gray-300">Manage instruction requests assigned to you.
+        <span class="text-gray-400 dark:text-gray-500">•</span>
+        Also try:
+        <a href="{{ route('dashboard.librarian') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Librarian Dashboard</a>
+        <span class="text-gray-400 dark:text-gray-500">•</span>
+        <a href="{{ route('dashboard.scheduler') }}" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline">Scheduler Dashboard</a>
+    </p>
+@endsection
+
 @section('content')
     <x-status-bar
         :items="[

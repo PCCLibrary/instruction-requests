@@ -211,7 +211,7 @@
         @endif
 
         <!-- Page Content -->
-        <main class="py-0 flex-1 lg:mt-16 overflow-y-auto">
+        <main class="py-0 flex-1 lg:mt-0 overflow-y-auto">
             <x-alerts/>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-8 3xl:px-8">
                 @yield('content')

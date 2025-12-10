@@ -1,7 +1,7 @@
 <div class="space-y-4">
     {{-- Filter Panel --}}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <div class="bg-blue-500 dark:bg-blue-600 px-4 py-3 rounded-t-lg">
+        <div class="bg-sky-500 dark:bg-sky-600 px-4 py-3 rounded-t-lg">
             <h3 class="text-lg font-medium text-white">Calendar Filters</h3>
         </div>
 
