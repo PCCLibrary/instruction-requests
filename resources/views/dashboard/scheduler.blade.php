@@ -45,29 +45,68 @@
     ]"
     />
 
-    {{-- Team Workload Filter --}}
-    <livewire:team-workload-filter />
-
-    {{-- Team Workload Table --}}
-    <div class="mt-4">
-        <livewire:team-workload-table />
-    </div>
-
-    {{-- Unified Request Filters --}}
-    <livewire:request-filters />
-
-    {{-- Unified Instruction Request Table --}}
-    <div class="mt-4">
-        <livewire:instruction-request-table />
+    {{-- Sticky Jump Navigation --}}
+    <div class="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 mb-4 mt-4">
+        <nav class="flex space-x-6 text-sm font-medium">
+            <a href="#calendar" class="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition">
+                📅 Calendar
+            </a>
+            <a href="#team-workload" class="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition">
+                👥 Team Workload
+            </a>
+            <a href="#all-requests" class="text-gray-600 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition">
+                📋 All Requests
+            </a>
+        </nav>
     </div>
 
     {{-- Calendar Component --}}
-    <div class="mt-4">
+    <div class="mt-4" id="calendar">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Instruction Requests Calendar</h2>
         <livewire:dashboard-calendar
             :allow-librarian-select="true"
         />
     </div>
+
+    {{-- Section Divider --}}
+    <hr class="my-8 border-gray-200 dark:border-gray-700" />
+
+    {{-- Team Workload Section --}}
+    <div id="team-workload">
+        {{-- Team Workload Filter --}}
+        <livewire:team-workload-filter />
+
+        {{-- Team Workload Table --}}
+        <div class="mt-4">
+            <livewire:team-workload-table />
+        </div>
+    </div>
+
+    {{-- Section Divider --}}
+    <hr class="my-8 border-gray-200 dark:border-gray-700" />
+
+    {{-- All Requests Section --}}
+    <div id="all-requests">
+        {{-- Unified Request Filters --}}
+        <livewire:request-filters />
+
+        {{-- Unified Instruction Request Table --}}
+        <div class="mt-4">
+            <livewire:instruction-request-table />
+        </div>
+    </div>
+
+    {{-- Back to Top Button --}}
+    <button
+        x-data="{ show: false }"
+        x-show="show"
+        @scroll.window="show = window.pageYOffset > 400"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="fixed bottom-6 right-6 p-3 bg-cyan-600 dark:bg-cyan-500 text-white rounded-full shadow-lg hover:bg-cyan-700 dark:hover:bg-cyan-600 transition z-50"
+        style="display: none;"
+    >
+        ↑
+    </button>
 
 @endsection
 
