@@ -381,11 +381,18 @@ final class InstructionRequestTable extends PowerGridComponent
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
     }
 
-    #[\Livewire\Attributes\On('clearFilters')]
     public function clearFilters(): void
     {
-        $this->filters = [];
+        // Clear all filters while maintaining PowerGrid's expected structure
+        $this->filters = [
+            'input_text' => [],
+            'select' => [],  // ✅ EMPTY - no default status filter
+            'datepicker' => [],
+        ];
+
+        $this->resetPage();
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
+        $this->dispatch('$refresh');
     }
 
     /**
