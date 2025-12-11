@@ -4,7 +4,7 @@
 @section('page-description', 'Manage instruction requests assigned to you.')
 
 @section('page-nav')
-    <a href="#calendar" class="inline-flex items-center gap-1.5 text-cyan-600 border-b-2 border-cyan-600 dark:text-cyan-400 dark:border-cyan-400 py-3">
+    <a href="#calendar" class="inline-flex items-center gap-1.5 text-gray-600 hover:text-cyan-600 dark:text-gray-400 dark:hover:text-cyan-400 py-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
         </svg>
@@ -77,7 +77,7 @@
     />
 
     {{-- Calendar Component --}}
-    <div class="mt-4" id="calendar">
+    <div class="mt-4 scroll-mt-44 lg:scroll-mt-36" id="calendar">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Instruction Requests Calendar</h2>
         <livewire:dashboard-calendar
             :user-id="auth()->id()"
@@ -86,19 +86,19 @@
     </div>
 
     {{-- Table 1: Assigned to Me (Full Width, Amber header) - FUNCTIONAL --}}
-    <div class="mt-8" id="my-assigned">
+    <div class="mt-8 scroll-mt-44 lg:scroll-mt-36" id="my-assigned">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">My Assigned Requests</h2>
         <livewire:assigned-to-me-table />
     </div>
 
     {{-- Table 2: My Active Requests (Blue PowerGrid header with Google Calendar modal) --}}
-    <div class="mt-8" id="my-active">
+    <div class="mt-8 scroll-mt-44 lg:scroll-mt-36" id="my-active">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">My Active Requests</h2>
         <livewire:my-active-requests-table />
     </div>
 
     {{-- Table 3: Instruction Requests (Unified table with filters) --}}
-    <div class="mt-8" id="all-requests">
+    <div class="mt-8 scroll-mt-44 lg:scroll-mt-36" id="all-requests">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">All Instruction Requests</h2>
         <livewire:request-filters />
         <livewire:instruction-request-table />

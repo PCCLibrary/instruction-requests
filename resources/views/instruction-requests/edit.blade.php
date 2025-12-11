@@ -3,7 +3,7 @@
 @section('page-title', 'Manage Instruction Request')
 
 @section('page-nav')
-    <a href="#summary" class="inline-flex items-center gap-1.5 text-cyan-600 border-b-2 border-cyan-600 dark:text-cyan-400 dark:border-cyan-400 py-3">
+    <a href="#summary" class="inline-flex items-center gap-1.5 text-gray-600 hover:text-cyan-600 dark:text-gray-400 dark:hover:text-cyan-400 py-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
         </svg>
@@ -254,7 +254,7 @@
         <input type="hidden" name="created_by" value="{{ $instructionRequest->detail->created_by }}">
         <input type="hidden" name="last_updated_by" value="{{ auth()->user()->display_name }}">
 
-        <div id="summary">
+        <div id="summary" class="scroll-mt-44 lg:scroll-mt-36">
             @include('instruction-requests.partials.edit.edit-header')
         </div>
 
@@ -292,12 +292,12 @@
             <div class="col-span-12 md:col-span-8">
 
                 {{-- Contact Information --}}
-                <div id="instructor-info">
+                <div id="instructor-info" class="scroll-mt-44 lg:scroll-mt-36">
                     @include('instruction-requests.partials.edit.instructor-info')
                 </div>
 
                 {{-- Request Information Card --}}
-                <div id="request-info">
+                <div id="request-info" class="scroll-mt-44 lg:scroll-mt-36">
                     @include('instruction-requests.partials.edit.request-info')
                 </div>
 
@@ -316,7 +316,7 @@
                 @include('instruction-requests.partials.edit.instruction-goals')
 
                 {{-- Notes --}}
-                <div id="notes">
+                <div id="notes" class="scroll-mt-44 lg:scroll-mt-36">
                     @include('instruction-requests.partials.edit.notes')
                 </div>
             </div>
@@ -351,7 +351,7 @@
     <button
         x-data="{ show: false }"
         x-show="show"
-        @scroll.window="show = window.pageYOffset > 400"
+        @scroll.window="show = window.pageYOffset > 200"
         @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
         class="fixed bottom-6 right-6 p-3 bg-cyan-600 dark:bg-cyan-500 text-white rounded-full shadow-lg hover:bg-cyan-700 dark:hover:bg-cyan-600 transition z-50"
         style="display: none;"
