@@ -383,16 +383,28 @@ final class InstructionRequestTable extends PowerGridComponent
 
     public function clearFilters(): void
     {
+        // Collect all active filter field names before clearing
+        $activeFilters = array_merge(
+            array_keys($this->filters['select'] ?? []),
+            array_keys($this->filters['input_text'] ?? []),
+            array_keys($this->filters['datepicker'] ?? [])
+        );
+
         // Clear all filters while maintaining PowerGrid's expected structure
         $this->filters = [
             'input_text' => [],
-            'select' => [],  // ✅ EMPTY - no default status filter
+            'select' => [],
             'datepicker' => [],
         ];
 
+        // Call PowerGrid's built-in clearFilter for each active filter
+        // This updates the UI pills using PowerGrid's own method
+        foreach ($activeFilters as $field) {
+            $this->clearFilter($field);
+        }
+
         $this->resetPage();
         $this->dispatch('pg:eventRefresh-' . $this->tableName);
-        $this->dispatch('$refresh');
     }
 
     /**
