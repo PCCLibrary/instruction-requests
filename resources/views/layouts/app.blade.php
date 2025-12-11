@@ -235,7 +235,7 @@
 
             {{-- Row 3: Page Navigation (Optional) --}}
             @if (View::hasSection('page-nav'))
-                <div class="border-t border-gray-200 dark:border-gray-700 px-6">
+                <div class="px-6">
                     <nav class="flex space-x-6 text-sm font-medium -mb-px">
                         @yield('page-nav')
                     </nav>
