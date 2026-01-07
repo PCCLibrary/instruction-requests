@@ -15,6 +15,11 @@ class BreadcrumbComposer
 
     protected function generateBreadcrumbs(): array
     {
+        // Guard: Only generate breadcrumbs in web request context
+        if (!Route::current()) {
+            return [];
+        }
+
         $route = Route::currentRouteName();
         $params = Route::current()->parameters();
 

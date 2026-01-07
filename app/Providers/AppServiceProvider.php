@@ -57,8 +57,8 @@ class AppServiceProvider extends ServiceProvider
             $event->extendSocialite('saml2', \App\Providers\CustomSaml2Provider::class);
         });
 
-        // Share breadcrumbs with all views
-        View::composer('*', BreadcrumbComposer::class);
+        // Share breadcrumbs with web layout only (not emails, PDFs, console views)
+        View::composer('layouts.app', BreadcrumbComposer::class);
 
         // Configure Livewire assets
         Livewire::setScriptRoute(function ($handle) use ($basePath) {
