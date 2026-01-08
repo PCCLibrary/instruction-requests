@@ -121,7 +121,7 @@
 
             {{-- Row 2: Breadcrumbs --}}
             <div class="px-4 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700">
-                <x-breadcrumbs />
+                <x-breadcrumbs :breadcrumbs="$breadcrumbs ?? []" />
             </div>
 
             {{-- Row 3: Page Title + Description --}}
@@ -154,7 +154,7 @@
             <div class="px-6 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
                 {{-- Left: Breadcrumbs --}}
                 <div class="flex-1">
-                    <x-breadcrumbs />
+                    <x-breadcrumbs :breadcrumbs="$breadcrumbs ?? []" />
                 </div>
 
                 {{-- Right: User controls --}}
