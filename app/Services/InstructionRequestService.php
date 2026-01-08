@@ -662,4 +662,105 @@ class InstructionRequestService implements InstructionRequestServiceInterface
 
         return $instructionRequest;
     }
+
+    public function resendNotification(int $requestId, int $notificationLogId): void
+    {
+        $request = InstructionRequests::with(['detail', 'instructor', 'classes', 'campus'])->findOrFail($requestId);
+        $log = DB::table('notification_logs')->where('id', $notificationLogId)->first();
+
+        if (!$log) {
+            throw new \Exception('Notification log not found');
+        }
+
+        $package = match($log->notification_type) {
+            'received' => $this->notificationService->prepareReceivedNotificationPackage($requestId),
+            'assigned' => $this->notificationService->prepareAssignedNotificationPackage($requestId),
+            'accepted' => $this->notificationService->prepareAcceptedNotificationPackage($requestId),
+            'rejected' => $this->notificationService->prepareRejectedNotificationPackage($requestId),
+        };
+
+        $recipient = match($log->recipient_type) {
+            'instructor' => Instructor::findOrFail($log->recipient_id),
+            'scheduler', 'librarian' => User::findOrFail($log->recipient_id),
+        };
+
+        $notificationClass = match($log->notification_type) {
+            'received' => \App\Notifications\RequestReceivedNotification::class,
+            'assigned' => \App\Notifications\RequestAssignedNotification::class,
+            'accepted' => \App\Notifications\RequestAcceptedNotification::class,
+            'rejected' => \App\Notifications\RequestRejectedNotification::class,
+        };
+
+        $recipient->notify(new $notificationClass($package));
+
+        DB::table('notification_logs')->insert([
+            'instruction_request_id' => $request->id,
+            'notification_type' => $log->notification_type,
+            'recipient_type' => $log->recipient_type,
+            'recipient_id' => $log->recipient_id,
+            'recipient_email' => $log->recipient_email,
+            'sent_at' => now(),
+            'sent_by_user_id' => auth()->id(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        Log::info('Notification resent', [
+            'request_id' => $requestId,
+            'notification_type' => $log->notification_type,
+            'recipient_type' => $log->recipient_type,
+            'recipient_email' => $log->recipient_email,
+            'sent_by' => auth()->id()
+        ]);
+    }
+
+    public function resendNotificationGroup(int $requestId, array $notificationLogIds): void
+    {
+        $request = InstructionRequests::with(['detail', 'instructor', 'classes', 'campus'])->findOrFail($requestId);
+        $logs = DB::table('notification_logs')->whereIn('id', $notificationLogIds)->get();
+
+        if ($logs->isEmpty()) {
+            throw new \Exception('Notification logs not found');
+        }
+
+        $firstLog = $logs->first();
+
+        $package = match($firstLog->notification_type) {
+            'received' => $this->notificationService->prepareReceivedNotificationPackage($requestId),
+            'assigned' => $this->notificationService->prepareAssignedNotificationPackage($requestId),
+            'accepted' => $this->notificationService->prepareAcceptedNotificationPackage($requestId),
+            'rejected' => $this->notificationService->prepareRejectedNotificationPackage($requestId),
+        };
+
+        $notificationClass = match($firstLog->notification_type) {
+            'received' => \App\Notifications\RequestReceivedNotification::class,
+            'assigned' => \App\Notifications\RequestAssignedNotification::class,
+            'accepted' => \App\Notifications\RequestAcceptedNotification::class,
+            'rejected' => \App\Notifications\RequestRejectedNotification::class,
+        };
+
+        foreach ($logs as $log) {
+            $recipient = User::findOrFail($log->recipient_id);
+            $recipient->notify(new $notificationClass($package));
+
+            DB::table('notification_logs')->insert([
+                'instruction_request_id' => $request->id,
+                'notification_type' => $log->notification_type,
+                'recipient_type' => $log->recipient_type,
+                'recipient_id' => $log->recipient_id,
+                'recipient_email' => $log->recipient_email,
+                'sent_at' => now(),
+                'sent_by_user_id' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        Log::info('Notification group resent', [
+            'request_id' => $requestId,
+            'notification_type' => $firstLog->notification_type,
+            'count' => count($logs),
+            'sent_by' => auth()->id()
+        ]);
+    }
 }

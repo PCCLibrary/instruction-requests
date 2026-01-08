@@ -10,6 +10,7 @@ use App\Notifications\RequestAssignedNotification;
 use App\Notifications\RequestAcceptedNotification;
 use App\Notifications\RequestRejectedNotification;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -138,11 +139,13 @@ class NotificationService
 
         // Send to instructor
         $request->instructor->notify(new RequestReceivedNotification($package));
+        $this->logNotification($request, 'received', $request->instructor, 'instructor');
 
         // Send to campus librarians
         $campusLibrarians = $this->getCampusLibrarians($request->campus->librarian_ids);
         foreach ($campusLibrarians as $librarian) {
             $librarian->notify(new RequestReceivedNotification($package));
+            $this->logNotification($request, 'received', $librarian, 'scheduler');
         }
     }
 
@@ -160,6 +163,7 @@ class NotificationService
 
         if ($assignedLibrarian) {
             $assignedLibrarian->notify(new RequestAssignedNotification($package));
+            $this->logNotification($request, 'assigned', $assignedLibrarian, 'librarian');
         }
     }
 
@@ -174,6 +178,7 @@ class NotificationService
         $campusLibrarians = $this->getCampusLibrarians($request->campus->librarian_ids);
         foreach ($campusLibrarians as $librarian) {
             $librarian->notify(new RequestAcceptedNotification($package));
+            $this->logNotification($request, 'accepted', $librarian, 'scheduler');
         }
     }
 
@@ -188,6 +193,7 @@ class NotificationService
         $campusLibrarians = $this->getCampusLibrarians($request->campus->librarian_ids);
         foreach ($campusLibrarians as $librarian) {
             $librarian->notify(new RequestRejectedNotification($package));
+            $this->logNotification($request, 'rejected', $librarian, 'scheduler');
         }
     }
 
@@ -466,5 +472,25 @@ class NotificationService
         }
 
         return collect([]);
+    }
+
+    private function logNotification(
+        InstructionRequests $request,
+        string $notificationType,
+        $recipient,
+        string $recipientType
+    ): void
+    {
+        DB::table('notification_logs')->insert([
+            'instruction_request_id' => $request->id,
+            'notification_type' => $notificationType,
+            'recipient_type' => $recipientType,
+            'recipient_id' => $recipient->id,
+            'recipient_email' => $recipient->email,
+            'sent_at' => now(),
+            'sent_by_user_id' => null,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 }

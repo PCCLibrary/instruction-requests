@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -195,6 +196,16 @@ class InstructionRequests extends Model implements HasMedia, CommentableContract
     public function googleCalendarEvent(): HasOne
     {
         return $this->hasOne(GoogleCalendarEvent::class, 'instruction_request_id');
+    }
+
+    /**
+     * Get all notification logs for this instruction request.
+     *
+     * @return HasMany
+     */
+    public function notificationLogs(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class, 'instruction_request_id');
     }
 
     /**

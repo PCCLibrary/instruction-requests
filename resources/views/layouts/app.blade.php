@@ -43,13 +43,15 @@
             {{-- Row 1: Menu Button + User Controls --}}
             <div class="px-4 sm:px-6 py-2 flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
                 {{-- Left: Mobile menu button --}}
-                <button @click="sidebarOpen = !sidebarOpen"
-                        class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-                    <span class="sr-only">Open sidebar</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+                <div class="flex-1">
+                    <button @click="sidebarOpen = !sidebarOpen"
+                            class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <span class="sr-only">Open sidebar</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 {{-- Right: User controls --}}
                 <div class="flex items-center space-x-2">
@@ -151,7 +153,9 @@
             {{-- Row 1: Breadcrumb + User Controls --}}
             <div class="px-6 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
                 {{-- Left: Breadcrumbs --}}
-                <x-breadcrumbs />
+                <div class="flex-1">
+                    <x-breadcrumbs />
+                </div>
 
                 {{-- Right: User controls --}}
                 <div class="flex items-center space-x-4">
