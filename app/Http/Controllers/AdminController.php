@@ -77,9 +77,53 @@ class AdminController extends Controller
             $locksHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">✅ No locks</span>';
         }
 
+        // Get notification statistics for last 24 hours
+        $notificationStats = DB::table('notification_logs')
+            ->select(
+                DB::raw('COUNT(*) as total'),
+                DB::raw('MAX(sent_at) as last_sent'),
+                DB::raw('SUM(CASE WHEN recipient_type = "instructor" THEN 1 ELSE 0 END) as instructors'),
+                DB::raw('SUM(CASE WHEN recipient_type = "librarian" THEN 1 ELSE 0 END) as librarians'),
+                DB::raw('SUM(CASE WHEN recipient_type = "scheduler" THEN 1 ELSE 0 END) as schedulers'),
+                DB::raw('SUM(CASE WHEN notification_type = "received" THEN 1 ELSE 0 END) as received'),
+                DB::raw('SUM(CASE WHEN notification_type = "assigned" THEN 1 ELSE 0 END) as assigned'),
+                DB::raw('SUM(CASE WHEN notification_type = "accepted" THEN 1 ELSE 0 END) as accepted'),
+                DB::raw('SUM(CASE WHEN notification_type = "rejected" THEN 1 ELSE 0 END) as rejected')
+            )
+            ->where('sent_at', '>=', DB::raw('NOW() - INTERVAL 24 HOUR'))
+            ->first();
+
+        // Count failed notifications by checking failed_jobs
+        $failedCount = DB::table('notification_logs as nl')
+            ->join('failed_jobs as fj', function($join) {
+                $join->whereRaw('fj.payload LIKE CONCAT("%\"request_id\":", nl.instruction_request_id, "%")')
+                     ->whereRaw('fj.failed_at BETWEEN nl.sent_at - INTERVAL 5 MINUTE AND nl.sent_at + INTERVAL 5 MINUTE');
+            })
+            ->where('nl.sent_at', '>=', DB::raw('NOW() - INTERVAL 24 HOUR'))
+            ->count();
+
+        $successCount = ($notificationStats->total ?? 0) - $failedCount;
+
         return response()->json([
             'queue_html' => $queueHtml,
             'locks_html' => $locksHtml,
+            'notifications' => [
+                'total' => $notificationStats->total ?? 0,
+                'sent' => $successCount,
+                'failed' => $failedCount,
+                'last_sent' => $notificationStats->last_sent,
+                'by_recipient' => [
+                    'instructors' => $notificationStats->instructors ?? 0,
+                    'librarians' => $notificationStats->librarians ?? 0,
+                    'schedulers' => $notificationStats->schedulers ?? 0,
+                ],
+                'by_type' => [
+                    'received' => $notificationStats->received ?? 0,
+                    'assigned' => $notificationStats->assigned ?? 0,
+                    'accepted' => $notificationStats->accepted ?? 0,
+                    'rejected' => $notificationStats->rejected ?? 0,
+                ],
+            ],
         ]);
     }
 
@@ -171,5 +215,52 @@ class AdminController extends Controller
 
             return redirect()->route('admin.index')->with('error', 'Error restarting queue: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get recent notifications with failure tracking
+     */
+    public function recentNotifications(Request $request): JsonResponse
+    {
+        $limit = $request->input('limit', 10);
+        $limit = min(max($limit, 1), 100);
+
+        $notifications = DB::table('notification_logs as nl')
+            ->leftJoin('failed_jobs as fj', function($join) {
+                $join->whereRaw('fj.payload LIKE CONCAT("%\"request_id\":", nl.instruction_request_id, "%")')
+                     ->whereRaw('fj.failed_at BETWEEN nl.sent_at - INTERVAL 5 MINUTE AND nl.sent_at + INTERVAL 5 MINUTE');
+            })
+            ->select(
+                'nl.id',
+                'nl.instruction_request_id',
+                'nl.notification_type',
+                'nl.recipient_type',
+                'nl.recipient_email',
+                'nl.sent_at',
+                'fj.exception as error_message',
+                'fj.failed_at'
+            )
+            ->where('nl.sent_at', '>=', DB::raw('NOW() - INTERVAL 24 HOUR'))
+            ->orderBy('nl.sent_at', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $formattedNotifications = $notifications->map(function($notification) {
+            return [
+                'id' => $notification->id,
+                'request_id' => $notification->instruction_request_id,
+                'type' => ucfirst($notification->notification_type),
+                'recipient_type' => $notification->recipient_type,
+                'recipient_email' => $notification->recipient_email,
+                'sent_at' => $notification->sent_at,
+                'status' => $notification->error_message ? 'failed' : 'sent',
+                'error_message' => $notification->error_message,
+            ];
+        });
+
+        return response()->json([
+            'notifications' => $formattedNotifications,
+            'count' => $formattedNotifications->count(),
+        ]);
     }
 }

@@ -197,6 +197,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
 
         // System management routes
         Route::get('/system-status', [AdminController::class, 'systemStatus'])->name('system-status');
+        Route::get('/recent-notifications', [AdminController::class, 'recentNotifications'])->name('recent-notifications');
         Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear-cache');
         Route::post('/flush-queue', [AdminController::class, 'flushQueue'])->name('flush-queue');
         Route::post('/restart-queue', [AdminController::class, 'restartQueue'])->name('restart-queue');
