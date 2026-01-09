@@ -396,21 +396,93 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${diffDays} days ago`;
     }
 
-    // Load recent notifications (placeholder - will need backend endpoint)
+// Load recent notifications from backend
     function loadRecentNotifications() {
         const limit = document.getElementById('notification-row-count').value;
         const tbody = document.getElementById('notifications-table-body');
+        const showingSpan = document.getElementById('notifications-showing');
 
         if (!tbody) return;
 
-        // Placeholder: Show loading state
+        // Show loading state
         tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Loading notifications...</td></tr>';
 
-        // TODO: Fetch from backend endpoint
-        // For now, just show "no data" message
-        setTimeout(() => {
-            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No recent notifications available.</td></tr>';
-        }, 500);
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(`{{ route('admin.recent-notifications') }}?limit=${limit}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.notifications || data.notifications.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No recent notifications found.</td></tr>';
+                    if (showingSpan) {
+                        showingSpan.textContent = 'Showing 0 of 0 notifications';
+                    }
+                    return;
+                }
+
+                // Build table rows
+                let html = '';
+                data.notifications.forEach(notification => {
+                    const rowClass = notification.status === 'failed' ? 'bg-red-50 dark:bg-red-900/20' : '';
+                    const typeColors = {
+                        'Received': 'text-blue-600 dark:text-blue-400',
+                        'Assigned': 'text-amber-600 dark:text-amber-400',
+                        'Accepted': 'text-green-600 dark:text-green-400',
+                        'Rejected': 'text-red-600 dark:text-red-400'
+                    };
+                    const typeColor = typeColors[notification.type] || 'text-gray-600 dark:text-gray-400';
+
+                    // Main row
+                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700 ${rowClass}">`;
+                    html += `<td class="px-4 py-3 whitespace-nowrap">`;
+                    if (notification.status === 'sent') {
+                        html += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">✅ Sent</span>`;
+                    } else {
+                        html += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">❌ Failed</span>`;
+                    }
+                    html += `</td>`;
+                    html += `<td class="px-4 py-3 whitespace-nowrap"><span class="text-sm font-medium ${typeColor}">${notification.type}</span></td>`;
+                    html += `<td class="px-4 py-3">`;
+                    html += `<div class="text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate" title="${notification.recipient_email}">${notification.recipient_email}</div>`;
+                    html += `<div class="text-xs text-gray-500 dark:text-gray-400 capitalize">${notification.recipient_type}</div>`;
+                    html += `</td>`;
+                    html += `<td class="px-4 py-3 whitespace-nowrap"><a href="{{ url('/dashboard/instructionRequests') }}/${notification.request_id}/edit" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">#${notification.request_id}</a></td>`;
+                    html += `<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${formatRelativeTime(notification.sent_at)}</td>`;
+                    html += `</tr>`;
+
+                    // Error row if failed
+                    if (notification.error_message) {
+                        html += `<tr class="bg-red-50 dark:bg-red-900/20">`;
+                        html += `<td colspan="5" class="px-4 py-2">`;
+                        html += `<div class="flex items-start space-x-2 text-sm">`;
+                        html += `<svg class="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                        html += `<div><span class="font-medium text-red-900 dark:text-red-200">Error: </span><span class="text-red-700 dark:text-red-300">${notification.error_message}</span></div>`;
+                        html += `</div></td></tr>`;
+                    }
+                });
+
+                tbody.innerHTML = html;
+
+                // Update showing count
+                if (showingSpan) {
+                    showingSpan.textContent = `Showing ${data.count} of ${data.count} notifications`;
+                }
+            })
+            .catch(error => {
+                console.log('Failed to load notifications:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-red-500 dark:text-red-400">Failed to load notifications. Please try again.</td></tr>';
+            });
     }
 
     // Update notification statistics
