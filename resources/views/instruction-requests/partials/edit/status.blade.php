@@ -138,4 +138,14 @@
                 @livewire('delete-google-calendar-event', ['requestId' => $instructionRequest->id])
         </div>
     @endif
+
+    {{-- Mark In Progress Button for Asynchronous Requests --}}
+    @if($instructionRequest->status == 'accepted' &&
+        $instructionRequest->detail->assigned_librarian_id == Auth::user()->id &&
+        $instructionRequest->instruction_type === 'asynchronous')
+        <hr class="mb-6 dark:border-gray-700" />
+        <div class="my-4">
+            @livewire('mark-in-progress-button', ['requestId' => $instructionRequest->id])
+        </div>
+    @endif
 </div>
