@@ -25,6 +25,14 @@ class DashboardCalendar extends Component
     public bool $showRemote = true;
     public bool $showAsynchronous = true;
 
+    // Status filters
+    public bool $showReceived = true;
+    public bool $showAssigned = true;
+    public bool $showAccepted = true;
+    public bool $showInProgress = true;
+    public bool $showRejected = true;
+    public bool $showCompleted = false;
+
     public function mount(?int $userId = null)
     {
         $this->userId = $userId;
@@ -87,7 +95,6 @@ class DashboardCalendar extends Component
             ->leftJoin('classes', 'instruction_requests.class_id', '=', 'classes.id')
             ->leftJoin('users as librarians', 'instruction_request_details.assigned_librarian_id', '=', 'librarians.id')
             ->whereBetween('instruction_request_details.instruction_datetime', [$startOfMonth, $endOfMonth])
-            ->where('instruction_requests.status', '!=', 'completed') // Exclude completed requests
             ->select([
                 'instruction_requests.id',
                 'instruction_requests.instruction_type',
@@ -101,6 +108,22 @@ class DashboardCalendar extends Component
         // Filter by librarian if specified
         if ($this->selectedLibrarianId) {
             $query->where('instruction_request_details.assigned_librarian_id', $this->selectedLibrarianId);
+        }
+
+        // Filter by status based on checkboxes
+        $statuses = [];
+        if ($this->showReceived) $statuses[] = 'received';
+        if ($this->showAssigned) $statuses[] = 'assigned';
+        if ($this->showAccepted) $statuses[] = 'accepted';
+        if ($this->showInProgress) $statuses[] = 'in_progress';
+        if ($this->showRejected) $statuses[] = 'rejected';
+        if ($this->showCompleted) $statuses[] = 'completed';
+
+        if (!empty($statuses)) {
+            $query->whereIn('instruction_requests.status', $statuses);
+        } else {
+            // If no statuses selected, return empty
+            return collect();
         }
 
         // Filter by instruction type based on checkboxes
@@ -131,10 +154,18 @@ class DashboardCalendar extends Component
                     'on-campus' => 0,
                     'remote' => 0,
                     'asynchronous' => 0,
+                    // Status counts
+                    'received' => 0,
+                    'assigned' => 0,
+                    'accepted' => 0,
+                    'in_progress' => 0,
+                    'rejected' => 0,
+                    'completed' => 0,
                 ];
             }
 
             $counts[$day][$event->instruction_type]++;
+            $counts[$day][$event->status]++;
         }
 
         return $counts;

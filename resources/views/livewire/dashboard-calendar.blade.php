@@ -6,54 +6,111 @@
         </div>
 
         <div class="p-4">
-            <div class="flex items-center justify-between">
-                {{-- Librarian Dropdown (Always shown) --}}
-                <div class="flex items-center gap-2">
-                    <label for="librarian-select" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Librarian:
-                    </label>
-                    <select
-                        id="librarian-select"
-                        wire:model.live="selectedLibrarianId"
-                        class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="">All Librarians</option>
-                        @foreach($librarians as $librarian)
-                            <option value="{{ $librarian->id }}">{{ $librarian->display_name }}</option>
-                        @endforeach
-                    </select>
+            <div class="space-y-4">
+                {{-- Row 1: Librarian + Instruction Types --}}
+                <div class="flex items-center justify-between">
+                    {{-- Librarian Dropdown --}}
+                    <div class="flex items-center gap-2">
+                        <label for="librarian-select" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Librarian:
+                        </label>
+                        <select
+                            id="librarian-select"
+                            wire:model.live="selectedLibrarianId"
+                            class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">All Librarians</option>
+                            @foreach($librarians as $librarian)
+                                <option value="{{ $librarian->id }}">{{ $librarian->display_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Instruction Type Checkboxes --}}
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Instruction Type:</span>
+
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showOnCampus"
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-600 dark:checked:border-blue-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">In-Person</span>
+                        </label>
+
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showRemote"
+                                class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-green-600 dark:checked:border-green-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Remote</span>
+                        </label>
+
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showAsynchronous"
+                                class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-amber-600 dark:checked:border-amber-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Async</span>
+                        </label>
+                    </div>
                 </div>
 
-                {{-- Instruction Type Checkboxes --}}
-                <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Show:</span>
+                {{-- Row 2: Status Filters --}}
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Request Status:
+                    </span>
 
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            wire:model.live="showOnCampus"
-                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-600 dark:checked:border-blue-600"
-                        >
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">In-Person</span>
-                    </label>
+                    <div class="flex items-center gap-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showReceived"
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-600 dark:checked:border-blue-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Received</span>
+                        </label>
 
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            wire:model.live="showRemote"
-                            class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-green-600 dark:checked:border-green-600"
-                        >
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Remote</span>
-                    </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showAssigned"
+                                class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-amber-600 dark:checked:border-amber-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Assigned</span>
+                        </label>
 
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            wire:model.live="showAsynchronous"
-                            class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-amber-600 dark:checked:border-amber-600"
-                        >
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Async</span>
-                    </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showAccepted"
+                                class="rounded border-gray-300 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-green-600 dark:checked:border-green-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Accepted</span>
+                        </label>
+
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showInProgress"
+                                class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-purple-600 dark:checked:border-purple-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">In Progress</span>
+                        </label>
+
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                wire:model.live="showRejected"
+                                class="rounded border-gray-300 text-rose-600 focus:ring-rose-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-rose-600 dark:checked:border-rose-600"
+                            >
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Rejected</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -187,7 +244,7 @@
                                         {{ $time }} • {{ $event->instructor_name }}
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-gray-500 mt-1 capitalize">
-                                        {{ str_replace('-', ' ', $event->instruction_type) }} • {{ ucfirst($event->status) }}
+                                        {{ str_replace('-', ' ', $event->instruction_type) }} • {{ ucfirst(str_replace('_', ' ', $event->status)) }}
                                         @if($event->librarian_name)
                                             • {{ $event->librarian_name }}
                                         @endif
