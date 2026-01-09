@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update impact details
             document.getElementById('requests-impact').innerHTML = `• <span class="font-medium">${impact.instruction_requests_count}</span> total instruction requests`;
-            document.getElementById('active-impact').innerHTML = `• <span class="font-medium">${impact.active_requests_count}</span> active/scheduled requests`;
+            document.getElementById('active-impact').innerHTML = `• <span class="font-medium">${impact.active_requests_count}</span> active/in-progress requests`;
             document.getElementById('librarians-impact').innerHTML = `• <span class="font-medium">${impact.assigned_librarians_count}</span> assigned librarians`;
 
             impactDetails.classList.remove('hidden');

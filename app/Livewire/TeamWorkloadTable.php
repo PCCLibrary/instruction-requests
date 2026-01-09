@@ -99,7 +99,7 @@ final class TeamWorkloadTable extends PowerGridComponent
             ->add('total_active')
             ->add('assigned_count')
             ->add('accepted_count')
-            ->add('scheduled_count')
+            ->add('in_progress_count')
             ->add('async_count')
             ->add('in_person_count')
             ->add('remote_count');
@@ -140,7 +140,7 @@ final class TeamWorkloadTable extends PowerGridComponent
                 ->sortable()
                 ->bodyAttribute('class', 'text-center'),
 
-            Column::make('Scheduled / In Progress', 'scheduled_count')
+            Column::make('In Progress', 'in_progress_count')
                 ->sortable()
                 ->bodyAttribute('class', 'text-center'),
 

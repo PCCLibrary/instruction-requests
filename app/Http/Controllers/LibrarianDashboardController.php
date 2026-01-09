@@ -27,7 +27,7 @@ class LibrarianDashboardController extends Controller
             ->count();
 
         $myActiveRequestsCount = InstructionRequests::query()
-            ->whereIn('status', ['accepted', 'scheduled', 'in_progress'])
+            ->whereIn('status', ['accepted', 'in_progress'])
             ->whereHas('detail', function ($query) use ($librarian) {
                 $query->where('assigned_librarian_id', $librarian->id);
             })

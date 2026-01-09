@@ -491,7 +491,7 @@
             [
                 'iconBgColor' => 'bg-purple-500',
                 'icon' => 'calendar-days',
-                'infoBoxText' => 'Scheduled',
+                'infoBoxText' => 'In Progress',
                 'count' => number_format($scheduledAndCompleted)
             ],
             [

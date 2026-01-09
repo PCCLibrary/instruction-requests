@@ -89,8 +89,8 @@ class GoogleCalendarEventWithAttendeesTest extends TestCase
         $this->assertEquals('test_event_id_123', $googleCalendarEvent->google_event_id);
         $this->assertEquals($request->id, $googleCalendarEvent->instruction_request_id);
 
-        // The status should be updated to 'scheduled'
-        $this->assertEquals('scheduled', $request->fresh()->status);
+        // The status should be updated to 'in_progress'
+        $this->assertEquals('in_progress', $request->fresh()->status);
     }
 
     /** @test */

@@ -113,7 +113,7 @@ class CampusController extends AppBaseController
         $impact = [
             'instruction_requests_count' => $campus->instructionRequests()->count(),
             'active_requests_count' => $campus->instructionRequests()
-                ->whereIn('status', ['received', 'assigned', 'accepted', 'scheduled'])
+                ->whereIn('status', ['received', 'assigned', 'accepted', 'in_progress'])
                 ->count(),
             'assigned_librarians_count' => count($campus->librarian_ids ?? []),
             'campus_name' => $campus->name

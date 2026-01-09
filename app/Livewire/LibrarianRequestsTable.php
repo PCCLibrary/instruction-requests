@@ -185,7 +185,7 @@ final class LibrarianRequestsTable extends PowerGridComponent
                     ['value' => 'assigned', 'label' => 'Assigned'],
                     ['value' => 'accepted', 'label' => 'Accepted'],
                     ['value' => 'rejected', 'label' => 'Rejected'],
-                    ['value' => 'scheduled', 'label' => 'Scheduled'],
+                    ['value' => 'in_progress', 'label' => 'In Progress'],
                     ['value' => 'completed', 'label' => 'Completed'],
                 ])
                 ->optionValue('value')

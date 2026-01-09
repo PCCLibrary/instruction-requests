@@ -182,7 +182,7 @@ class CreateGoogleCalendarEventForm extends Component
             // Dispatch event for client-side reload
             $this->dispatch('googleCalendarEventCreated', [
                 'requestId' => $this->instructionRequest->id,
-                'status' => 'scheduled',
+                'status' => 'in_progress',
                 'timestamp' => now()->toDateTimeString()
             ]);
 

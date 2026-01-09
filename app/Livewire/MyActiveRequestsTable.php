@@ -67,7 +67,7 @@ final class MyActiveRequestsTable extends PowerGridComponent
                 'campuses.name as campus_name',
                 'lockers.display_name as locker_name'
             ])
-            ->whereIn('instruction_requests.status', ['accepted', 'scheduled', 'in_progress'])
+            ->whereIn('instruction_requests.status', ['accepted', 'in_progress'])
             ->where('instruction_request_details.assigned_librarian_id', Auth::id())
             ->orderBy('instruction_request_details.instruction_datetime', 'asc');
     }
@@ -130,7 +130,6 @@ final class MyActiveRequestsTable extends PowerGridComponent
             Filter::select('status', 'instruction_requests.status')
                 ->dataSource([
                     ['id' => 'accepted', 'name' => 'Accepted'],
-                    ['id' => 'scheduled', 'name' => 'Scheduled'],
                     ['id' => 'in_progress', 'name' => 'In Progress'],
                 ])
                 ->optionValue('id')

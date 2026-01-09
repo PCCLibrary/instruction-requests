@@ -24,7 +24,7 @@
         @endif
     @endif
 
-    @if(in_array($status, ['scheduled', 'in_progress']))
+    @if($status === 'in_progress')
         {{-- Mark Complete Button --}}
         <button
             wire:click="markComplete({{ $id }})"

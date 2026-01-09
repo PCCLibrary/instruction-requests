@@ -30,8 +30,8 @@
             <option value="rejected" {{ old('status', $instructionRequest->status) === 'rejected' ? 'selected' : '' }} disabled>
                 Rejected
             </option>
-            <option value="scheduled" {{ old('status', $instructionRequest->status) === 'scheduled' ? 'selected' : '' }} disabled>
-                Scheduled
+            <option value="in_progress" {{ old('status', $instructionRequest->status) === 'in_progress' ? 'selected' : '' }} disabled>
+                In Progress
             </option>
             <option value="completed" {{ old('status', $instructionRequest->status) === 'completed' ? 'selected' : '' }}>
                 Completed
@@ -124,7 +124,7 @@
         </div>
     @endif
 
-    @if($instructionRequest->status == 'scheduled')
+    @if($instructionRequest->status == 'in_progress')
         <hr class="mb-6 dark:border-gray-700" />
         <div class="my-4">
             @if($instructionRequest->googleCalendarEvent && $instructionRequest->googleCalendarEvent->html_link)

@@ -73,12 +73,12 @@ class CalendarService
 
         // Check if event already exists for this request
         if ($request->googleCalendarEvent) {
-            // Update the status to scheduled even for existing events
-            if ($request->status !== 'scheduled') {
+            // Update the status to in_progress even for existing events
+            if ($request->status !== 'in_progress') {
                 // Use the InstructionRequestService to update the status
                 $instructionRequestService = app(InstructionRequestService::class);
                 $updatedRequest = $instructionRequestService->updateInstructionRequest([
-                    'status' => 'scheduled'
+                    'status' => 'in_progress'
                 ], $request->id);
 
                 // Update the existing event with the updated instruction request
@@ -215,7 +215,7 @@ class CalendarService
                     // Use the injected InstructionRequestService to update the status
                     $instructionRequestService = app(InstructionRequestService::class);
                     $updatedRequest = $instructionRequestService->updateInstructionRequest([
-                        'status' => 'scheduled'
+                        'status' => 'in_progress'
                     ], $request->id);
 
                     // Return the event model and reference the updated request

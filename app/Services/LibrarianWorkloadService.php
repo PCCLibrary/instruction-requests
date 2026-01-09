@@ -28,7 +28,7 @@ class LibrarianWorkloadService
                 'total_active' => $this->countTotalActive($user->id),
                 'assigned_count' => $this->countAssigned($user->id),
                 'accepted_count' => $this->countAccepted($user->id),
-                'scheduled_count' => $this->countScheduled($user->id),
+                'in_progress_count' => $this->countInProgress($user->id),
                 'async_count' => $this->countAsync($user->id),
                 'in_person_count' => $this->countInPerson($user->id),
                 'remote_count' => $this->countRemote($user->id),
@@ -63,12 +63,12 @@ class LibrarianWorkloadService
         ->count();
     }
 
-    private function countScheduled(int $librarianId): int
+    private function countInProgress(int $librarianId): int
     {
         return InstructionRequests::whereHas('detail', fn($q) =>
             $q->where('assigned_librarian_id', $librarianId)
         )
-        ->where('status', 'scheduled')
+        ->whereIn('status', ['scheduled', 'in_progress'])  // Count both during transition
         ->count();
     }
 

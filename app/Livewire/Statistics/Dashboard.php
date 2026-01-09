@@ -533,7 +533,7 @@ class Dashboard extends Component
 
             $adaSessions += $query->where('instruction_requests.ada_provisions_needed', true)->count();
 
-            $scheduledAndCompleted += $query->whereIn('instruction_requests.status', ['scheduled', 'completed'])->count();
+            $scheduledAndCompleted += $query->whereIn('instruction_requests.status', ['in_progress', 'completed'])->count();
 
             $completedOnly += $query->where('instruction_requests.status', 'completed')->count();
         }

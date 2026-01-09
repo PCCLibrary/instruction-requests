@@ -31,8 +31,8 @@ class SchedulerDashboardController extends Controller
         // Box 3: Rejected Requests (need reassignment)
         $rejectedCount = InstructionRequests::where('status', 'rejected')->count();
 
-        // Box 4: Active Work (assigned + accepted + scheduled)
-        $activeWorkCount = InstructionRequests::whereIn('status', ['assigned', 'accepted', 'scheduled'])
+        // Box 4: Active Work (assigned + accepted + in_progress)
+        $activeWorkCount = InstructionRequests::whereIn('status', ['assigned', 'accepted', 'in_progress'])
             ->count();
 
         return view('dashboard.scheduler', compact(
