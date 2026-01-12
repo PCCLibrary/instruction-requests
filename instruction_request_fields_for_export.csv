@@ -1,0 +1,51 @@
+Section,Field Name,Table/Source,Form Label,Exclude From Export,Notes/Logic
+REQUEST INFORMATION,status,instruction_requests,Request Status,No,"Values: received, assigned, accepted, rejected, in_progress, completed"
+REQUEST INFORMATION,instruction_type,instruction_requests,Instruction Type,No,
+REQUEST INFORMATION,department,instruction_requests,Subject,No,
+REQUEST INFORMATION,course_number,instruction_requests,Course Number,No,
+REQUEST INFORMATION,course_crn,instruction_requests,Course CRN,No,
+REQUEST INFORMATION,number_of_students,instruction_requests,Number of Students,No,
+REQUEST INFORMATION,campus_id,instruction_requests,Campus,No,Will export campus name via relationship
+REQUEST INFORMATION,librarian_id,instruction_requests,Librarian Preference,No,Originally requested librarian (may differ from assigned)
+INSTRUCTOR INFORMATION,instructor.name,instructors (relationship),Instructor Name,No,
+INSTRUCTOR INFORMATION,instructor.display_name,instructors (relationship),Preferred Name,No,
+INSTRUCTOR INFORMATION,instructor.pronouns,instructors (relationship),Pronouns,No,
+INSTRUCTOR INFORMATION,instructor.email,instructors (relationship),Email,No,
+INSTRUCTOR INFORMATION,instructor.phone,instructors (relationship),Phone,No,
+SCHEDULING - REQUESTED,preferred_datetime,instruction_requests,Preferred Date & Time,No,Faculty's first choice
+SCHEDULING - REQUESTED,alternate_datetime,instruction_requests,Alternate Date & Time,No,Faculty's backup choice
+SCHEDULING - REQUESTED,duration,instruction_requests,Duration (in minutes),No,Requested duration from faculty
+SCHEDULING - REQUESTED,asynchronous_instruction_ready_date,instruction_requests,Asynchronous instruction ready by,No,For async requests only
+SCHEDULING - ACTUAL,instruction_datetime,instruction_request_details,Instruction Date & Time,No,Copied from preferred_datetime initially; changes if rescheduled
+SCHEDULING - ACTUAL,instruction_duration,instruction_request_details,Instruction Duration,No,Copied from duration initially; can be changed by librarian
+SCHEDULING - ACTUAL,room,instruction_request_details,Instruction Classroom,No,
+SCHEDULING - CONTEXT,extra_time_with_class,instruction_requests,Do you need time to discuss non-library matters with your class?,No,
+LEARNING OUTCOMES,received_assignment,instruction_requests,Received Assignment,No,By the time students receive library instruction they will have...
+LEARNING OUTCOMES,selected_topics,instruction_requests,Selected Topics,No,By the time students receive library instruction they will have...
+LEARNING OUTCOMES,explored_background,instruction_requests,Explored Background,No,By the time students receive library instruction they will have...
+LEARNING OUTCOMES,written_draft,instruction_requests,Written Draft,No,By the time students receive library instruction they will have...
+LEARNING OUTCOMES,other_learning_outcome,instruction_requests,Other Learning Outcome,No,By the time students receive library instruction they will have...
+LEARNING OUTCOMES,other_learning_outcome_description,instruction_requests,Describe Other Learning Outcome,No,Text description if other_learning_outcome is checked
+INSTRUCTION GOALS,assignment_description,instruction_requests,Assignment Description,No,
+INSTRUCTION GOALS,library_instruction_description,instruction_requests,What do you want your students to get out of library instruction?,No,
+INSTRUCTION GOALS,genai_discussion_interest,instruction_requests,Generative AI Discussion Interest,No,
+ADA PROVISIONS,ada_provisions_needed,instruction_requests,ADA Provisions Needed,No,Boolean checkbox
+ADA PROVISIONS,ada_provisions_description,instruction_requests,Describe the ADA accommodations needed for your class,No,
+SESSION DETAILS,assigned_librarian_id,instruction_request_details,Assigned Librarian,No,Will export librarian name via relationship; who taught/will teach
+SESSION DETAILS,created_by,instruction_request_details,Created By,No,Who created the detail record
+SESSION DETAILS,last_updated_by,instruction_request_details,Last Updated By,No,Who last updated the detail record
+MATERIALS CREATED,video,instruction_request_details,Video,No,Boolean - did librarian create video materials
+MATERIALS CREATED,non_video,instruction_request_details,Non-Video,No,Boolean - did librarian create non-video materials
+MATERIALS CREATED,modified_tutorial,instruction_request_details,Modified Tutorial,No,Boolean - did librarian modify existing tutorial
+MATERIALS CREATED,embedded,instruction_request_details,Embedded,No,Boolean - was librarian embedded in course
+MATERIALS CREATED,research_guide,instruction_request_details,Research Guide,No,Boolean - did librarian create research guide
+MATERIALS CREATED,handout,instruction_request_details,Handout,No,Boolean - did librarian create handout
+MATERIALS CREATED,developed_assignment,instruction_request_details,Developed Assignment,No,Boolean - did librarian develop assignment
+MATERIALS CREATED,other_materials,instruction_request_details,Other Materials,No,Boolean - other materials created
+MATERIALS CREATED,other_describe,instruction_request_details,Other Describe,No,Text description of other materials
+NOTES,class_notes,instruction_request_details,Class Notes,Yes,Internal librarian notes
+NOTES,assessment_notes,instruction_request_details,Assessment Notes,Yes,Internal assessment notes
+FILES,class_syllabus,instruction_requests (media),Class Syllabus,Yes,File attachment
+FILES,instructor_attachments,instruction_requests (media),Instructor Attachments,Yes,File attachments
+FILES,materials,instruction_request_details,Materials (File Upload),Yes,JSON field with uploaded materials
+FILES,assessments,instruction_request_details,Assessments (File Upload),Yes,JSON field with assessment files
