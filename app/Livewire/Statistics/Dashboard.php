@@ -8,6 +8,7 @@ use App\Models\Campus;
 use App\Models\Instructor;
 use App\Models\User;
 use App\Services\DepartmentService;
+use App\Services\StatisticsService;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Writer\XLSX\Writer as XLSXWriter;
 use OpenSpout\Writer\CSV\Writer as CSVWriter;
@@ -31,15 +32,17 @@ class Dashboard extends Component
     public $filtersExpanded = true;
 
     protected $departmentService;
+    protected $statisticsService;
 
-    public function boot(DepartmentService $departmentService)
+    public function boot(DepartmentService $departmentService, StatisticsService $statisticsService)
     {
         $this->departmentService = $departmentService;
+        $this->statisticsService = $statisticsService;
     }
 
     public function mount()
     {
-        $currentAcademicYear = $this->getCurrentAcademicYear();
+        $currentAcademicYear = $this->statisticsService->getCurrentAcademicYear();
         $this->startPeriod = $currentAcademicYear;
         $this->endPeriod = $currentAcademicYear;
     }
@@ -170,10 +173,7 @@ class Dashboard extends Component
 
     public function updatedInstructorSearch()
     {
-        // Get filtered instructors
         $filteredInstructors = $this->filteredInstructors;
-
-        // Dispatch event with the filtered instructors
         $this->dispatch('instructors-updated', $filteredInstructors->toArray());
     }
 
