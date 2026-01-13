@@ -202,7 +202,7 @@ class StatisticsService
         $maxAY = $maxMonth >= 9 ? $maxYear : $maxYear - 1;
 
         $academicYears = [];
-        for ($ay = $maxAY; $ay >= $minAY; $ay--) {
+        for ($ay = $minAY; $ay <= $maxAY; $ay++) {
             $academicYears[$ay] = "$ay-" . ($ay + 1);
         }
 

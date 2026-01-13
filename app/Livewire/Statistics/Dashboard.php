@@ -4,9 +4,7 @@ namespace App\Livewire\Statistics;
 
 use Livewire\Component;
 use App\Models\InstructionRequests;
-use App\Models\Campus;
 use App\Models\Instructor;
-use App\Models\User;
 use App\Services\DepartmentService;
 use App\Services\StatisticsService;
 use Illuminate\Support\Facades\DB;
@@ -42,62 +40,34 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $currentAcademicYear = $this->statisticsService->getCurrentAcademicYear();
-        $this->startPeriod = $currentAcademicYear;
-        $this->endPeriod = $currentAcademicYear;
+        $availableYears = $this->statisticsService->getAvailableAcademicYears();
+        $this->startPeriod = array_key_first($availableYears);
+        $this->endPeriod = array_key_last($availableYears);
     }
 
     public function getCurrentAcademicYear(): int
     {
-        $currentYear = now()->year;
-        $currentMonth = now()->month;
-        return $currentMonth >= 9 ? $currentYear : $currentYear - 1;
+        return $this->statisticsService->getCurrentAcademicYear();
     }
 
     public function getAvailableAcademicYears(): array
     {
-        $minDate = DB::table('instruction_request_details')
-            ->whereNotNull('instruction_datetime')
-            ->min('instruction_datetime');
-
-        $maxDate = DB::table('instruction_request_details')
-            ->whereNotNull('instruction_datetime')
-            ->max('instruction_datetime');
-
-        if (!$minDate || !$maxDate) {
-            $currentAY = $this->getCurrentAcademicYear();
-            return [$currentAY => "$currentAY-" . ($currentAY + 1)];
-        }
-
-        $minYear = (int) date('Y', strtotime($minDate));
-        $minMonth = (int) date('m', strtotime($minDate));
-        $minAY = $minMonth >= 9 ? $minYear : $minYear - 1;
-
-        $maxYear = (int) date('Y', strtotime($maxDate));
-        $maxMonth = (int) date('m', strtotime($maxDate));
-        $maxAY = $maxMonth >= 9 ? $maxYear : $maxYear - 1;
-
-        $academicYears = [];
-        for ($ay = $maxAY; $ay >= $minAY; $ay--) {
-            $academicYears[$ay] = "$ay-" . ($ay + 1);
-        }
-
-        return $academicYears;
+        return $this->statisticsService->getAvailableAcademicYears();
     }
 
     public function getCampuses()
     {
-        return Campus::ordered()->get();
+        return $this->statisticsService->getCampuses();
     }
 
     public function getDepartments()
     {
-        return $this->departmentService->getAllDepartments();
+        return $this->statisticsService->getDepartments();
     }
 
     public function getInstructors()
     {
-        return Instructor::orderBy('display_name')->get();
+        return $this->statisticsService->getInstructors();
     }
 
     public function getFilteredInstructorsProperty()
@@ -179,9 +149,7 @@ class Dashboard extends Component
 
     public function getLibrarians()
     {
-        return User::where('is_admin', false)
-            ->orderBy('display_name')
-            ->get();
+        return $this->statisticsService->getLibrarians();
     }
 
     public function applyFilters()
@@ -359,43 +327,32 @@ class Dashboard extends Component
 
     protected function calculateMetric($calculation, $startDate, $endDate): int
     {
-        $query = InstructionRequests::query()
-            ->leftJoin('instruction_request_details',
-                'instruction_requests.id', '=',
-                'instruction_request_details.instruction_requests_id')
-            ->whereBetween('instruction_request_details.instruction_datetime', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->when($this->campus, fn($q) => $q->where('instruction_requests.campus_id', $this->campus))
-            ->when($this->department, fn($q) => $q->where('instruction_requests.department', $this->department))
-            ->when($this->class, function($q) {
-                $parts = explode('-', $this->class);
-                if (count($parts) === 2) {
-                    return $q->where('instruction_requests.department', $parts[0])
-                             ->where('instruction_requests.course_number', $parts[1]);
-                }
-                return $q;
-            })
-            ->when($this->instructor, fn($q) => $q->where('instruction_requests.instructor_id', $this->instructor))
-            ->when($this->assignedLibrarian, fn($q) =>
-                $q->where('instruction_request_details.assigned_librarian_id', $this->assignedLibrarian));
+        // Map Dashboard calculation codes to service metric names
+        $metricMap = [
+            'count_sync' => 'synchronous',
+            'count_async' => 'asynchronous',
+            'sum_students' => 'total_students',
+            'count_remote' => 'remote',
+            'count_oncampus' => 'on_campus',
+            'count_ada' => 'ada',
+            'count_no_ada' => 'no_ada',
+        ];
 
-        switch ($calculation) {
-            case 'count_sync':
-                return $query->whereIn('instruction_requests.instruction_type', ['on-campus', 'remote'])->count();
-            case 'count_async':
-                return $query->where('instruction_requests.instruction_type', 'asynchronous')->count();
-            case 'sum_students':
-                return $query->sum('instruction_requests.number_of_students') ?? 0;
-            case 'count_remote':
-                return $query->where('instruction_requests.instruction_type', 'remote')->count();
-            case 'count_oncampus':
-                return $query->where('instruction_requests.instruction_type', 'on-campus')->count();
-            case 'count_ada':
-                return $query->where('instruction_requests.ada_provisions_needed', true)->count();
-            case 'count_no_ada':
-                return $query->where('instruction_requests.ada_provisions_needed', false)->count();
-            default:
-                return 0;
+        $metric = $metricMap[$calculation] ?? null;
+        if (!$metric) {
+            return 0;
         }
+
+        // Build filters array from Dashboard properties
+        $filters = [
+            'campus' => $this->campus,
+            'department' => $this->department,
+            'class' => $this->class,
+            'instructor' => $this->instructor,
+            'assigned_librarian' => $this->assignedLibrarian,
+        ];
+
+        return $this->statisticsService->calculateMetric($metric, $startDate, $endDate, $filters);
     }
 
     public function exportCsv()
@@ -496,61 +453,15 @@ class Dashboard extends Component
 
     protected function calculateSummaryMetrics(array $columns): array
     {
-        $totalMinutes = 0;
-        $totalStudents = 0;
-        $totalSessions = 0;
-        $adaSessions = 0;
-        $scheduledAndCompleted = 0;
-        $completedOnly = 0;
-
-        foreach ($columns as $column) {
-            $query = InstructionRequests::query()
-                ->leftJoin('instruction_request_details',
-                    'instruction_requests.id', '=',
-                    'instruction_request_details.instruction_requests_id')
-                ->whereBetween('instruction_request_details.instruction_datetime',
-                    [$column['start'] . ' 00:00:00', $column['end'] . ' 23:59:59'])
-                ->when($this->campus, fn($q) => $q->where('instruction_requests.campus_id', $this->campus))
-                ->when($this->department, fn($q) => $q->where('instruction_requests.department', $this->department))
-                ->when($this->class, function($q) {
-                    $parts = explode('-', $this->class);
-                    if (count($parts) === 2) {
-                        return $q->where('instruction_requests.department', $parts[0])
-                                 ->where('instruction_requests.course_number', $parts[1]);
-                    }
-                    return $q;
-                })
-                ->when($this->instructor, fn($q) => $q->where('instruction_requests.instructor_id', $this->instructor))
-                ->when($this->assignedLibrarian, fn($q) =>
-                    $q->where('instruction_request_details.assigned_librarian_id', $this->assignedLibrarian));
-
-            $sessionCount = $query->count();
-            $totalSessions += $sessionCount;
-
-            $totalMinutes += $query->sum(DB::raw("CAST(SUBSTRING_INDEX(instruction_requests.duration, ' ', 1) AS UNSIGNED)")) ?? 0;
-
-            $totalStudents += $query->sum('instruction_requests.number_of_students') ?? 0;
-
-            $adaSessions += $query->where('instruction_requests.ada_provisions_needed', true)->count();
-
-            $scheduledAndCompleted += $query->whereIn('instruction_requests.status', ['in_progress', 'completed'])->count();
-
-            $completedOnly += $query->where('instruction_requests.status', 'completed')->count();
-        }
-
-        $totalHours = round($totalMinutes / 60, 1);
-        $avgClassSize = $totalSessions > 0 ? round($totalStudents / $totalSessions, 1) : 0;
-        $adaPercent = $totalSessions > 0 ? round(($adaSessions / $totalSessions) * 100, 1) : 0;
-        $avgSessionDuration = $totalSessions > 0 ? round($totalMinutes / $totalSessions) : 0;
-
-        return [
-            'totalInstructionHours' => $totalHours,
-            'averageClassSize' => $avgClassSize,
-            'adaSessions' => $adaSessions,
-            'adaPercentage' => $adaPercent,
-            'scheduledAndCompleted' => $scheduledAndCompleted,
-            'completedOnly' => $completedOnly,
-            'avgSessionDuration' => $avgSessionDuration
+        // Build filters array from Dashboard properties
+        $filters = [
+            'campus' => $this->campus,
+            'department' => $this->department,
+            'class' => $this->class,
+            'instructor' => $this->instructor,
+            'assigned_librarian' => $this->assignedLibrarian,
         ];
+
+        return $this->statisticsService->getSummaryMetrics($columns, $filters);
     }
 }
