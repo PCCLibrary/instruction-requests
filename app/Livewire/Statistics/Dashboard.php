@@ -5,8 +5,10 @@ namespace App\Livewire\Statistics;
 use Livewire\Component;
 use App\Models\InstructionRequests;
 use App\Models\Instructor;
+use App\Models\AcademicTerm;
 use App\Services\DepartmentService;
 use App\Services\StatisticsService;
+use App\Services\TermService;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Writer\XLSX\Writer as XLSXWriter;
 use OpenSpout\Writer\CSV\Writer as CSVWriter;
@@ -14,6 +16,7 @@ use OpenSpout\Common\Entity\Row;
 
 class Dashboard extends Component
 {
+    public $activeTab = 'institutional'; // 'institutional' | 'custom'
     public $viewMode = 'year';
     public $startPeriod;
     public $endPeriod;
@@ -31,11 +34,13 @@ class Dashboard extends Component
 
     protected $departmentService;
     protected $statisticsService;
+    protected $termService;
 
-    public function boot(DepartmentService $departmentService, StatisticsService $statisticsService)
+    public function boot(DepartmentService $departmentService, StatisticsService $statisticsService, TermService $termService)
     {
         $this->departmentService = $departmentService;
         $this->statisticsService = $statisticsService;
+        $this->termService = $termService;
     }
 
     public function mount()
@@ -53,6 +58,11 @@ class Dashboard extends Component
     public function getAvailableAcademicYears(): array
     {
         return $this->statisticsService->getAvailableAcademicYears();
+    }
+
+    public function getAvailableTermsProperty()
+    {
+        return $this->termService->getAllTermsOrdered();
     }
 
     public function getCampuses()
@@ -195,6 +205,10 @@ class Dashboard extends Component
         switch ($this->viewMode) {
             case 'year':
                 return $this->getYearColumns($start, $end);
+            case 'fiscal_year':
+                return $this->getFiscalYearColumns($start, $end);
+            case 'term':
+                return $this->getTermColumns($start, $end);
             case 'month':
                 return $this->getMonthColumns($start, $end);
             case 'day':
@@ -221,6 +235,66 @@ class Dashboard extends Component
                 'label' => "$ay-" . ($ay + 1),
                 'start' => "$ay-09-01",
                 'end' => ($ay + 1) . "-08-31"
+            ];
+        }
+
+        return $columns;
+    }
+
+    protected function getFiscalYearColumns($startFY, $endFY): array
+    {
+        $columns = [];
+        $years = range($startFY, $endFY);
+
+        if (count($years) > 5) {
+            $years = array_slice($years, -5);
+            $this->showTruncationWarning = true;
+            $this->truncationMessage = "Showing last 5 fiscal years of selected range (FY " . $years[0] . "-" . ($years[4] + 1) . ")";
+        }
+
+        foreach ($years as $fy) {
+            $columns[] = [
+                'key' => "fy_$fy",
+                'label' => "FY $fy-" . ($fy + 1),
+                'start' => "$fy-07-01",
+                'end' => ($fy + 1) . "-06-30"
+            ];
+        }
+
+        return $columns;
+    }
+
+    protected function getTermColumns($startTermId, $endTermId): array
+    {
+        $columns = [];
+
+        // Get start and end terms
+        $startTerm = AcademicTerm::find($startTermId);
+        $endTerm = AcademicTerm::find($endTermId);
+
+        if (!$startTerm || !$endTerm) {
+            return [];
+        }
+
+        // Get all terms between start and end dates
+        $terms = AcademicTerm::whereBetween('start_date', [
+            $startTerm->start_date,
+            $endTerm->end_date
+        ])->orderBy('start_date')->get();
+
+        if ($terms->count() > 8) {
+            $terms = $terms->slice(-8);
+            $this->showTruncationWarning = true;
+            $this->truncationMessage = "Showing last 8 terms of selected range";
+        }
+
+        foreach ($terms as $term) {
+            $yearPart = explode('-', $term->academic_year)[0];
+            $columns[] = [
+                'key' => "{$term->term_name}_{$term->academic_year}",
+                'label' => ucfirst($term->term_name) . ' ' . $yearPart,
+                'start' => $term->start_date->format('Y-m-d'),
+                'end' => $term->end_date->format('Y-m-d'),
             ];
         }
 
