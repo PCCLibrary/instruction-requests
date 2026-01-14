@@ -35,7 +35,7 @@ class AcademicTerm extends Model
     /**
      * Get distinct academic years, newest first.
      */
-    public static function distinctYears(): Collection
+    public static function distinctYears()
     {
         return static::select('academic_year')
             ->distinct()
