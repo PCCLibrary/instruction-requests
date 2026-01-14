@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\AcademicTerm;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class TermService
 {
@@ -68,5 +70,52 @@ class TermService
         }
 
         return $years;
+    }
+
+    /**
+     * Get term by date lookup.
+     */
+    public function getTermByDate(Carbon $date): ?AcademicTerm
+    {
+        return AcademicTerm::findByDate($date);
+    }
+
+    /**
+     * Get all terms for an academic year.
+     */
+    public function getTermsForYear(string $academicYear): Collection
+    {
+        return AcademicTerm::forYear($academicYear);
+    }
+
+    /**
+     * Get date range for a specific term.
+     */
+    public function getDateRangeForTerm(string $termName, string $academicYear): ?array
+    {
+        $term = AcademicTerm::where('academic_year', $academicYear)
+            ->where('term_name', $termName)
+            ->first();
+
+        return $term ? [
+            'start' => $term->start_date,
+            'end' => $term->end_date,
+        ] : null;
+    }
+
+    /**
+     * Get all available academic years from database.
+     */
+    public function getAvailableAcademicYears()
+    {
+        return AcademicTerm::distinctYears();
+    }
+
+    /**
+     * Get all terms ordered by start date (for dropdowns).
+     */
+    public function getAllTermsOrdered(): Collection
+    {
+        return AcademicTerm::orderBy('start_date')->get();
     }
 }
