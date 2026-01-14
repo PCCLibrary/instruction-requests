@@ -7,6 +7,7 @@ use App\Models\InstructionRequests;
 use App\Models\Instructor;
 use App\Services\DepartmentService;
 use App\Services\StatisticsService;
+use App\Services\TermService;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Writer\XLSX\Writer as XLSXWriter;
 use OpenSpout\Writer\CSV\Writer as CSVWriter;
@@ -31,11 +32,13 @@ class Dashboard extends Component
 
     protected $departmentService;
     protected $statisticsService;
+    protected $termService;
 
-    public function boot(DepartmentService $departmentService, StatisticsService $statisticsService)
+    public function boot(DepartmentService $departmentService, StatisticsService $statisticsService, TermService $termService)
     {
         $this->departmentService = $departmentService;
         $this->statisticsService = $statisticsService;
+        $this->termService = $termService;
     }
 
     public function mount()
