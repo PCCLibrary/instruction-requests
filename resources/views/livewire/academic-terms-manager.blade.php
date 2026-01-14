@@ -7,20 +7,34 @@
 
         <div class="p-2 space-y-1">
             @foreach($years as $year)
-                <button
-                    wire:click="selectYear('{{ $year }}')"
-                    class="w-full text-left px-4 py-2 rounded-md {{ $selectedYear === $year ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50' }}">
-                    <div class="text-sm font-semibold">{{ $year }}</div>
-                    @if($year === $currentYear)
-                        <div class="text-xs text-emerald-600 font-medium">Current</div>
-                        <div class="text-xs text-gray-400">Protected</div>
+                <div class="relative group">
+                    <button
+                        wire:click="selectYear('{{ $year }}')"
+                        class="w-full text-left px-4 py-2 rounded-md {{ $selectedYear === $year ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50' }}">
+                        <div class="text-sm font-semibold">{{ $year }}</div>
+                        @if($year === $currentYear)
+                            <div class="text-xs text-emerald-600 font-medium">Current</div>
+                            <div class="text-xs text-gray-400">Protected</div>
+                        @endif
+                    </button>
+
+                    @if($year !== $currentYear)
+                        <button
+                            wire:click="deleteYear('{{ $year }}')"
+                            wire:confirm="Are you sure you want to delete {{ $year }}? This will remove all term dates for this year."
+                            class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                            title="Delete {{ $year }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
                     @endif
-                </button>
+                </div>
             @endforeach
         </div>
 
         <div class="absolute bottom-0 w-64 p-4 bg-gray-50 border-t border-gray-200">
-            <button class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium">
+            <button wire:click="showCreateYearModal" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
                 Create New Year
             </button>
         </div>
@@ -151,4 +165,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Create Year Modal -->
+    @if($showCreateModal)
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-purple-500 px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-medium text-white">Create New Academic Year</h3>
+            </div>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Academic Year</label>
+                <input type="text" wire:model="newYear" placeholder="2026-2027"
+                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                <p class="text-xs text-gray-500 mt-2">Format: YYYY-YYYY (e.g., 2026-2027)</p>
+                @error('newYear') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            </div>
+            <div class="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end gap-3">
+                <button wire:click="$set('showCreateModal', false)" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button wire:click="createYear" class="px-6 py-2 bg-purple-500 text-white rounded-md text-sm font-medium hover:bg-purple-600">
+                    Create Year
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
