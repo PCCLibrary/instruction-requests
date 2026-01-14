@@ -17,6 +17,7 @@ use App\Http\Controllers\InstructionRequestDetailsController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\Auth\SamlAuthController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\AcademicTermController;
 
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Log;
@@ -126,6 +127,16 @@ Route::middleware(['auth'])->prefix('statistics')->name('statistics.')->group(fu
     Route::get('/trends', [App\Http\Controllers\StatisticsController::class, 'trends'])->name('trends');
     Route::get('/detailed-export', [App\Http\Controllers\StatisticsController::class, 'detailedExport'])->name('detailed-export');
     Route::get('/comparison', [App\Http\Controllers\StatisticsController::class, 'comparison'])->name('comparison');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Academic Terms Management Routes (Top-Level Section)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/academic-terms', [AcademicTermController::class, 'index'])
+        ->name('academic-terms.index');
 });
 
 /*
