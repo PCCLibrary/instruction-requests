@@ -50,6 +50,32 @@ class Dashboard extends Component
         $this->endPeriod = array_key_last($availableYears);
     }
 
+    public function updatedViewMode($value)
+    {
+        // Reset start/end periods when view mode changes to prevent data type mismatches
+        if ($value === 'year' || $value === 'fiscal_year') {
+            // Reset to academic years
+            $availableYears = $this->statisticsService->getAvailableAcademicYears();
+            $this->startPeriod = array_key_first($availableYears);
+            $this->endPeriod = array_key_last($availableYears);
+        } elseif ($value === 'term') {
+            // Reset to first and last terms
+            $terms = $this->availableTerms;
+            if ($terms->isNotEmpty()) {
+                $this->startPeriod = $terms->first()->id;
+                $this->endPeriod = $terms->last()->id;
+            }
+        } elseif ($value === 'month') {
+            // Reset to current month
+            $this->startPeriod = now()->format('Y-m');
+            $this->endPeriod = now()->format('Y-m');
+        } elseif ($value === 'day') {
+            // Reset to current date range (30 days)
+            $this->startPeriod = now()->subDays(30)->format('Y-m-d');
+            $this->endPeriod = now()->format('Y-m-d');
+        }
+    }
+
     public function getCurrentAcademicYear(): int
     {
         return $this->statisticsService->getCurrentAcademicYear();
@@ -172,6 +198,7 @@ class Dashboard extends Component
     public function clearFilters()
     {
         $currentAcademicYear = $this->getCurrentAcademicYear();
+        $this->activeTab = 'institutional';
         $this->viewMode = 'year';
         $this->startPeriod = $currentAcademicYear;
         $this->endPeriod = $currentAcademicYear;
@@ -276,11 +303,11 @@ class Dashboard extends Component
             return [];
         }
 
-        // Get all terms between start and end dates
-        $terms = AcademicTerm::whereBetween('start_date', [
-            $startTerm->start_date,
-            $endTerm->end_date
-        ])->orderBy('start_date')->get();
+        // Get all terms between start_date and end_date (inclusive)
+        $terms = AcademicTerm::where('start_date', '>=', $startTerm->start_date)
+            ->where('start_date', '<=', $endTerm->end_date)
+            ->orderBy('start_date')
+            ->get();
 
         if ($terms->count() > 8) {
             $terms = $terms->slice(-8);
@@ -507,6 +534,7 @@ class Dashboard extends Component
 
         return view('livewire.statistics.dashboard', [
             'availableAcademicYears' => $this->getAvailableAcademicYears(),
+            'availableTerms' => $this->availableTerms,
             'campuses' => $this->getCampuses(),
             'departments' => $this->getDepartments(),
             'instructors' => $this->getInstructors(),

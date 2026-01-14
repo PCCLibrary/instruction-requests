@@ -16,74 +16,154 @@
 
         <!-- Filter Content -->
         <div x-show="filtersExpanded" x-collapse class="p-4">
-            <!-- View Mode Selection -->
+            <!-- Tabs -->
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    View By
-                </label>
-                <div class="flex gap-2">
-                    <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
-                           :class="$wire.viewMode === 'year' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
-                        <input type="radio" wire:model.live="viewMode" value="year" class="mr-2">
-                        <span class="text-sm dark:text-white">Year</span>
-                    </label>
-                    <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
-                           :class="$wire.viewMode === 'month' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
-                        <input type="radio" wire:model.live="viewMode" value="month" class="mr-2">
-                        <span class="text-sm dark:text-white">Month</span>
-                    </label>
-                    <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
-                           :class="$wire.viewMode === 'day' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
-                        <input type="radio" wire:model.live="viewMode" value="day" class="mr-2">
-                        <span class="text-sm dark:text-white">Day</span>
-                    </label>
-                </div>
-            </div>
+                <div class="flex border-b border-gray-200 dark:border-gray-600">
+                    <button
+                        wire:click="$set('activeTab', 'institutional')"
+                        class="flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all"
+                        :class="$wire.activeTab === 'institutional' ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Institutional Periods</span>
+                    </button>
 
-            <!-- Date Range Selection -->
-            <div class="mb-4">
-                @if($viewMode === 'year')
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Academic Year</label>
-                            <select wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                                @foreach($availableAcademicYears as $ay => $label)
-                                    <option value="{{ $ay }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
+                    <button
+                        wire:click="$set('activeTab', 'custom')"
+                        class="flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all"
+                        :class="$wire.activeTab === 'custom' ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Custom Range</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="mt-4">
+                    <!-- Institutional Periods Tab -->
+                    <div x-show="$wire.activeTab === 'institutional'" x-cloak>
+                        <!-- View Mode Selection -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">View By</label>
+                            <div class="flex gap-2 flex-wrap">
+                                <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
+                                       :class="$wire.viewMode === 'year' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
+                                    <input type="radio" wire:model.live="viewMode" value="year" class="mr-2">
+                                    <span class="text-sm dark:text-white">Academic Year</span>
+                                </label>
+
+                                <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
+                                       :class="$wire.viewMode === 'fiscal_year' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
+                                    <input type="radio" wire:model.live="viewMode" value="fiscal_year" class="mr-2">
+                                    <span class="text-sm dark:text-white">Fiscal Year</span>
+                                </label>
+
+                                <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
+                                       :class="$wire.viewMode === 'term' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
+                                    <input type="radio" wire:model.live="viewMode" value="term" class="mr-2">
+                                    <span class="text-sm dark:text-white">Term</span>
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Academic Year</label>
-                            <select wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                                @foreach($availableAcademicYears as $ay => $label)
-                                    <option value="{{ $ay }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
+
+                        <!-- Period Selection -->
+                        <div class="mb-4">
+                            @if($viewMode === 'year' || $viewMode === 'fiscal_year')
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Start {{ $viewMode === 'fiscal_year' ? 'Fiscal' : 'Academic' }} Year
+                                        </label>
+                                        <select wire:model.live="startPeriod" wire:key="start-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                            @foreach($availableAcademicYears as $ay => $label)
+                                                <option value="{{ $ay }}">{{ $viewMode === 'fiscal_year' ? 'FY ' : '' }}{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            End {{ $viewMode === 'fiscal_year' ? 'Fiscal' : 'Academic' }} Year
+                                        </label>
+                                        <select wire:model.live="endPeriod" wire:key="end-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                            @foreach($availableAcademicYears as $ay => $label)
+                                                <option value="{{ $ay }}">{{ $viewMode === 'fiscal_year' ? 'FY ' : '' }}{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @elseif($viewMode === 'term')
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Term</label>
+                                        <select wire:model.live="startPeriod" wire:key="start-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                            @foreach($availableTerms as $term)
+                                                <option value="{{ $term->id }}">{{ ucfirst($term->term_name) }} {{ explode('-', $term->academic_year)[0] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Term</label>
+                                        <select wire:model.live="endPeriod" wire:key="end-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                            @foreach($availableTerms as $term)
+                                                <option value="{{ $term->id }}">{{ ucfirst($term->term_name) }} {{ explode('-', $term->academic_year)[0] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @elseif($viewMode === 'month')
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Month</label>
-                            <input type="month" wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+
+                    <!-- Custom Range Tab -->
+                    <div x-show="$wire.activeTab === 'custom'" x-cloak>
+                        <!-- View Mode Selection -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">View By</label>
+                            <div class="flex gap-2">
+                                <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
+                                       :class="$wire.viewMode === 'month' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
+                                    <input type="radio" wire:model.live="viewMode" value="month" class="mr-2">
+                                    <span class="text-sm dark:text-white">Month</span>
+                                </label>
+
+                                <label class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
+                                       :class="$wire.viewMode === 'day' ? 'bg-blue-50 dark:bg-blue-900 border-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-700'">
+                                    <input type="radio" wire:model.live="viewMode" value="day" class="mr-2">
+                                    <span class="text-sm dark:text-white">Date Range</span>
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Month</label>
-                            <input type="month" wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+
+                        <!-- Date Selection -->
+                        <div class="mb-4">
+                            @if($viewMode === 'month')
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Month</label>
+                                        <input type="month" wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Month</label>
+                                        <input type="month" wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                </div>
+                            @else
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                                        <input type="date" wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                                        <input type="date" wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @else
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                            <input type="date" wire:model.live="startPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                            <input type="date" wire:model.live="endPeriod" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
-                        </div>
-                    </div>
-                @endif
+                </div>
             </div>
 
             <!-- Secondary Filters -->
