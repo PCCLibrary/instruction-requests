@@ -77,6 +77,17 @@
             <x-heroicon-o-user class="w-5 h-5 mr-3" />
             {{ __('Librarians') }}
         </a>
+
+        @if(auth()->check() && auth()->user()->is_scheduler)
+            {{-- Separator --}}
+            <div class="border-t border-cyan-600 dark:border-gray-700 my-2"></div>
+
+            <a href="{{ route('academic-terms.index') }}"
+               class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors {{ Route::is('academic-terms.*') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-200 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+                <x-heroicon-o-calendar class="w-5 h-5 mr-3" />
+                {{ __('Academic Terms') }}
+            </a>
+        @endif
     </nav>
 </aside>
 
