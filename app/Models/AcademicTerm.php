@@ -52,4 +52,30 @@ class AcademicTerm extends Model
             ->whereDate('end_date', '>=', $date)
             ->first();
     }
+
+    /**
+     * Get the correct display year for this term.
+     * Fall terms use the first year, all other terms use the second year.
+     *
+     * Example: For academic year "2024-2025":
+     * - Fall 2024
+     * - Winter 2025
+     * - Spring 2025
+     * - Summer 2025
+     */
+    public function getDisplayYearAttribute(): string
+    {
+        $years = explode('-', $this->academic_year);
+
+        // Fall term uses first year, all others use second year
+        return $this->term_name === 'fall' ? $years[0] : $years[1];
+    }
+
+    /**
+     * Get the full formatted name (e.g., "Fall 2024", "Winter 2025").
+     */
+    public function getFullNameAttribute(): string
+    {
+        return ucfirst($this->term_name) . ' ' . $this->display_year;
+    }
 }

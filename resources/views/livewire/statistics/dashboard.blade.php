@@ -99,7 +99,7 @@
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Term</label>
                                         <select wire:model.live="startPeriod" wire:key="start-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
                                             @foreach($availableTerms as $term)
-                                                <option value="{{ $term->id }}">{{ ucfirst($term->term_name) }} {{ explode('-', $term->academic_year)[0] }}</option>
+                                                <option value="{{ $term->id }}">{{ $term->full_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -107,7 +107,7 @@
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Term</label>
                                         <select wire:model.live="endPeriod" wire:key="end-period-{{ $viewMode }}" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:text-white">
                                             @foreach($availableTerms as $term)
-                                                <option value="{{ $term->id }}">{{ ucfirst($term->term_name) }} {{ explode('-', $term->academic_year)[0] }}</option>
+                                                <option value="{{ $term->id }}">{{ $term->full_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
