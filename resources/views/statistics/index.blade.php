@@ -43,25 +43,25 @@
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="flex-shrink-0">
-                            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                <x-heroicon-o-table-cells class="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                            <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                                <x-heroicon-o-table-cells class="w-8 h-8 text-purple-600 dark:text-purple-300" />
                             </div>
                         </div>
                         <div>
                             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Detailed Export</h2>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                Coming Soon
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                Available Now
                             </span>
                         </div>
                     </div>
                     <p class="text-gray-600 dark:text-gray-300 mb-4">
-                        Export individual session data with all fields including instructor, course, campus, date, duration, and student count.
+                        Export individual session data with customizable columns including instructor, course, campus, date, duration, and learning outcomes.
                     </p>
-                    <button disabled
-                            class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 rounded-lg cursor-not-allowed">
-                        <x-heroicon-o-lock-closed class="w-4 h-4 mr-2" />
-                        In Development
-                    </button>
+                    <a href="{{ route('statistics.detailed-export') }}"
+                       class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">
+                        <x-heroicon-o-arrow-right class="w-4 h-4 mr-2" />
+                        View Detailed Export
+                    </a>
                 </div>
             </div>
         </div>
