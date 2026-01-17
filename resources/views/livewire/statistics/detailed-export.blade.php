@@ -402,6 +402,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
                         </svg>
                         <span>Customize Fields</span>
+                        <span class="bg-blue-600 dark:bg-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                            {{ $this->selectedColumnCount }}
+                        </span>
                     </button>
                 </div>
                 <div class="flex flex-wrap gap-2 justify-end">
@@ -494,46 +497,190 @@
                     </button>
                 </div>
 
-                <!-- 3-Column Layout -->
-                <div class="grid grid-cols-3 gap-6">
-                    <!-- Column 1 -->
-                    <div class="space-y-4">
+                <!-- 2-Column Balanced Layout with Checkboxes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- Request Information -->
+                        @if(isset($tempColumnVisibility['request_information']))
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Request Information</label>
-                            <select multiple size="5" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>ID</option>
-                                <option>Status</option>
-                                <option>Instruction Type</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Request Information
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['request_information'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.request_information.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
+                        @endif
+
+                        <!-- Course Information -->
+                        @if(isset($tempColumnVisibility['course_information']))
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Course Information
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['course_information'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.course_information.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Scheduling -->
+                        @if(isset($tempColumnVisibility['scheduling']))
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Scheduling
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['scheduling'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.scheduling.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
 
-                    <!-- Column 2 -->
-                    <div class="space-y-4">
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Instructor Information -->
+                        @if(isset($tempColumnVisibility['instructor_information']))
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Scheduling</label>
-                            <select multiple size="4" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>Date/Time</option>
-                                <option>Duration</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Instructor Information
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['instructor_information'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.instructor_information.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
+                        @endif
 
-                    <!-- Column 3 -->
-                    <div class="space-y-4">
+                        <!-- Librarian Information -->
+                        @if(isset($tempColumnVisibility['librarian_information']))
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Librarian</label>
-                            <select multiple size="2" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>Assigned Librarian</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Librarian Information
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['librarian_information'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.librarian_information.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
+                        @endif
+
+                        <!-- Instruction Goals -->
+                        @if(isset($tempColumnVisibility['instruction_goals']))
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Instruction Goals
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['instruction_goals'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.instruction_goals.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- ADA Provisions -->
+                        @if(isset($tempColumnVisibility['ada_provisions']))
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                ADA Provisions
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['ada_provisions'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.ada_provisions.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Materials Created -->
+                        @if(isset($tempColumnVisibility['materials_created']))
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                Materials Created
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($tempColumnVisibility['materials_created'] as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.materials_created.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                <button @click="showColumnModal = false" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
+            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+                <button @click="showColumnModal = false" class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white">
+                    Cancel
+                </button>
+                <button wire:click="applyColumnVisibility" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
                     Apply
                 </button>
             </div>
@@ -542,6 +689,68 @@
 
     <!-- PowerGrid Data Table -->
     <div class="mt-6">
-        <livewire:statistics.detailed-export-table />
+        <livewire:statistics.detailed-export-table
+            :visible-columns="$this->visibleColumns"
+            wire:key="detailed-export-table-{{ $columnVisibilityKey }}" />
     </div>
+
+    <!-- Report Summary Header -->
+    <div class="mt-6 mb-3">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Report Summary</h3>
+    </div>
+
+    <!-- Summary Stats -->
+    <x-status-bar
+        containerClass=""
+        :items="[
+            [
+                'iconBgColor' => 'bg-blue-500',
+                'icon' => 'chart-bar',
+                'infoBoxText' => 'Total Sessions',
+                'count' => number_format($totalSessions)
+            ],
+            [
+                'iconBgColor' => 'bg-green-500',
+                'icon' => 'user-group',
+                'infoBoxText' => 'Students Reached',
+                'count' => number_format($totalStudents)
+            ],
+            [
+                'iconBgColor' => 'bg-amber-500',
+                'icon' => 'academic-cap',
+                'infoBoxText' => 'Unique Classes',
+                'count' => number_format($uniqueClasses)
+            ],
+            [
+                'iconBgColor' => 'bg-emerald-500',
+                'icon' => 'check-circle',
+                'infoBoxText' => 'Completed',
+                'count' => number_format($completedSessions) . ' (' . number_format($completedPercentage, 1) . '%)'
+            ],
+            [
+                'iconBgColor' => 'bg-teal-500',
+                'icon' => 'heart',
+                'infoBoxText' => 'ADA Sessions',
+                'count' => number_format($adaSessions) . ' (' . number_format($adaPercentage, 1) . '%)'
+            ],
+            [
+                'iconBgColor' => 'bg-purple-500',
+                'icon' => 'sparkles',
+                'infoBoxText' => 'GenAI Sessions',
+                'count' => number_format($genaiSessions) . ' (' . number_format($genaiPercentage, 1) . '%)'
+            ],
+            [
+                'iconBgColor' => 'bg-indigo-500',
+                'icon' => 'users',
+                'infoBoxText' => 'Avg Class Size',
+                'count' => number_format($avgClassSize, 1)
+            ],
+            [
+                'iconBgColor' => 'bg-pink-500',
+                'icon' => 'clock',
+                'infoBoxText' => 'Avg Session Duration',
+                'count' => number_format($avgDuration) . ' min'
+            ]
+        ]"
+    />
 </div>
