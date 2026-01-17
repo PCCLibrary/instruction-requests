@@ -30,6 +30,8 @@ class DetailedExport extends Component
 
     public $showColumnModal = false;
     public $columnVisibility = [];
+    public $tempColumnVisibility = []; // Staging array for modal changes
+    public $columnVisibilityKey; // Unique key to force PowerGrid re-mount
 
     protected $departmentService;
     protected $statisticsService;
@@ -42,13 +44,55 @@ class DetailedExport extends Component
         $this->termService = $termService;
     }
 
+    /**
+     * Computed property to extract visible column IDs
+     * This will be passed to the PowerGrid child component
+     */
+    public function getVisibleColumnsProperty()
+    {
+        $visibleIds = [];
+        foreach ($this->columnVisibility as $group => $columns) {
+            foreach ($columns as $column) {
+                if ($column['visible']) {
+                    $visibleIds[] = $column['id'];
+                }
+            }
+        }
+        return $visibleIds;
+    }
+
     public function mount()
     {
         $availableYears = $this->statisticsService->getAvailableAcademicYears();
         $this->startPeriod = array_key_first($availableYears);
         $this->endPeriod = array_key_last($availableYears);
 
+        // Initialize column visibility from session or defaults
         $this->initializeColumnVisibility();
+
+        // Load persisted column visibility from session (user-specific)
+        $sessionKey = 'detailed_export_columns_' . auth()->id();
+        $savedVisibility = session($sessionKey);
+
+        if ($savedVisibility) {
+            // Merge saved state with current structure (in case new columns added)
+            foreach ($this->columnVisibility as $group => &$columns) {
+                if (isset($savedVisibility[$group])) {
+                    foreach ($columns as $index => &$column) {
+                        $savedColumn = collect($savedVisibility[$group])->firstWhere('id', $column['id']);
+                        if ($savedColumn) {
+                            $column['visible'] = $savedColumn['visible'];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Initialize temp with actual column visibility state
+        $this->tempColumnVisibility = $this->columnVisibility;
+
+        // Initialize unique key for PowerGrid component
+        $this->columnVisibilityKey = uniqid();
 
         // Dispatch initial filters to table on load
         $this->dispatchFiltersToTable();
@@ -305,12 +349,33 @@ class DetailedExport extends Component
 
     public function toggleColumnModal()
     {
+        if (!$this->showColumnModal) {
+            // Opening modal - sync temp with current state
+            $this->tempColumnVisibility = $this->columnVisibility;
+        }
         $this->showColumnModal = !$this->showColumnModal;
+    }
+
+    public function applyColumnVisibility()
+    {
+        // Copy temp to actual
+        $this->columnVisibility = $this->tempColumnVisibility;
+
+        // Persist to session (user-specific)
+        $sessionKey = 'detailed_export_columns_' . auth()->id();
+        session([$sessionKey => $this->columnVisibility]);
+
+        // CRITICAL: Change key to force PowerGrid component re-mount
+        // This ensures columns() method is called again with new visibility state
+        $this->columnVisibilityKey = uniqid();
+
+        // Close modal
+        $this->showColumnModal = false;
     }
 
     public function selectAllColumns()
     {
-        foreach ($this->columnVisibility as $group => &$columns) {
+        foreach ($this->tempColumnVisibility as $group => &$columns) {
             foreach ($columns as &$column) {
                 $column['visible'] = true;
             }
@@ -319,7 +384,7 @@ class DetailedExport extends Component
 
     public function deselectAllColumns()
     {
-        foreach ($this->columnVisibility as $group => &$columns) {
+        foreach ($this->tempColumnVisibility as $group => &$columns) {
             foreach ($columns as &$column) {
                 $column['visible'] = false;
             }
@@ -333,8 +398,67 @@ class DetailedExport extends Component
                 ['id' => 'id', 'label' => 'ID', 'visible' => true],
                 ['id' => 'status', 'label' => 'Status', 'visible' => true],
                 ['id' => 'instruction_type', 'label' => 'Instruction Type', 'visible' => true],
+                ['id' => 'number_of_students', 'label' => 'Number of Students', 'visible' => true],
+                ['id' => 'created_at_formatted', 'label' => 'Created Date', 'visible' => true],
+            ],
+            'course_information' => [
+                ['id' => 'campus_name', 'label' => 'Campus', 'visible' => true],
+                ['id' => 'department', 'label' => 'Department', 'visible' => true],
+                ['id' => 'course_number', 'label' => 'Course Number', 'visible' => true],
+                ['id' => 'course_crn', 'label' => 'Course CRN', 'visible' => true],
+            ],
+            'instructor_information' => [
+                ['id' => 'instructor_name', 'label' => 'Instructor Name', 'visible' => true],
+                ['id' => 'instructor_email', 'label' => 'Instructor Email', 'visible' => true],
+            ],
+            'librarian_information' => [
+                ['id' => 'requested_librarian_name', 'label' => 'Requested Librarian', 'visible' => true],
+                ['id' => 'librarian_name', 'label' => 'Assigned Librarian', 'visible' => true],
+            ],
+            'scheduling' => [
+                ['id' => 'preferred_datetime', 'label' => 'Preferred Date & Time', 'visible' => true],
+                ['id' => 'alternate_datetime', 'label' => 'Alternate Date & Time', 'visible' => true],
+                ['id' => 'duration', 'label' => 'Duration', 'visible' => true],
+                ['id' => 'asynchronous_instruction_ready_date', 'label' => 'Async Ready Date', 'visible' => true],
+                ['id' => 'instruction_datetime_formatted', 'label' => 'Instruction Date/Time', 'visible' => true],
+                ['id' => 'instruction_duration', 'label' => 'Instruction Duration', 'visible' => true],
+                ['id' => 'room', 'label' => 'Room', 'visible' => true],
+            ],
+            'instruction_goals' => [
+                ['id' => 'genai_discussion_interest', 'label' => 'GenAI Discussion Interest', 'visible' => true],
+            ],
+            'ada_provisions' => [
+                ['id' => 'ada_provisions_needed', 'label' => 'ADA Provisions Needed', 'visible' => true],
+                ['id' => 'ada_provisions_description', 'label' => 'ADA Accommodations Description', 'visible' => true],
+            ],
+            'materials_created' => [
+                ['id' => 'video', 'label' => 'Video', 'visible' => true],
+                ['id' => 'non_video', 'label' => 'Non-Video', 'visible' => true],
+                ['id' => 'modified_tutorial', 'label' => 'Modified Tutorial', 'visible' => true],
+                ['id' => 'embedded', 'label' => 'Embedded', 'visible' => true],
+                ['id' => 'research_guide', 'label' => 'Research Guide', 'visible' => true],
+                ['id' => 'handout', 'label' => 'Handout', 'visible' => true],
+                ['id' => 'developed_assignment', 'label' => 'Developed Assignment', 'visible' => true],
+                ['id' => 'other_materials', 'label' => 'Other Materials', 'visible' => true],
+                ['id' => 'other_describe', 'label' => 'Other Materials Description', 'visible' => true],
             ],
         ];
+    }
+
+    /**
+     * Get count of selected columns
+     */
+    public function getSelectedColumnCountProperty()
+    {
+        $count = 0;
+        foreach ($this->columnVisibility as $group => $columns) {
+            foreach ($columns as $column) {
+                if ($column['visible']) {
+                    $count++;
+                }
+            }
+        }
+        return $count;
     }
 
     public function render()

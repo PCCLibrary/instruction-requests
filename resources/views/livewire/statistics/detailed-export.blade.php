@@ -402,6 +402,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
                         </svg>
                         <span>Customize Fields</span>
+                        <span class="bg-blue-600 dark:bg-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                            {{ $this->selectedColumnCount }}
+                        </span>
                     </button>
                 </div>
                 <div class="flex flex-wrap gap-2 justify-end">
@@ -494,46 +497,36 @@
                     </button>
                 </div>
 
-                <!-- 3-Column Layout -->
-                <div class="grid grid-cols-3 gap-6">
-                    <!-- Column 1 -->
-                    <div class="space-y-4">
+                <!-- 3-Column Layout with Checkboxes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($tempColumnVisibility as $groupKey => $columns)
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Request Information</label>
-                            <select multiple size="5" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>ID</option>
-                                <option>Status</option>
-                                <option>Instruction Type</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                {{ str_replace('_', ' ', $groupKey) }}
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($columns as $index => $column)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="tempColumnVisibility.{{ $groupKey }}.{{ $index }}.visible"
+                                            class="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 dark:bg-gray-700"
+                                        >
+                                        <span>{{ $column['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Column 2 -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Scheduling</label>
-                            <select multiple size="4" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>Date/Time</option>
-                                <option>Duration</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Column 3 -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Librarian</label>
-                            <select multiple size="2" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
-                                <option>Assigned Librarian</option>
-                            </select>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                <button @click="showColumnModal = false" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
+            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+                <button @click="showColumnModal = false" class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white">
+                    Cancel
+                </button>
+                <button wire:click="applyColumnVisibility" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
                     Apply
                 </button>
             </div>
@@ -542,6 +535,8 @@
 
     <!-- PowerGrid Data Table -->
     <div class="mt-6">
-        <livewire:statistics.detailed-export-table />
+        <livewire:statistics.detailed-export-table
+            :visible-columns="$this->visibleColumns"
+            wire:key="detailed-export-table-{{ $columnVisibilityKey }}" />
     </div>
 </div>
