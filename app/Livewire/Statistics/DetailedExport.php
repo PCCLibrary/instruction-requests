@@ -476,7 +476,10 @@ class DetailedExport extends Component
 
         // Apply date range filter
         if ($startDate && $endDate) {
-            $query->whereBetween('instruction_requests.created_at', [$startDate, $endDate]);
+            $query->whereBetween('instruction_request_details.instruction_datetime', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59'
+            ]);
         }
 
         // Apply secondary filters (same as table)
