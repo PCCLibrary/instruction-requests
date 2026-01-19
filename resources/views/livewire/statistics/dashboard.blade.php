@@ -578,7 +578,7 @@
                 'iconBgColor' => 'bg-emerald-500',
                 'icon' => 'check-circle',
                 'infoBoxText' => 'Completed',
-                'count' => number_format($completedOnly)
+                'count' => number_format($completedSessions)
             ],
             [
                 'iconBgColor' => 'bg-pink-500',

@@ -491,7 +491,7 @@ class Dashboard extends Component
             'adaSessions' => $summaryMetrics['adaSessions'],
             'adaPercentage' => $summaryMetrics['adaPercentage'],
             'scheduledAndCompleted' => $summaryMetrics['scheduledAndCompleted'],
-            'completedOnly' => $summaryMetrics['completedOnly'],
+            'completedSessions' => $summaryMetrics['completedSessions'],
             'avgSessionDuration' => $summaryMetrics['avgSessionDuration']
         ]);
     }
