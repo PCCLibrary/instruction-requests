@@ -316,10 +316,9 @@ class Dashboard extends Component
         }
 
         foreach ($terms as $term) {
-            $yearPart = explode('-', $term->academic_year)[0];
             $columns[] = [
                 'key' => "{$term->term_name}_{$term->academic_year}",
-                'label' => ucfirst($term->term_name) . ' ' . $yearPart,
+                'label' => $term->full_name,
                 'start' => $term->start_date->format('Y-m-d'),
                 'end' => $term->end_date->format('Y-m-d'),
             ];
