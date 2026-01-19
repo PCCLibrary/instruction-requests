@@ -156,73 +156,17 @@ class DetailedExport extends Component
 
     public function getFilteredInstructorsProperty()
     {
-        $query = Instructor::query();
-
-        if (!empty($this->instructorSearch)) {
-            $search = strtolower($this->instructorSearch);
-
-            $query->where(function($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
-            });
-        }
-
-        return $query->orderBy('display_name')
-                     ->limit(100)
-                     ->get();
+        return $this->statisticsService->getFilteredInstructors($this->instructorSearch);
     }
 
     public function getFilteredDepartmentsProperty()
     {
-        $allDepartments = $this->departmentService->getAllDepartments();
-
-        if (empty($this->departmentSearch)) {
-            return $allDepartments;
-        }
-
-        $search = strtolower($this->departmentSearch);
-        $filtered = [];
-
-        foreach ($allDepartments as $code => $name) {
-            if (str_contains(strtolower($name), $search) || str_contains(strtolower($code), $search)) {
-                $filtered[$code] = $name;
-            }
-        }
-
-        return $filtered;
+        return $this->statisticsService->getFilteredDepartments($this->departmentSearch);
     }
 
     public function getFilteredClassesProperty()
     {
-        $query = InstructionRequests::select(
-            DB::raw("DISTINCT CONCAT(UPPER(department), '-', course_number) as class_code"),
-            'department',
-            'course_number'
-        )
-        ->whereNotNull('department')
-        ->whereNotNull('course_number')
-        ->where('department', '!=', '')
-        ->where('course_number', '!=', '')
-        ->orderBy('department')
-        ->orderBy('course_number');
-
-        $classes = $query->get()->map(function($item) {
-            return [
-                'code' => $item->class_code,
-                'display' => str_replace('-', ' ', $item->class_code)
-            ];
-        });
-
-        if (empty($this->classSearch)) {
-            return $classes->take(100);
-        }
-
-        $search = strtolower($this->classSearch);
-        return $classes->filter(function($class) use ($search) {
-            return str_contains(strtolower($class['display']), $search) ||
-                   str_contains(strtolower($class['code']), $search);
-        })->take(100);
+        return $this->statisticsService->getFilteredClasses($this->classSearch);
     }
 
     public function updatedInstructorSearch()
@@ -285,52 +229,11 @@ class DetailedExport extends Component
      */
     private function convertPeriodsToDateRange(): array
     {
-        switch ($this->viewMode) {
-            case 'year':
-                $endYear = (int) $this->endPeriod;
-                return [
-                    "{$this->startPeriod}-09-01",
-                    ($endYear + 1) . "-08-31"
-                ];
-
-            case 'fiscal_year':
-                $endYear = (int) $this->endPeriod;
-                return [
-                    "{$this->startPeriod}-07-01",
-                    ($endYear + 1) . "-06-30"
-                ];
-
-            case 'term':
-                $startTerm = AcademicTerm::find($this->startPeriod);
-                $endTerm = AcademicTerm::find($this->endPeriod);
-
-                // Handle case where terms aren't found (e.g., switching from year mode)
-                if (!$startTerm || !$endTerm) {
-                    // Fallback to current academic year
-                    $currentYear = $this->getCurrentAcademicYear();
-                    return [
-                        "{$currentYear}-09-01",
-                        ($currentYear + 1) . "-08-31"
-                    ];
-                }
-
-                return [
-                    $startTerm->start_date->format('Y-m-d'),
-                    $endTerm->end_date->format('Y-m-d')
-                ];
-
-            case 'month':
-                return [
-                    $this->startPeriod . '-01',
-                    Carbon::parse($this->endPeriod)->endOfMonth()->format('Y-m-d')
-                ];
-
-            case 'day':
-                return [$this->startPeriod, $this->endPeriod];
-
-            default:
-                return [now()->subDays(30)->format('Y-m-d'), now()->format('Y-m-d')];
-        }
+        return $this->statisticsService->convertPeriodsToDateRange(
+            $this->viewMode,
+            $this->startPeriod,
+            $this->endPeriod
+        );
     }
 
     /**

@@ -25,4 +25,9 @@ class StatisticsController extends Controller
     {
         return view('statistics.comparison');
     }
+
+    public function summaryReport()
+    {
+        return view('statistics.summary-report');
+    }
 }

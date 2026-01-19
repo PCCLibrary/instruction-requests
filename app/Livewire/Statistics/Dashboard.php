@@ -108,73 +108,17 @@ class Dashboard extends Component
 
     public function getFilteredInstructorsProperty()
     {
-        $query = Instructor::query();
-
-        if (!empty($this->instructorSearch)) {
-            $search = strtolower($this->instructorSearch);
-
-            $query->where(function($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(display_name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
-            });
-        }
-
-        return $query->orderBy('display_name')
-                     ->limit(100)
-                     ->get();
+        return $this->statisticsService->getFilteredInstructors($this->instructorSearch);
     }
 
     public function getFilteredDepartmentsProperty()
     {
-        $allDepartments = $this->departmentService->getAllDepartments();
-
-        if (empty($this->departmentSearch)) {
-            return $allDepartments;
-        }
-
-        $search = strtolower($this->departmentSearch);
-        $filtered = [];
-
-        foreach ($allDepartments as $code => $name) {
-            if (str_contains(strtolower($name), $search) || str_contains(strtolower($code), $search)) {
-                $filtered[$code] = $name;
-            }
-        }
-
-        return $filtered;
+        return $this->statisticsService->getFilteredDepartments($this->departmentSearch);
     }
 
     public function getFilteredClassesProperty()
     {
-        $query = InstructionRequests::select(
-            DB::raw("DISTINCT CONCAT(UPPER(department), '-', course_number) as class_code"),
-            'department',
-            'course_number'
-        )
-        ->whereNotNull('department')
-        ->whereNotNull('course_number')
-        ->where('department', '!=', '')
-        ->where('course_number', '!=', '')
-        ->orderBy('department')
-        ->orderBy('course_number');
-
-        $classes = $query->get()->map(function($item) {
-            return [
-                'code' => $item->class_code,
-                'display' => str_replace('-', ' ', $item->class_code)
-            ];
-        });
-
-        if (empty($this->classSearch)) {
-            return $classes->take(100);
-        }
-
-        $search = strtolower($this->classSearch);
-        return $classes->filter(function($class) use ($search) {
-            return str_contains(strtolower($class['display']), $search) ||
-                   str_contains(strtolower($class['code']), $search);
-        })->take(100);
+        return $this->statisticsService->getFilteredClasses($this->classSearch);
     }
 
     public function updatedInstructorSearch()

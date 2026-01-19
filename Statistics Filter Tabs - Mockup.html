@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Filter Tabs - Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-btn {
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #374151;
+        }
+        .tab-content {
+            animation: fadeIn 0.2s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Main Filter Panel -->
+        <div class="mb-6 bg-white rounded-lg shadow border border-gray-200">
+            <!-- Filter Header -->
+            <div class="bg-purple-500 px-4 py-3 rounded-t-lg flex items-center justify-between">
+                <h3 class="text-lg font-medium text-white">Report Filters</h3>
+                <button onclick="toggleFilters()" id="collapseBtn" class="text-white hover:text-gray-200">
+                    <svg id="collapseIcon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Filter Content -->
+            <div id="filterContent" class="p-4">
+                <!-- Tabs -->
+                <div class="mb-4">
+                    <div class="flex border-b border-gray-200">
+                        <button onclick="switchTab('institutional')" id="tab-institutional" class="tab-btn active flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Institutional Periods</span>
+                        </button>
+                        <button onclick="switchTab('custom')" id="tab-custom" class="tab-btn flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Custom Range</span>
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="mt-4">
+                        <!-- Institutional Periods Tab -->
+                        <div id="content-institutional" class="tab-content">
+                            <!-- View Mode Selection -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">View By</label>
+                                <div class="flex gap-2">
+                                    <label onclick="selectViewMode('academic_year')" id="view-academic_year" class="flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer bg-blue-50 border-blue-500">
+                                        <input type="radio" name="viewMode" checked class="mr-2">
+                                        <span class="text-sm">Academic Year</span>
+                                    </label>
+                                    <label onclick="selectViewMode('fiscal_year')" id="view-fiscal_year" class="flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="viewMode" class="mr-2">
+                                        <span class="text-sm">Fiscal Year</span>
+                                    </label>
+                                    <label onclick="selectViewMode('term')" id="view-term" class="flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="viewMode" class="mr-2">
+                                        <span class="text-sm">Term</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Period Selection -->
+                            <div class="mb-4">
+                                <!-- Year Selection -->
+                                <div id="year-selection">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Start <span id="year-type">Academic</span> Year</label>
+                                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option>2023-2024</option>
+                                                <option selected>2024-2025</option>
+                                                <option>2025-2026</option>
+                                                <option>2026-2027</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">End <span id="year-type-end">Academic</span> Year</label>
+                                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option>2023-2024</option>
+                                                <option>2024-2025</option>
+                                                <option selected>2025-2026</option>
+                                                <option>2026-2027</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Term Selection -->
+                                <div id="term-selection" class="hidden">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-medium text-gray-700">Select Term Range</label>
+                                        <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                            <input type="checkbox" onchange="toggleAllTerms(this)" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span>Show all terms in year</span>
+                                        </label>
+                                    </div>
+                                    <div id="term-range" class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Term</label>
+                                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option>Fall 2024</option>
+                                                <option>Winter 2025</option>
+                                                <option>Spring 2025</option>
+                                                <option>Summer 2025</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">End Term</label>
+                                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option>Fall 2024</option>
+                                                <option>Winter 2025</option>
+                                                <option>Spring 2025</option>
+                                                <option>Summer 2025</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="term-year" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <option>2023-2024</option>
+                                            <option selected>2024-2025</option>
+                                            <option>2025-2026</option>
+                                        </select>
+                                        <p class="text-xs text-gray-500 mt-2">Will display: Fall, Winter, Spring, Summer</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Range Tab -->
+                        <div id="content-custom" class="tab-content hidden">
+                            <!-- View Mode Selection -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">View By</label>
+                                <div class="flex gap-2">
+                                    <label onclick="selectCustomMode('month')" id="custom-month" class="flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer bg-blue-50 border-blue-500">
+                                        <input type="radio" name="customMode" checked class="mr-2">
+                                        <span class="text-sm">Month</span>
+                                    </label>
+                                    <label onclick="selectCustomMode('day')" id="custom-day" class="flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="customMode" class="mr-2">
+                                        <span class="text-sm">Date Range</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Date Selection -->
+                            <div class="mb-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Start <span id="date-label-start">Month</span></label>
+                                        <input id="date-input-start" type="month" value="2025-01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">End <span id="date-label-end">Month</span></label>
+                                        <input id="date-input-end" type="month" value="2025-03" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Campus</label>
+                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option>All Campuses</option>
+                            <option>Sylvania</option>
+                            <option>Cascade</option>
+                            <option>Rock Creek</option>
+                            <option>Southeast</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <input type="text" placeholder="Search departments..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Instructor</label>
+                        <input type="text" placeholder="Search instructors..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                        <input type="text" placeholder="Search classes..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Librarian</label>
+                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option>All Librarians</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex gap-3">
+                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="text-sm">
+                    <p class="font-medium text-blue-900 mb-1">Interactive Mockup</p>
+                    <p class="text-blue-800">
+                        Click through the tabs and view mode options to explore the interface. The "Institutional Periods" tab provides academic/fiscal year and term options, while "Custom Range" allows flexible date selection.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFilters() {
+            const content = document.getElementById('filterContent');
+            const icon = document.getElementById('collapseIcon');
+            const isCollapsed = content.style.display === 'none';
+            
+            content.style.display = isCollapsed ? 'block' : 'none';
+            icon.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById('content-' + tab).classList.remove('hidden');
+        }
+
+        function selectViewMode(mode) {
+            // Update button states
+            document.querySelectorAll('#content-institutional label[onclick^="selectViewMode"]').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'border-blue-500');
+                btn.classList.add('hover:bg-gray-50');
+            });
+            
+            const selectedBtn = document.getElementById('view-' + mode);
+            selectedBtn.classList.add('bg-blue-50', 'border-blue-500');
+            selectedBtn.classList.remove('hover:bg-gray-50');
+            
+            // Update radio button
+            selectedBtn.querySelector('input').checked = true;
+
+            // Update selection displays
+            const yearSelection = document.getElementById('year-selection');
+            const termSelection = document.getElementById('term-selection');
+            const yearType = document.getElementById('year-type');
+            const yearTypeEnd = document.getElementById('year-type-end');
+
+            if (mode === 'term') {
+                yearSelection.classList.add('hidden');
+                termSelection.classList.remove('hidden');
+            } else {
+                yearSelection.classList.remove('hidden');
+                termSelection.classList.add('hidden');
+                const yearLabel = mode === 'academic_year' ? 'Academic' : 'Fiscal';
+                yearType.textContent = yearLabel;
+                yearTypeEnd.textContent = yearLabel;
+            }
+        }
+
+        function selectCustomMode(mode) {
+            // Update button states
+            document.querySelectorAll('#content-custom label[onclick^="selectCustomMode"]').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'border-blue-500');
+                btn.classList.add('hover:bg-gray-50');
+            });
+            
+            const selectedBtn = document.getElementById('custom-' + mode);
+            selectedBtn.classList.add('bg-blue-50', 'border-blue-500');
+            selectedBtn.classList.remove('hover:bg-gray-50');
+            
+            // Update radio button
+            selectedBtn.querySelector('input').checked = true;
+
+            // Update date inputs
+            const dateInputStart = document.getElementById('date-input-start');
+            const dateInputEnd = document.getElementById('date-input-end');
+            const dateLabelStart = document.getElementById('date-label-start');
+            const dateLabelEnd = document.getElementById('date-label-end');
+
+            if (mode === 'month') {
+                dateLabelStart.textContent = 'Month';
+                dateLabelEnd.textContent = 'Month';
+                dateInputStart.type = 'month';
+                dateInputEnd.type = 'month';
+                dateInputStart.value = '2025-01';
+                dateInputEnd.value = '2025-03';
+            } else {
+                dateLabelStart.textContent = 'Date';
+                dateLabelEnd.textContent = 'Date';
+                dateInputStart.type = 'date';
+                dateInputEnd.type = 'date';
+                dateInputStart.value = '2025-01-01';
+                dateInputEnd.value = '2025-03-31';
+            }
+        }
+
+        function toggleAllTerms(checkbox) {
+            const termRange = document.getElementById('term-range');
+            const termYear = document.getElementById('term-year');
+            
+            if (checkbox.checked) {
+                termRange.classList.add('hidden');
+                termYear.classList.remove('hidden');
+            } else {
+                termRange.classList.remove('hidden');
+                termYear.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

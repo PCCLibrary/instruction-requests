@@ -36,6 +36,37 @@
         </div>
     </div>
 
+    <!-- Summary Statistics Card -->
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                                <x-heroicon-o-document-chart-bar class="w-8 h-8 text-green-600 dark:text-green-300" />
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Summary Statistics</h2>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                Available Now
+                            </span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Aggregated statistics with dimensional breakdowns by modality and department. Perfect for annual reports and quick institutional overviews.
+                    </p>
+                    <a href="{{ route('statistics.summary-report') }}"
+                       class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
+                        <x-heroicon-o-arrow-right class="w-4 h-4 mr-2" />
+                        View Summary Statistics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Detailed Export Card -->
     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6">

@@ -125,6 +125,7 @@ Route::prefix('saml2')->middleware('guest')->group(function () {
 Route::middleware(['auth'])->prefix('statistics')->name('statistics.')->group(function () {
     Route::get('/', [App\Http\Controllers\StatisticsController::class, 'index'])->name('index');
     Route::get('/trends', [App\Http\Controllers\StatisticsController::class, 'trends'])->name('trends');
+    Route::get('/summary-report', [App\Http\Controllers\StatisticsController::class, 'summaryReport'])->name('summary-report');
     Route::get('/detailed-export', [App\Http\Controllers\StatisticsController::class, 'detailedExport'])->name('detailed-export');
     Route::get('/comparison', [App\Http\Controllers\StatisticsController::class, 'comparison'])->name('comparison');
 });
