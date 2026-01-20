@@ -75,7 +75,9 @@ final class DepartmentBreakdownTable extends PowerGridComponent
             ->add('sessions')
             ->add('students')
             ->add('avg_class_size')
-            ->add('percentage');
+            ->add('percentage', function($model) {
+                return sprintf('%d%%', $model->percentage);
+            });
     }
 
     /**
