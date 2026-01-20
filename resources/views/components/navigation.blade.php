@@ -39,6 +39,11 @@
         {{-- Statistics Sub-navigation --}}
         @if(Route::is('statistics.*'))
             <div class="ml-8 space-y-1">
+                <a href="{{ route('statistics.summary-report') }}"
+                   class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-colors {{ Route::is('statistics.summary-report') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-300 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
+                    <x-heroicon-o-document-chart-bar class="w-4 h-4 mr-2" />
+                    {{ __('Summary Statistics') }}
+                </a>
                 <a href="{{ route('statistics.trends') }}"
                    class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-colors {{ Route::is('statistics.trends') ? 'text-white bg-cyan-800 dark:bg-gray-700' : 'text-gray-300 hover:bg-cyan-800 dark:hover:bg-gray-700' }}">
                     <x-heroicon-o-chart-bar class="w-4 h-4 mr-2" />

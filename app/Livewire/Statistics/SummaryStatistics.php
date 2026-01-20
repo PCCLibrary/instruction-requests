@@ -10,6 +10,9 @@ use App\Services\DepartmentService;
 use App\Services\StatisticsService;
 use App\Services\TermService;
 use Illuminate\Support\Facades\DB;
+use OpenSpout\Writer\XLSX\Writer as XLSXWriter;
+use OpenSpout\Writer\CSV\Writer as CSVWriter;
+use OpenSpout\Common\Entity\Row;
 
 class SummaryStatistics extends Component
 {
