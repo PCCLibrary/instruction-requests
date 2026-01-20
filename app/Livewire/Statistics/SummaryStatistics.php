@@ -336,6 +336,7 @@ class SummaryStatistics extends Component
             $departmentName = $departmentNames[$row->department] ?? $row->department;
 
             $formatted[] = [
+                'id' => $row->department, // PowerGrid requires id field for row tracking
                 'department' => $departmentName,
                 'sessions' => $sessions,
                 'students' => $students,

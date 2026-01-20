@@ -71,6 +71,7 @@ final class DepartmentBreakdownTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
+            ->add('id')
             ->add('department')
             ->add('sessions')
             ->add('students')
