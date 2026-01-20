@@ -41,8 +41,7 @@ final class DepartmentBreakdownTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            PowerGrid::header()
-                ->showSearchInput(false), // Disable search - parent handles filtering
+            PowerGrid::header(),
 
             PowerGrid::footer()
                 ->showPerPage()
