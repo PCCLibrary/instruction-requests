@@ -1,6 +1,6 @@
 <div class="grid grid-cols-12 gap-6 items-start">
     <!-- Left Column (3 columns) - Academic Years -->
-    <div class="col-span-12 md:col-span-3">
+    <div class="col-span-12 xl:col-span-3">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div class="bg-sky-500 dark:bg-sky-600 px-4 py-3 rounded-t-lg">
                 <h3 class="text-lg font-medium text-white">Academic Years</h3>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Right Column (9 columns) - Term Editor -->
-    <div class="col-span-12 md:col-span-9">
+    <div class="col-span-12 xl:col-span-9">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div class="bg-sky-500 dark:bg-sky-600 px-4 py-3 rounded-t-lg">
                 <h3 class="text-lg font-medium text-white">Editing: Academic Year {{ $selectedYear }}</h3>
