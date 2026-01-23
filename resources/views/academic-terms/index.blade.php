@@ -4,5 +4,7 @@
 @section('page-description', 'Define term dates for instruction scheduling and reporting')
 
 @section('content')
-    @livewire('academic-terms-manager')
+    <div class="pt-2 pb-4">
+        @livewire('academic-terms-manager')
+    </div>
 @endsection
