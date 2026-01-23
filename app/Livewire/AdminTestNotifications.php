@@ -138,7 +138,12 @@ class AdminTestNotifications extends Component
 
     public function render()
     {
-        $recentRequests = InstructionRequests::with(['instructor', 'campus', 'librarian'])
+        // 1. Add 'withTrashed' to relationships to handle deleted campuses/librarians
+        $recentRequests = InstructionRequests::with([
+            'instructor',
+            'campus' => fn($q) => $q->withTrashed(),
+            'librarian' => fn($q) => $q->withTrashed()
+        ])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get()
@@ -148,8 +153,11 @@ class AdminTestNotifications extends Component
                     : ($request->asynchronous_instruction_ready_date
                         ? \Carbon\Carbon::parse($request->asynchronous_instruction_ready_date)->format('m/d/Y')
                         : 'TBD');
-                $campus = $request->campus->name;
-                $class = $request->department . $request->course_number;
+
+                // 2. Use null-safe operator and fallbacks for "Deleted" items
+                $campus = $request->campus?->name ?? 'Deleted Campus';
+                $class = ($request->department ?? '') . ($request->course_number ?? '');
+
                 $librarian = $request->librarian
                     ? $request->librarian->display_name
                     : 'Unassigned';
