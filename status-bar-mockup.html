@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Librarian Dashboard — Status Bar Mockup</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const mockData = {
+      assigned: [
+        { id: 101, instructor: "Dr. Patricia Hensen", course: "WR 121", campus: "Sylvania", date: "Feb 18, 2026 10:00 AM", students: 28 },
+        { id: 102, instructor: "James Whitfield", course: "CIS 120", campus: "Rock Creek", date: "Feb 20, 2026 1:00 PM", students: 32 },
+        { id: 103, instructor: "Maria Delgado", course: "BI 101", campus: "Sylvania", date: "Feb 24, 2026 9:00 AM", students: 24 },
+        { id: 104, instructor: "Tom Nguyen", course: "SOC 204", campus: "Southeast", date: "Feb 25, 2026 2:00 PM", students: 30 },
+      ],
+      active: [
+        { id: 201, instructor: "Amy Wright", course: "ENG 104", campus: "Sylvania", date: "Feb 14, 2026 11:00 AM", students: 26, status: "In Progress", librarian: "Meredith Farkas" },
+        { id: 202, instructor: "Kevin Torres", course: "PSY 201", campus: "Cascade", date: "Feb 15, 2026 9:30 AM", students: 22, status: "Accepted", librarian: "Sara Robertson" },
+        { id: 203, instructor: "Diana Flores", course: "MTH 111", campus: "Sylvania", date: "Feb 17, 2026 2:00 PM", students: 35, status: "In Progress", librarian: "Robin Shapiro" },
+        { id: 204, instructor: "Robert Kim", course: "HST 201", campus: "Rock Creek", date: "Feb 19, 2026 10:00 AM", students: 28, status: "Accepted", librarian: "Alan Cordle" },
+      ],
+      received: [
+        { id: 301, instructor: "Lisa Chang", course: "WR 227", campus: "Southeast", date: "Feb 21, 2026 1:00 PM", students: 20, submitted: "Feb 10" },
+        { id: 302, instructor: "Mark Johnson", course: "CG 120", campus: "Sylvania", date: "Feb 22, 2026 10:00 AM", students: 30, submitted: "Feb 11" },
+        { id: 303, instructor: "Andrea Coleman", course: "BA 101", campus: "Cascade", date: "Feb 26, 2026 9:00 AM", students: 25, submitted: "Feb 11" },
+        { id: 304, instructor: "Steven Lee", course: "ART 115", campus: "Rock Creek", date: "Feb 27, 2026 11:30 AM", students: 18, submitted: "Feb 12" },
+      ],
+      completed: [
+        { id: 401, instructor: "Nancy Wilson", course: "WR 121", campus: "Sylvania", date: "Feb 3, 2026 10:00 AM", students: 28, completedDate: "Feb 3" },
+        { id: 402, instructor: "Chris Brown", course: "BI 102", campus: "Cascade", date: "Feb 5, 2026 1:00 PM", students: 24, completedDate: "Feb 5" },
+        { id: 403, instructor: "Jennifer Miller", course: "CIS 233", campus: "Sylvania", date: "Feb 7, 2026 9:00 AM", students: 30, completedDate: "Feb 7" },
+        { id: 404, instructor: "David Garcia", course: "ENG 106", campus: "Southeast", date: "Feb 10, 2026 2:00 PM", students: 22, completedDate: "Feb 10" },
+      ],
+    };
+
+    const statusConfig = [
+      { key: "assigned", label: "Assigned to Me", count: 4, color: "amber", iconPath: "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" },
+      { key: "active", label: "My Active Requests", count: 97, color: "teal", iconPath: "M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" },
+      { key: "received", label: "All Received", count: 6, color: "blue", iconPath: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" },
+      { key: "completed", label: "Completed", count: 3, color: "green", iconPath: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    ];
+
+    const colorMap = {
+      amber: {
+        iconBg: "#f59e0b", activeBg: "#fffbeb", borderBottom: "#f59e0b",
+        panelBorder: "#fbbf24", text: "#92400e", dot: "#f59e0b",
+        badge: { bg: "#fef3c7", text: "#92400e" },
+      },
+      teal: {
+        iconBg: "#14b8a6", activeBg: "#f0fdfa", borderBottom: "#14b8a6",
+        panelBorder: "#2dd4bf", text: "#115e59", dot: "#14b8a6",
+        badge: { bg: "#ccfbf1", text: "#115e59" },
+      },
+      blue: {
+        iconBg: "#3b82f6", activeBg: "#eff6ff", borderBottom: "#3b82f6",
+        panelBorder: "#60a5fa", text: "#1e40af", dot: "#3b82f6",
+        badge: { bg: "#dbeafe", text: "#1e40af" },
+      },
+      green: {
+        iconBg: "#22c55e", activeBg: "#f0fdf4", borderBottom: "#22c55e",
+        panelBorder: "#4ade80", text: "#166534", dot: "#22c55e",
+        badge: { bg: "#dcfce7", text: "#166534" },
+      },
+    };
+
+    function StatusIcon({ path, style }) {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d={path} />
+        </svg>
+      );
+    }
+
+    function EditIcon() {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" style={{ width: 16, height: 16 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+      );
+    }
+
+    function RequestRow({ request, statusKey, colors }) {
+      const [hovered, setHovered] = useState(false);
+      return (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 16px", backgroundColor: hovered ? "#f9fafb" : "transparent",
+            borderRadius: 6, transition: "background-color 0.15s", cursor: "default",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: colors.dot, flexShrink: 0 }} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontWeight: 600, color: "#111827", fontSize: 13 }}>{request.course}</span>
+                <span style={{ color: "#9ca3af", fontSize: 13 }}>·</span>
+                <span style={{ color: "#4b5563", fontSize: 13 }}>{request.instructor}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, fontSize: 12, color: "#6b7280" }}>
+                <span>{request.campus}</span>
+                <span style={{ color: "#d1d5db" }}>·</span>
+                <span>{request.date}</span>
+                <span style={{ color: "#d1d5db" }}>·</span>
+                <span>{request.students} students</span>
+                {statusKey === "active" && request.status && (
+                  <>
+                    <span style={{ color: "#d1d5db" }}>·</span>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", padding: "1px 8px",
+                      borderRadius: 4, fontSize: 11, fontWeight: 500,
+                      backgroundColor: colors.badge.bg, color: colors.badge.text,
+                    }}>{request.status}</span>
+                  </>
+                )}
+                {statusKey === "received" && request.submitted && (
+                  <>
+                    <span style={{ color: "#d1d5db" }}>·</span>
+                    <span style={{ color: "#9ca3af" }}>Submitted {request.submitted}</span>
+                  </>
+                )}
+                {statusKey === "completed" && request.completedDate && (
+                  <>
+                    <span style={{ color: "#d1d5db" }}>·</span>
+                    <span style={{ color: "#9ca3af" }}>Completed {request.completedDate}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <button
+            style={{
+              flexShrink: 0, marginLeft: 12, padding: 6, borderRadius: 6, border: "none",
+              backgroundColor: hovered ? "#ecfeff" : "transparent",
+              color: hovered ? "#0891b2" : "#9ca3af",
+              cursor: "pointer", opacity: hovered ? 1 : 0, transition: "all 0.15s",
+            }}
+            title="Edit request"
+            onClick={() => alert('Would navigate to edit request #' + request.id)}
+          >
+            <EditIcon />
+          </button>
+        </div>
+      );
+    }
+
+    function StatusBarPanel() {
+      const [activeStatus, setActiveStatus] = useState("assigned");
+      const activeConfig = statusConfig.find((s) => s.key === activeStatus);
+      const colors = colorMap[activeConfig.color];
+      const requests = mockData[activeStatus];
+
+      return (
+        <div style={{
+          backgroundColor: "#ffffff", borderRadius: 8,
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)", border: "1px solid #e5e7eb", overflow: "hidden",
+        }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+            {statusConfig.map((status, idx) => {
+              const isActive = activeStatus === status.key;
+              const sc = colorMap[status.color];
+              return (
+                <button
+                  key={status.key}
+                  onClick={() => setActiveStatus(status.key)}
+                  style={{
+                    position: "relative", display: "flex", alignItems: "center", gap: 12,
+                    padding: "14px 16px", textAlign: "left", border: "none",
+                    borderBottom: isActive ? '3px solid ' + sc.borderBottom : "3px solid transparent",
+                    borderRight: idx < 3 ? "1px solid #e5e7eb" : "none",
+                    backgroundColor: isActive ? sc.activeBg : "#ffffff",
+                    cursor: "pointer", transition: "all 0.15s",
+                    fontFamily: "system-ui, -apple-system, sans-serif",
+                  }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "#ffffff"; }}
+                >
+                  <div style={{
+                    flexShrink: 0, backgroundColor: sc.iconBg, borderRadius: 8, padding: 8,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <StatusIcon path={status.iconPath} style={{ width: 20, height: 20, color: "#ffffff" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: isActive ? sc.text : "#6b7280", lineHeight: 1.3 }}>
+                      {status.label}
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "#111827", lineHeight: 1.2, marginTop: 2 }}>
+                      {status.count}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ borderTop: '2px solid ' + colors.panelBorder }}>
+            <div style={{
+              padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
+              backgroundColor: "#f9fafb", borderBottom: "1px solid #f3f4f6",
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>
+                {activeConfig.label}
+                <span style={{ fontWeight: 400, color: "#9ca3af", marginLeft: 6 }}>
+                  — showing {Math.min(4, activeConfig.count)} of {activeConfig.count}
+                </span>
+              </div>
+              <button
+                style={{
+                  fontSize: 12, fontWeight: 500, color: "#0891b2",
+                  background: "none", border: "none", cursor: "pointer", padding: "2px 4px",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+                onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+              >
+                View all →
+              </button>
+            </div>
+            <div>
+              {requests.map((request, idx) => (
+                <div key={request.id}>
+                  {idx > 0 && <div style={{ height: 1, backgroundColor: "#f3f4f6", marginLeft: 16, marginRight: 16 }} />}
+                  <RequestRow request={request} statusKey={activeStatus} colors={colors} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const sidebarItems = [
+      { label: "Librarian Dashboard", icon: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25", active: true },
+      { label: "Scheduler Dashboard", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" },
+      { label: "Statistics", icon: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" },
+      { label: "Campuses", icon: "M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" },
+      { label: "Instructors", icon: "M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" },
+      { label: "Librarians", icon: "M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342" },
+      { label: "Academic Terms", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" },
+    ];
+
+    const pageNavItems = ["Calendar", "My Assigned", "My Active", "All Requests"];
+
+    function PlaceholderSection({ title, description }) {
+      return (
+        <div style={{
+          backgroundColor: "#ffffff", borderRadius: 8, border: "2px dashed #e5e7eb",
+          padding: "40px 24px", textAlign: "center",
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#9ca3af" }}>{title}</div>
+          <div style={{ fontSize: 13, color: "#d1d5db", marginTop: 4 }}>{description}</div>
+        </div>
+      );
+    }
+
+    function LibrarianDashboardMockup() {
+      return (
+        <div style={{
+          minHeight: "100vh", backgroundColor: "#f3f4f6", display: "flex",
+          fontFamily: "system-ui, -apple-system, sans-serif",
+        }}>
+          <aside style={{
+            width: 220, backgroundColor: "#1e3a5f", color: "#ffffff",
+            flexShrink: 0, minHeight: "100vh", display: "flex", flexDirection: "column",
+          }}>
+            <div style={{
+              padding: "16px 16px", backgroundColor: "#d4a017",
+              display: "flex", alignItems: "center", gap: 10,
+            }}>
+              <svg style={{ width: 22, height: 22, color: "#ffffff" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+              <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: 0.3 }}>PCC Library</span>
+            </div>
+            <nav style={{ padding: "12px 8px", flex: 1 }}>
+              {sidebarItems.map((item) => (
+                <div
+                  key={item.label}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
+                    borderRadius: 6, fontSize: 13, fontWeight: item.active ? 500 : 400,
+                    cursor: "default", marginBottom: 2,
+                    backgroundColor: item.active ? "#d4a017" : "transparent",
+                    color: "#ffffff", transition: "all 0.15s",
+                  }}
+                >
+                  <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                  </svg>
+                  {item.label}
+                </div>
+              ))}
+            </nav>
+          </aside>
+
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <header style={{
+              backgroundColor: "#ffffff", boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+              borderBottom: "1px solid #e5e7eb",
+            }}>
+              <div style={{
+                padding: "6px 24px", display: "flex", alignItems: "center",
+                justifyContent: "space-between", borderBottom: "1px solid #e5e7eb",
+              }}>
+                <div style={{ fontSize: 12, color: "#6b7280" }}>Librarian Dashboard</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", borderRadius: 12,
+                    backgroundColor: "#ecfeff", padding: "2px 10px", fontSize: 11, fontWeight: 500, color: "#0e7490",
+                  }}>Librarian</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <svg style={{ width: 18, height: 18, color: "#6b7280" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <span style={{ fontSize: 13, color: "#374151" }}>Meredith Farkas</span>
+                    <svg style={{ width: 14, height: 14, color: "#9ca3af" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                  <div style={{ padding: 4, cursor: "default" }}>
+                    <svg style={{ width: 18, height: 18, color: "#9ca3af" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "12px 24px" }}>
+                <h1 style={{ fontSize: 20, fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.3 }}>
+                  Librarian Dashboard
+                </h1>
+                <p style={{ fontSize: 13, color: "#6b7280", margin: "4px 0 0 0" }}>
+                  Manage instruction requests assigned to you.
+                </p>
+              </div>
+
+              <div style={{ padding: "0 24px", display: "flex", alignItems: "center" }}>
+                <nav style={{ display: "flex", gap: 20 }}>
+                  {pageNavItems.map((label) => (
+                    <span
+                      key={label}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 6,
+                        fontSize: 13, fontWeight: 500, color: "#6b7280",
+                        padding: "10px 0", borderBottom: "2px solid transparent", cursor: "default",
+                      }}
+                    >{label}</span>
+                  ))}
+                </nav>
+                <div style={{ flex: 1 }} />
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  fontSize: 13, fontWeight: 600, color: "#059669", cursor: "default", padding: "10px 0",
+                }}>
+                  <svg style={{ width: 14, height: 14 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create New Request
+                </span>
+              </div>
+            </header>
+
+            <main style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+              <StatusBarPanel />
+              <PlaceholderSection title="Instruction Requests Calendar" description="Interactive calendar with filters and date selection side panel" />
+              <PlaceholderSection title="My Assigned Requests" description="PowerGrid table — requests assigned to you awaiting action" />
+              <PlaceholderSection title="My Active Requests" description="PowerGrid table — accepted and in-progress requests" />
+              <PlaceholderSection title="All Instruction Requests" description="Full request table with status filters" />
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(LibrarianDashboardMockup));
+  </script>
+</body>
+</html>
